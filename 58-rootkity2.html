@@ -1,0 +1,69 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Detekce rootkitů a zotavení</h1>
+
+<p>V minulém díle jsem probral základní otázky týkající se rootkitů, včetně obecných pravidel zabezpečení, jak minimalizovat riziko průniku útočníka do systému. Představil jsem také vzdálené logování a ukázal, jak jej nastavit. V tomto díle představím detektory rootkitů a obecné rady, jak postupovat po případném průniku.</p>
+
+<h3>Detektory rootkitů</h3>
+<p>Detektory rootkitů jsou nástroje určené k vyhledávání jednak známých rootkitů, ale také jejich typických příznaků – mohou tedy (ale také nemusí) detekovat i dosud neobjevený a nepopsaný typ rootkitu. Je ovšem také třeba mít na paměti, že v případě kompromitace systému nelze věřit vůbec ničemu, včetně nainstalovaných detektorů rootkitů. Není tedy vhodné předpokládat, že pokud detektor neohlásí průnik, znamená to s jistotou, že v systému opravdu žádný rootkit není.</p>
+<p>Na stranu druhou, pokud detektor ohlásí nějaký problém, neznamená to nutně, že ke kompromitaci systému skutečně došlo. Samy detektory jsou bohužel velmi známé tím, že generují falešné poplachy. Kupříkladu, na jednom z mých serverů tvrdí <code>chkrootkit</code> toto:</p>
+<pre>Checking `bindshell'...  INFECTED (PORTS:  465)</pre>
+<p>Hádáte správně, na portu 465 mi běží Postfix (číslo portu odpovídá SSL variantě protokolu SMTP). Jelikož stejný port využívá i <code>bindshell</code>; <code>chkrootkit</code> považuje tento otevřený port za známku infekce, a generuje v tomto případě falešný poplach.</p>
+<p>Každý poplach, který detektory nahlásí, je vhodné prověřit, a teprve na základě vlastního úsudku (v kombinaci s použitím vyhledávače) rozhodnout, jedná-li se o planý poplach nebo o reálný průnik.</p>
+<h3>chkrootkit</h3>
+<p>Jedním z detektorů rootkitů je <code>chkrootkit</code>. Nainstalujte jej obvyklým způsobem z repozitáře své distribuce, v Debianu a jeho derivátech to zařídí příkaz:</p>
+<pre>aptitude install chkrootkit</pre>
+<p>K provedení kontroly postačí pustit samotný nástroj bez parametrů:</p>
+<pre>chkrootkit</pre>
+<p>Bude následovat výpis výsledků kontroly, velmi pravděpodobně i s nějakým poplachem. Výpis analyzujte a prověřte. Doporučuji si projít informace o falešných varováních v <code>/usr/share/doc/chkrootkit/README.FALSE-POSITIVES</code>. Až se s nástrojem a jeho výpisy seznámíte, můžete si u opakovaných spouštění ušetřit čas využitím tichého režimu, který hlásí pouze nalezené problémy:</p>
+<pre>chkrootkit -q</pre>
+<p>Spolu s tímto nástrojem je nainstalován i skript, který zajišťuje jeho spuštění cronem (<code>/etc/cron.daily/chkrootkit</code>). Ten ovšem ve výchozím nastavení není aktivní. Abyste jej aktivovali, musíte upravit jeho konfigurační soubor (<code>/etc/chkrootkit.conf</code>). Jelikož je opravdu maličký, dovolím si ho sem umístit celý i s výchozími volbami:</p>
+<pre>RUN_DAILY="false"
+RUN_DAILY_OPTS="-q"
+DIFF_MODE="false"</pre>
+<p>Aby se skript spouštěl a kontroloval přítomnost rootkitů každý den, je třeba proměnnou <code>RUN_DAILY</code> nastavit na hodnotu <code>true</code>. Jelikož je veliká šance, že narazíte na nějaký falešný poplach, doporučuji prozkoumat i volbu <code>DIFF_MODE</code>, která po korektním (dodatečném) nastavení zajistí, že výsledek již provedené kontroly bude vždy porovnán s aktuálním stavem a <code>chkrootkit</code> vás bude informovat pouze o změnách vůči uloženému stavu.</p>
+<p>Chcete-li této možnosti využít, nastavte nejprve proměnnou <code>DIFF_MODE</code> na hodnotu <code>true</code>. Poté skript ručně spusťte:</p>
+<pre>/etc/cron.daily/chkrootkit</pre>
+<p>V mém případě obsahuje výstup následující:</p>
+<pre>ERROR: No file /var/log/chkrootkit/log.expected
+This file should contain expected output from chkrootkit
+
+Today's run produced the following output:
+--- [ BEGIN: cat /var/log/chkrootkit/log.today  ] ---
+
+/usr/lib/pymodules/python2.5/.path /usr/lib/pymodules/python2.6/.path /lib/init/rw/.ramfs
+
+INFECTED (PORTS:  465)
+--- [ END: cat /var/log/chkrootkit/log.today ] ---
+
+To create this file containing all output from today's run, do (as root)
+# cp -a /var/log/chkrootkit/log.today /var/log/chkrootkit/log.expected
+# (note that unedited output is in /var/log/chkrootkit/log.today.raw)</pre>
+<p>Ve výpisu si můžete všimnout poplachů jednak v podobě výše zmíněného otevřeného portu 465 a jednak v podobě několika „podezřelých“ souborů. V mém případě jsem dospěl k závěru, že se ve všech případech jedná o poplachy falešné (vám ovšem důrazně doporučuji každý poplach prozkoumat a učinit vlastní závěr). Abyste svůj aktuální stav uložili, je třeba jej zkopírovat do souboru <code>/var/log/chkrootkit/log.expected</code>, tak, jak naznačuje samotný výpis, tedy:</p>
+<pre>cp -a /var/log/chkrootkit/log.today /var/log/chkrootkit/log.expected</pre>
+<p>Od této chvíle bude <code>chkrootkit</code> při denní kontrole brát v úvahu pouze odchylky od tohoto uloženého stavu.</p>
+<h3>rkhunter</h3>
+<p>Druhým detektorem, který představím, je <code>rkhunter</code>. Tento nástroj se zdá být o něco komplexnějším, obsahuje aktualizovatelnou databázi známých hrozeb a vytváří si vlastní databázi kontrolních součtů kritických souborů, se kterou porovnává aktuální stav.</p>
+<p>Instalaci lze vyřešit podobně jako v případě nástroje <code>chkrootkit</code>:</p>
+<pre>aptitude install rkhunter</pre>
+<p>Prověření systému provedete následujícím příkazem:</p>
+<pre>rkhunter -c</pre>
+<p>Objevíte-li během prověřování nějaké varování, více informací se dozvíte z logu, který se standardně ukládá do <code>/var/log/rkhunter.log</code>. Opět připomínám vhodnost prověření každého poplachu, byť některé z nich mohou být falešné. Stejně jako v případě nástroje <code>chkrootkit</code>, doporučuji si projít informace o falešných varováních v <code>/usr/share/doc/rkhunter/README.Debian.gz</code>. Momentálně existuje falešný poplach na Debianu Squeeze v podobě rootkitu „Xzibit“ z důvodu existence řetězce „hdparm“ v souboru <code>/etc/init.d/hdparm</code>. Pokud víte, že je to určitě i váš případ, můžete tomuto varování zamezit úpravou konfiguračního souboru <code>/etc/rkhunter.conf</code>, konkrétně přidáním výše zmíněného init skriptu do whitelistu (proměnná <code>RTKT_FILE_WHITELIST</code>).</p>
+<p>Nástroj <code>rkhunter</code> obsahuje široké možnosti konfigurace, doporučuji si výše zmíněný konfigurační soubor projít a upravit podle svých představ. Mezi jednu z důležitých voleb patří <code>ALLOW_SSH_ROOT_USER</code>, která by měla být nastavena stejně jako příslušná hodnota v nastavení SSH démona. Rkhunter pak varuje, pokud se hodnota změní. Některé testy jsou v případě Debianu implicitně vypnuty. Naleznete je i spolu s popisem u volby <code>DISABLE_TESTS</code>. Můžete také definovat vlastní hashovací nástroj (výchozí je <code>sha1sum)</code>, a to ve volbě <code>HASH_FUNC</code>.</p>
+<p>Zmínil jsem, že <code>rkhunter</code> obsahuje aktualizovatelnou databázi známých hrozeb. Aktualizaci můžete provést ručně příkazem:</p>
+<pre>rkhunter --update</pre>
+<p>V Debianu se tato databáze aktualizuje automaticky každý týden (viz <code>/etc/cron.weekly/rkhunter</code>). Databázi hashí kritických souborů lze aktualizovat pouze ručně, ideálně pouze jste-li si jisti, že všechny ohlášené změny jsou v pořádku. Aktualizaci můžete provést následujícím příkazem:</p>
+<pre>rkhunter --propupd</pre>
+<p>Stejně jako nástroj <code>chkrootkit</code> má i <code>rkhunter</code> skript pro spouštění cronem v <code>/etc/cron.daily/rkhunter</code>. Jeho nastavení naleznete v souboru <code>/etc/default/rkhunter</code>. Ve výchozím stavu je denní kontrola se zasíláním e-mailů zapnuta.</p>
+<p>Na závěr dodám, že <code>rkhunter</code> upozorňuje i na staré (a zranitelné) verze některých démonů a nástrojů. Zde je potřeba mít na paměti, že software v repozitářích distribuce se sice záplatuje, ale verze zůstávají stejné. V tomto případě tedy stará verze nevadí.</p>
+<h3>Zotavení po průniku</h3>
+<p>Obecnou radou, jak si počínat při zjištění průniku, je nepanikařit a nedělat unáhlená rozhodnutí. Pokud již útočník do vašeho systému pronikl, existuje velká pravděpodobnost, že již provedl, co provést chtěl, tj. škoda byla napáchána, tudíž rychlé protiopatření (např. odstavení serveru) jí už nezabrání. Pokud server odstavíte hned nebo až třeba za hodinu, tedy nehraje takovou roli. V podnikovém prostředí často existují předem dané postupy, jak si s takovou situací poradit, koho kontaktovat a jak postupovat. Nebývá na škodu mít takový scénář připraven i v případě menších či osobních serverů.</p>
+<p>Kritické je zjistit, kudy útočník do systému pronikl. Pokud to nezjistíte, můžete ho v systému za čas opět najít. Kompromitovanému systému a veškerému softwaru na něm je vhodné nevěřit. Nelze než doporučit kompletní reinstalaci systému, neboť nikdy nebudete mít jistotu, že jste zachytili vše. Před tím je ovšem vhodné udělat zálohu kompromitovaného systému i všech dat k pozdější analýze (či jako důkaz pro případné soudní řízení).</p>
+<p>Zotavení napadeného systému je třeba přizpůsobit situaci. Máte-li soukromý server, na kterém veskrze nic důležitého neběží, můžete si dovolit jej odstavit i na delší čas. Jedná-li se ovšem o server, na kterém stojí vaše podnikání nebo přežití vaší firmy, je třeba postupovat opatrně a s rozmyslem.</p>
+<p>Pěkný článek rozebírající toto téma dopodrobna naleznete v odkazech pod článkem.﻿</p>
+
+<pre id="links">http://www.jonboy60.com/2010/05/21/detecting-rootkits-using-chkrootkit-and-rkhunter/ Detecting rootkits using chkrootkit and rkhunter
+http://www.ducea.com/2006/07/17/how-to-restore-a-hacked-linux-server/ How to restore a hacked Linux server
+http://www.sans.org/reading_room/whitepapers/linux/linux-rootkits-beginners-prevention-removal_901 Linux RootKits For Beginners - From Prevention to Removal (PDF)
+http://www.sans.org/reading_room/whitepapers/honors/linux-kernel-rootkits-protecting-systems_1500 Linux kernel rootkits: protecting the system's (PDF)</pre>

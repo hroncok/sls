@@ -1,0 +1,69 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Skrytý server pomocí Tor</h1>
+
+<p>Minulý díl představil anonymizační nástroj Tor. Tento díl osvětlí jeho nasazení v podobě skrytého serveru, tj. postup, jakým je možné anonymizovat poskytovanou službu.</p>
+
+<h3>Úvod</h3>
+<p>Pokud jste nečetli <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-tor-na-serveru-uvod">minulý díl</a>, doporučuji vám si jej projít, jelikož obsahuje základní informace o Toru, jeho fungování i jeho úskalích.</p>
+<p>Skrytá služba (hidden service) je služba běžící na vašem serveru, anonymizovaná (a dostupná) prostřednictvím Toru. Obecně se může jednat o jakoukoliv službu, nemusí to nutně být zrovna webový server, i když ten to bývá nejčastěji. Váš server získá určitý název v podobě „domény“ druhého řádu s TLD <code>.onion</code>, která funguje pouze v rámci Toru. Prostřednictvím tohoto názvu se pak budou k vašemu serveru moci připojit klienti. Jak konkrétně skryté služby fungují, se můžete dozvědět <a href="https://www.torproject.org/docs/hidden-services.html.en">na webu Toru</a>.</p>
+<p>Jako úplně první krok, ještě před samotnou anonymizací nějaké služby, bych doporučoval zvážit, čeho se snažíte dosáhnout, zda je použití Toru skutečně vhodné, jaké jsou jeho nevýhody a slabiny apod. Můžete samozřejmě prostřednictvím Toru zpřístupnit nějakou všeobecně dostupnou službu jako svůj osobní blog (pak vás případná ztráta anonymity nemusí trápit), nebo vytvořit nějakou službu dostupnou jen prostřednictvím Toru.</p>
+<p>Když už jsem se dotkl ztráty anonymity, doporučuji se také pečlivě zamyslet nad tím, jaký dopad by na vás tato ztráta měla, a zařídit se podle toho. Nechci se vzhledem k minulému dílu příliš opakovat, ale tvůrci Toru jej v současné době stále považují za experimentální software, u kterého byste se neměli vyloženě spoléhat na zachování anonymity. Více viz minulý díl seriálu.</p>
+<h3>Volba softwaru pro skrytý server</h3>
+<p>Máte-li představu, jakou službu budete anonymizovat, zůstává zásadní otázkou, jaký konkrétní software byste měli použít. Osobně doporučuji použít takový, který klade důraz na bezpečnost a který dobře znáte (a tudíž jej umíte dobře nastavit).</p>
+<p>To platí pro veškerý nasazovaný software. Mějte na paměti, že nasazení blogu na platformě Wordpress představuje nasazení nejenom webového serveru, ale i PHP interpretu, databáze MySQL a samotného Wordpressu. Zabezpečení a pravidelné aktualizace je pak třeba vztáhnout na všechny tyto komponenty.</p>
+<h3>Instalace a nastavení Toru</h3>
+<p>Samotná instalace Toru je velmi jednoduchá – postačí nainstalovat balíček s názvem tor, což lze v Debianu provést takto:</p>
+<pre>aptitude install tor</pre>
+<p>Toru trvá nějakou dobu, než sestaví funkční okruh. Na rozdíl od většiny ostatních služeb tedy nezačne fungovat okamžitě, ale až po nějaké době. Průběh můžete sledovat v logu (<code>/var/log/tor/log</code>). Až se Toru podaří sestavit okruh, uvidíte tyto hlášky:</p>
+<pre>[notice] Tor has successfully opened a circuit. Looks like client functionality is working.
+[notice] Bootstrapped 100%: Done.</pre>
+<p>Takto by však Tor fungoval pouze jako klient. Samotné vytvoření skryté služby vyžaduje úpravu konfigurace Toru, která je uložena v souboru <code>/etc/tor/torrc</code>. Definice skryté služby může vypadat takto:</p>
+<pre>HiddenServiceDir /var/lib/tor/sluzba1/
+HiddenServicePort 80 127.0.0.1:80
+
+HiddenServiceDir /var/lib/tor/sluzba2/
+HiddenServicePort 80 127.0.0.2:80
+HiddenServicePort 22 127.0.0.2:22</pre>
+<p>V tomto případě je naznačeno, jak vytvořit více než jednu službu a více než jeden port. Jádro pro nastavení skryté služby představují dva kroky:</p>
+<ul>
+<li>
+<p>určení adresáře pro uložení důležitých informací o službě, jako např. soukromý klíč (volba <code>HiddenServiceDir</code>)</p>
+</li>
+<li>
+<p>určení cílového (kde bude služba nabízena klientům přes Tor) a zdrojového (kde služba běží) portu pro nabízenou službu (volba <code>HiddenServicePort</code>) – těch může následovat více</p>
+</li>
+</ul>
+<p>Pokračovat byste měli restartem Toru:</p>
+<pre>/etc/init.d/tor restart</pre>
+<p>Adresáře ani soukromé klíče není třeba vytvářet, vše bude vytvořeno automaticky po restartu Toru, včetně vygenerování jména serveru – to pak může vypadat třeba takto: <code>m6ig2ux7qkmldzsm.onion</code>. Každá skrytá služba představuje jedno (vygenerované) jméno, kterému pak může příslušet jeden nebo více portů.</p>
+<p>Pokud se podíváte do vytvořeného adresáře pro vaši novou službu, měli byste v něm objevit soubor <code>hostname</code> s názvem vaší služby. Název je odvozen ze soukromého klíče, který je k dispozici ve stejném adresáři, v souboru <code>private_key</code>. Soubor se soukromým klíčem doporučuji zazálohovat (pokud nechcete generovat nový název po případné ztrátě dat) a chránit proti přečtení nepovolanou osobou (má-li někdo váš privátní klíč, může se vydávat za váš server).</p>
+<p>Na serveru s Torem je třeba zajistit, aby serverový čas alespoň přibližně odpovídal. Pokud budou systémové hodiny hodně mimo, Tor nemusí být schopný vytvořit okruh.</p>
+<h3>Bezpečnost serveru</h3>
+<p>Co se týče bezpečnosti serveru, na kterém budete provozovat skrytou službu, platí všechny klasické poučky a pravidla. Skryté služby zabezpečte tak, jako by byly vystaveny internetu. Vedle toho doporučuji zvážit, jaké služby budete lidem nabízet. Budete-li uživatelům umožňovat ukládat na server nějaké materiály (od diskusních příspěvků přes články až po obrázky a všemožné soubory), je vysoce pravděpodobné, že se na vašem serveru časem objeví nějaký nelegální materiál. I když toto samozřejmě platí i v případě serverů dostupných z internetu, řekl bych, že tady je to malinko pravděpodobnější.</p>
+<p>Kromě pravidelné aktualizace a sledování bezpečnostních hlášení vaší distribuce doporučuji navíc sledovat dění kolem Toru jako takového.</p>
+<h3>Zachování anonymity</h3>
+<p>Zachování anonymity je mnohem větší problém. Vhodné nastavení služby, včetně omezení na lokální smyčku (<code>127.0.0.1</code>), nemusí stačit (a nejspíše nestačí). Některý serverový software může sdělovat IP adresu serveru nebo poskytovat jiné prozrazující informace, a to buď na regulerní, nebo na podvržené požadavky. Stejně tak, pokud budete provozovat nějakou webovou aplikaci, jakýkoliv úspěšný útok na ni, který povede ke spuštění útočníkova kódu, může IP adresu serveru odhalit.</p>
+<p>Uživatele (nebo aplikaci běžící pod určitým uživatelem) je možné izolovat z hlediska sítě tak, aby mohl přistupovat pouze k Toru a nikam jinam, a sice pomocí modulu Netfilteru <code>owner</code>, který umožňuje vytvářet filtrovací pravidla vztažená na uživatele, takto:</p>
+<pre>iptables -I OUTPUT -m owner --uid-owner uzivatel -j REJECT
+iptables -I OUTPUT -d 127.0.0.1 -p tcp --dport 9050 -m owner --uid-owner uzivatel -j ACCEPT</pre>
+<p>Výše uvedené příkazy zařadí dvě pravidla do firewallu, první z nich zakáže uživateli <code>uzivatel</code> odesílat pakety kamkoliv, včetně místních služeb. Druhé pravidlo pak povolí uživateli <code>uzivatel</code> přístup k Toru (<code>127.0.0.1:9050</code>). Tyto dva příkazy se hodí pro zařazení do běžícího firewallu (pravidla se díky parametru <code>-I</code> vkládají vždy na začátek řetězu <code>OUTPUT</code>, tudíž druhé pravidlo se stane prvním, jelikož se přidá na začátek). Pokud firewall stavíte, bude se vám hodit tato syntax (pravidla se přidají na konec řetězce <code>OUTPUT</code>):</p>
+<pre>iptables -A OUTPUT -d 127.0.0.1 -p tcp --dport 9050 -m owner --uid-owner uzivatel -j ACCEPT
+iptables -A OUTPUT -m owner --uid-owner uzivatel -j REJECT</pre>
+<p>Toto řešení zabrání tomu, aby aplikace běžící pod daným uživatelem hovořily s někým jiným než s Torem (vyřeší se tím např. problémy s DNS leaky). Slabina tohoto řešení ovšem spočívá v tom, že i takto omezený uživatel může stále velmi snadno získat IP adresu libovolného síťového rozhraní, a poslat ji přes Tor útočníkovi.</p>
+<p>Ideálním řešením pro server by byla izolace poskytované služby (nebo klienta) na samostatném (fyzickém nebo alespoň virtuálním) serveru umístěném v privátní síti (na síťových rozhraních pak nebudou veřejné IP adresy). Mezi ním a dalším serverem, kde poběží Tor, měl být firewall, který serveru poskytujícímu dané služby umožní komunikovat pouze s Torem na portu 9050.</p>
+<h4>Fyzická bezpečnost</h4>
+<p>Je jasné, že výše uvedená opatření nijak neovlivní situaci, kdy se útočník dostane k serveru fyzicky. Ať už používáte Tor jako klienta, nebo jako prostředníka pro poskytování skryté služby, bude na daném stroji uloženo mnoho dat, která souvisí s používáním Toru (v případě serveru data, která nabízíte, nebo data, která si u vás ukládají vaši uživatelé; v případě Tor klienta cache a historie prohlížeče, stažené soubory apod.). Pokud nechcete, aby se k těmto datům někdo dostal, budete se muset zaměřit i na fyzickou bezpečnost (připomínám, že tento seriál se fyzickou bezpečností a souvisejícím diskovým šifrováním <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-bezpecnost-linuxoveho-serveru">zabýval</a>).</p>
+<h3>Závěr</h3>
+<p>Na závěr nemohu nezopakovat dvě podstatné věci z úvodu. V první řadě doporučuji promyslet, co budete přes Tor nabízet, jak, komu a jaké to pro vás bude mít důsledky. Druhým mým doporučením je zařadit do vašich krizových scénářů nejenom možnost, že server jako takový bude kompromitován, ale že bude kompromitována i jeho identita.</p>
+
+<pre id="links">https://www.torproject.org/docs/hidden-services.html.en Tor: Hidden Service Protocol
+https://www.torproject.org/docs/tor-hidden-service.html.en Configuring Hidden Services for Tor
+http://www.hrgeeks.com/2008/04/09/securely-deploying-tor-hidden-services/ Securely Deploying TOR Hidden Services
+https://www.torproject.org/ Web projektu Tor
+https://www.torproject.org/about/overview.html.en Obecný popis Toru a jeho možností
+https://www.torproject.org/docs/documentation.html.en Dokumentace Toru
+https://trac.torproject.org/projects/tor/wiki Wiki Toru
+http://en.wikipedia.org/wiki/Tor_(anonymity_network) Článek o Toru na anglické Wikipedii
+http://cs.wikipedia.org/wiki/Tor_(software) Článek o Toru na české Wikipedii</pre>

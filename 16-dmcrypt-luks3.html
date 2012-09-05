@@ -1,0 +1,100 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Dokončení praxe šifrování s dm-crypt/LUKS</h1>
+
+<p>Minule jsem začal s praxí šifrování s dm-crypt/LUKS, dnes toto téma dokončím. Budu se věnovat například šifrování celého systému.</p>
+
+<h3>Záloha hlavičky</h3>
+<p>Pro uložení základních informací o šifrovaném svazku využívá LUKS hlavičku, kterou vytváří na začátku šifrovaného svazku. Zde se nachází mj. i úložiště klíčů. Jelikož hlavní klíč (master key) sloužící k dešifrování LUKS svazku leží  právě v úložišti klíčů (přesněji, je zašifrován jedním nebo více uživatelskými klíči), toto umístění je nejslabším článkem řetězu. Případné přepsání hlavičky znamená jednoznačně ztrátu všech dat na šifrovaném svazku, nemáte-li někde po ruce zálohu.</p>
+<p>Zálohovat hlavičku možné samozřejmě je, avšak je třeba dodat, že s příslušnou zálohou je třeba zacházet opatrně - pokud se časem rozhodnete revokovat některý z přístupových klíčů, třeba z důvodu jeho kompromitace, máte stále zálohu, kde je hlavní klíč šifrovaný oním revokovaným klíčem. Proto je třeba zvážit, zda-li se vám záloha hlavičky vůbec vyplatí vzhledem k bezpečnosti, a pokud ano, je  jednoznačně třeba takovou zálohu bezpečně uložit.</p>
+<p>Abyste mohli zálohu provést, musíte zjistit, jak velká hlavička je. Za tímto účelem stačí údaje z hlavičky vypsat:</p>
+<pre># cryptsetup luksDump /dev/svazek
+ 
+LUKS header information for /dev/svazek
+
+Version:       	1
+Cipher name:   	aes
+Cipher mode:   	cbc-essiv:sha256
+Hash spec:     	sha1
+Payload offset:	2056
+MK bits:       	256
+MK digest:     	63 7b 35 48 ec 3d e6 f5 fb 83 04 22 75 22 d5 4a aa 17 bb 75 
+MK salt:       	2a 01 a3 fa d2 96 17 c9 5a 4c 2e 63 72 27 1c 70 
+               	25 1f e6 27 2e 7a 4c 7c f7 55 fe 8e af ee 1f 2d 
+MK iterations: 	10
+UUID:          	0007771a-83e7-4256-b31b-d6a5cbb41663
+
+Key Slot 0: ENABLED
+	Iterations:         	211800
+	Salt:               	44 82 02 d6 f5 87 41 d9 1c 76 9c aa a3 88 85 8c 
+	                      	71 a9 31 22 a3 15 3f b4 c6 e5 c1 76 4b 30 c2 c6 
+	Key material offset:	8
+	AF stripes:            	4000
+Key Slot 1: DISABLED
+Key Slot 2: DISABLED
+Key Slot 3: DISABLED
+Key Slot 4: DISABLED
+Key Slot 5: DISABLED
+Key Slot 6: DISABLED
+Key Slot 7: DISABLED
+</pre>
+<p>V tomto výpisu si povšimněte položky <code>Payload offset</code>, která činí v mém případě 2056 bloků (ve vašem případě může být hodnota jiná). Tuto hodnotu  následně dosaďte do následujícího příkazu:</p>
+<pre>dd if=/dev/svazek of=zaloha.hlavicky count=2056</pre>
+<p>Pro obnovu hlavičky postačí prohodit <code>if</code> a <code>of</code>.</p>
+<p>Pokud se vrátím zpět k výpisu LUKS hlavičky, upozorním vás ještě na několik věcí. Z výpisu je jasně patrná šifra (cipher name), šifrovací mód (cipher mode), použitá hash a obsazení jednotlivých "zásuvek" (slotů) v úložišti pro klíče.</p>
+<p>Budete-li váhat, proč i po tom, co si zvolíte za hash při operaci <code>luksFormat</code> něco jiného než SHA1, zůstane v kolonce "hash spec" stále SHA1 místo vámi zvolené hashe, je to kvůli implementaci PBKDF2, funkci pro posílení uživatelského hesla. Ta pracuje tak, že z uživatelského hesla získá hash, poté získá hash z takto vzniklé hashe, a toto se mnohokrát opakuje v cyklu (v případě klíče ve slotu 0 to bylo 211800 iterací - viz výpis výše).  Tím se trošku zkomplikuje brute froce útok na dané heslo, protože každý pokus  pak musí projít stejným počtem iterací.</p>
+<p>Naneštěstí je v implementaci funkce PBKDF2 u LUKS na pevno nastavena hash SHA1, takže ať už si zvolíte jakoukoliv hash, v rámci LUKS se pro klíč bude používat SHA1.</p>
+<h3>Dešifrování zařízení při bootu</h3>
+<p>U některých svazků se vám určitě hodí jejich inicializace při startu (při šifrování celého systému se tomu nevyhnete). K tomu slouží v řadě distribucí konfigurační soubor <code>/etc/crypptab</code>. Bohužel, jeho syntax se mezi distribucemi může lišit. V Debianu je syntax následující:</p>
+<pre># &lt;target name&gt;	&lt;source device&gt;		&lt;key file&gt;	&lt;options&gt;
+cswap /dev/sda1 /dev/urandom swap
+chome /dev/sda3 none luks
+</pre>
+<p>Prvním parametrem je název dešifrovaného svazku, který bude k dispozici v <code>/dev/mapper</code> po úspěšném "odemčení" svazku. Druhým parametrem je zdrojové zařízení, na kterém je šifrovaný svazek. Třetí parametr označuje klíčový soubor. Všimněte si, že v případě šifrovaného swapu je možné generovat klíč náhodně při každém startu pomocí generátoru náhodných čísel <code>/dev/urandom</code>. Posledním parametrem jsou volby, kterými je možné inicializaci šifrovaného svazku řídit. Tou nejdůležitější pro vás je asi volba <code>luks</code>, která označuje LUKS svazek. Bez udání této volby se použije rozhraní <code>dm-crypt</code> bez LUKS rozšíření.</p>
+<p>Inicializace šifrovaných svazků probíhá při zavádění systému, tudíž vás systém může vyzvat k zadání hesla už v této fázi. Samotné připojení souborového systému na dešifrovaném svazku je třeba obstarat ve <code>fstab</code>:</p>
+<pre>/dev/mapper/cswap swap  swap defaults         0 0
+/dev/mapper/chome /home ext3 defaults,noatime 0 0
+</pre>
+<h3>Šifrování celého systému</h3>
+<p>Šifrování celého systému možné je, s výjimkou obrazu jádra, initrd a zavaděče. To jsou komponenty, které musí zůstat nešifrované, jinak se systém nezavede. Z tohoto důvodu je třeba izolovat samostatný oddíl pro <code>/boot</code>. Vše ostatní včetně kořenového adresáře je možné šifrovat.</p>
+<p>Zejména na laptopech bývá kvůli hibernaci ideální schovat swap (kam se ukládá obraz paměti) do LVM nad zašifrovaným svazkem.</p>
+<p>V případě šifrování celého systému se nevyhnete vytvoření iniciálního ramdisku (initrd), kde musí být mj. samotný nástroj <code>cryptsetup</code> (moduly pro souborový systém, diskové řadiče a šifrování mohou být samozřejmě zakompilovány do jádra). V rámci initrd je třeba zajistit načtení nutných modulů, což jsou moduly zahrnující modul se šifrovacím algoritmem (např. <code>aes-i586</code>), modul s šifrovacím módem (např. xts), dále pak <code>dm-crypt</code> a <code>dm-mod</code>.</p>
+<p>V Debianu se naštěstí tato konfigurace provádí z velké části automaticky. Už po instalaci cryptsetupu dojde k automatické úpravě iniciálního ramdisku, který získá podporu pro dešifrování kořenového svazku. Tento "automat" však nefunguje úplně vždycky korektně, resp. ne vždy pochopí, co správce zamýšlí.</p>
+<p>Předně, v době generování iniciálního ramdisku je třeba mít zavedené všechny moduly potřebné pro dešifrování kořenového svazku (ideálně by daný svazek měl být připojen). Dále je třeba adekvátně upravit <code>/etc/crypttab</code> a <code>/etc/fstab</code>. Poté je třeba nechat znovu vygenerovat iniciální ramdisk a upravit zavaděč, aby jádru předal vhodný parametr <code>root=</code> (třeba <code>/dev/mapper/root</code>).</p>
+<p>Instalátor Debianu umí vytvořit šifrovaný systém i s kořenovým svazkem. Problémem je, jak už bylo zmíněno dříve, nastavení, které neumožňuje použít lepší šifrovací mód než cbc-essiv. Jelikož šifrovací mód nelze na existujícím šifrovaném svazku jen tak změnit, je lepší celý proces provést ručně.</p>
+<p>Já se zaměřím na situaci, kdy již máte systém nainstalovaný, a chcete jej zašifrovat. Prvním krokem by mělo být šifrování swapu - tento krok je již naznačen výše.</p>
+<p>Samotná příprava a vytvoření šifrovaného svazku byla probrána v minulém díle. Varoval bych vás snad jen před různými návody na rychlé zašifrování nešifrovaného oddílu pomocí nástroje <code>dd</code>. Uvědomte si, že operace <code>luksFormat</code> přepíše začátek daného oddílu a samotná LUKS hlavička oddíl o něco zmenší (tj. souborovému systému by to uřízlo konec).</p>
+<p>Druhým krokem může být zašifrování všech ostatních svazků s výjimkou kořenového. Bohužel mi není známa spolehlivá metoda zašifrování nešifrovaného svazku (alespoň ne, jedná-li se o LUKS svazek). Z tohoto důvodu se asi nevyhnete přesunům dat mimo budoucí šifrovaný svazek a pak zpět, což ovšem není z hlediska bezpečnosti vůbec ideální, jelikož citlivá data se během tohoto procesu přesouvají na další médium - toto médium, stejně jako i původní svazek, je třeba ošetřit tak, aby citlivá data již nebylo možné obnovit (viz bezpečné mazání v závěru článku).</p>
+<p>Třetím krokem je příprava zašifrovaného kořenového svazku. Ideální je, pokud máte možnost budoucí šifrovaný svazek připojit přímo za běhu (moduly do iniciálního ramdisku se pak načtou automaticky). Pokud tuto možnost nemáte, je třeba přidat všechny potřebné moduly (viz výše) do konfiguračního souboru <code>/etc/initramfs-tools/modules</code>. Předpokladem je nainstalovaný balíček <code>initramfs-tools</code>.</p>
+<p>Dále je třeba vytvořit záznam v konfiguračním souboru <code>/etc/crypttab</code>:</p>
+<p><code>root /dev/zarizeni none luks</code></p>
+<p>Upravte si <code>/dev/zarizeni</code> na disk či oddíl pro zašifrovaný kořenový svazek.</p>
+<p>Adekvátně je třeba upravit <code>/etc/fstab</code>. Tam můžete mít, kupříkladu, následující řádek:</p>
+<pre>/dev/hda3        /    ext3    noatime,errors=remount-ro 0       1</pre>
+<p>Původní zařízení (v tomto výpisu by to bylo <code>/dev/hda3</code>) nahraďte cestou k blokovému zařízení "dešifrovaného" svazku, tedy <code>/dev/mapper/root</code>. Výsledek by měl vypadat takto:</p>
+<pre>/dev/mapper/root /    ext3    noatime,errors=remount-ro 0       1</pre>
+<p>V tuto chvíli by mělo být téměř vše připraveno, tudíž můžete zkusit vygenerovat iniciální ramdisk, a to provedete následujícím příkazem:</p>
+<pre>update-initramfs -k all -u</pre>
+<p>Následuje poslední úprava - úprava konfigurace zavaděče, kde je třeba kořenový oddíl (typicky je předávaný jádru v hodnotě parametru <code>root=</code>) zaměnit za <code>/dev/mapper/root</code>.</p>
+<p>Nyní již zbývá data z kořenového oddílu přesunout, z oddílu vytvořit šifrovaný svazek a na ten data přesunout zpět. Nejpohodlněji se to provádí z nějaké live distribuce, třeba z mého oblíbeného <a href="http://www.linuxexpres.cz/distro/system-rescue-cd?highlightWords=system+rescue">System Rescue CD</a>.</p>
+<p>Poté proveďte reboot, a pokud jste nastavili všechno správně, systém by měl naběhnout, dotázat se na příslušná hesla a zpřístupnit šifrované svazky.</p>
+<h3>Bezpečné mazání</h3>
+<p>V souvislosti se šifrováním by bylo dobré probrat také bezpečné mazání, respektive problém související s tím, jak se bezpečně zbavit citlivých dat tak, aby nebylo možné je obnovit, zejména pak z magnetických záznamových zařízení (jako jsou např. pevné disky), ze kterých je teoreticky možné se speciálním vybavením obnovit i předchozí záznamové vrstvy. To je dáno tím, že magnetický záznam bitů zapsaných na stejnou pozici se zcela nepřekrývá. Za tímto účelem byl vytvořen nástroj <code>shred</code>, který opakovaně přepíše zvolený soubor různými vzorci tak, aby nebylo možné data obnovit.</p>
+<p>Jelikož v unixových systémech by mělo platit, že vše je soubor, lze tento nástroj použít i pro jakékoliv blokové zařízení. Problém může nastat u  normálních souborů uložených na žurnálovacích souborových systémech, kde  samotný žurnál může průběh této operace narušit. Dlužno dodat, že na souborových systémech, které nepoužívají plné žurnálování, ale pouze žurnálování metadat, by s touto operací problém být neměl.</p>
+<h3>Zálohy a bezpečnost šifrování</h3>
+<p>Ti, kdo podstupují celé martyrium se šifrováním, tak obvykle činí proto, že  raději o data přijdou, než aby se dostala do nepovolaných rukou. Samotné šifrování komplikuje záchranné operace a zapomenutím hesla nebo zničením či poškozením média se šifrovacím klíčem dojde de facto ke ztrátě dat. Nehledě na to, že samotný dm-crypt a LUKS jsou software jako každý jiný, a chyba v nich nebo chyba jinde v jádře být může.</p>
+<p>I data na šifrovaných svazcích je možné zálohovat. Ale samotné zálohování citlivých dat je problém - má-li šifrování smysl, musí být adekvátně zabezpečené i zálohy, tj. buď také šifrované, nebo bezpečně uložené.</p>
+<h3>Bezpečnost šifrování</h3>
+<p>Šifrování má mnoho úskalí a slabých míst. Vždy samozřejmě záleží na tom, jaká data a před kým/čím je chráníte. Z toho vám pak vyplynou možní útočníci i jejich znalosti či možnosti. Případné útoky mohou být náhodné (zloděj odnese něčí laptop za účelem prodeje hardwaru) nebo cílené (útočník si počká, až necháte zapnutý laptop s přihlášeným uživatelem a přístupem k citlivým datům bez dozoru a v té chvíli vám ho sebere nebo si data rychle vytáhne).</p>
+<p>Šifrování dává jeho uživatelům jistou iluzi absolutního bezpečí - data jsou šifrována nejmodernější a nejsilnější šifrou, dlouhým a komplexním klíčem, za pomoci špičkového softwaru. Problémem je, že samotné šifrování není synonymem pro fyzické zabezpečení dat, je pouze jedním z jeho nástrojů. V následujících bodech se vám pokusím nastínit některé možné útoky na diskové šifrování a možnosti prevence, pokud nějaké jsou:</p>
+<ul>
+<li>útok na nešifrovaný <code>/boot</code> - útočník může modifikovat iniciální ramdisk, aby ukládal zadané heslo, a poté si jej vyzvednout; obrana - nosit  <code>/boot</code> na flash disku a zavádět systém z něj, nebo při každém startu  ověřovat kontrolní součty</li>
+<li>kamera či útočníkovo oko sledující zadání hesla; obrana - dávat si pozor při zadávání hesla, možné kompromitované heslo revokovat či používat flashdisk s klíčem</li>
+<li>HW keylogger - útočník může nasadit štěnici mezi klávesnici a počítač, čímž odposlechne heslo; obrana - zajistit fyzickou bezpečnost počítače, používat flashdisk s klíčem</li>
+<li>cold boot attack - útočník může získat heslo přímo z RAM, má-li fyzický  přístup k počítači; obrana - zajistit fyzickou bezpečnost počítače, vypínat nebo hibernovat počítač když ho není třeba, nepoužívat suspend u laptopů, pokud v rámci suspendu nedojde k výmazu hesel z paměti</li>
+<li>fyzický útok či nátlak na znalce hesla - viz oblíbený <a href="http://xkcd.com/538/">komiks</a>;  obrana - záleží na typu útočníka, ideální je používat kromě hesla i klíčový soubor (key file) třeba na flash disku a ten včas zničit, popř. používat <a href="http://en.wikipedia.org/wiki/Deniable_encryption">popiratelné šifrování</a> (což LUKS vzhledem k hlavičce rozhodně není)</li>
+</ul>
+
+<pre id="links">http://www.debian-administration.org/article/Encrypting_an_existing_Debian_lenny_installation Encrypting an existing Debian Lenny Installation
+http://www.saout.de/tikiwiki/tiki-index.php?page=LUKSFaq LUKS FAQ</pre>

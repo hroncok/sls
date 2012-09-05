@@ -1,0 +1,67 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Úvod do zálohování</h1>
+
+<p>Zálohování je jedna z nejkritičtějších oblastí správy serverů. Je třeba vhodně zvolit, co bude zálohováno, kam, kdy, jak často a jakým způsobem. S tím se vám pokusí pomoci tento článek.</p>
+
+<h3>Úvod</h3>
+<p>Ztráta dat bývá v oblasti správy serverů jedním z nejfatálnějších problémů. Ačkoliv se můžeme snažit pravděpodobnost ztráty minimalizovat, nikdy nelze zcela eliminovat její riziko. S tím je svázána často přehnaná důvěra k diskovým polím, které, jak už bylo v tomto seriálu několikrát zmíněno, nemohou být náhradou za pravidelné zálohování, neboť ke ztrátě dat může dojít nejenom vlivem selhání pevného disku, ale také následkem omylu uživatele či správce, činnosti útočníka, softwarové nebo hardwarové chyby atd.</p>
+<p>Ztráta dat ale není jediným problémem. Kromě samotných dat je třeba uvažovat i o softwarové infrastruktuře, která je s nimi propojena. Tím mám na mysli nakonfigurovaný server s řadou služeb, které k datům přistupují a manipulují s nimi. Do katastrofických scénářů je tak třeba přidat i situace, kdy sice nedojde ke ztrátě samotných dat, ale kdy dojde k omezení fungování serveru (např. ztráta funkčnosti důležité služby vlivem chyby při povýšení na novou verzi distribuce atd.) či ztrátě dlouho vylepšované konfigurace. Zálohovat je tedy třeba tak, aby bylo možné a snadné obnovit nejenom samotná data, ale také služby, které k nim zprostředkovávají přístup.</p>
+<h3>Co zálohovat?</h3>
+<p>Je možné, i když možná trochu nepraktické, zálohovat celý server se všemi soubory, včetně softwaru. Jinou, úspornější možností je zálohovat selektivně jen to, co nelze opatřit jiným způsobem. Mezi obvyklé typy dat a umístění vhodných pro zálohování patří:</p>
+<ul>
+<li>
+<p>domovské adresáře uživatelů 	(obvykle v <code>/home</code>)</p>
+</li>
+<li>
+<p>pošta uživatelů (standardní 	úložiště se nachází ve <code>/var/mail</code>, 	ale velmi často je pošta uložena někde jinde)</p>
+</li>
+<li>
+<p>obsah webových stránek (obvykle 	se nachází ve <code>/var/www</code> či <code>/srv/http</code> atd.)</p>
+</li>
+<li>
+<p>data z databází - soubory s 	databázemi a tabulkami nelze zálohovat konzistentně, pokud server 	běží; podívejte se do dokumentace DBMS, jak nejlépe data 	zálohovat</p>
+</li>
+<li>
+<p>data ostatních běžících 	služeb (např. Jabber/XMPP server atd.)</p>
+</li>
+<li>
+<p>seznam nainstalovaného softwaru - 	využijte správce balíčků k získání seznamu explicitně 	nainstalovaných balíčků</p>
+</li>
+<li>
+<p>extra software, který byl 	nainstalovaný mimo balíčkovací systém (obvykle dostupný v 	<code>/opt</code>)</p>
+</li>
+<li>
+<p>konfigurace systému a systémových 	služeb (většina by měla být v <code>/etc</code>, 	ale výjimky existují)</p>
+</li>
+<li>
+<p>logy systému a služeb - není to 	nutné, ale v některých případech to může pomoci (např. při 	analýze průniku)</p>
+</li>
+<li>
+<p>databáze různých monitorovacích 	nástrojů a nástrojů tvořících statistiky (např. Awstats s 	daty ve <code>/var/lib/awstats</code> atd.)</p>
+</li>
+<li>
+<p>atd.</p>
+</li>
+</ul>
+<p>Pokud si nejste jisti, zdali jste postihli úplně vše, můžete zkusit z vytvořených záloh obnovit celý server třeba na nějakém testovacím počítači (nebo ve virtuálním stroji). To bych u produkčního serveru doporučil i v případě, kdy jste si naprosto jisti, že zálohujete opravdu vše potřebné. Zjistíte tak totiž nejenom případná chybějící data, ale také různá úskalí, která by vás normálně nenapadla, stejně jako dobu a náročnost obnovy ze záloh po katastrofě.</p>
+<h3>Kam zálohovat?</h3>
+<p>Zálohovat je možné do jiného adresáře, na externí disk, na externí diskové pole, na jiný server atd., možností je mnoho. Ideální je zálohovat na více než jedno úložiště, pokud možno ještě geograficky odloučené (to pak pomáhá v situaci, kdy případná katastrofa postihne nejenom server, ale třeba i celé datacentrum - viz záplavy, požár apod.). Naopak, mít jedinou dostupnou zálohu v dedikovaném adresáři na stejném diskovém poli, kde jsou data i systém, je velmi špatný nápad (viz výše).</p>
+<h3>Jak zálohovat?</h3>
+<p>Zálohovat je třeba především s ohledem na konzistenci dat, tzn. nezálohovat soubory, do kterých může být právě zapisováno (nejčastěji se jedná o datové soubory databáze).</p>
+<h4>Rozdílová versus plná záloha</h4>
+<p>Zálohovací systémy mají obvykle nejenom schopnost zálohovat všechna data tak, jak jsou (tomu se říká plná záloha), ale i možnost zálohovat pouze změny, ke kterým došlo od předchozí zálohy (tomu se říká rozdílová záloha). Rozdílové zálohování umožňuje pracovat poměrně efektivně s úložištěm pro zálohy a zbytečně na něm neplýtvat místo. Rozdílové zálohování ale skýtá potenciální problém - každá rozdílová záloha je pevně spjata s plnou zálohou. Jak se data mění, rozdílů přibývá, čímž klesá výkon zálohování a celá záloha zastarává. Z tohoto důvodu je vhodné provést jednou za čas plnou zálohu, stejně jako dbát na odstranění starých a nepotřebných záloh.</p>
+<h3>Jak často zálohovat?</h3>
+<p>Volba periody pro zálohování se odvíjí od toho, jak stará data můžete v zálohách mít. Kupříkladu, pokud budete zálohovat denně, budete mít data stará nanejvýš 24 hodin. Pokud budete zálohovat každou hodinu, budete mít data stará nanejvýš hodinu atd. Zde záleží také na tom, o jaká data se jedná - u některých dat si můžete dovolit provádět zálohu jednou za delší dobu, u jiných dat budete zálohovat častěji, protože se častěji mění nebo je pro vás zásadnější mít je v případě katastrofy na zálohách co nejaktuálnější.</p>
+<p>Pokud se jedná o typ zálohy (plná či rozdílová), pak plnou zálohu se obvykle doporučuje provádět jednou za delší období, podle okolností třeba měsíc nebo týden. Rozdílové zálohování je pak možné provádět mnohem častěji, třeba denně.</p>
+<p>Zálohujete-li na více úložišť, je vhodné provádět plnou zálohu se stejnou periodou u obou úložišť, ale u každého úložiště ji provést jindy, nejlépe tak, aby mezi plnou zálohou jednoho a druhého úložiště byla stejná doba, tzn. provádí-li se na každém úložišti plná záloha jednou za měsíc, pak na jedno úložiště se plná záloha provede na začátku měsíce a na druhé v polovině měsíce.</p>
+<h3>Jak dlouho držet zálohy?</h3>
+<p>Toto je samozřejmě ryze individuální otázka - v některých případech je vhodné zálohy nelikvidovat vůbec, ale pro jistotu (nebo ze zákona) je archivovat, jindy postačí držet zálohy třeba pouze několik týdnů zpět. V případě některých specifických a málo pravděpodobných problémů, např. v případě tichého poškozování dat (data corruption), nemusí být držení záloh několik týdnů zpátky postačující (než se na to přijde, zálohy mohou být již celé poškozeny). Naopak pro většinu situací úplně postačí mít k dispozici jen poslední zálohu. Obvykle se to, jak dlouho je vhodné držet zálohy, odvíjí od kapacity úložiště.</p>
+<h3>Čím zálohovat</h3>
+<p>V tomto seriálu budou počínaje příštím dílem představeny tři zálohovací nástroje, <code>rsync</code>, <code>rdiff-backup</code> a <code>duplicity</code>. Zálohovacích nástrojů ale existuje nepoměrně více, ať už se jedná o FOSS či komerční řešení. Použité nástroje se samozřejmě také odvíjí od toho, kde jsou data uložena. Kupříkladu, disková pole, LVM či virtualizační řešení umožňují provádět snapshoty, což je určitě jeden ze zajímavých způsobů zálohování, byť asi ne zcela postačující, pokud byste kromě tohoto způsobu nezálohovali jinak.</p>
+<h3>Bezpečnost záloh</h3>
+<p>Samotné zálohování ke zmírnění následků katastrof nestačí. Je třeba si uvědomit, že v případě katastrofálního selhání serveru a ztráty dat na něm je záloha, kterou máme někde bokem, už posledním místem, které obsahuje naše cenná data. Jednosměrnost zálohování svádí k tomu, abychom ze zálohovacího média četli až v případě nutnosti obnovit data. Jenomže každé úložiště dat se může pokazit, a co je horší, může se pokazit tak, že zápis na něj sice bude možný, ale opětovné přečtení zálohovaných dat již možné nebude. Proto je třeba zálohy pravidelně prověřovat, v lepším případě ještě zálohovat na více míst.</p>
+<p>Kromě toho je samozřejmě třeba uvažovat o bezpečnosti záloh i vzhledem k nejrůznějším útočníkům, kteří by se k vašim datům rádi dostali - data na serveru si správce obvykle důmyslně chrání, ale zálohy mu někdy v uvažování o bezpečnosti dat mohou utéct (nešifrované zálohy s daty ze zašifrovaných svazků, uložení záloh na stole v kanceláři atd.). Spolu s tím je také třeba přemýšlet nad tím, co se stane se zálohami v případě likvidace nebo vyřazení zálohovacích médií (aneb média se zálohami v popelnici nebo třeba v servisu na reklamaci).</p>
+
+<pre id="links"></pre>

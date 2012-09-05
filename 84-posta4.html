@@ -1,0 +1,82 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Postconf, řízení fronty, greylisting</h1>
+
+<p>Tento díl se zabývá nástrojem postconf, který vám usnadňuje nastavení Postfixu, dále řízením fronty, provozem Postfixu na více portech současně a greylistingem, jednou z nejúčinnějších taktik pro boj se spamem.</p>
+
+<p>Na úvod připomenu první dva díly (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-postovniho-serveru">první díl</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-agenti-e-mailu-metody-ochrany">druhý díl</a>) o poštovním serveru, které se převážně zabývaly teorií, stejně jako <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-nastaveni-dns-spf-a-postfix">minulý díl</a>, který se věnoval základnímu nastavení Postfixu a související nastavení DNS a SPF. Pokud jste si je neprošli, doporučuji to udělat.</p>
+<h3>Pár slov o nastavení Postfixu a nástroji postconf</h3>
+<p>Hlavní konfigurační soubor Postfixu, <code>/etc/postfix/main.cf</code> obsahuje (alespoň v případě Debianu) relativně málo voleb a minimum komentářů. Pokud nahlédnete do <a href="http://www.postfix.org/postconf.5.html">dokumentace</a>, zjistíte, že Postfix má nepřeberné množství nejrůznějších voleb. Přirozeně, každá z nich má nějaké výchozí nastavení, takže pokud její nastavení v <code>main.cf</code> neupravíte, použije se výchozí hodnota. Proto může být konfigurace Postfixu relativně strohá – například pouze několikařádková.</p>
+<p>Konfiguraci Postfixu vám může podstatně ulehčit nástroj <code>postconf</code>, který je schopen s konfigurací manipulovat a vypisovat ji různým způsobem.</p>
+<p>Zavoláním <code>postconf</code> bez parametrů docílíte vypsání aktuálního nastavení. Hledáte-li něco konkrétního, použijte nástroj grep. Jedny z typických pokročilejších nastavení jsou nastavení nejrůznějších omezení, která si pomocí grepu můžete nechat elegantně vypsat:</p>
+<pre>postconf | grep restrictions</pre>
+<p>Nástroj <code>postconf</code> však umí nejenom to. V některém případě se vám hodí mít možnost vypsat výchozí hodnoty, nikoliv ty aktuálně nastavené. K tomu slouží přepínač <code>-d</code> (<code>d</code> jako <em>default</em>). Porovnejte:</p>
+<pre>server:~# postconf -d smtpd_use_tls
+smtpd_use_tls = no
+server:~# postconf smtpd_use_tls
+smtpd_use_tls = yes</pre>
+<p>Pokud tedy někdy budete potřebovat rychle zjistit výchozí hodnotu pro danou volbu, hodí se vám parametr <code>-d</code>. Všimněte si také, že pokud se jedná o jednu konkrétní volbu, můžete ji zadat nástroji <code>postconf</code> přímo a on vám ji vyhledá a vypíše. V tomto případě tedy nepotřebujete grep.</p>
+<p>Postconf vám také umožňuje provádět editace konfiguračního souboru. Chcete-li tedy např. změnit <code>myhostname</code>, můžete to provést kromě ruční editace takto:</p>
+<pre>postconf -e myhostname=mujnovyserver.example.org</pre>
+<p>Výše uvedený příkaz změní hodnotu v konfiguračním souboru, je-li tam definovaná, pokud ne, zapíše ji tam i s požadovanou hodnotou. Přirozeně, změny se projeví až při znovunačtení konfigurace Postfixu:</p>
+<pre>/etc/init.d/postfix reload</pre>
+<p>Na závěr přijde o nástroji <code>postconf</code> to nejdůležitější, a sice parametr <code>-n</code>. Ten je schopen vypsat hodnoty pouze těch parametrů, které se liší od výchozích hodnot. Je to de facto vaše unikátní konfigurace Postfixu:</p>
+<pre>postconf -n</pre>
+<p>Dokumentace jednotlivých voleb nastavení Postfixu je k dispozici v manuálových stránkách:</p>
+<pre>man 5 postconf</pre>
+<p>Zadat číslo sekce je zde nutné, bez něj se zobrazí dokumentace k samotnému nástroji <code>postconf</code>. Připomínám také možnost vyhledávat v manuálových stránkách (následující dva příkazy jsou ekvivalentní):</p>
+<pre>man -k postfix
+apropos postfix</pre>
+<h3>Řízení fronty Postfixu</h3>
+<p>Ne všechny maily se nutně musí podařit doručit okamžitě, a to nikoliv nezbytně proto, že je cílový poštovní server nedostupný. Pokud jste četli předchozí díly, možná si vzpomínáte na techniku zvanou greylisting, která spočívá v odmítání doručení po určitou dobu.</p>
+<p>Poštovní server se v případě nedostupnosti cílového serveru podívá, jestli nejsou k dispozici nějaké jiné poštovní servery v MX záznamech pro danou doménu. Pokud ne, e-mail zůstane ve frontě a Postfix se ho časem pokusí znovu doručit. Po určité době (5 dní ve výchozím stavu) to vzdá úplně a pošle odesílateli zprávu o nedoručení. Tuto dobu je možné ovlivnit konfigurační volbou <code>maximal_queue_lifetime</code> (výchozí hodnota je „<code>5d</code>“ (<code>d</code> jako <em>day</em>, tedy den).</p>
+<p>Frontu jako takovou můžete řídit pomocí nástroje <code>postqueue</code>. Vypsání e-mailů, které jsou ve frontě, docílíte příkazem:</p>
+<pre>postqueue -p</pre>
+<p>Chcete-li se pokusit frontu vyprázdnit, tedy nařídit Postfixu, aby se pokusil obsah fronty doručit ihned, použijte parametr <code>-f</code>:</p>
+<pre>postqueue -f</pre>
+<h3>Konfigurační soubor master.cf a Postfix na více portech</h3>
+<p>Postfix není jeden velký démon, ale hromada provázaných služeb, které jsou volány a reagují na různé podněty. Tento konfigurační soubor definuje právě tyto služby. Změny v tomto souboru jsou časté např. při nasazení služeb typu Amavis, které kontrolují obsah zpráv (antispam, antivirus).</p>
+<p>Úpravou tohoto souboru můžete kupříkladu nechat Postfix naslouchat na více portech, což se hodí v situaci, kdy vaši uživatelé chtějí odesílat poštu přes váš server, ale jejich poskytovatel připojení blokuje odchozí komunikaci na port 25. Pokud byste chtěli, aby Postfix naslouchal kromě portu 25 také na portu 250, přidali byste do tohoto souboru následující řádku:</p>
+<pre>250  inet  n       -       -       -       -       smtpd</pre>
+<p>Tato řádka definuje novou síťovou službu (klíčové slovo <code>inet</code>) běžící na portu 250 a příkaz spouštějící danou službu je <code>smtpd</code>, což odpovídá SMTP serveru Postfixu.</p>
+<p>Podrobnější dokumentaci k tomuto konfiguračnímu souboru naleznete v manuálových stránkách:</p>
+<pre>man 5 master</pre>
+<h3>Greylisting</h3>
+<p>Greylisting je v boji se spamem jednou z nejúčinnějších metod, i když skýtá jistá rizika a nevýhody. Hlavním problémem je zpoždění doručení pošty, které vyvolává. To se může v praxi pohybovat od několika minut až po hodiny. Některé špatně nastavené poštovní servery nemusí být schopny poštu doručit vůbec (to by měly být ale opravdu výjimky).</p>
+<p>Greylisting byl zmíněn v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-agenti-e-mailu-metody-ochrany">tomto dílu</a>, takže jen velmi stručně – tato technika spočívá v tom, že poštovní server odmítá přijmout e-mail z neznámého zdroje po určitou dobu. Standardně by se poštovní servery měly pokusit -e-mail doručit znovu, až se jim to nakonec podaří, zatímco spammeři obvykle e-maily dvakrát neposílají.</p>
+<p>Démonů zajišťujících tuto funkcionalitu existuje více. Patrně nejčastěji se setkáte s nástrojem Postgrey, napsaným v Perlu a určeným pro Postfix. Nainstalujete jej jako obvykle, pomocí správce balíčků:</p>
+<pre>aptitude install postgrey</pre>
+<p>Démon se nastavuje prostřednictvím voleb předaných na příkazové řádce. Tyto volby je možné upravit v souboru <code>/etc/default/postgrey</code>, konkrétně pak v proměnné <code>POSTGREY_OPTS</code>, která vypadá ve výchozím stavu takto:</p>
+<pre>POSTGREY_OPTS="--inet=10023"</pre>
+<p>Kromě zde nastaveného portu, kde služba běží, můžete nastavit zejména dobu, po kterou bude Postgrey odmítat e-mail z neznámého zdroje. Výchozí hodnota je 300 sekund, tedy pět minut. Pokud byste tuto lhůtu chtěli snížit na minutu, provedli byste to pomocí volby <code>--delay</code>, takto:</p>
+<pre>POSTGREY_OPTS="--delay=60 --inet=10023"</pre>
+<p>Žádný antispam by neměl postrádat whitelisting, tedy možnost některé klienty propustit bez kontroly (v případě greylistingu bez „ochranné lhůty“). Postgrey má k dispozici dva konfigurační soubory určené pro whitelisting:</p>
+<ul>
+<li>
+<p><code>/etc/postgrey/whitelist_clients</code> umožní propustit poštu pocházející z určitých zdrojů (domén či IP adres a rozsahů)</p>
+</li>
+<li>
+<p><code>/etc/postgrey/whitelist_recipients</code> umožní propustit poštu doručovanou konkrétnímu příjemci (typicky např. <code>postmaster</code>)</p>
+</li>
+</ul>
+<p>Po úpravě konfigurace restartujte Postgrey:</p>
+<pre>/etc/init.d/postgrey restart</pre>
+<p>Integrace s Postfixem se provádí přes volbu <code>smtpd_recipient_restrictions</code>, která umožňuje klást požadavky na příjemce a odmítat poštu, která jim nevyhovuje. Více o restrikcích se dozvíte v příštím díle. Výchozí hodnotou této volby je řetězec dvou parametrů oddělených čárkou:</p>
+<ul>
+<li>
+<p><code>permit_mynetworks</code> – sítě, které Postfix spravuje, nebudou omezeny</p>
+</li>
+<li>
+<p><code>reject_unauth_destination</code> – odmítne požadavek, pokud není Postfix finálním příjemcem zprávy nebo není nastaven tak, aby zprávu přeposílal dál</p>
+</li>
+</ul>
+<p>Postgrey zařaďte na konec této „fronty“ pomocí <code>check_policy_service</code>, která provede kontrolu pomocí specifikované služby, takto:</p>
+<pre>smtpd_recipient_restrictions = permit_mynetworks,
+           reject_unauth_destination,
+           check_policy_service inet:127.0.0.1:10023</pre>
+<p>Následně zbývá donutit Postfix znovu načíst konfiguraci:</p>
+<pre>/etc/init.d/postfix reload</pre>
+<p>Postgrey má přirozeně své alternativy, u vytíženějšího serveru se může hodit, pokud se známé triplety ukládají do databáze (MySQL, PostgreSQL, atd.). K tomu vám může posloužit <code>sqlgrey</code>. A tím bych tento díl ukončil.</p>
+
+<pre id="links"></pre>

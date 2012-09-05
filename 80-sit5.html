@@ -1,0 +1,175 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Typy skenů a volby Nmapu</h1>
+
+<p>Minulý díl se věnoval základům použití nástroje Nmap, který je jedním z nejpoužívanějších nástrojů pro skenování portů (a sítí). Tento díl naváže na předchozí a představí jednotlivé typy skenů a volby Nmapu.</p>
+
+<p>Na úvod bych rád zmínil skutečnost, že volby Nmapu se mezi jednotlivými verzemi mohou měnit. To bohužel poznamenalo <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-skenovani-siti-pomoci-nmap">minulý díl</a> (který doporučuji si přečíst, pokud jste tak ještě neučinili), kde jsem zmiňoval volby <code>-sn</code> a <code>-Pn</code>, které starší Nmap dostupný v Debianu Squeeze nezná. Jejich ekvivalentem jsou volby <code>-sP</code> a <code>-PN</code>, které vám v Debianu Squeeze budou fungovat. Za tento šotek se omlouvám, v dotyčném článku už je to opraveno. V případě problémů s nevyhovující syntaxí doporučuji nahlédnout do manuálu, který bude zmiňovat specifika té verze, kterou na svém stroji používáte.</p>
+<h3>Rychlost skenování</h3>
+<p>Jednou z podstatných voleb je rychlost skenování. Příliš velká rychlost zatíží síť i server, naopak velmi nízká slouží především k obcházení IDS (Intrusion Detection System). Nmap má k dispozici několik šablon dostupných pod volbou <code>-T</code>. Tyto šablony jsou <code>paranoid</code>, <code>sneaky</code> <code>polite</code>, <code>normal</code> (výchozí), <code>aggressive</code> a <code>insane</code>. Jsou seřazeny od nejpomalejší k nejrychlejší. První dvě jsou určené k obcházení IDS, <code>polite</code> šetří síť i cílový počítač, <code>normal</code> je výchozí volba, <code>aggressive</code> předpokládá, že mezi vámi a cílem je rychlá síť, a <code>insane</code> obětuje přesnost skenu ve snaze dosáhnout co nejvyšší rychlosti. Pokud máte tedy např. cíl v LAN, můžete použít volbu <code>aggressive</code>:</p>
+<pre>nmap -T aggressive 10.11.12.13
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:02 CET
+Interesting ports on 10.11.12.13:
+Not shown: 997 closed ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+139/tcp open  netbios-ssn
+445/tcp open  microsoft-ds
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds</pre>
+<p>Dodám, že místo těchto šablon je možné parametry skenování nastavovat přímo. Více o tom se dozvíte v sekci <em>TIMING AND PERFORMANCE</em> manuálu k Nmapu.</p>
+<h3>Specifikace portů ke skenování</h3>
+<p>Ve výchozím stavu skenuje Nmap celkem 1000 nejpoužívanějších portů. Jak jistě víte, čísla portů se pohybují v rozmezí 0–65535. Pokud tedy někdo např. přesunul SSH port z 22 na 65022, tak se o tom nedozvíte, dokud nenastavíte rozsah ručně.</p>
+<p>Nmap nabízí celkem tři varianty specifikace portů. Pokud se vám 1000 nejpoužívanějších portů zdá moc, můžete Nmapu nařídit, aby skenoval pouze 100 nejpoužívanějších portů, a to parametrem <code>-F</code>:</p>
+<pre>nmap -F -v 10.11.12.13
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:02 CET
+Interesting ports on 10.11.12.13:
+Not shown: 97 closed ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+139/tcp open  netbios-ssn
+445/tcp open  microsoft-ds
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.08 seconds</pre>
+<p>Třetí variantou je ruční specifikace portů, která se provádí volbou <code>-p</code>, takto:</p>
+<pre>nmap 10.11.12.13 -p 22,136-139,440-450
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:04 CET
+Interesting ports on 10.11.12.13:
+PORT    STATE  SERVICE
+22/tcp  open   ssh
+136/tcp closed profile
+137/tcp closed netbios-ns
+138/tcp closed netbios-dgm
+139/tcp open   netbios-ssn
+440/tcp closed sgcp
+441/tcp closed decvms-sysmgt
+442/tcp closed cvc_hostd
+443/tcp closed https
+444/tcp closed snpp
+445/tcp open   microsoft-ds
+446/tcp closed ddm-rdb
+447/tcp closed ddm-dfm
+448/tcp closed ddm-ssl
+449/tcp closed as-servermap
+450/tcp closed tserver
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.08 seconds</pre>
+<p>Na závěr dodám, že Nmap provádí implicitně tzv. randomizaci portů, což znamená, že místo toho, aby skenoval postupně jeden po druhém od prvního k poslednímu, vybírá porty náhodně. Pokud byste z nějakého důvodu toto chování nepreferovali, můžete ho vypnout volbou <code>-r</code>.</p>
+<h3>Typy skenů</h3>
+<p>TCP SYN sken, <code>-sS</code>, je výchozím typem skenu a funguje tak, že posílá pakety s příznakem SYN, tedy pakety, které zahajují tzv. 3-way handshake (vytvoření TCP spojení). Je-li port otevřen, měl by server odpovědět paketem s příznakem SYN/ACK (popř. SYN), což Nmap zaznamená. Jelikož k dokončení spojení je potřeba finální odpovědi ze strany klienta, která při tomto typu skenu samozřejmě posílána není, nedochází tak k vytváření TCP spojení. Proto se tento typ skenu označuje jako „stealth“. Jednotlivé běžící služby by tento typ skenu neměly zachytit a zalogovat. Naopak IDS bývají schopné tento typ skenu detekovat.</p>
+<p>TCP connect sken, <code>-sT</code>, je výchozím typem skenu, pokud nemáte práva k přímému přístupu k síťovému rozhraní. Zde dochází k vytváření TCP spojení, což se může projevit v logu jednotlivých služeb.</p>
+<p>UDP sken, <code>-sU</code>, jak už jeho název naznačuje, skenuje UDP protokol. Lze jej kombinovat s TCP skeny a dosáhnout tak oskenování obou protokolů naráz. UDP sken je trošku sofistikovanější (a také podstatně pomalejší). V případě některých typických UDP portů (jako např. DNS) se posílají pakety s ohledem na daný protokol, jinak se pošle UDP paket a čeká se na odpověď. Pokud odpověď přijde, je port považován za otevřený, jinak získá statut <code>open|filtered</code> – tento poněkud matoucí statut se vám pokouší sdělit, že daný port otevřený být může (jen nedošla odpověď) i nemusí (může být filtrovaný firewallem). Zde může pomoci detekce verzí (<code>-sV</code>, více o detekci verzí viz dále):</p>
+<pre>nmap -sU 10.11.12.13 -p 136-139
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:34 CET
+Interesting ports on 10.11.12.13:
+PORT    STATE         SERVICE
+136/udp closed        profile
+137/udp open|filtered netbios-ns
+138/udp open|filtered netbios-dgm
+139/udp open|filtered netbios-ssn
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 2.59 seconds
+
+debian:~# nmap -sU 10.11.12.13 -p 136-139 -sV
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:34 CET
+Interesting ports on 10.11.12.13:
+PORT    STATE         SERVICE     VERSION
+136/udp closed        profile
+137/udp open          netbios-ns  Microsoft Windows XP netbios-ssn
+138/udp open|filtered netbios-dgm
+139/udp closed        netbios-ssn
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+Service Info: Host: LOCALHOST; OS: Windows
+
+Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 57.58 seconds</pre>
+<p>Jak je z příkladu výše patrné, detekce verzí mírně vylepšila výsledky skenu a nalezla otevřený UDP port 137.</p>
+<p>Toto jsou základní typy skenů, přičemž Nmap jich umí pochopitelně více. Tyto pokročilejší až pokročilé skenovací techniky využívají obvykle různé skuliny specifikace protokolu TCP k rozlišení otevřeného portu od zavřeného (např. TCP NULL, FIN a Xmas skeny). Bývají ještě obtížněji detekovatelné než TCP SYN sken, avšak nelze vyloučit detekci vhodně nakonfigurovaným IDS. Stejně tak nebývají jednoduché na interpretaci výsledků a nezaručují použitelné výsledky u některých síťových prvků a operačních systémů. Tyto typy skenů jsou dobře popsány v manuálu Nmapu a vzhledem k tomu, že se jedná o skutečně pokročilé techniky, pouze vás na ně odkážu.</p>
+<h3>Detekce verzí služeb</h3>
+<p>Nmap je vám schopen zjistit nejenom otevřené porty pomocí nejrůznějších technik (viz výše), ale také to, o jaké služby se jedná a které verze démonů tam běží. Tato vlastnost je nedocenitelná, i když je třeba si uvědomit, že v případě jejího použití se zbavujete výhod „stealth“ typů skenu (jelikož detekce verzí je mírně invazivní a jistě bude zaznamenána v logu daných služeb). Detekce verzí služeb funguje tak, že po zjištění všech otevřených portů Nmap pomocí databáze služeb zjišťuje, co na oněch portech běží. Představu si můžete udělat na následujícím příkladu:</p>
+<pre>nmap -sS 10.11.12.13
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 15:02 CET
+Interesting ports on 10.11.12.23:
+Not shown: 997 closed ports
+PORT     STATE SERVICE
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+1025/tcp open  NFS-or-IIS
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds
+
+debian:~# nmap -sS 10.11.12.13 -sV
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 15:02 CET
+Interesting ports on 10.11.12.13:
+Not shown: 997 closed ports
+PORT     STATE SERVICE     VERSION
+139/tcp  open  netbios-ssn Samba smbd 3.X (workgroup: MYGROUP)
+445/tcp  open  netbios-ssn Samba smbd 3.X (workgroup: MYGROUP)
+1025/tcp open  ssh         OpenSSH 5.3 (protocol 2.0)
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.14 seconds</pre>
+<p>Jak je vidět, bez použití detekce verzí vám Nmap vrátí typ služby z <code>/etc/services</code>, tedy typ služby, která se obvykle na daném portu provozuje, což nemusí vždy odpovídat. To je demonstrováno v druhém skenu, kde se díky detekci verzí služeb podařilo odhalit, že na portu 1025 běží ve skutečnosti OpenSSH, a to verze 5.3.</p>
+<h3>Detekce operačního systému</h3>
+<p>Poslední zajímavou funkcí Nmapu, kterou zmíním, je schopnost detekovat verzi použitého operačního systému. Tato funkce nefunguje vždy zcela spolehlivě a ne vždy se jí povede operační systém detekovat, popřípadě detekovat korektně. Pro rozumnou šanci úspěšné detekce je třeba, aby cíl měl alespoň jeden otevřený port.</p>
+<pre>nmap -O -sS 10.11.12.254 
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 15:08 CET
+Interesting ports on orion (10.11.12.254):
+Not shown: 997 filtered ports
+PORT    STATE  SERVICE
+22/tcp  open   ssh
+53/tcp  open   domain
+667/tcp closed unknown
+MAC Address: 00:0D:B9:17:ED:DD (PC Engines GmbH)
+Device type: general purpose
+Running: Linux 2.6.X
+OS details: Linux 2.6.15 - 2.6.26, Linux 2.6.18-8.el5 (Red Hat Enterprise Linux 5), Linux 2.6.21 (Arch Linux 0.8, x86)
+Network Distance: 1 hop
+
+OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.00 seconds</pre>
+<p>V příkladu výše je detekce úspěšná – operační systém je skutečně Linux, konkrétně jádro 2.6.26, což bez chyby odpovídá dané specifikaci. Jednalo se ovšem o zcela ideální podmínky (počítač byl připojen přímo na síti, mezi ním a Nmapem nebyl jediný router).</p>
+<h3>Nmap a -A</h3>
+<p>Poměrně zajímavou volbu tvoří <code>-A</code>, což je „šablona“ zapínající mnoho typických funkcí (detekci verzí služeb i operačního systému, traceroute a použití skriptů z kategorie „default“). Skripty jsou psané v jazyce LUA a představují možnosti rozšíření funkcionality Nmapu. Některé přibalené skripty mohou být poměrně invazivní (v kategorii „default“ by měly být zejména bezpečné skripty). Skripty umí provádět ledacos, v příkladu níže je u SSH patrné vypsání fingerprintů serverových klíčů. Více o skriptech se dozvíte <a href="http://nmap.org/book/nse-usage.html#nse-categories">zde</a>.</p>
+<p>Výstup Nmapu s použitím volby <code>-A</code> může vypadat takto:</p>
+<pre>nmap -A 10.11.12.254
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 15:16 CET
+Interesting ports on orion (10.11.12.254):
+Not shown: 997 filtered ports
+PORT    STATE  SERVICE VERSION
+22/tcp  open   ssh     OpenSSH 5.1p1 Debian 5 (protocol 2.0)
+|  ssh-hostkey: 1024 38:9f:28:de:40:c0:19:fa:2c:b8:57:c2:c9:61:6e:c8 (DSA)
+|_ 2048 00:7d:67:3d:ab:d9:14:e5:af:09:72:91:14:ff:9f:f3 (RSA)
+53/tcp  open   domain  ISC BIND unbound 1.4.6
+667/tcp closed unknown
+MAC Address: 00:0D:B9:17:ED:DD (PC Engines GmbH)
+Device type: general purpose
+Running: Linux 2.6.X
+OS details: Linux 2.6.15 - 2.6.26, Linux 2.6.18-8.el5 (Red Hat Enterprise Linux 5)
+Network Distance: 1 hop
+Service Info: OS: Linux
+
+OS and Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 16.05 seconds</pre>
+<h3>Hlavně opatrně</h3>
+<p>Nmap je velmi schopný síťový skener, který můžete použít nejenom v GNU/Linuxu a unixových operačních systémech, ale také třeba na Windows. Můžete jej používat v příkazové řádce i pomocí grafického rozhraní, které umí např. kompletovat výsledky z více skenů, popřípadě vizualizovat skenovanou síť. Alespoň základní zacházení s Nmapem patří k základům schopností správců serverů i sítí.</p>
+<p>Při používání Nmapu je vhodná opatrnost a dobrá představa o tom, čemu vlastně svůj cíl vystavíte. Nmap umožňuje provádět celkem invazivní operace, které mohou za určitých okolností způsobit problémy. Dobrá představa o tom, co Nmap vlastně provádí, je také nutná ke správné interpretaci výsledků. Rozhodně není vhodné spoléhat na to, že to, co Nmap napíše, vždy na sto procent platí. Je třeba vědět, odkud se ta informace vzala a jak byla získána. Kupříkladu, bez detekce verzí se služba na portu identifikuje dle záznamu v <code>/etc/services</code>, což samozřejmě nemusí odpovídat, jak bylo výše demonstrováno. Určitě tedy doporučuji experimentování (ve vlastní síti) a studium dokumentace k Nmapu.</p>
+<p>Tím bych problematiku Nmapu ukončil.</p>
+
+<pre id="links"></pre>

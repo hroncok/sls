@@ -1,0 +1,85 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Linuxový firewall, základy iptables</h1>
+
+<p>Firewall v Linuxu je tvořen projektem Netfilter, který pracuje na úrovni jádra a umožňuje filtrovat pakety na základě mnoha kritérií. Základním nástrojem pro nastavení paketového filtru je známý řádkový nástroj iptables. Předesílám, že existuje řada projektů, která se snaží práci s iptables usnadnit, popřípadě generovat vlastní pravidla a uživatele od tohoto nástroje co nejvíce odstínit. Některé z těchto nástrojů časem představím, nicméně v tomto článku se budu zabývat samotným nástrojem iptables a principy, na jakých jeho funkce stojí.</p>
+
+<p>Je nutné rovněž předeslat, že Netfilter není pouze firewall, je to především paketový filtr, který umožňuje provádět řadu věcí, z nichž jedna možnost je vytvořit pravidla, která budou zastávat funkci firewallu. Některé z funkcí, které nejsou typické pro firewall, nýbrž pro paketový filtr jako takový, vám v průběhu tohoto seriálu také představím, i když se budu zaměřovat primárně na užití Netfiltru pro konstrukci firewallu.</p>
+<h3>Varování</h3>
+<p>Pokud se budete učit pracovat s <code>iptables</code> a experimentovat, určitě tak čiňte na počítači, ke kterému máte fyzický přístup. Pracovat s <code>iptables</code> na ostrém serveru v datacentru je velké riziko, pokud nevíte přesně, co děláte a jaké to bude mít důsledky. Může se velmi jednoduše stát, že si pod sebou "uříznete větev" a na server už se vzdáleně nepřihlásíte, abyste to mohli opravit.</p>
+<h3>Základy fungování Netfiltru</h3>
+<h4>Řetězy a politika</h4>
+<p>Jedna z dřívějších verzí nástroje <code>iptables</code> se jmenovala <code>ipchains</code>, a jsou to právě řetězy (chains), které tvoří pilíř fungování paketového filtru v Linuxu. Jejich funkci ilustruje následující obrázek:</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/3257.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/3257.jpg','Schéma funkce řetězu v linuxovém paketovém filtru','248','215'); return false;"><img alt="Schéma funkce řetězu v linuxovém paketovém filtru" class="ph_detail" height="215" src="http://www.linuxexpres.cz/uploads/gallery/detail/3257.jpg" width="248" /></a><span class="ph_title">Schéma funkce řetězu v linuxovém paketovém filtru</span></p>
+<p>Jak je patrné z obrázku, tyto řetězy jsou tvořeny jednotlivými pravidly. Paket, který je zachycen v některém z řetězů, putuje od prvního pravidla k následujícímu, dokud některému z pravidel nevyhoví. Pokud některému z pravidel vyhoví, provede se některá z možných akcí, v rámci které může být paket zahozen (DROP), odmítnut (REJECT), přijat (ACCEPT) nebo předán jinému řetězu.</p>
+<p>Pokud nevyhoví žádnému z pravidel v daném řetězu, může se stát jedna ze dvou věcí. Jedná-li se o některý ze základních/vestavěných řetězů (viz dále), pak o jeho dalším osudu rozhodne politika daného řetězu (k dispozici jsou dvě možnosti: přijmout paket - ACCEPT nebo zahodit paket - DROP). Pokud se jedná o uživatelsky definovaný řetěz, je paket vrácen tam, odkud byl uživatelsky definovanému řetězu poslán (RETURN).</p>
+<h4>Základní řetězy</h4>
+<p>Základní vestavěné řetězy, primární řetězy, které tvoří základ fungování Netfiltru. Mezi tyto řetězy patří řetěz INPUT, řetěz FORWARD a řetěz OUTPUT. Jejich význam vám osvětlí následující obrázek:</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/3258.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/3258.jpg','Schéma funkce řetězu v linuxovém paketovém filtru','561','207'); return false;"><img alt="Schéma funkce řetězu v linuxovém paketovém filtru" class="ph_detail" height="165" src="http://www.linuxexpres.cz/uploads/gallery/detail/3258.jpg" width="446" /></a><span class="ph_title">Schéma funkce řetězu v linuxovém paketovém filtru</span></p>
+<p>Jak je z obrázku patrné, jakmile paket dorazí na některé ze síťových rozhraní a je předán přes ovladač jádru, je provedeno směrovací rozhodnutí. Je-li paket určen místnímu počítači, směřuje do řetězu INPUT. Je-li určen nějakému jinému počítači, směřuje do řetězu FORWARD. Dlužno dodat, že předávání paketů (tj. funkcionalita směrovače/routeru) je třeba explicitně povolit v jádře. Bez tohoto povolení pakety předávány nebudou, a průchozí pakety budou zahozeny. K tomu se ale ještě dostaneme. V tuto chvíli je pro nás podstatný řetěz INPUT, kam směřují pakety určené pro tento počítač. Pokud tyto pakety projdou řetězem INPUT a budou povoleny (ať již explicitně pravidlem nebo politikou), budou předány příslušné aplikaci.</p>
+<p>Pro úplnost dodám, že existují kromě výše uvedených ještě dva další řetězy, PREROUTING a POSTROUTING, které jsem zamlčel, ale těm se budu blíže věnovat později.</p>
+<h4>Pravidla</h4>
+<p>V jednotlivých řetězech lze definovat pravidla, která provádí vlastní filtrování paketů. Tato pravidla mají určité podmínky, resp. kritéria, kterým musí paket vyhovět, a příslušnou akci, která se má provést, pokud paket pravidlu vyhověl. Kupříkladu:</p>
+<pre>iptables -A INPUT -s 1.2.3.4 -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -j DROP</pre>
+<p>Tyto dva příkazy přidají dvě pravidla na konec řetězu INPUT. První pravidlo zachytí pakety se zdrojovou adresou <code>1.2.3.4</code> (<code>-s 1.2.3.4</code>) a propustí je (<code>-j ACCEPT</code>), tj. příslušný paket již nebude procházet žádnými dalšími pravidly. Pokud paket toto kritérium nesplní, přijde na řadu druhé pravidlo, kterému vyhoví jakýkoliv TCP paket s cílovým portem 22 (<code>-p tcp --dport 22</code>), přičemž tyto pakety budou zahozeny (<code>-j DROP</code>). Pokud byste chtěli paket odmítnout, tj. sice zahodit, ale současně poslat zpět ICMP zprávu o důvodu odmítnutí, použili byste následující příkaz:</p>
+<pre>iptables -A INPUT -p tcp --dport 22 -j REJECT --reject-with icmp-admin-prohibited</pre>
+<p>A teď, kontrolní otázka. Podívejte se na následující sadu pravidel a popřemýšlejte, co se stane s TCP paketem směřujícím na port 22 - bude vygenerována ICMP zpráva o důvodu odmítnutí, nebo bude paket "tiše" zahozen?</p>
+<pre>iptables -A INPUT -s 1.2.3.4 -j ACCEPT
+iptables -A INPUT -p tcp --dport 22 -j DROP
+iptables -A INPUT -p tcp --dport 22 -j REJECT --reject-with icmp-admin-prohibited</pre>
+<p>Správnou odpovědí je ona druhá možnost - takový paket bude zahozen, protože vyhoví druhému pravidlu z tohoto seznamu, bude zahozen a ke třetímu pravidlu, které by příslušnou ICMP zprávu vygenerovalo, se už nedostane.</p>
+<h4>Přehled základních operací</h4>
+<p>Nyní, když rozumíte základním principům práce s Netfiltrem, uvedu několik "taháků" se základními prvky pravidel. Nejprve přidávání a mazání pravidel:</p>
+<pre># přidat pravidlo na konec řetězu INPUT
+iptables -A INPUT ...
+# přidat pravidlo na začátek řetězu INPUT
+iptables -I INPUT ...
+# odebrat pravidlo - specifikovat můžete pořadové číslo nebo pravidlo opsat:
+iptables -D INPUT &lt;pořadové číslo pravidla&gt;
+iptables -D INPUT ...
+# vymazat všechna pravidla z řetězce INPUT
+iptables -F INPUT</pre>
+<p>Odebrání pravidel by asi zasluhovalo bližší vysvětlení. Existující pravidlo může být vymazáno buď zadáním pořadového čísla pravidla, nebo prostě tak, že celé pravidlo opíšete, ale volbu <code>-A</code> nebo <code>-I</code> zaměníte za <code>-D</code>, takto:</p>
+<pre># přidání pravidla
+iptables -A INPUT -i eth0 -s 10.0.1.5 -p tcp --dport 22 -j ACCEPT
+# odebrání pravidla
+iptables -D INPUT -i eth0 -s 10.0.1.5 -p tcp --dport 22 -j ACCEPT</pre>
+<p>Pravidla si můžete nechat vypsat následujícím příkazem:</p>
+<pre>iptables -L -n -v</pre>
+<p>Volba <code>-L</code> zařídí vypsání pravidel, volba <code>-n</code> bude adresy a porty uvádět číselně a volba <code>-v</code> zařídí podrobnější výpis. Následuje seznam nejčastěji používaných kritérií:</p>
+<pre># zdrojová adresa
+-s 1.2.3.4
+# cílová adresa
+-d 4.3.2.1
+# TCP paket, cílový port 25 
+-p tcp --dport 25
+# UDP paket, zdrojový port 53
+-p udp --sport 53
+# paket přichází z rozhraní eth0
+-i eth0
+# paket směřuje na rozhraní eth1
+-o eth1</pre>
+<p>A na úplný závěr výpis základních akcí, které lze s pakety provádět.</p>
+<pre># přijmout paket
+-j ACCEPT
+# odmítnout paket s přísloušnou ICMP zprávou
+-j REJECT --reject-with &lt;typ ICMP zprávy&gt;
+# tiše zahodit paket
+-j DROP</pre>
+<h4>Příklad nejjednoduššího, nestavového firewallu</h4>
+<p>Tento díl zakončím příkladem nejjednoduššího firewallu, který lze sestavit. Nejprve vyčistím všechna pravidla:</p>
+<pre>iptables -F</pre>
+<p>Nyní specifikuji jednotlivá pravidla. Povolím veškerý provoz z místního rozsahu <code>10.0.0.0/8</code>. Přístup k SSH povolím pouze z IP adresy <code>11.22.33.44</code>. Dále povolím přístup k webserveru a k SMTP serveru.</p>
+<pre>iptables -A INPUT -s 10.0.0.0/8 -j ACCEPT
+iptables -A INPUT -s 11.22.33.44 -p tcp --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --dport 25 -j ACCEPT</pre>
+<p>Nakonec specifikuji výchozí politiku ve všech třech základních řetězech. Pro konstrukci firewallu se hodí strategie "vše zakázat, a povolit to nejnutnější", takže nastavím u řetězu INPUT politiku DROP:</p>
+<pre>iptables -P INPUT DROP
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD DROP</pre>
+<p>Tímto bych tento díl ukončil. Příště vám představím stavový firewall a ukážu, jak pomocí něj zkonstruovat podstatně dokonalejší formu firewallu než tu, kterou jsem představil výše.</p>
+
+<pre id="links">http://fedorasolved.org/Members/kanarip/iptables-howto iptables Howto</pre>

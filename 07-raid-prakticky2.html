@@ -1,0 +1,58 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Softwarový RAID prakticky (pokračování)</h1>
+
+<p>V tomto díle se podíváme na růst pole, řešení krizových situací, write-intent bitmap, scrubbing diskového pole, monitorování a bootování z pole.</p>
+
+<h3>Růst pole</h3>
+<p>Růst pole (grow) je operace, při které se zvýší definovaný počet aktivních zařízení v poli. Tato operace je jednorázová a nevratná. Počet aktivních zařízení v poli již nelze snížit.</p>
+<p>Růst pole má dvě fáze. Nejprve je třeba do pole přidat nové zařízení, o které má pole narůst:</p>
+<pre>mdadm --manage /dev/md0 --add /dev/sde1</pre>
+<p>Následně se provede růst:</p>
+<pre>mdadm --grow /dev/md0 --raid-devices=4</pre>
+<p>Růst lze provést pouze na čistém poli, tzn. pole nesmí být degradované.</p>
+<h3>Řešení krizových situací</h3>
+<p>V situaci, kdy dojde k vyřazení jednoho nebo více disků z pole, je třeba zachovat rozvahu a nejprve popřemýšlet. Pokud přijdete o redundanci (tzn. selhání dalšího zařízení z pole znamená ztrátu dat), pak je vhodnější před zahájením rekonstrukce pole provést zálohu dat. Samotná rekonstrukce zbývající disky podstatně zatíží a jediná neopravitelná chyba čtení na některém z disků může situaci velice zkomplikovat.</p>
+<p>Samotná výměna vadného disku je poměrně jednoduchá, postup byl naznačen v <span class="mw_field">### link article=2910 text=minulém díle title=Správa linuxového serveru: Softwarový RAID prakticky mode=inline ###</span>. Zařízení je obvykle již jádrem označeno jako vadné (faulty), takže postačí jej odebrat z pole a nové, funkční zařízení do pole zařadit:</p>
+<pre>mdadm --manage /dev/md0 --remove /dev/sda1
+mdadm --manage /dev/md0 --add /dev/sdf1</pre>
+<p>Pokud víte, že disk je vadný, nebo očekáváte jeho brzké selhání, ale jádro ještě disk považuje za funkční, musíte jej za defektní nejprve označit, než se pustíme do jeho odebrání z pole:</p>
+<pre>mdadm --manage /dev/md0 --set-faulty /dev/sda1</pre>
+<p>Znovu raději zopakuji, že pro případ katastrofálního selhání, kdy selže krátce po sobě více disků než je pole schopné unést, nebo i pro případ chyby administrátora, atd., je nutné nebrat disková pole jako náhradu zálohování. Důležitá data je nutné pravidelně zálohovat nejlépe na nějaké geograficky odloučené místo.</p>
+<p>V případě, že se dostanete do nějaké opravdu svízelné situace, kdy třeba pole nepůjde znovu sestavit, doporučuji se kromě rozvahy podívat do <a href="http://marc.info/?l=linux-raid&amp;r=1&amp;w=2">archívu e-mailové konference</a> linuxového softwarového RAIDu. Tam také naleznete dostatek motivace k tomu, abyste začali svá důležitá data zálohovat, pokud to ještě neděláte.</p>
+<h3>Write-intent bitmap</h3>
+<p>Někdy se může stát, že některé aktivní zařízení v diskovém poli vypadne ze synchronizace s ostatními. To nemusí nutně znamenat, že disk je vadný, může se to stát třeba při nekorektním ukončení systému (způsobeném třeba výpadkem proudu), při problémech s kabeláží nebo s řadičem. Pokud k tomu dojde, je nutné pole opět zrekonstruovat, což obvykle trvá velmi dlouho.</p>
+<p>Write-intent bitmap lze chápat podobně jako žurnál u souborových systémů - jádro se může takovém případě vyhnout plné synchronizaci, a synchronizovat pouze změněné oblasti, čímž se rekonstrukce podstatně zkrátí. Předpokladem je samozřejmě to, že do pole vracíme disk, který v něm již byl.</p>
+<p>Pro write-intent bitmap je možné použít soubor (dle dokumentace však pouze na souborových systémech ext2 a ext3) nebo parametr "internal", který bitmapu uloží přímo na zařízení.</p>
+<p>Skutečnost, že chcete použít write-intent bitmap je možné specifikovat již při vytváření pole parametrem <code>-b</code>. Pokud chcete write-intent bitmap vytvořit u již sestaveného pole, musíte použít režim "grow":</p>
+<pre>mdadm --grow /dev/md0 -b internal</pre>
+<p>Tímto příkazem byla vytvořena interní write-intent bitmap. Pokud se pak podíváte na <code>/proc/mdstat</code>, měli byste u příslušného zařízení vidět položku "bitmap":</p>
+<pre>debian:~# cat /proc/mdstat
+Personalities : [raid1] [raid6] [raid5] [raid4] 
+md1 : active (auto-read-only) raid5 hda2[0] hdc2[3] hdd2[2] hdb2[1]
+      2939520 blocks level 5, 64k chunk, algorithm 2 [4/4] [UUUU]
+      
+md0 : active raid1 hdb1[1] hdc1[2] hda1[0]
+      1172608 blocks [3/3] [UUU]
+      bitmap: 144/144 pages [576KB], 4KB chunk</pre>
+<p>Pokud se z nějakého důvodu rozhodnete, že použijete nějaký soubor místo bitmapy interní, pak si dejte veliký pozor, aby to byl soubor na souborovém systému, který leží mimo dané pole.</p>
+<h3>Scrubbing diskového pole</h3>
+<p>Jelikož různé oblasti pevných disků jsou čteny a zapisovány s různou četností, může dojít k situaci, kdy některý sektor na disku v poli přestane být čitelný, aniž bychom si toho byli vědomi. Následný pokus o přečtení takového sektoru, který může proběhnout i za dlouho, vyvolá neopravitelnou chybu čtení (uncorrectable read error), která vyřadí daný disk z pole.</p>
+<p>Nyní uvažte situaci, kdy vám selže nějaký disk, a na některém ze zbývajících disků zůstala tato nášlapná mina v podobě nečitelného sektoru. Po vložení nového disku do pole a zahájení jeho rekonstrukce dojde na čtení z tohoto sektoru, což vyřadí další disk z pole. Pokud máte pouze jeden redundantní disk, pak jste se právě dostali do velmi nepříjemné situace.</p>
+<p>Tomuto problému předcházejí hardwarové řadiče tím, že čas od času pole zkontrolují (všechno včetně redundance přečtou). Linuxový softwarový RAID toto nedělá automaticky, ale je možné mu to pomocí cronu nařídit. Bývá dobré to provádět spíše častěji, tedy nejméně jednou týdně.</p>
+<p>Samotný příkaz, který scrubbing spustí, vypadá takto (předpokládám pole <code>md0</code>):</p>
+<pre>echo "check" &gt; /sys/block/md0/md/sync_action</pre>
+<p>Pokud vytvoříte bash skript s tímto příkazem (nebo odpovídajícími příkazy pro zbývající disková pole), nastavíte mu právo pro spuštění a umístíte do <code>/etc/cron.weekly</code>, zajistíte jeho automatické týdenní spouštění.</p>
+<h3>Monitorování pole</h3>
+<p>Disková pole je možné monitorovat stejným nástrojem (<code>mdadm</code>) jako pro jejich správu. Tento nástroj umí pracovat jako démon a hlásit události týkající se diskových polí. Jeho konfigurační soubor je <code>/etc/mdadm/mdadm.conf</code>, samotný démon by měl už rovnou běžet, pokud jste nainstalovali balíček <code>mdadm</code>.</p>
+<p>Manuálová stránka konfigurační soubor velmi dobře popisuje, já tu zmíním dvě zajímavé volby:</p>
+<pre>MAILADDR <span class="eaddress">mail@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span>,root@localhost
+PROGRAM /root/skript_spusteny_pri_udalosti</pre>
+<p>Kromě obligátní e-mailové adresy, na kterou budou chodit e-maily s událostmi (předpokladem je samozřejmě funkční poštovní server), je možné specifikovat program, který <code>mdadm</code> při nějaké události spustí. Tomuto programu pak budou předány parametry zahrnující událost, zařízení odpovídající diskovému poli a, pokud to bude relevantní, označení disku v poli, kterého se událost týká.</p>
+<h3>Bootování z pole</h3>
+<p>Do doby, než budeme mít běžně k dispozici GRUB 2, lze bootovat pouze z RAIDu 1, a to ještě ne ve všech případech. Zjistil jsem, že některá speciální nastavení (jiná verze superbloku, apod.) mohou bootování z RAIDu 1 zamezit. Pokud budete sestavovat pole se specifickými parametry, vyzkoušejte si, je-li možné namountovat souborový systém z jehdnoho z disků (či oddílů) v daném poli. Pokud se to nepovede, pak z takového pole nepůjde nabootovat.</p>
+<p>Chcete-li primárně vytvořit jiné pole než RAID 1 pro data, pak doporučuji vytvořit na všech discích malý oddíl (kolem 1GB maximálně), na kterém bude v RAIDu 1 oddíl s adresářem <code>/boot</code>. GRUB i LILO zvládnout nabootovat z RAIDu 1, a zbytek místa na discích můžete použít k vytvoření jiného typu pole.</p>
+<p>Tímto bych tento díl ukončil. Příště nakousnu problematiku zdraví pevných disků a v souvislosti s tím technologii S.M.A.R.T.</p>
+
+<pre id="links">http://raid.wiki.kernel.org/ Linux Raid Wiki</pre>

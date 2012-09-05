@@ -1,0 +1,76 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Úvod do konfigurace Apache (pokračování)</h1>
+
+<p>V minulém díle byl probrán základ konfigurace virtuálních webů (virtual host). Tento díl je věnovaný konfiguraci v rámci jednotlivých virtuálních webů, včetně konfigurace přístupu k serveru prostřednictvím HTTPS.</p>
+
+<h3>Úvod</h3>
+<p>Raději ještě jednou předesílám, že konfigurace Apache, která je zmíněna v tomto a v předchozím díle, je specifická pro distribuci Debian a distribuce na Debianu založené (např. Ubuntu). Jiné distribuce mohou mít odlišný mechanismus nastavování i umístění konfiguračních souborů. Mimo Debian nemusí být kupříkladu konfigurace Apache v <code>/etc/apache2</code>, ale např. v <code>/etc/httpd</code> (případ RHEL, CentOS, Fedory či Arch Linuxu). Podobně to pak bývá se spouštěcím skriptem, který bývá nazýván <code>httpd,</code> a nikoliv <code>apache2</code>. Mechanismy konfigurace a rozdělení konfiguračních souborů se také mohou lišit.</p>
+<h3>Konfigurace v rámci virtuálních webů</h3>
+<p>Konfigurační možnosti Apache v rámci jednotlivých virtuálních webů jsou velice široké. Zde doporučuji podívat se do dokumentace, kde je vše dopodrobna popsáno. V tomto článku budou představeny pouze ty nejpoužívanější a nejzásadnější volby. Jednou z nejobvyklejších oblastí v rámci konfigurace virtuálních webů je řízení přístupu. To se obvykle specifikuje na úrovni adresářů, jejichž konfigurační volby se „obalí“ do příslušného tagu, takto:</p>
+<pre>&lt;Directory /var/www/example.com/&gt;
+    Order deny,allow
+    Deny from 1.2.3.4
+    Allow from all
+&lt;/Directory&gt;</pre>
+<p>Zde je povolen přístup k webové prezentaci umístěné ve <code>/var/www/example.com/</code> ze všech počítačů s výjimkou počítače <code>1.2.3.4</code>. Na prvním řádku uvnitř konfigurace daného adresáře se nachází pořadí, v jakém bude Apache řídit přístup - pořadí <code>deny,allow</code> bude znamenat, že se nejprve projdou všechny volby <code>Deny</code>, a pokud jim klient nevyhoví, přejde se na volby <code>Allow</code>. Pokud klient některé z voleb <code>Deny</code> vyhoví, bude mu odmítnut přístup (HTTP kód 403).</p>
+<p>Na druhém řádku je specifikováno odmítnutí klienta s IP adresou <code>1.2.3.4</code>. Na třetím řádku je pak povolen přístup odevšad. Je to právě pořadí provádění, které zajistí, že klientovi <code>1.2.3.4</code> bude odmítnut přístup. Kdyby bylo pořadí opačné, začalo by se nejprve u voleb <code>Allow</code>, kde by byly všechny přístupy povoleny a na příslušné <code>Deny</code> pravidlo by Apache nikdy nenatrefil. Na podobném principu lze velice jednoduše dosáhnout omezení přístupu k danému webu na pouze určité IP adresy, takto:</p>
+<pre>&lt;Directory /var/www/example.com/&gt;
+    Order allow,deny
+    Allow from 1.2.3.4
+    Allow from 4.3.2.1
+    Deny from all
+&lt;/Directory&gt;</pre>
+<p>V tomto případě je situace opačná, k webové prezentaci mohou přistupovat pouze počítače <code>1.2.3.4</code> a <code>4.3.2.1</code>, ostatním bude přístup zamezen.</p>
+<h4>Options</h4>
+<p>Důležitou konfigurační volbou pro konkrétní adresář je <code>Options</code>, která řídí, které vlastnosti serveru budou v daném adresáři k dispozici. Nejčastěji se zde vypínají funkce jako adresářový index, což je vlastnost umožňující jednoduše procházet adresářovou strukturu, pokud chybí adresářový index (typicky <code>index.html</code> či <code>index.php</code>, lze ovlivnit volbou <code>DirectoryIndex</code>). Vypnutí indexu provedete takto:</p>
+<pre>&lt;Directory /var/www/example.com/&gt;
+
+    Options -Indexes
+
+    Order allow,deny
+    Allow from 1.2.3.4
+    Allow from 4.3.2.1
+    Deny from all
+    
+&lt;/Directory&gt;</pre>
+<p>V příkladu výše si povšimněte použití direktivy <code>Options</code>. Minus zde vypíná volbu <code>Indexes</code>. Ostatní možnosti v rámci <code>Options</code> se dočtete v <a href="http://httpd.apache.org/docs/current/mod/core.html#options">dokumentaci</a>.</p>
+<h4>Aliasy</h4>
+<p>Často používanou volbou jsou aliasy. Prostřednictvím aliasů můžete mít na určité URL navázaný jiný adresář či jinou webovou aplikaci. Pokud chcete mít například v rámci jednoho virtuálního webu aplikaci Squirrelmail navázanou na URL <code>/mail</code>, použijete alias, takto:</p>
+<pre>Alias /mail /usr/share/squirrelmail
+&lt;Directory /usr/share/squirrelmail&gt;
+     
+     Order allow,deny
+     Allow from all     
+
+     &lt;Files configtest.php&gt;
+        order deny,allow
+        deny from all
+        allow from 127.0.0.1
+     &lt;/Files&gt;
+     
+&lt;/Directory&gt;</pre>
+<p>Dodávám, že tento příklad byl zkrácen, tzn. pokud budete instalovat na server Squirrelmail, použijte konfiguraci specifikovanou v dokumentaci (nebo výchozí konfiguraci Debianu), a nikoliv tento příklad. V tomto příkladu je vidět definice aliasu, kde URL <code>/mail</code> odkazuje na webovou aplikaci uloženou v <code>/usr/share/squirrelmail</code>, a také omezení přístupu k souboru <code>configtest.php</code>, ke kterému je z bezpečnostních důvodů povolen přístup pouze z místní smyčky (localhost).</p>
+<h4>Konfigurace SSL/HTTPS</h4>
+<p>Primárním mechanismem pro zprostředkování SSL spojení je v případě Apache modul <code>mod_ssl</code>, který je třeba nejprve aktivovat:</p>
+<pre>a2enmod ssl
+/etc/init.d/apache2 restart</pre>
+<p>V Debianu je již k dispozici šablona pro virtuální web dostupný přes SSL, a sice <code>/etc/apache2/sites-available/default-ssl</code>, kterou můžete po úpravě aktivovat takto:</p>
+<pre>a2ensite default-ssl
+/etc/init.d/apache2 restart</pre>
+<p>Klíčem k provozování SSL je však dostupnost SSL certifikátu. Zde máte na výběr ze dvou možností. Buď si vygenerujete „self-signed“ (sám sebou podepsaný) SSL certifikát, na který vám dnešní prohlížeče zareagují velice odpudivě (viz obrázek níže) ve snaze odradit běžné uživatele od přístupu k takovému webu, nebo si necháte certifikát podepsat (či vygenerovat) od známé a prohlížeči uznávané certifikační autority. Problémem je, že takový certifikát není až na výjimky zdarma. Já osobně vím o dvou certifikačních autoritách, které vydávají certifikáty zdarma, a sice <a href="http://www.cacert.org/">CAcert</a> (<a href="http://wiki.cacert.org/InclusionStatus">stav podpory</a> v prohlížečích) a <a href="http://www.startssl.com/">StartSSL</a> (<a href="https://forum.startcom.org/viewtopic.php?f=15&amp;t=1802">stav podpory</a> v prohlížečích). Pokud víte o nějaké další, určitě se o to podělte v komentářích pod článkem.</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4108.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4108.jpg','Reakce prohlížeče Google Chrome na self-signed certifikát','1678','1027'); return false;"><img alt="Reakce prohlížeče Google Chrome na self-signed certifikát" class="ph_detail" height="273" src="http://www.linuxexpres.cz/uploads/gallery/detail/4108.jpg" width="446" /></a> <span class="ph_title">Reakce prohlížeče Google Chrome na self-signed certifikát</span></p>
+<h4>Generování self-signed certifikátu</h4>
+<p>Pokud máte nainstalovaný balíček <code>ssl-cert</code>, pak už máte nejspíše sebou podepsaný certifikát vygenerovaný a připravený k použití. V takovém případě nemusíte provádět vůbec nic, protože šablona <code>default-ssl</code> je na tento certifikát připravena. V opačném případě nainstalujte zmíněný balíček, popřípadě si vygenerujte vlastní certifikát s vlastními hodnotami pomocí <code>openssl</code> nebo <code>make-ssl-cert</code>.</p>
+<h4>Použití vlastního certifikátu</h4>
+<p>Máte-li k dispozici vlastní certifikát, vyplňte cestu k němu, k jeho klíči, popřípadě k dalším podstatným souborům, jak je naznačeno, do definice příslušného virtuálního webu (v tomto případě <code>/etc/apache2/sites-available/default-ssl</code>):</p>
+<pre>SSLCertificateFile    /cesta/k/certifikatu.pem
+SSLCertificateKeyFile /cesta/ke/klici.key</pre>
+<h4>Omezení HTTPS a možnost jeho řešení pomocí SNI</h4>
+<p>Jak už bylo zmíněno v minulém díle, certifikát je specifický už z podstaty HTTPS protokolu pro danou IP adresu. Pokud chcete použít více certifikátů pro různé weby, musíte nakonfigurovat příslušné virtuální weby podle IP adres a každému virtuálnímu webu přiřadit jinou IP adresu. Pokud si říkáte, že takové řešení je nešťastné, máte pravdu. Měli byste vědět, že existuje ještě jeden mechanismus pro vytváření HTTPS spojení, a sice SNI (<a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">Server Name Indication</a>), kde je zmíněný problém odstraněn, a pomocí kterého je možné na jedné IP adrese provozovat více webů chráněných různými certifikáty. Návod pro zprovoznění tohoto řešení naleznete v odkazech pod článkem. Problémem SNI je nutnost podpory tohoto řešení u všech klientů, tzn. na straně prohlížečů, kde sice podpora je, ale pouze v novějších verzích. V Debianu Lenny podpora pro SNI v modulu <code>mod_ssl</code> chybí, je tedy nutno použít modul <code>mod_gnutls</code>, který je k dispozici v balíčku <code>libapache2-mod-gnutls</code>.</p>
+<p>Tím bych tento díl ukončil. Příští díl se bude věnovat některým zajímavým modulům a jejich konfiguraci.</p>
+
+<pre id="links">http://httpd.apache.org/docs/current/mod/core.html#options Options Directive
+http://en.gentoo-wiki.com/wiki/Apache2/SSL_and_Name_Based_Virtual_Hosts Apache2/SSL and Name Based Virtual Hosts
+http://cs.wikipedia.org/wiki/Server_Name_Indication Server Name Indication (česky)</pre>

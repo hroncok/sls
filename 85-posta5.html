@@ -1,0 +1,100 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Implementace DKIM</h1>
+
+<p>DKIM je mechanismus pro zvýšení důvěryhodnosti e-mailů odesílaných z vašeho poštovního serveru. Jak funguje a jak jej zprovoznit, to se dozvíte v tomto dílu.</p>
+
+<p class="box">Připomínám, že poštovnímu serveru a otázkám s ním spojeným byly věnovány poslední čtyři díly seriálu. Pokud jste je nečetli, určitě se na ně podívejte – první dva díly (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-postovniho-serveru">první díl</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-agenti-e-mailu-metody-ochrany">druhý díl</a>) se věnovaly převážně teorii, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-nastaveni-dns-spf-a-postfix">třetí díl</a> tvořil praktický úvod do nastavení Postfixu, DNS a SPF, techniky určená ke zvýšení důvěryhodnosti e-mailů, na což naváže dnešní díl tématem DKIM, a konečně <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-postconf-rizeni-fronty-greylisting">čtvrtý díl</a>, který se věnoval nastavení Postfixu obecně a antispamové technice zvané greylisting.</p>
+<h3>DKIM</h3>
+<p>DKIM je zkratka pro DomainKeys Identified Mail, tedy pošta identifikovaná pomocí doménových klíčů. Jedná se o techniku ověření původu e-mailu (nebo, chcete-li, techniku zaručení se za odeslaný e-mail) pomocí asymetrického šifrování.</p>
+<h4>Asymetrické šifrování</h4>
+<p>Symetrické šifrování asi každý zná, máte algoritmus, klíč a nešifrovaná data. Šifrovacímu algoritmu předáte klíč a nešifrovaná data, načež on vám vyprodukuje zašifrovaná data. K dešifrování použijete stejný algoritmus (v módu dešifrování) a stejný klíč.</p>
+<p>Asymetrické šifrování nevyužívá jeden klíč, ale dva klíče (přesněji pár klíčů), jejichž zásadní vlastností je to, že co zašifrujete jedním klíčem, rozšifrujete pouze tím druhým. Asymetrického šifrování se využívá v mnoha oblastech, včetně kupříkladu oblasti digitálních podpisů.</p>
+<p>Digitální podepisování funguje tak, že si vygenerujete pár klíčů, z toho jeden (veřejný) klíč zveřejníte a druhý (soukromý) si chráníte. Z dat, která podepisujete, se spočítá hash, který se následně zašifruje vaším soukromým klíčem. Všichni, kteří mají k dispozici váš veřejný klíč, mohou daný hash dešifrovat, spočítat si hash podepsaných dat a jejich porovnáním zjistit, jestli jsou data stejná nebo zda nebyla pozměněna. Tyto postupy jsou samozřejmě zautomatizované.</p>
+<h4>Fungování DKIM</h4>
+<p>DKIM je v podstatě systém digitálního podepisování zpráv na úrovni serveru, a to pro každou z obsluhovaných domén. Ověřením tohoto podpisu si může kterýkoliv jiný poštovní server ověřit, že zpráva pochází skutečně ze serveru autorizovaného pro odesílání pošty z dané domény. Tato technika, spolu se SPF, umožňuje přidat vaší poště na důvěryhodnosti. Samozřejmě pouze u těch serverů, které provádí příslušná ověřování (SPF či DKIM).</p>
+<h4>Zprovoznění DKIM</h4>
+<p>Zprovoznění DKIM představuje následující kroky:</p>
+<ol>
+<li>
+<p>instalace DKIM filtru</p>
+</li>
+<li>
+<p>vygenerování klíčů pro domény</p>
+</li>
+<li>
+<p>úprava DNS záznamů</p>
+</li>
+<li>
+<p>nastavení DKIM filtru</p>
+</li>
+<li>
+<p>nastavení Postfixu</p>
+</li>
+</ol>
+<h5>Instalace DKIM filtru</h5>
+<p>Samotná instalace představuje instalaci balíku <code>dkim-filter</code>, což v Debianu provedete takto:</p>
+<pre>aptitude install dkim-filter</pre>
+<h5>Vygenerování doménových klíčů</h5>
+<p>Jelikož DKIM nemá v Debianu připraveno úložiště klíčů v <code>/etc</code>, je třeba nějaké vytvořit, např.:</p>
+<pre>mkdir -p /etc/dkim/keys
+cd /etc/dkim/keys</pre>
+<p>Následně vygenerujte klíče pro každou doménu:</p>
+<pre>mkdir -p /etc/dkim/keys/example.com
+cd /etc/dkim/keys/example.com
+dkim-genkey -b 1024 -d example.com</pre>
+<p>Parametr <code>-b</code> udává délku generovaného RSA klíče, přípustné hodnoty jsou mezi 512 a 2048 bitů. Doporučená hodnota je 1024. Parametr <code>-d</code> udává doménu, pro kterou má být pár klíčů generovaný.</p>
+<p>Parametr <code>-s</code> určuje tzv. selektor, který vám umožňuje přiřadit více klíčů jedné doméně, pokaždé s odlišným selektorem). Výchozím selektorem je <em>default</em>. Klíč určený k podepisování (soukromý klíč) se uloží do souboru <code>selektor.private</code> v aktuálním adresáři, veřejný klíč pak do souboru <code>selektor.txt</code>. Není tedy od věci pro každou doménu vyhradit specifický podadresář, tak, jak je naznačeno výše.</p>
+<h5>Úprava DNS záznamů</h5>
+<p>Aby si ostatní poštovní servery mohly podpisy ověřovat, je třeba umístit veřejné klíče na nějaké veřejně dostupné a důvěryhodné místo. Stejně jako v případě SPF i DKIM využívá DNS, konkrétně pak TXT záznamů. Samotný DNS záznam nemusíte nijak tvořit, stačí jej zkopírovat ze souboru <code>selektor.txt</code>. Pro představu, příslušný záznam vypadá např. takto:</p>
+<pre>default._domainkey IN TXT "v=DKIM1; g=*; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC65bMhv0ACIGOzAT4uXbGC3dKo5opmtnnIASUFbsmA8qiFjjUO+fZQrOI3UiUx0laPANnarGn+caTv7jdJAS+dhpCIvA4zUixIDk0opm+Xv6IeSZ9SyVLGkE7+Jtos0He5+h3lVRz/GqbJLAR5yvgXyn7nzC7cGebjfOgCbeBADwIDAQAB" ; ----- DKIM default for example.com</pre>
+<p>Povšimněte si selektoru, který má hodnotu <em>default</em> (hned na začátku řádku).</p>
+<h5>Nastavení DKIM filtru</h5>
+<p>Nejprve je třeba démonovi říci, jaké domény má obsluhovat. Toho docílíte vytvořením souboru s vhodně formátovaným seznamem, který může vypadat třeba takto:</p>
+<pre>*@example.cz:example.cz:/etc/dkim/keys/example.cz/default.private
+*@example.com:example.com:/etc/dkim/keys/example.com/default.private</pre>
+<p>Jak je vidět, na každém řádku je záznam pro jeden klíč, parametry jsou celkem tři a jsou odděleny dvojtečkou. Prvním parametrem je vzor odesílatele (hvězdička funguje jako zástupný znak pro nula nebo více znaků), druhým pak doména, pro kterou bude podepisováno, a třetím parametrem je umístění souboru s klíčem. Kam tento konfigurační soubor umístíte nebo jak ho pojmenujete, je v zásadě jedno. V souladu s příkladem výše by mohl být umístěn v <code>/etc/dkim/dkim-keys.conf</code>.</p>
+<p>Podstatné je, abyste o tomto souboru řekli DKIM filtru – upravte tedy soubor <code>/etc/dkim-filter.conf</code>, kam přidejte následující řádek:</p>
+<pre>KeyList /etc/dkim/dkim-keys.conf</pre>
+<p>Pokud jste výše uvedený soubor se seznamem domén pojmenovali jinak, upravte parametr direktivy <code>KeyList</code> tak, aby odpovídal absolutní cestě k tomuto souboru.</p>
+<p>Dalším krokem je nastavení portu, na kterém bude DKIM filtr naslouchat. Upravte soubor <code>/etc/default/dkim-filter</code> a vložte nebo odkomentujte a upravte stávající záznam podle následujícího vzoru:</p>
+<pre>SOCKET="inet:8891@localhost"</pre>
+<p>Tento řádek, jak je asi jasné, nastaví DKIM k poslechu na portu 8891. Chcete-li použít jiný port, samozřejmě můžete.</p>
+<p>Následně DKIM filtr restartujte:</p>
+<pre>/etc/init.d/dkim-filter restart</pre>
+<p>A přesvědčte se, že běží, a to na správném portu:</p>
+<pre>netstat -tlpn | grep 8891</pre>
+<h5>Nastavení Postfixu</h5>
+<p>Do <code>/etc/postfix/main.cf</code> umístěte následující řádky:</p>
+<pre>milter_default_action = accept
+milter_protocol = 2
+smtpd_milters = inet:localhost:8891
+non_smtpd_milters = inet:localhost:8891</pre>
+<p>První řádek nastavuje chování Postfixu v případě, že je filtr nedostupný: <code>accept</code> zařídí, že se e-mail zpracuje, jako kdyby nebyl nastaven žádný filtr. Druhý řádek nastavuje typ protokolu, zbylé dva řádky definují seznamy filtrů pro poštu, která dorazí buď pomocí SMTP démona, nebo jiným způsobem.</p>
+<p>Následně řekněte Postfixu, aby znovu načetl konfiguraci:</p>
+<pre>/etc/init.d/postfix reload</pre>
+<h4>Otestování funkce DKIM</h4>
+<p>Nejjednodušším způsobem otestování funkce DKIM je odeslat e-mail s odesílatelem odpovídajícím specifikovanému vzoru (nejspíše příslušné doméně). To můžete provést, jste-li přes SSH připojeni k serveru, třeba takto:</p>
+<pre>telnet localhost 25</pre>
+<p>Tím se připojíte na místní poštovní server. Dle SMTP protokolu byste měli zadat následující příkazy:</p>
+<pre>EHLO localhost
+MAIL FROM: <span class="eaddress">root@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span>
+RCPT TO: root@localhost
+DATA
+Subject: DKIM test
+
+.</pre>
+<p>Následně zkontrolujte poštovní schránku, kam vám chodí pošta pro roota, a ověřte, že se v e-mailu nachází DKIM podpis – ten může vypadat třeba takto:</p>
+<pre>DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=example.com;
+        s=example.com.private; t=1335887965;
+        bh=frcCV1k9oG9oKj3dpUqdJg1PxRT2RSN/XKdLCPjaYaY=;
+        h=Message-Id:Date:From:To;
+        b=O+LTeP0rfmUn9nnvsIyXY6uiaGi8wPt4/6myFoxWmeY8ivHMNdlbi+lZvQ2EkhaUG
+         f8T8zbzYY5/4GQdMF+F/N5mzcnFi8XmdgIoVWggpXnARuh+M1p4ui+VbUoi6DJGP/w
+         Grj7F78QdLXrFb8D3cV3q+yYFJ4RQpjMavhh/gxk=</pre>
+<p>Tento test vám ale neřekne, jestli jsou jiné servery schopny za pomoci doménových záznamů tento podpis ověřit. Nejjednodušší je asi použít některý z mnoha online nástrojů, které k tomuto účelu slouží. Ty naleznete buď pomocí vyhledávače, nebo v komentářích pod jedním z odkazovaných článků.</p>
+
+<pre id="links">http://www.dkim.org/ Oficiální web pro DKIM
+http://www.debiantutorials.com/setup-domainkeys-identified-mail-dkim-in-postfix/ Setup DomainKeys Identified Mail (DKIM) in Postfix
+http://blogs.cisco.com/security/common_errors_causing_dkim_verification_failures/ Common Errors Causing DKIM Verification Failures</pre>

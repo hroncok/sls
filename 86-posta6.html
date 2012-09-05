@@ -1,0 +1,60 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Aliasy a záložní poštovní server</h1>
+
+<p>Tento díl osvětlí problematiku aliasů a prozradí vám, jak nastavit záložní poštovní server, který bude vaši poštu přijímat a uchovávat, zatímco bude váš hlavní poštovní server mimo provoz.</p>
+
+<h3>Aliasy</h3>
+<p>Aliasy představují metodu, jak více e-mailových adres směrovat do jediné schránky. Aliasy jsou definované v souboru <code>/etc/aliases</code>, kde jsou již připraveny výchozí aliasy (kupříkladu, dle RFC by každý SMTP server měl přijímat poštu směrovanou na <code><span class="eaddress">postmaster@domena<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />tld</span></code> a jeden z aliasů přeposílá tuto poštu rootovi). Syntax tohoto konfiguračního souboru je velmi jednoduchá:</p>
+<pre>alias: schranka</pre>
+<p>Tento záznam doručí poštu směřující na <code><span class="eaddress">alias@domena<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />tld</span></code> do schránky uživatele <code>schranka</code>. Specifikovat můžete ale i více příjemců, takže pokud třeba server spravuje více správců, můžete poštu pro roota posílat každému z nich:</p>
+<pre>root: <span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>, <span class="eaddress">pepa@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>, <span class="eaddress">radek@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span></pre>
+<p>Jste-li zvyklí po úpravě konfiguračního souboru restartovat server a očekávat, že se změna projeví, v tomto případě vás zaskočí mírně neintuitivní chování Postfixu. Pokud totiž provedete úpravu <code>/etc/aliases</code> a pouze restartujete poštovní server, změny se neprojeví. Postfix totiž nepracuje přímo s konfiguračním souborem <code>/etc/aliases</code>, ale s databázovým souborem (<code>/etc/aliases.db</code>), který se z tohoto souboru generuje. A to nikoliv automaticky, ale pouze na pokyn správce, příkazem:</p>
+<pre>newaliases</pre>
+<p>Teprve poté sdělte Postfixu, že si má znovu načíst konfiguraci:</p>
+<pre>service postfix reload</pre>
+<p>Zde je třeba dodat, že řada seznamů hodnot či pravidel se v Postfixu vytváří a spravuje tímto způsobem, tj. ze souboru si musíte nechat vygenerovat příslušný binární databázový soubor, a to příkazem <code>postmap</code>. Příkaz <code>newaliases</code> slouží pouze pro opětovné vygenerování databáze aliasů, kdežto <code>postmap</code> vám umožňuje vygenerovat databázi z libovolného (vhodně formátovaného) souboru:</p>
+<pre>postmap /etc/aliases</pre>
+<p>Nástroj <code>newaliases</code> de facto provede výše zmíněný příkaz.</p>
+<h3>Záložní poštovní server</h3>
+<p>Záložní poštovní server se hodí v situaci, kdy váš hlavní poštovní server vypadne. Přirozeně, rozumně nastavené poštovní servery by neměly doručování na váš poštovní server rovnou vzdát, měly by si poštu pro váš server uložit a zkoušet ji doručit, dokud neuplyne timeout (výchozí timeout v Postfixu je 5 dní).</p>
+<p>Záložní servery se specifikují pomocí MX záznamů DNS. Každý poštovní server má přiřazenou prioritu, která je daná kladným přirozeným číslem, kde vyšší číslo značí <strong>nižší</strong> prioritu.</p>
+<p>Tvorba záložního serveru může být velmi jednoduchá, ale skýtá jedno velké ale. Samotnou funkčnost záložního serveru lze zrealizovat přidáním domén, pro které chcete dělat záložní server, do proměnné <code>relay_domains</code> v <code>/etc/postfix/main.cf</code>:</p>
+<pre>relay_domains = example.com, example.org</pre>
+<p>Přirozeně, tyto domény nesmí být specifikovány v <code>mydestination</code> nebo jinde, kde se nastavuje nějaký typ místního doručování.</p>
+<p>A nyní ono veliké ale. Za předpokladu, že je hodnota proměnné <code>relay_recipient_maps</code> prázdná, Postfix bude normálně přijímat veškerou poštu, která bude určena pro výše nastavené domény. Včetně pošty pro uživatele, kteří na hlavním poštovním serveru neexistují. Kdyby se totéž odehrálo na hlavním serveru, ten by prostě ohlásil, že daný uživatel neexistuje a odmítl poštu převzít. Záložní server v této konfiguraci však poštu přijme, a až bude hlavní server opět k dispozici, vygenerují se oznámení o nedoručení, která se rozešlou všem chudákům, které spammeři vyplnili do pole <code>From</code>.</p>
+<p>Co s tím dělat? Kromě možnosti, že záložní poštovní server vůbec nebudete používat, zbývá volba <code>relay_recipient_maps</code> (v souboru <code>/etc/postfix/main.cf</code>), která vám umožňuje specifikovat platné uživatele domén, pro které váš server slouží jako záložní:</p>
+<pre>relay_recipient_maps = hash:/etc/postfix/relay_recipients</pre>
+<p>Následně vytvořte soubor <code>/etc/postfix/relay_recipients</code> a naplňte ho platnými adresami:</p>
+<pre><span class="eaddress">uzivatel1@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span> x
+<span class="eaddress">uzivatel1@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span> x
+<span class="eaddress">uzivatel2@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span> x
+<span class="eaddress">uzivatel2@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span> x</pre>
+<p>Pokud takový seznam nechcete nebo nemůžete vytvořit a výše popsaný problém vám nevadí, ponechte <code>relay_recipient_maps</code> prázdné, což zapříčiní, že Postfix bude přijímat všechnu poštu. Je-li tato volba neprázdná, bude Postfix odmítat všechno kromě položek v daném seznamu.</p>
+<h3>Unixové a virtuální poštovní účty</h3>
+<p>Standardní nastavení Postfixu, které jsem vám ukázal v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-postovniho-serveru">jednom z minulých dílů</a>, doručuje poštu všem lokálním unixovým účtům. Máte-li tedy uživatele <code>michal</code> a poštovní server na doméně <code>example.com</code>, bude se pošta směřující na <code><span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span></code> doručovat do poštovní schránky uživatele <code>michal</code>. Obsluhuje-li server více domén, bude pošta ze všech domén směřovat na jediný unixový účet (tzn. pošta směřující na <code><span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />cz</span></code>, <code><span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span></code> a <code><span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span></code> bude doručena do schránky uživatele <code>michal</code>).</p>
+<p>U jedné domény nebo u osobního serveru je tato situace většinou tolerovatelná. Potřebujete-li však doručit poštu směřující na <code><span class="eaddress">info@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span></code> a <code><span class="eaddress">info@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span></code> do dvou různých schránek, musí přijít na řadu jiné řešení. Možnosti jsou zde v podstatě dvě:</p>
+<ul>
+<li>virtuální aliasy (směrovat specifické e-mailové adresy na různé unixové účty)</li>
+<li>vytvořit pro uživatele pošty virtuální účty, nesvázané s unixovými</li>
+</ul>
+<p>Druhá z variant se často realizuje ve spolupráci s nějakou databází (MySQL, PostgreSQL), kde se uchovávají informace o účtech, zatímco pošta se směruje buď do souborů, nebo také do databáze. Jedná se o komplexní řešení, které bude probráno v jednom z následujících dílů.</p>
+<p>První varianta je oproti druhé velmi jednoduchá. Přidejte do <code>/etc/postfix/main.cf</code> následující řádky:</p>
+<pre>virtual_alias_domains = example.org example.com
+virtual_alias_maps = hash:/etc/postfix/virtual</pre>
+<p>Do proměnné <code>virtual_alias_domains</code> vložte seznam domén, pro které chcete tvořit virtuální aliasy, oddělovačem je zde mezera. <strong>Pozor!</strong> V žádném případě nesmíte stejnou doménu uvést v <code>virtual_alias_domains</code> a v <code>mydestination</code>! Doména může být vždy jen v jedné z těchto proměnných.</p>
+<p>Proměnná <code>virtual_alias_maps</code> obsahuje odkaz na soubor <code>/etc/postfix/virtual</code>, který nyní musíte vytvořit, a to s obsahem podobným tomuto:</p>
+<pre><span class="eaddress">info@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span> michal
+<span class="eaddress">info@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span> radek
+<span class="eaddress">postmaster@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span> root
+<span class="eaddress">postmaster@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span> root
+@example.com domenovykos</pre>
+<p>Zde je asi na první pohled vidět, co je jak nastaveno. Maily směřující na <code><span class="eaddress">info@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span></code> budou doručeny uživateli <code>michal</code>, zatímco maily směřující na <code><span class="eaddress">info@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span></code> budou doručeny uživateli <code>radek</code>. Je zde definován alias pro postmastera, který v případě obou domén doručí poštu rootovi. Příklad obsahuje i doménový koš, tedy zachytávání pošty pro všechny neexistující uživatele, a to v tomto případě do schránky uživatele <code>domenovykos</code>.</p>
+<p>Nyní je třeba vygenerovat databázový soubor z <code>/etc/postfix/virtual</code>, což můžete provést nástrojem <code>postmap</code>:</p>
+<pre>postmap /etc/postfix/virtual</pre>
+<p>Následně nechte Postfix znovu načíst konfiguraci:</p>
+<pre>service postfix reload</pre>
+<p>Doporučuji poté toto nastavení otestovat zasláním testovacích e-mailů. To, jak byla pošta doručována a kam, si můžete ověřit z logů –﻿ v Debianu je to <code>/var/log/mail.log</code>.</p>
+
+<pre id="links"></pre>

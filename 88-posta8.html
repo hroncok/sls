@@ -1,0 +1,88 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Uživatel a poštovní schránka</h1>
+
+<p>Po zprovoznění poštovního serveru určitě budete chtít mít možnost došlou poštu pohodlně vybírat, stejně jako poštu odesílat. V tomto dílu se dozvíte, jak toho docílit.</p>
+
+<p>Pro odesílání pošty slouží protokol SMTP, ovšem Postfix nastavený podle dosavadních instrukcí, které jste nalezli v tomto seriálu, vám umožní odesílat poštu, pouze jste-li přihlášeni na server (leda byste si do <code>mynetworks</code> přidali všechny externí počítače, ze kterých odesíláte poštu, což by však bylo krajně nepohodlné).</p>
+<p>Za tímto účelem by bylo dobré implementovat SMTP autentifikaci, v rámci které se budete moci odkudkoliv k serveru přihlásit a jako přihlášený uživatel odeslat poštu. Jelikož posílat jméno a heslo přes internet v textové podobě je z bezpečnostního hlediska velkou chybou, měli byste také implementovat TLS.</p>
+<p>Výběr pošty lze zrealizovat dvěma způsoby: prostřednictvím protokolů POP3 nebo IMAP4. Serverů zajišťujících POP3 a IMAP4 přístup k poštovním schránkám je více, já se zaměřím na Dovecot.</p>
+<h4>Webová rozhraní</h4>
+<p>Kromě výše uvedených metod ještě přicházejí v úvahu webová rozhraní. Přímo v distribuci Debianu naleznete jednodušší Squirrelmail a komplexnější a „hezčí“ Roundcube. Ta budou představena a zprovozněna v některém z dalších dílů.</p>
+<h3>Odesílání pošty, SMTP AUTH a TLS</h3>
+<p>Autentifikaci neprovádí samotný Postfix, nýbrž démon <code>saslauthd</code>. Ten nainstalujete tímto způsobem:</p>
+<pre>aptitude install sasl2-bin</pre>
+<p>Následně upravte soubor s výchozími parametry démona <code>saslauthd</code>:</p>
+<pre>vim /etc/default/saslauthd</pre>
+<p>Řekněte startovacím skriptům, aby při startu systému rozběhli i <code>saslauthd</code> (ve výchozím stavu po instalaci saslauthd nenajede):</p>
+<pre>START=yes</pre>
+<p>Jelikož Postfix sám běží v chrootu, je nutné přemístit pojmenovanou rouru, přes kterou se Postfix a saslauthd propojují, což provedete úpravou proměnné <code>OPTIONS</code> na konci konfiguračního souboru:</p>
+<pre>OPTIONS="-c -m /var/spool/postfix/var/run/saslauthd"</pre>
+<p>Zbývá nastavit Postfix jako takový. Ve výchozím stavu by TLS měl již podporovat, pokud ne, doplňte do <code>main.cf</code> následující řádky:</p>
+<pre>smtpd_tls_cert_file=/cesta/k/ssl/certifikatu.pem
+smtpd_tls_key_file=/cesta/k/soukromemu/klici.key
+smtpd_use_tls=yes 
+smtpd_tls_auth_only = yes
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache 
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache </pre>
+<p>K šifrovanému spojení je pochopitelně třeba certifikát. Výchozí automaticky vygenerovaný certifikát je podepsaný sám sebou, což nemusí být z hlediska bezpečnosti úplně nejvhodnější (vaši uživatelé nemají jak si ověřit, zda je daný certifikát skutečně váš a ne podstrčený nějakou třetí osobou v rámci man-in-the-middle útoku). Máte-li certifikát k doméně poštovního serveru podepsaný nějakou známou certifikační autoritou, bývá dobré jej použít místo něj (v takovém případě upravte <code>smtpd_tls_cert_file</code> a <code>smtpd_tls_key_file</code>). Připomínám, že existují certifikační autority, kde můžete získat certifikát zdarma (např. CACert, StartSSL).</p>
+<p>TLS jako takové zapíná volba <code>smtpd_use_tls</code>, přičemž vynucení autentifikace pouze přes TLS řídí volba <code>smtpd_tls_auth_only</code>.</p>
+<p>Kromě řádků výše je třeba zprovoznit i SASL autentifikaci. Přidejte tedy do <code>main.cf</code> následující řádky:</p>
+<pre>smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous
+broken_sasl_auth_clients = no
+smtpd_sasl_authenticated_header = yes</pre>
+<p>Autentifikace pomocí SASL se zapíná proměnnou <code>smtpd_sasl_auth_enable</code>. Bývá dobré vypnout anonymní autentifikaci, tedy nastavit proměnnou <code>smtpd_sasl_security_options</code> na hodnotu <code>noanonymous</code>. Ne všichni klienti podporují aktuální verzi příkazu AUTH, jako např. MS Outlook Express 4 či Exchange 5. Chcete-li zajistit kompatibilitu vašeho serveru i s takovými klienty, nastavte <code>broken_sasl_auth_clients</code> na hodnotu <code>yes</code>. A konečně poslední proměnná (<code>smtpd_sasl_authenticated_header</code>) řídí, zda v hlavičkách e-mailu bude zanesena informace o tom, který autentifikovaný uživatel danou zprávu zaslal. Pro lepší názornost uvádím příklad takové hlavičky se znázorněním příslušného řádku:</p>
+<pre>Received: from localhost.localdomain (unknown [1.2.3.4])
+        (using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+        (No client certificate requested)
+        <strong>(Authenticated sender: michal)</strong>
+        by server.example.net (Postfix) with ESMTPSA id 2A0D62970025
+        for &lt;<span class="eaddress">michal@server<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />net</span>&gt;; Thu, 31 May 2012 22:43:24 +0200 (CEST)</pre>
+<p>Výše uvedené nastavení řeklo Postfixu, aby podporoval TLS a SASL autentifikaci. Vy ale chcete uživatelům autentifikovaným přes SASL umožnit odesílat poštu. Za tímto účelem je ještě třeba upravit proměnnou <code>smtpd_recipient_restrictions</code> (viz minulý díl seriálu, kde byla tato problematika podrobně popsána). Na správné místo je třeba přidat <code>permit_sasl_authenticated</code>, obvykle za <code>permit_mynetworks</code>:</p>
+<pre>smtpd_recipient_restrictions =
+   reject_unauth_pipelining,
+   reject_non_fqdn_recipient,
+   reject_unknown_recipient_domain,
+   permit_mynetworks,
+   <strong>permit_sasl_authenticated,</strong>
+   reject_invalid_hostname,
+   reject_unauth_destination,
+   permit</pre>
+<p>Dodám, že výše uvedené nastavení <code>smtpd_recipient_restrictions</code> může být pro některé použití až příliš restriktivní, berte jej tedy pouze jako příklad a ne jako vzor, který je třeba následovat.</p>
+<p>Zbývají dva poslední kroky. Nejprve je třeba vytvořit soubor <code>/etc/postfix/sasl/smtpd.conf</code> a zapsat do něj následující řádek:</p>
+<pre>pwcheck_method: saslauthd</pre>
+<p>Druhým krokem je přidání uživatele „postfix“ do skupiny „sasl“, čímž umožníte Postfixu komunikovat se saslauthd:</p>
+<pre>gpasswd -a postfix sasl</pre>
+<p>Poté restartujte saslauthd a Postfix:</p>
+<pre>service saslauthd restart
+service postfix restart</pre>
+<p>Nyní můžete vyzkoušet nakonfigurovat poštovního klienta k odesílání pošty přes váš server. Nezapomeňte v jeho nastavení povolit TLS a SMTP autentifikaci.</p>
+<h3>Čtení pošty, POP3, IMAP4 a Dovecot</h3>
+<p>Dovecot podporuje obě varianty obou protokolů pro přístup k poště, tedy POP3 a jeho SSL variantu POP3S, dále IMAP4 a jeho SSL variantu IMAPS. Umí samozřejmě podporovat i TLS, tedy šifrování na transportní vrstvě. Záleží jen na vás, které varianty zvolíte. Chcete-li zvolit všechny, upravte konfigurační soubor <code>/etc/dovecot/dovecot.conf</code> a upravte řádku s protokoly, takto:</p>
+<pre>protocols = imap imaps pop3 pop3s</pre>
+<p>Používáte-li SSL varianty protokolů nebo chcete-li použít TLS, je třeba opět provést patřičné nastavení:</p>
+<pre>ssl = yes
+ssl_cert_file = /etc/ssl/certs/dovecot.pem
+ssl_key_file = /etc/ssl/private/dovecot.pem
+disable_plaintext_auth = yes 
+ssl = required</pre>
+<p>Většina voleb je zde asi jasná. <code>disable_plaintext_auth</code> zakáže plaintextovou autentifikaci a <code>ssl = required</code> zajistí, že bude SSL/TLS vyžadováno i pro neplaintextovou autentifikaci.</p>
+<p>Aby Dovecot mohl přistupovat k vaší poště, je třeba mu říci, kde ji má hledat. k tomu slouží proměnná <code>mail_location</code>, která má poměrně komplexní syntax a která je dobře popsána přímo v konfiguračním souboru. Používáte-li výchozí nastavení, tj. schránky typu MBOX ve <code>/var/mail/uzivatel</code>, nastavte <code>mail_location</code> takto:</p>
+<pre>mail_location = mbox:~/mail:INBOX=/var/mail/%u</pre>
+<p>Pro to nejzákladnější nastavení by tyto volby měly stačit. Restartujte Dovecot a můžete začít testovat pomocí poštovního klienta:</p>
+<pre>service dovecot restart</pre>
+<p>Pro jednotlivé protokoly lze specifikovat, na kterých IP adresách a portech má démon naslouchat, viz následující příklad:</p>
+<pre>protocol imap {
+   listen = 127.0.0.1:143
+   ssl_listen = *:993
+}</pre>
+<p>Hvězdička značí všechna rozhraní. Tento příklad by zajistil, že nešifrovaný IMAP je přístupný pouze lokálně, zatímco IMAPS je dostupný na všech síťových rozhraních serveru. Toto je samozřejmě pouze ilustrační příklad, pro zakázání nešifrované autentifikace tento postup není třeba – vhodnější je zakázat plaintextovou autentifikaci (viz výše).</p>
+<p>Podobným způsobem je také možné každé službě přiřadit jiný SSL certifikát – stačí použít příslušné volby (<code>ssl_cert_file</code> a <code>ssl_key_file</code>) taktéž uvnitř sekce <code>protocol</code>. Možnosti konfigurace Dovecotu jsou velmi bohaté, proto doporučuji se podívat do manuálových stránek nebo na wiki Dovecotu.</p>
+
+<pre id="links">http://en.wikipedia.org/wiki/Comparison_of_mail_servers Comparison of mail servers
+http://library.linode.com/email/postfix/dovecot-system-users-debian-6-squeeze Postfix, Dovecot, and System User Accounts on Debian 6 (Squeeze)
+http://www.postfix.org/postconf.5.html Přehled konfiguračních voleb Postfixu
+http://wiki.dovecot.org/SSL/DovecotConfiguration Dovecot SSL configuration
+http://wiki.dovecot.org/SSL Dovecot SSL</pre>

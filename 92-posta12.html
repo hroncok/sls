@@ -1,0 +1,117 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Propojení Postfixadminu s Postfixem a Dovecotem a autentifikace virtuálních účtů</h1>
+
+<p>Minulý díl načal tvorbu řešení správy více domén na poštovním serveru za asistence webové aplikace Postfixadmin. V tomto dílu se dozvíte, jak Postfixadmin propojit s Postfixem a Dovecotem a jak vyřešit SMTP autentifikaci virtuálních účtů.</p>
+
+<h3>Postfixadmin</h3>
+<p>Problematika instalace a konfigurace nástroje Postfixadmin byly probrány v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-postovni-server-a-vice-domen">minulém dílu</a>. Pokud jste jej tedy nečetli, začněte určitě jím.</p>
+<h3>Propojení s Postfixem</h3>
+<p>Propojení s Postfixem je popsáno v <code>/usr/share/doc/postfixadmin/DOCUMENTS/POSTFIX_CONF.txt.gz</code>. Doporučuji jej přinejmenším konzultovat, zejména pokud používáte novější verzi Postfixadminu. Tento návod by měl být aktuální pro verzi 2.3.5 a pro Debian Squeeze.</p>
+<p>Do <code>/etc/postfix/main.cf</code> vložte následující řádky:</p>
+<pre>virtual_mailbox_domains = proxy:mysql:/etc/postfix/sql/mysql_virtual_domains_maps.cf
+virtual_alias_maps =
+   proxy:mysql:/etc/postfix/sql/mysql_virtual_alias_maps.cf,
+   proxy:mysql:/etc/postfix/sql/mysql_virtual_alias_domain_maps.cf,
+   proxy:mysql:/etc/postfix/sql/mysql_virtual_alias_domain_catchall_maps.cf
+virtual_mailbox_maps =
+   proxy:mysql:/etc/postfix/sql/mysql_virtual_mailbox_maps.cf,
+   proxy:mysql:/etc/postfix/sql/mysql_virtual_alias_domain_mailbox_maps.cf
+virtual_mailbox_base = /var/mail/vmail
+virtual_minimum_uid = 8
+virtual_transport = virtual
+virtual_uid_maps = static:8
+virtual_gid_maps = static:8
+local_transport = local:$myhostname virtual
+local_recipient_maps = proxy:unix:passwd.byname $alias_maps $virtual_mailbox_maps</pre>
+<p><strong>Pozor!</strong> Domény spravované Postfixadminem nesmí být uvedené v <code>mydestination</code>! Konfigurace naznačená výše by vám měla umožnit používat jak lokální doručování pro domény uvedené v <code>mydestination</code>, tak virtuální doručování pro virtuální účty domén spravovaných Postfixadminem.</p>
+<p>Pokud se na obsah výše uvedených proměnných podíváte podrobněji, zjistíte, že se tato konfigurace odkazuje na řadu dalších souborů, které vytvoříte níže, a to v adresáři <code>/etc/postfix/sql</code>. Na názvech i cestách k jednotlivým souborům nezáleží, avšak musí se shodovat s názvy a cestami uvedenými v konfiguraci Postfixu.</p>
+<p>Princip tohoto nastavení spočívá v definici databázových přístupových údajů a jednotlivých databázových dotazů, kterými Postfix získá potřebné informace. To samozřejmě znamená, že od této chvíle bude fungování Postfixu závislé na dostupnosti databázového serveru.</p>
+<p>Vytvořte soubor <code>/etc/postfix/sql/mysql_virtual_alias_maps.cf</code> s následujícím obsahem:</p>
+<pre>user = uzivatel
+password = heslo
+hosts = localhost
+dbname = nazev_databaze
+query = SELECT goto FROM alias WHERE address='%s' AND active = '1'</pre>
+<p>Proměnné <code>user</code>, <code>password</code> a <code>dbname</code> si upravte podle toho, jak jste nastavili Postfixadmin při instalaci. Pokud nevíte, podívejte se do souboru <code>/etc/postfixadmin/dbconfig.inc.php</code>, kde jsou správné hodnoty uvedeny. Tyto hodnoty je třeba upravit v každém souboru!</p>
+<p>Vytvořte soubor <code>/etc/postfix/sql/mysql_virtual_alias_domain_maps.cf</code> s následujícím obsahem:</p>
+<pre>user = uzivatel
+password = heslo
+hosts = localhost
+dbname = nazev_databaze
+query = SELECT goto FROM alias,alias_domain WHERE alias_domain.alias_domain = '%d' and alias.address = CONCAT('%u', '@', alias_domain.target_domain) AND alias.active = 1 AND alias_domain.active='1'</pre>
+<p>Opět si přizpůsobte výše uvedené proměnné. Poté vytvořte soubor <code>/etc/postfix/sql/mysql_virtual_alias_domain_catchall_maps.cf</code> s následujícím obsahem:</p>
+<pre>user = uzivatel
+password = heslo
+hosts = localhost
+dbname = nazev_databaze
+query  = SELECT goto FROM alias,alias_domain WHERE alias_domain.alias_domain = '%d' and alias.address = CONCAT('@', alias_domain.target_domain) AND alias.active = 1 AND alias_domain.active='1'</pre>
+<p>Nezapomeňte si upravit proměnné. Následně vytvořte soubor <code>/etc/postfix/sql/mysql_virtual_domains_maps.cf</code> s následujícím obsahem:</p>
+<pre>user = uzivatel
+password = heslo
+hosts = localhost
+dbname = nazev_databaze
+query          = SELECT domain FROM domain WHERE domain='%s' AND active = '1'</pre>
+<p>Po úpravě proměnných vytvořte soubor <code>/etc/postfix/sql/mysql_virtual_mailbox_maps.cf</code> s následujícím obsahem:</p>
+<pre>user = uzivatel
+password = heslo
+hosts = localhost
+dbname = nazev_databaze
+query = SELECT maildir FROM mailbox WHERE username='%s' AND active = '1'</pre>
+<p>Po úpravě proměnných vytvořte soubor <code>/etc/postfix/sql/mysql_virtual_alias_domain_mailbox_maps.cf</code> s následujícím obsahem:</p>
+<pre>user = uzivatel
+password = heslo
+hosts = localhost
+dbname = nazev_databaze
+query = SELECT maildir FROM mailbox,alias_domain WHERE alias_domain.alias_domain = '%d' and mailbox.username = CONCAT('%u', '@', alias_domain.target_domain) AND mailbox.active = 1 AND alias_domain.active='1'</pre>
+<p>Následně restartujte Postfix:</p>
+<pre>service postfix restart</pre>
+<p>Abyste propojení otestovali, vytvořte v Postfixadminu doménu a poštovní schránku. Pokud neodškrtnete příslušné políčko, měl by být na danou adresu automaticky odeslán uvítací e-mail, který de facto danou poštovní schránku vytvoří (a to ve <code>/var/mail/vmail</code>). Můžete zkontrolovat, zda se příslušné adresáře vytvořily a zpráva přistála v příslušném maildiru v tomto umístění (maildir je tvořen třemi adresáři, <code>cur</code>, <code>new</code> a <code>tmp</code>, jednotlivé e-maily jsou uloženy v samostatných souborech, nové e-maily směřují do adresáře <code>new</code>). Náhledem do logu (<code>/var/log/mail.log</code>) můžete odhalit problém, pokud se to Postfixu nepodaří. Doplním, že při ladění urychlíte opětovné pokusy o doručení příkazem pro vyprázdnění poštovní fronty:</p>
+<pre>postqueue -f</pre>
+<h3>Propojení s Dovecotem</h3>
+<p>Nejprve upravte soubor <code>/etc/dovecot/dovecot.conf</code> následujícím způsobem:</p>
+<pre>mail_location = maildir:/var/mail/vmail/%u/
+
+auth default {
+  mechanisms = plain
+  userdb sql {
+    # Path for SQL configuration file, see doc/dovecot-sql-example.conf
+    args = /etc/dovecot/dovecot-mysql.conf
+  }
+  passdb sql {
+    # Path for SQL configuration file, see doc/dovecot-sql-example.conf
+    args = /etc/dovecot/dovecot-mysql.conf
+  }
+}
+
+first_valid_uid = 8</pre>
+<p>Při úpravách berte na vědomí, že konfigurační soubor Dovecotu, <code>dovecot.conf</code>, je hojně komentovaný a obsahuje prakticky všechny výše uvedené konstrukce a proměnné, ovšem s jinými hodnotami. Proto si dejte pozor, abyste někde něco neměli definované dvakrát. Následně vytvořte soubor <code>/etc/dovecot/dovecot-mysql.conf</code> s následujícím obsahem:</p>
+<pre>connect = host=localhost dbname=nazev_databaze user=uzivatel password=heslo
+driver = mysql
+default_pass_scheme = MD5-CRYPT
+
+password_query = SELECT username AS user,password FROM mailbox WHERE username = '%u' AND active='1'
+user_query = SELECT maildir, 8 AS uid, 8 AS gid FROM mailbox WHERE username = '%u' AND active='1'</pre>
+<p>I zde je třeba provést úpravu proměnných <code>dbname</code>, <code>user</code> a <code>password</code> hodnotami specifikovanými v <code>/etc/postfixadmin/dbconfig.inc.php</code>. Povšimněte si části dotazu <code>user_query</code>, který obsahuje hodnoty UID a GID, pod kterými se má přistupovat k poště. Číslo 8 odpovídá uživateli a skupině <code>mail</code> v distribuci Debian. Aby Dovecot s takovým UID neodmítl pracovat, je třeba uvést stejné nebo nižší číslo v proměnné <code>first_valid_uid</code> (viz výše).</p>
+<h3>SMTP autentifikace a virtuální účty</h3>
+<p>Jelikož pro SMTP autentifikaci nejspíše využíváte SASL a povolujete vzdálený přístup k SMTP serveru prostřednictvím <code>permit_sasl_authenticated</code> v nastavení Postfixu (viz dřívější díly), výše uvedené úpravy vám neumožní odesílat poštu z virtuálních účtů (autentifikace vám selže). I pro tuto záležitost existuje řada možných řešení. Já uvedu řešení spočívající v autentifikaci prostřednictvím lokálního IMAP serveru. Upravte <code>/etc/default/saslauthd</code> následujícím způsobem:</p>
+<pre>MECHANISMS="rimap"
+MECH_OPTIONS="localhost"
+OPTIONS="-c -r -O localhost -m /var/spool/postfix/var/run/saslauthd"</pre>
+<p>A ještě upravte <code>/etc/postfix/sasl/smtpd.conf</code>, takto:</p>
+<pre>pwcheck_method: saslauthd
+saslauthd_path: /var/run/saslauthd/mux
+log_level: 3
+mech_list: PLAIN LOGIN
+auxprop_plugin: rimap</pre>
+<p>Poté restartujte <code>saslauthd</code> a <code>postfix</code>:</p>
+<pre>service saslauthd restart
+service postfix restart</pre>
+<p>Nyní vyzkoušejte odeslat e-mail z některé z virtuálních schránek. Připomínám, že jako login je třeba použít celý e-mail včetně doménového jména, heslo pak odpovídá heslu dané poštovní schránky.</p>
+
+<pre id="links">http://postfixadmin.sourceforge.net/ Postfixadmin: web projektu
+http://codepoets.co.uk/2009/postfixadmin-setupinstall-guide-for-virtual-mail-users-on-postfix/ Postfixadmin – setup/install guide for virtual mail users on Postfix
+http://postfix.wiki.xs4all.nl/index.php?title=Virtual_Users_and_Domains_with_Courier-IMAP_and_MySQL Virtual Users and Domains with Courier-IMAP and MySQL
+http://wiki.dovecot.org/HowTo/DovecotLDAPostfixAdminMySQL Howto Setup a Mail Server with Virtual Users and Domains
+http://postfixmail.com/blog/index.php/postfixadmin-and-fetchmail/ PostfixAdmin and Fetchmail</pre>

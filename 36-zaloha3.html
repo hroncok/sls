@@ -1,0 +1,71 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Zálohování pomocí Duplicity</h1>
+
+<p>V minulém díle jsem vám představil zálohovací nástroj rdiff-backup. Zajímavou alternativou k tomuto nástroji představuje program Duplicity, který představím v tomto díle.</p>
+
+<h3>Úvod</h3>
+<p>Na rozdíl od <code>rdiff-backup</code> není u Duplicity dostupná poslední záloha v „otevřené“ podobě, kde by stačilo prosté překopírování souborů z úložiště zpět. Jiný způsob práce umožňuje tomuto nástroji nabídnout poněkud jiné spektrum funkcí jako například komprimaci či šifrování záloh pomocí GnuPG, nebo třeba v případě vzdáleného zálohování absenci nutnosti mít Duplicity i na cílovém počítači. Stejně jako <code>rdiff-backup</code> využívá i Duplicity přenosové pásmo efektivně a přenáší na vzdálený počítač pouze změny. Duplicity však může stejně jako <code>rdiff-backup</code> pracovat lokálně, tedy zálohovat v rámci jednoho počítače, a zvládá jak plnou, tak rozdílovou zálohu.</p>
+<h3>Jednoduchá nešifrovaná záloha</h3>
+<p>Duplicity ve výchozím nastavení rovnou šifruje, tudíž pokud chcete jen jednoduchou, nešifrovanou zálohu, musíte šifrování explicitně zakázat. Cíl zálohy je nutné specifikovat pomocí URL včetně použitého protokolu – pro místní zálohu se používá protokol <code>file</code>:</p>
+<pre>duplicity --no-encryption /home/co file:///backup/kam</pre>
+<p>Duplicity prozkoumá cíl a sám zjistí, jestli má provést plnou nebo rozdílovou zálohu. Po dokončení práce vypíše Duplicity statistiku o proběhlé záloze, která vypadá takto:</p>
+<pre>--------------[ Backup Statistics ]--------------
+StartTime 1281416525.29 (Tue Aug 10 07:02:05 2010)
+EndTime 1281416528.38 (Tue Aug 10 07:02:08 2010)
+ElapsedTime 3.08 (3.08 seconds)
+SourceFiles 1617
+SourceFileSize 694597580 (662 MB)
+NewFiles 0
+NewFileSize 0 (0 bytes)
+DeletedFiles 0
+ChangedFiles 0
+ChangedFileSize 0 (0 bytes)
+ChangedDeltaSize 0 (0 bytes)
+DeltaEntries 0
+RawDeltaSize 0 (0 bytes)
+TotalDestinationSizeChange 3438 (3.36 KB)
+Errors 0
+-------------------------------------------------</pre>
+<h3>Vzdálené zálohování a šifrování záloh</h3>
+<p>Duplicity umožňuje zálohovat vzdáleně pomocí celé řady protokolů, počínaje klasickým unixovým ssh/scp přes rsync, ftp, WebDAV až po Amazon S3. Vzdálené zálohování prostřednictvím protokolu SCP vypadá takto:</p>
+<pre>duplicity --no-encryption /home/co scp://uzivatel@server/backup/kam</pre>
+<p>U vzdáleného zálohování je však vhodné šifrovat. Díky tomu je možné bez obav zálohovat na servery, které nemáte pod kontrolou, popřípadě na jiné své servery, kde díky šifrování víte, že i kdyby došlo k jejich kompromitaci, vlastní zálohy nebudou případnému útočníkovi bez znalosti klíče k ničemu. Zálohování se šifrováním je jednodušší než zálohování bez šifrování, stačí jej nezakazovat:</p>
+<pre>duplicity /home/co scp://uzivatel@server/backup/kam</pre>
+<p>Pokud si vyzkoušíte výše uvedený příkaz, zjistíte, že po vás Duplicity bude chtít heslo – implicitně se totiž k šifrování používá symetrická šifra s klíčem v podobě obyčejného hesla. Pro běžné použití je to asi postačující, ale pro pravidelné automatické zálohování (např. pomocí cronu) to není to pravé ořechové. Pokud vám stačí symetrická šifra, ale nechcete heslo pokaždé zadávat, můžete heslo umístit do proměnné prostředí <code>PASSPHRASE</code> takto:</p>
+<pre>PASSPHRASE="moje_dlouhe_tajne_a_ne_moc_bezpecne_heslo"
+duplicity /home/co scp://uzivatel@server/backup/kam</pre>
+<h4>Šifrování pomocí PGP/GPG klíče</h4>
+<p>Spíše než symetrickou šifru s heslem bývá lepší použít PGP/GPG klíč. Jeho ID můžete specifikovat jako parametr volbě <code>--encrypt-key</code> a použít jej místo obyčejného hesla:</p>
+<pre>duplicity --encrypt-key CAC193E6 /home/co scp://uzivatel@server/backup/kam</pre>
+<p>Jedna věc, která možná není úplně patrná a může se vám za jistých okolností hodit, je skutečnost, že klíčů můžete použít více najednou (poté můžete zálohu dešifrovat kterýmkoliv z nich):</p>
+<pre>duplicity --encrypt-key CAC193E6 --encrypt-key ACC91E63 /home/co scp://uzivatel@server/backup/kam</pre>
+<p>Ačkoliv při prvním provedení výše uvedených příkazů nebude Duplicity vyžadovat žádné heslo, při pokusu vytvořit rozdílovou zálohu opakováním stejného příkazu se vás Duplicity začne ptát na heslo k soukromému klíči. Je to dáno tím, že šifrováno je opravdu všechno, včetně seznamu zálohovaných souborů, který ovšem v rámci rozdílové zálohy Duplicity potřebuje, aby zjistil rozdíly od poslední zálohy. Pokud nechcete heslo zadávat ručně, můžete použít proměnnou prostředí <code>PASSPHRASE</code>, jak je naznačeno výše:</p>
+<pre>PASSPHRASE="moje_dlouhe_tajne_a_ne_moc_bezpecne_heslo"
+duplicity --encrypt-key CAC193E6 /home/co scp://uzivatel@server/backup/kam</pre>
+<h3>Vyloučení položek z adresáře k zálohování</h3>
+<p>V řadě situací budete chtít zálohovat z příslušných adresářů pouze určité soubory, ale ne úplně všechny (některé soubory či adresáře je vhodné vyloučit už z principu jako <code>/dev</code>, <code>/proc</code>, <code>/sys</code>, atd.). Za tímto účelem obsahuje Duplicity volbu <code>--exclude</code>, kterou můžete použít opakovaně k vyloučení libovolného množství položek:</p>
+<pre>duplicity --exclude /home/co/vyradit --exclude /home/co/dev /home/co scp://uzivatel@server/backup/kam</pre>
+<p>V příkladu výše došlo k vyřazení adresářů <code>/home/co/vyradit</code> a <code>/home/co/dev</code>. Existuje však i volba <code>--include</code>, která slouží k opaku – začlenění adresáře či souboru pro zálohování, i když je jinde specifikován k vyřazení (pokud je např. vyřazen nadřazený adresář). Tuto možnost demonstruje následující příkaz, kde dojde k zálohování adresářů <code>/home</code> a <code>/etc</code> z kořenového adresáře:</p>
+<pre>duplicity --include /home --include /etc --exclude '**' / scp://uzivatel@server/backup/kam</pre>
+<h3>Obnova dat</h3>
+<p>Stejně jako v případě <code>rdiff-backup</code> postačí i v případě Duplicity přehodit pořadí adresářů a dojde k obnově dat z poslední úspěšně provedené zálohy:</p>
+<pre>duplicity --encrypt-key CAC193E6 scp://uzivatel@server/zaloha/ /home/obnoveno</pre>
+<p>Všimněte si, že je třeba explicitně specifikovat klíč k obnově dat. Pokud byste ho neuvedli, Duplicity by předpokládal použití symetrického klíče a vyzval vás k zadání symetrického hesla. Přirozeně, obnova probíhá pomocí soukromého klíče, ke kterému budete muset heslo zadat.</p>
+<p>Tento příklad obnovil aktuální data k datu poslední zálohy, což ovšem ne vždy využijete. Někdy budete potřebovat obnovit data k některému dřívějšímu datu. To je možné provést taktéž, a sice pomocí volby <code>-t</code> a jejího parametru v podobě časového údaje. Čas můžete specifikovat buď absolutně (např. <code>2010-09-15</code>), nebo relativně (např. <code>30D</code> k obnově zálohy staré třicet dní). Obnova týden staré zálohy  by vypadala takto:</p>
+<pre>duplicity --encrypt-key CAC193E6 -t 7D scp://uzivatel@server/zaloha/ /home/obnoveno</pre>
+<p>Výše uvedené příklady obnoví veškerá data, tzn. všechny zálohované soubory a adresáře. Pokud však chcete obnovit jediný soubor nebo adresář, toto chování se vám nebude zamlouvat a budete hledat způsob, jak obnovit pouze to, co potřebujete. K tomu slouží volba <code>--file-to-restore</code>:</p>
+<pre>duplicity --file-to-restore etc/apache2 -t 7D scp://uzivatel@server/zaloha/ /home/obnoveno</pre>
+<p>Výše uvedený příkaz obnoví sedm dní starý obsah adresáře <code>etc/apache2</code> do <code>/home/obnoveno</code>.</p>
+<h3>Plná záloha na povel a údržba úložiště se zálohami</h3>
+<p>Duplicity sám volí typ zálohy analýzou obsahu cílového úložiště. Pokud je úložiště prázdné, provede se plná záloha, v opačném případě se provede rozdílová. Jednou za určitou dobu je však vhodné provést plnou zálohu a staré zálohy pak smazat. Abyste provedli plnou zálohu do existujícího úložiště, použijte parametr <code>full</code>:</p>
+<pre>duplicity --encrypt-key CAC193E6 full /home/co scp://uzivatel@server/backup/kam</pre>
+<p>Tím zajistíte, že se provede plná záloha bez ohledu na stav úložiště. Pokud víte, že chcete provést plnou zálohu vždy jednou za určitý časový interval, nemusíte postupovat výše naznačeným způsobem, můžete využít volby <code>--full-if-older-than</code> s parametrem v podobě určení času a nechat Duplicity, ať sám rozhodne, kdy provést plnou zálohu:</p>
+<pre>duplicity --encrypt-key CAC193E6 --full-if-older-than 7D /home/co scp://uzivatel@server/backup/kam</pre>
+<p>Výše uvedený příkaz provede plnou zálohu, pokud byla poslední plná záloha provedena před více než týdnem. Je jasné, že všechny rozdílové zálohy se váží k poslední provedené plné záloze. Chcete-li úložiště pro zálohování očistit od starých záloh, můžete odmazat některou z dřívějších plných záloh spolu se všemi rozdílovými, které na ní závisí. Abyste to mohli udělat, musíte nejprve vytvořit více plných záloh způsobem naznačeným výše. Jakmile budete mít více plných záloh s určitým časovým odstupem, můžete dřívější zálohy vymazat pomocí voleb <code>remove-older-than</code> či <code>remove-all-but-n-full</code>. První z uvedených voleb smaže všechny zálohy starší udaného času (samozřejmě nedojde k smazání žádné plné zálohy, na které závisí rozdílové zálohy provedené po specifikované době):</p>
+<pre>duplicity remove-older-than 30D scp://uzivatel@server/backup/kam</pre>
+<p>Výše uvedený příkaz smaže plné zálohy starší než třicet dní spolu s na ně navázanými rozdílovými, pokud ovšem tyto rozdílové zálohy nebyly pořízeny v průběhu posledních třiceti dní. Pokud jste tedy vytvořili poslední plnou zálohu před 31 dny, smažou se plné zálohy provedené před 31 dny, ale už ne ta, na které závisí rozdílové zálohy mladší třiceti dní.</p>
+<p>Volba <code>remove-all-but-n-full</code> pracuje malinko jinak - ta bere jako parametr číslo odpovídající počtu plných záloh (s navázanými rozdílovými), které chcete zachovat. Pokud tedy zadáte jako parametr pro tuto volbu číslo tři, budou ponechány tři poslední plné zálohy (samozřejmě s na ně navázanými rozdílovými), ostatní budou vymazány.</p>
+
+<pre id="links"></pre>

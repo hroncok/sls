@@ -1,0 +1,116 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Unbound a Bind</h1>
+
+<p>Tento díl se věnuje stavbě vlastního DNS serveru, konkrétně pak rekurzivního a DNSSEC validujícího serveru Unbound, a také víceúčelového serveru Bind.</p>
+
+<p>Jak už bylo řečeno dříve, různé DNS servery realizují různou funkčnost. V zásadě existují dva základní typy, rekurzivní a autoritativní. <strong>Rekurzivní DNS servery</strong> realizují pro své klienty vyhledávání v DNS stromu a poskytují jim odpovědi na jejich dotazy. Servery tohoto typu vám bývají poskytovány vaším ISP. Rekurzivní DNS servery provádějí také kešování odpovědí na dotazy.</p>
+<p>Kromě rekurzivních serverů existují také tzv. <strong>autoritativní DNS servery</strong>, což jsou servery, které publikují DNS záznamy určité části DNS stromu, jejíž správa jim byla přidělena. Kupříkladu, pokud byste si zaregistrovali doménu <em>example.org</em>, měli byste kontrolu nad tím, které DNS servery budou obsahovat její autoritativní informace. Na tyto DNS servery by se pak obracely rekurzivní DNS servery, které od nich získají odpověď na DNS dotazy týkající se domény <em>example.org</em> a jejích subdomén.</p>
+<p>Různé DNS servery realizují různou funkčnost. Server <em>dnsmasq</em>, probraný v minulém díle, je ve své podstatě pouze kešující DNS server, který nevyřizuje dotazy, pouze je přeposílá (forwarduje) definovaným rekurzivním DNS serverům. Unbound je primárně rekurzivní a kešující DNS server, i když do jisté míry se dá použít i jako autoritativní server. Bind je univerzální DNS server schopný fungovat jako rekurzor i jako autoritativní server. Jedná se o nejznámější DNS server vůbec. Jsou i čistě autoritativní servery, které neumí pracovat jako rekurzory a zaměřují se pouze na publikování autoritativních DNS informací. Příkladem může být KnotDNS, server z dílen CZ.NIC.</p>
+<p>Připomínám, že výchozí port pro službu DNS je 53 a komunikace může probíhat jak přes UDP, tak přes TCP.</p>
+<h3>Unbound</h3>
+<p>Unbound je především rekurzivní a kešující DNS server. Je schopen provádět DNSSEC validaci, ale neprovádí ji ve výchozím stavu (alespoň v Debianu). Problematikou DNSSEC se zabýval minulý díl seriálu.</p>
+<p>Instalaci serveru Unbound realizujete velmi jednoduše:</p>
+<pre>aptitude install unbound</pre>
+<p>Po instalaci se server rovnou rozběhne a začne fungovat. Jeho funkčnost si můžete snadno ověřit:</p>
+<pre>dig @localhost example.org</pre>
+<h4>DNSSEC</h4>
+<p>Jako první by bylo dobré zapnout DNSSEC validaci. K tomu potřebujete do hlavního konfiguračního souboru <code>/etc/unbound/unbound.conf</code> přidat informace o souboru obsahujícím klíč kořenové zóny (fungující jako „trust anchor“, tedy „kotva důvěry“):</p>
+<pre>auto-trust-anchor-file: "/etc/unbound/root.key"</pre>
+<p>Tento soubor však ve výchozí instalaci neexistuje a je třeba jej vytvořit. Za tímto účelem je nutné si příslušný klíč opatřit a ověřit. Opatřit si jej můžete stažením následujícího souboru:</p>
+<pre>https://data.iana.org/root-anchors/root-anchors.xml</pre>
+<p>Jedná se o XML soubor s potřebnými hodnotami. Tyto hodnoty vložte do souboru <code>/etc/unbound/root.key</code> do jediné řádky, a to dle následujícího klíče:</p>
+<pre>. IN DS &lt;KeyTag&gt; &lt;Algorithm&gt; &lt;DigestType&gt; &lt;Digest&gt;</pre>
+<p>Výsledek může vypadat nějak takto:</p>
+<pre>.IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5</pre>
+<p>Po uložení souboru Unbound restartujte:</p>
+<pre>service unbound restart</pre>
+<p>Následně zkontrolujte, že DNSSEC validace funguje, např. takto:</p>
+<pre>dig +dnssec org @localhost</pre>
+<p>Je-li DNSSEC aktivní, měli byste vidět příznak „AD“ v odpovědi:</p>
+<pre>;; flags: qr rd ra <strong>ad</strong>; QUERY: 1, ANSWER: 0, AUTHORITY: 4, ADDITIONAL: 1</pre>
+<h4>Přizpůsobení nastavení Unboundu</h4>
+<p>Jak je z postupu výše patrné, soubor s konfigurací Unboundu je <code>/etc/unbound/unbound.conf</code>. Tento soubor je bohatě komentovaný, doporučuji si jej tedy projít a upravit podle vašich potřeb. Základní dvě věci pro úpravu jsou v první řadě rozhraní a IP adresy, na kterých Unbound poslouchá (ve výchozím stavu naslouchá pouze na lokální smyčce, tedy nikoliv na síti), a ve druhé řadě je to řízení přístupu, tj. kdo má právo na vyřizování DNS dotazů.</p>
+<p>Specifikace rozhraní, popřípadě IP adres, na kterých Unbound naslouchá, se realizuje takto:</p>
+<pre>interface: 1.2.3.4
+interface: 1.2.3.4@5000
+interface: 0.0.0.0
+interface: ::0</pre>
+<p>První řádka zajistí, že Unbound bude naslouchat na IP adrese <code>1.2.3.4</code> na standardním portu. Druhá řádka ukazuje, jak byste Unboundu sdělili, aby naslouchal na nestandardním portu (v tomto případě portu 5000). Třetí řádka zajistí, že Unbound bude naslouchat na všech IPv4 rozhraních a adresách. Čtvrtá pak provede totéž, ale v rámci protokolu IPv6.</p>
+<p>Druhou podstatnou oblastí je řízení přístupu. Ve výchozím stavu je totiž veškerý přístup zakázán, kromě místní smyčky (localhostu).</p>
+<pre>access-control: 10.0.1.15 refuse
+access-control: 10.0.1.0/24 allow</pre>
+<p>Syntaxe je zde na první pohled jasně patrná – v první řádce se zamítá přístup počítači <code>10.0.1.15</code>, druhá řádka pak povoluje přístup ze sítě <code>10.0.1.0/24</code>.</p>
+<p>Unbound umožňuje i tvorbu místních zón, popřípadě úpravu odpovědí na specifické dotazy. Místní zónu můžete snadno a rychle vytvořit takto:</p>
+<pre>local-zone: "local." static
+local-data: "typhoon.local. IN A 10.0.1.27"</pre>
+<p>První řádek definuje doménu „local“, druhý pak vytváří A záznam pro počítač <code>10.0.1.27</code> se jménem <em>typhoon.local</em>.</p>
+<h4>Nastavení Unboundu jako výchozího rekurzoru pro server</h4>
+<p>Máte-li funkční rekurzivní DNS server, můžete pro příslušný počítač zajistit, aby DNS dotazy vyřizoval přímo místní rekurzor (na místo DNS serverů poskytovatele). To zajistíte úpravou <code>/etc/resolv.conf</code> a vložením následujícího záznamu na první řádek:</p>
+<pre>nameserver 127.0.0.1</pre>
+<p>Tato úprava zajistí, že se běžící aplikace budou ptát nejprve místního DNS serveru, který bude odpovídat rychleji než servery vašeho ISP. Nevyřadíte-li ostatní záznamy v <code>resolv.conf</code>, zajistíte tak „fallback“ na některý z dalších serverů, pokud bude váš místní DNS server mimo provoz.</p>
+<h3>Bind</h3>
+<p>Bind je univerzální DNS server, umí pracovat jako rekurzor a vyřizovat DNS dotazy (podpora DNSSEC je samozřejmostí), ale umí pracovat také jako autoritativní server.</p>
+<p>Jeho instalaci provedete opět velmi jednoduše:</p>
+<pre>aptitude install bind9</pre>
+<p>Po instalaci se Bind rozběhne a začne fungovat jako rekurzivní DNS server, což si opět můžete snadno ověřit:</p>
+<pre>dig @localhost example.org</pre>
+<h4>DNSSEC</h4>
+<p>Základem je opět opatřit si klíč ke kořenové zóně. Tento klíč můžete získat DNS dotazem:</p>
+<pre>dig . dnskey
+
+.                       172758  IN      DNSKEY  256 3 8 AwEA
+AbW4qUZUxSRqUntM9u0pvmkqRB9Z+WRPghllsekdgp8ksT5bwRBE3xwVWJJp
+JgVYGvFGgLIutrGyZDJVLQX+tu+qe6HJbA8XRZsL2aA6e4MZeD4TOUlIH/c
+Vlof3y4gFibjwzuuondVku9ia2MSRYnrBl+LMSRftBkVa4OvS+dij
+.                       172758  IN      DNSKEY  257 3 8 AwEA
+AagAIKlVZrpC6Ia7gEzahOR+9W29euxhJhVVLOyQbSEW0O8gcCjFFVQUTf6v
+58fLjwBd0YI0EzrAcQqBGCzh/RStIoO8g0NfnfL2MTJRkxoXbfDaUeVPQuYE
+hg37NZWAJQ9VnMVDxP/VHL496M/QZxkjf5/Efucp2gaDX6RS6CXpoY68LsvP
+VjR0ZSwzz1apAzvN9dlzEheX7ICJBBtuA6G3LQpzW5hOA2hzCTMjJPJ8LbqF
+6dsV6DoBQzgul0sGIcGOYl7OyQdXfZ57relSQageu+ipAdTTJ25AsRTAoub8
+ONGcLmqrAmRLKBP1dfwhYB4N7knNnulq QxA+Uk1ihz0=</pre>
+<p>Ve výpisu budou patrné dva klíče, vy chcete ten delší (257). Klíč a hodnoty převeďte do následující podoby:</p>
+<pre>managed-keys {
+  "." initial-key 257 3 8
+    "AwEAAagAIKlVZrpC6Ia7gEzahOR+9W29euxhJhVVLOyQbSEW0O8gcCjF
+     FVQUTf6v58fLjwBd0YI0EzrAcQqBGCzh/RStIoO8g0NfnfL2MTJRkxoX
+     bfDaUeVPQuYEhg37NZWAJQ9VnMVDxP/VHL496M/QZxkjf5/Efucp2gaD
+     X6RS6CXpoY68LsvPVjR0ZSwzz1apAzvN9dlzEheX7ICJBBtuA6G3LQpz
+     W5hOA2hzCTMjJPJ8LbqF6dsV6DoBQzgul0sGIcGOYl7OyQdXfZ57relS
+     Qageu+ipAdTTJ25AsRTAoub8ONGcLmqrAmRLKBP1dfwhYB4N7knNnulq
+     QxA+Uk1ihz0=";
+};</pre>
+<p>A tu vložte třeba do souboru <code>/etc/bind/named.conf.managed</code>. Následně vložte potřebnou <em>include</em> direktivu do <code>/etc/bind/named.conf</code>:</p>
+<pre>include "/etc/bind/named.conf.managed";</pre>
+<p>Toto samo o sobě by mělo stačit (DNSSEC validace je povolená, ale fungovat začne teprve po výše uvedené operaci). Bind tedy restartujte:</p>
+<pre>service bind9 restart</pre>
+<p>A následně použijte stejný postup uvedený výše pro ověření, že DNSSEC validace funguje.</p>
+<p>Pozor! Opět zde platí, že výše uvedený klíč si musíte v každém případě nějakým způsobem ověřit, protože na něm stojí celá bezpečnost ověřování DNSSEC.</p>
+<h4>Přizpůsobení nastavení Bindu</h4>
+<p>Bind se umí chovat úplně stejně jako <em>dnsmasq</em>, tedy jako forwardující (přeposílá dotazy na jiný server) a kešující DNS server. Chcete-li ho takto nastavit, vložte do <code>/etc/bind/named.conf.options</code>, mezi složené závorky direktivy <em>options</em>, následující řádky (servery, které se mají dotazovat, se specifikují v proměnné <em>forwarders</em>):</p>
+<pre>forward only;
+forwarders { 1.2.3.4; 4.3.2.1;};</pre>
+<p>Nastavení síťových rozhraní, kde má Bind naslouchat, se realizuje následovně (stejný soubor, stejné umístění jako v příkladu výše):</p>
+<pre>listen-on-v6 { any; };
+listen-on { 127.0.0.1; 10.0.1.254; };</pre>
+<p>První řádka specifikuje naslouchání na IPv6 adresách. Klíčové slovo <em>any</em> zajistí, že se bude naslouchat na všech. Druhá řádka řídí naslouchání na IPv4, kde jsou specifikovány v tomto případě dvě adresy, adresa místní smyčky (localhostu) a privátní adresa <em>10.0.1.254</em>.</p>
+<pre>allow-query { 10.0.1.0/24; };</pre>
+<p>Proměnná <em>allow-query</em> definuje, kdo se smí serveru dotazovat. V tomto příkladu se serveru smí dotazovat síť <em>10.0.1.0/24</em>.</p>
+<pre>allow-recursion { 10.0.1.0/24; };</pre>
+<p>Tato proměnná definuje, kdo smí pokládat rekurzivní dotazy. Syntax je totožná jako u <em>allow-querry</em>.</p>
+<p>Pokud nechcete provozovat rekurzivní DNS server, rekurzi jako takovou je možné vypnout:</p>
+<pre>recursion no;</pre>
+<p>Tím bych pro tentokrát skončil. Příště bude osvětlena problematika tvorby zón a zónových souborů.</p>
+
+<pre id="links">http://wiki.debian.org/DNSSEC Debian Wiki, DNSSEC
+http://www.zytrax.com/books/dns/ch7/queries.html DNS BIND Query Statements
+http://www.zytrax.com/books/dns/ch4/ DNS Configuration Types
+http://www.dns-info.cz/dns/autoritativni-servery-delegace.html Autoritativní DNS servery a delegace správy domén – DNS
+http://en.wikipedia.org/wiki/Reverse_DNS_lookup Anglická Wikipedie: Rekurzivní dotazy
+http://www.dnssec.cz/ Český web o DNSSEC
+http://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie: DNS
+http://en.wikipedia.org/wiki/Domain_Name_System Anglická Wikipedie: DNS
+http://www.madboa.com/geek/dig/ DiG HOWTO
+http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)</pre>

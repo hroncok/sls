@@ -1,0 +1,107 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Tvorba Tor relaye</h1>
+
+<p>Minulé dva díly představily anonymizační nástroj Tor a jeho možné nasazení při tvorbě anonymizovaného serveru. Dnes vám ukážu, jak vytvořit vlastní Tor relay (resp. Tor server).</p>
+
+<h3>Úvod</h3>
+<p>Pokud jste nečetli poslední dva díly, přečtěte si přinejmenším <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-tor-na-serveru-uvod">první díl</a> miniseriálu o Toru, jelikož obsahuje základní informace o Toru jako takovém, a také klíčové informace o tom, co znamená provozovat Tor relay a jaká jsou případná nebezpečí.</p>
+<p>Tor relay, nebo také Tor server, představuje uzel v Tor síti. Tyto uzly jsou používány klienty, kteří z nich vytvoří tzv. okruh, přes který komunikují. Tento okruh se tvoří náhodně a pravidelně se mění. Čím více má Tor síť uzlů, tím lépe je na tom s anonymitou.</p>
+<h4>Druhy Tor serverů</h4>
+<p>Existují tři druhy Tor serverů – prostředník (middle relay), výstupní uzel (exit relay) a most (bridge). Prostředník doručuje zašifrované pakety z jednoho Tor uzlu na jiný. Výstupní uzel obsluhuje požadavky „za“ klienty, tedy dešifruje příslušný paket, pošle jej do internetu a odpověď pak pošle okruhem klientovi zpět. Tor servery se po svém spuštění zařadí do Tor „adresáře“, který představuje seznam dostupných Tor serverů. Tento seznam je veřejný, což umožňuje odpůrcům Toru, aby zakazovali komunikaci klientů s těmito servery. Most (bridge) představuje Tor server, který do veřejného adresáře zařazen není. Mosty tedy mohou být použity těmi, jejichž ISP nebo vláda použití Toru blokuje, aby toto blokování mohli obejít.</p>
+<h4>Nasadit Tor server, nebo ne?</h4>
+<p>Vytvoření Tor serveru je třeba pečlivě zvážit, neboť může mít za určitých podmínek pro jeho provozovatele negativní následky. IP adresa serveru se může objevit v některých blacklistech, je-li Tor server zařazen ve veřejném „adresáři“. V závislosti na tom, jakou výstupní politiku (exit policy) uplatníte, se může váš server stát i zdrojem podezřelé (nebo přímo nelegální) komunikace (platí pro výstupní uzel, který vyřizuje požadavky „za“ klienty). Může se tedy stát, že se stane váš server, nebo přímo vy, objektem policejního vyšetřování nebo případných žalob apod. Viz třeba <a href="https://www.eff.org/deeplinks/2011/08/why-ip-addresses-alone-dont-identify-criminals">tento článek</a>. V souvislosti s právními otázkami si můžete také projít <a href="https://www.eff.org/torchallenge/legal-faq/">právní FAQ</a> o Toru od EFF.</p>
+<p>Před tím, než Tor server nasadíte, určitě o tom doporučuji informovat v první řadě správce sítě (nebo ISP), popřípadě správce serveru či hypervizoru. Informovat byste měli všechny, kteří mohou být při případném maléru nějakým způsobem postiženi (zabavení serveru policií apod.). Uvažte také, na jakém serveru budete Tor provozovat, je-li jen váš, nebo zda jej s někým sdílíte (virtuální servery). Rozhodně by to neměl být jakýkoliv produkční či korporátní server. Ideálně by to měl být váš (pokud možno fyzický) server.</p>
+<p>Doporučuje se také na IP adrese Tor serveru zřídit webový server a vystavit na něm stránku, která informuje jeho návštěvníky, že se jedná o Tor server. Obsah takové stránky můžete čerpat <a href="https://gitweb.torproject.org/tor.git/blob_plain/HEAD:/contrib/tor-exit-notice.html">odsud</a>.</p>
+<h3>Instalace</h3>
+<p>Instalace představuje nainstalování příslušného balíčku s Torem, což v Debianu provedete takto:</p>
+<pre>aptitude install tor</pre>
+<h3>Konfigurace</h3>
+<p>Nastavení Toru je klíčové. Budete-li tvořit Tor server, rozhodne právě jeho konfigurace o tom, jaký typ (viz výše a níže) postavíte. Konfigurační soubor byste měli najít v <code>/etc/tor/torrc</code>. Dostupných voleb má Tor značné množství, zde budou probrány jen ty nejpodstatnější (o ostatních volbách se dozvíte z manuálové stránky). Základem pro funkci serveru je volba <code>ORPort</code>, která určuje port, který bude ohlášen klientům nebo jiným Tor serverům:</p>
+<pre>ORPort 9001</pre>
+<p>Název může mít 1 až 19 znaků a musí být složen pouze z čísel a písmen. Pokud má váš server více IP adres, můžete definovat, na které IP adrese bude Tor poslouchat:</p>
+<pre>ORListenAddress 1.2.3.4</pre>
+<p>Je také třeba definovat jednoznačný název serveru v parametru <code>Nickname</code> (pozor, nejedná se o DNS jméno, ale nějaký název, který si vy vymyslíte):</p>
+<pre>Nickname mujtorserver</pre>
+<p>Není nutné, ale je doporučeno vytvořit i kontaktní informaci, aby vás mohli správci Toru (nebo kdokoliv jiný) kontaktovat. Mějte na paměti, že tuto e-mailovou adresu mohou z adresáře Tor serverů vyzobat roboti spammerů:</p>
+<pre>ContactInfo Jan Novák &lt;novak AT example dot org&gt;</pre>
+<p>Je také doporučeno, abyste kromě funkce Tor uzlu zprovoznili ještě zrcadlo adresářového serveru, který předává klientům informace o Tor serverech. Toho docílíte definováním portu pro distribuci adresářových informací:</p>
+<pre>DirPort 9030</pre>
+<p>Chcete-li, aby Tor na vašem serveru běžel pouze jako server a nikoliv ještě navíc v režimu klienta, nastavte klientský port na nulu:</p>
+<pre>SocksPort 0</pre>
+<p>Nemáte-li k dispozici neomezený traffic, můžete využít volby pro řízení datového toku. Specifikujte průměrnou hodnotu datového toku a hodnotu náhlé potřeby (burst):</p>
+<pre>BandwidthRate  100KB
+BandwidthBurst   1MB</pre>
+<p>Hodnoty jsou v bytech (nikoliv v bitech). Minimum pro průměrnou hodnotu (<code>BandwidthRate</code>) je 20 KB, výchozí hodnota je 5 MB. Můžete také specifikovat strop, tedy datový limit, po kterém Tor server přestane akceptovat nová spojení a vytváření nových okruhů. V tomto případě je třeba definovat hodnotu limitu (v bytech) a údobí, za které se doba počítá, např:</p>
+<pre>AccountingMax 10 GB
+AccountingStart week 2 13:00</pre>
+<p>Výše uvedený příklad bude za datový limit považovat 10 GB, přičemž počítat začne týdně (<code>week</code>), vždy v úterý (číslo <code>2</code>), a to ve 13:00.</p>
+<p>Tolik k obecným volbám. Následují specifické volby nutné pro konkrétní typ Tor serveru, který se rozhodnete provozovat.</p>
+<h4>Vytvoření prostředníka (middle relay)</h4>
+<p>Prostředník je de facto uzel, který neakceptuje odchozí požadavky. Chcete-li vytvořit prostředníka, postačí nastavit odchozí politiku (exit policy) takto:</p>
+<pre>ExitPolicy reject *:*</pre>
+<p>Tato odchozí politika bude odmítat veškeré pokusy o odchozí spojení.</p>
+<h4>Vytvoření výstupního uzlu (exit relay)</h4>
+<p>Zatímco prostředník odchozí komunikaci zcela zakazuje, výstupní uzel by ji naopak měl povolit. Je samozřejmě možné specifikovat, na jaké porty, popřípadě na jaké IP adresy je možné přistupovat, a kam naopak není. Tuto odchozí politiku je možné specifikovat direktivou <code>ExitPolicy</code>. Ta může obsahovat jedno nebo více pravidel oddělených čárkou (pravidla začínají klíčovým slovem <code>accept</code> nebo <code>reject</code>, za ním pak následuje specifikace IP adres a portů). Pravidla se zpracovávají od prvního k poslednímu. Uvažte následující dva příklady:</p>
+<pre>ExitPolicy accept *:80,accept *:443,reject *:*
+ExitPolicy reject *:25,reject *:465,accept *:*</pre>
+<p>První příklad definuje velmi restriktivní politiku, která povoluje pouze HTTP a HTTPS (porty 80 a 443), jinou komunikaci nepovoluje. Druhý příklad ukazuje relevantně benevolentní politiku, kde je povoleno vše kromě portů 25 a 465, které odpovídají protokolu SMTP a jeho SSL variantě.</p>
+<p>Privátní rozsahy a veřejnou IP adresu vašeho serveru není potřeba explicitně blokovat, jelikož jsou blokovány zcela automaticky. Pokud se vám takové chování nezamlouvá, nastavte volbu <code>ExitPolicyRejectPrivate</code> na hodnotu 0 a specifikujte odchozí politiku ručně, podle svých představ.</p>
+<h4>Vytvoření mostu (bridge)</h4>
+<p>Most je charakteristický tím, že na rozdíl od ostatních typů Tor serverů není automaticky zařazen do veřejného seznamu. Pokud by vás zajímal seznam jako takový, můžete se na něj podívat ve webové podobě <a href="http://torstatus.blutmagie.de/">třeba sem</a>. Nechcete-li, aby byl váš server veřejně zmiňován, vložte do konfiguračního souboru Toru následující řádek:</p>
+<pre>BridgeRelay 1</pre>
+<p>Vytváříte-li most, nezapomeňte upravit také výstupní politiku (viz vytvoření výstupního uzlu a prostředníka výše).</p>
+<p>I když váš server nebude zmiňován veřejně, informace o něm bude stále odesílána, konkrétně pak na seznam mostů. Ten je, jako celek, neveřejný. Zájemci však mohou získat adresy některých mostů třeba <a href="https://bridges.torproject.org/,">zde</a>.</p>
+<h4>Vytvoření soukromého, tajného serveru</h4>
+<p>Pokud nechcete, aby se informace o vašem serveru dostala na jakýkoliv seznam, včetně seznamu mostů, můžete publikování zakázat následující řádkou:</p>
+<pre>PublishServerDescriptor 0</pre>
+<p>Aby měl takový server smysl, měl by jej samozřejmě někdo využívat. Je tedy třeba nějakým způsobem dopravit informaci o jeho existenci (tj. alespoň IP adresu) jeho uživatelům.</p>
+<h3>Kontrola funkčnosti serveru</h3>
+<p>Po úpravě konfiguračního souboru Tor restartujte:</p>
+<pre>/etc/init.d/tor restart</pre>
+<p>Pokud se vám podařilo Tor server korektně nastavit a vámi nastavené porty Toru jsou zvenčí přístupné, měli byste během 20 minut objevit v logu Toru následující hlášku:</p>
+<pre>Self-testing indicates your ORPort is reachable from the outside. Excellent.</pre>
+<p>Pokud ji neobjevíte, zkontrolujte firewall a konektivitu.</p>
+<h3>Bezpečnost Tor serveru</h3>
+<p>Abyste zajistili anonymitu klientům sítě Tor, projděte si následující body (<a href="https://www.torproject.org/docs/tor-doc-relay.html.en#after">další</a> <a href="https://trac.torproject.org/projects/tor/wiki/doc/OperationalSecurity">body</a>):</p>
+<ul>
+<li>
+<p>server pečlivě zabezpečte (bezpečnost byla v tomto seriálu podrobně probírána)</p>
+</li>
+<li>
+<p>serverový software i Tor pravidelně aktualizujte</p>
+</li>
+<li>
+<p>šifrujte swap a pokud možno šifrujte celý systém (jak na to v Linuxu viz dřívější díly seriálu)</p>
+</li>
+<li>
+<p>zálohujte a chraňte obsah <code>/var/lib/tor/keys</code> – kompromitace souborů s klíči umožní útočníkům dešifrovat komunikaci procházející vaším serverem</p>
+</li>
+<li>
+<p>pokud neprovozujete webový server, nastavte <code>ORPort</code> na 443 a <code>DirPort</code> na 80</p>
+</li>
+<li>
+<p>minimalizujte logování na serveru (ideálně zrušte logy úplně)</p>
+</li>
+<li>
+<p>zvýšit bezpečnost můžete provozem Toru na virtuálním serveru nebo v chrootu</p>
+</li>
+</ul>
+<h4>Tor a firewall</h4>
+<p>Nastavení odchozí politiky a síťový provoz Toru můžete upravovat a omezovat pomocí linuxového firewallu. Jelikož Tor běží pod konkrétním uživatelem, můžete jej omezit pomocí modulu <code>owner</code>, což bylo naznačeno i s příkladem v minulém díle.</p>
+<h3>Závěr</h3>
+<p>Na závěr znovu připomínám, co jsem již zmínil v úvodu. Provoz Tor serveru může mít v závislosti na jeho nastavení jisté negativní následky, se kterými byste měli počítat a být na ně připraveni. Je smutným faktem, že Tor jako takový je využíván nejenom etickými způsoby (např. k překonání cenzury), ale také k nejrůznějším neetickým a nezákonným účelům. To je ale z podstaty věci neřešitelný problém. Faktem zůstává, že pro řadu lidí, a to nejen v zemích s vládní cenzurou (Čína, Írán apod.), má Tor obrovský význam. A čím více (důvěryhodných) Tor serverů bude, tím silnější anonymitu a lepší službu bude Tor svým uživatelům poskytovat.</p>
+
+<pre id="links">https://www.eff.org/torchallenge/what-is-tor/ What is Tor (stránky EFF)
+https://www.eff.org/torchallenge/legal-faq/ Právní FAQ Toru (stránky EFF)
+https://www.torproject.org/docs/tor-doc-relay.html.en Configuring a Tor relay
+https://trac.torproject.org/projects/tor/wiki/doc/OperationalSecurity Operational Security
+http://www.jwsecure.com/2007/11/21/more-on-tor-directory-servers/ More on Tor Directory Servers
+http://en.wikipedia.org/wiki/Internet_censorship_by_country Wikipedia: Internet censorship by country
+https://www.torproject.org/ Web projektu Tor
+https://www.torproject.org/about/overview.html.en Obecný popis Toru a jeho možností
+https://www.torproject.org/docs/documentation.html.en Dokumentace Toru
+https://trac.torproject.org/projects/tor/wiki Wiki Toru
+http://en.wikipedia.org/wiki/Tor_(anonymity_network) Článek o Toru na anglické Wikipedii
+http://cs.wikipedia.org/wiki/Tor_(software) Článek o Toru na české Wikipedii</pre>

@@ -1,0 +1,69 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Agenti e-mailu, metody ochrany proti spamu</h1>
+
+<p>Tento díl pokračuje v menší exkurzi do světa elektronické pošty, snaží se dovysvětlit pojmy z této oblasti a popsat problematiku nevyžádané pošty.</p>
+
+<h3>Úvod</h3>
+<p>Na úvod připomínám <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-postovniho-serveru">minulý díl</a> seriálu, kde byly zmíněny některé základní pojmy, dále charakter e-mailu i SMTP protokolu, a také vazba na službu DNS. Pokud jste jej dosud nečetli, doporučuji vám se na něj podívat.</p>
+<h3>MDA: Mail Delivery Agent</h3>
+<p>V minulém díle zazněl pojem MTA, tedy Mail Transport Agent, program zodpovědný za přenos pošty z jednoho počítače na druhý. MDA je program zodpovědný za doručení e-mailu do poštovní schránky. V GNU/Linuxu je to nejčastěji procmail či maildrop.</p>
+<p>Doručování zpráv může být řízeno i přizpůsobováno jednotlivým uživatelům, a to obvykle právě na úrovni MDA. Kupříkladu, <em>maildrop</em> má svůj hlavní konfigurační soubor v <code>/etc/maildroprc</code>, ale je také možné poštu filtrovat na úrovni jednotlivých uživatelů, a sice v souboru <code>.mailfilter</code> v jejich domovském adresáři. Můžete tak vytvářet pravidla pro přesměrování nebo přesun mailů do příslušných složek.</p>
+<p>K dispozici je dokonce specifický jazyk pro pokročilé filtrování e-mailů s názvem Sieve (více viz odkazy pod článkem). Konfigurace MTA obvykle odkazuje na konkrétní MDA, který má být použit (v Postfixu k tomu slouží konfigurační direktiva <code>mailbox_command</code>, která udává, jaký program se má použít k doručování pošty).</p>
+<h4>Poštovní schránka</h4>
+<p>Aby to nebylo jednoduché, neexistuje jeden způsob uchovávání pošty. Nejčastěji se setkáte s jedním ze dvou způsobů, a sice mboxu nebo maildir. Mbox ukládá všechnu poštu do jednoho velkého souboru, zatímco maildir ukládá poštu do jednotlivých souborů ve struktuře adresářů. Tuto strukturu si můžete vytvořit buď sami nebo pomocí nástroje <code>maildirmake</code> (poskytuje ho řada balíků, např. balík <code>maildrop</code>).</p>
+<p>Poštu je také možné ukládat jinam, např. do databáze. Tím se ale v seriálu zabývat nebudu.</p>
+<h3>Vybírání pošty: POP3, IMAP4</h3>
+<p>V tuto chvíli již tušíte, jakým způsobem se pošta přepraví z jednoho počítače na druhý a kdo ji uloží do poštovní schránky. Zbývá tedy poslední krok – možnost si poštu vybrat. Vybírání pošty se realizuje prostřednictvím některého ze dvou možných protokolů, POP a IMAP. Přesněji pak POP verze 3 a IMAP verze 4. IMAP4 je obvykle používán tak, že klient k serveru zůstává připojen a stahuje zprávy nebo provádí jiné operace na požádání. U POP3 se obvykle klient připojuje, provede svou činnost a zase se odpojí.</p>
+<p>IMAP4 umí oproti POP3 navíc záležitosti jako možnost se ke schránce připojit najednou z více klientů, stahovat pouze části e-mailu (přesněji jednotlivé MIME části), synchronizovat informace o stavu zpráv (např. zda-li byla zpráva přečtena či nikoliv) mezi jednotlivými klienty, atd. Jeho nevýhodou pak je nejspíše související vyšší komplexita protokolu a případné vyšší nároky na server.</p>
+<p>Aby si mohl uživatel poštu stahovat, musí na serveru běžet POP3 nebo IMAP4 server (nebo obojí). To je ve světe GNU/Linuxu obvykle Dovecot nebo Courier.</p>
+<h3>Přehled protokolů a jejich portů</h3>
+<p>Pro úplnost uvádím krátký přehled protokolů poštovních služeb a jejich odpovídající čísla portů:</p>
+<ul>
+<li>SMTP: port 25, SSL varianta SMTPS, port 465</li>
+<li>POP3: port 110, SSL varianta POP3S, port 995</li>
+<li>IMAP4: port 143, SSL varianta IMAPS, port 993</li>
+</ul>
+<p>Dodám, že u všech tří protokolů je možné využít Transport Layer Security, tedy TLS. Pokud tuto možnost podporuje server, klient si může touto cestou na „nešifrovaném“ portu vyžádat šifrování.</p>
+<h3>MUA: Mail User Agent</h3>
+<p>Mail User Agent je klient využívaný uživatelem, který mu zpřístupňuje poštovní schránku a umožňuje mu poštu stahovat (a obvykle i odesílat). MUA může být v GNU/Linuxu řada grafických poštovních klientů jako Thunderbird, Claws-mail, Evolution, K-Mail, atd., ale také řada řádkových klientů (Mutt, Alpine, Sup, apod.). Samozřejmě, budete-li provozovat poštovní server pro veřejnost, budou vaši uživatelé patrně využívat i jiné poštovní klienty určené pro jiné operační systémy, a vy pak můžete řešit problémy spojené s chybami nebo specifickými vlastnostmi takových klientů.</p>
+<h4>Webmail</h4>
+<p>Mnoho lidí v dnešní době využívá přístup k poštovní schránce prostřednictvím webových klientů. V oblasti linuxových serverů a svobodného softwaru jsou dostupné přinejmenším dva webmaily, jednodušší Squirrel Mail a komplexnější Roundcube. Roundcube využívá AJAX, a jako takový se může řadit pod Web 2.0. Webmail je obvykle vázán na protokol IMAP – na serveru tedy musí být k dispozici IMAP server (stačí nešifrovaný na localhostu). Vazbu na SMTP server pro odesílání pošty asi nemusím příliš zdůrazňovat. Z bezpečnostních důvodů nicméně důrazně doporučuji chránit přístup k poštovní schránce pomocí SSL, na úrovni webového serveru.</p>
+<h3>Spam a viry</h3>
+<p>Boj se spamem, popřípadě s viry, představuje patrně tu největší zátěž pro správce poštovního serveru. Zatímco poštovní server je možné jednou nastavit a nechat ho pracovat, spam nutí správce upravovat a vylaďovat nastavení za běhu, popřípadě reagovat na neobvyklé situace (e-mail bez odpovědi, odmítání příjmu e-mailu nějakým poštovním serverem, atd.).</p>
+<p>Se spamem každý správce poštovního serveru nakládá po svém. Možností nastavení je nepřeberně a ne vždy jsou respektována příslušná RFC. Díky aktivnímu boji se spamem je v dnešní době obtížné provozovat třeba domácí poštovní server, a to nejenom pokud sdílíte rozsah sítě s řadou zavirovaných počítačů, které rozesílají spam.</p>
+<p>Řada lidí dnes využívá nejrůznější freemaily, které mají různé politiky pro klasifikaci spamu. Čím větší služba, tím bývá obtížnější získat kontakt na správce a zjistit důvod, proč vaše e-maily končí klasifikovány jako spam. Tento problém se samozřejmě netýká jen freemailů.</p>
+<h4>Antispam</h4>
+<p>Základním prostředkem pro boj se spamem je antispamový filtr, který prohlíží e-maily a hledá typické znaky spamu. Každý znak má obvykle přiřazeno určité skóre. Po sečtení skóre všech znaků se výsledná hodnota porovná s prahovou hodnotou. Překročí-li skóre e-mailu prahovou hodnotu, je e-mail klasifikován jako spam. Co se s takovým e-mailem stane, závisí na správci. Může být zahozen, doručen do schránky s modifikovaným předmětem nebo doručen do speciální složky pro spam.</p>
+<p>Typickým nástrojem tohoto typu je spamassassin. Kromě výše uvedeného umí využívat i Bayesův filtr, který využívá teorie pravděpodobnosti a dokáže se „učit“. Před jeho použitím je dokonce velmi vhodné ho „naučit“. Více o něm si můžete přečíst třeba v našem článku <a href="http://www.linuxexpres.cz/praxe/bayesuv-filtr-1">Bayesův filtr</a>.</p>
+<p>Stejně jako jiné nástroje pro boj se spamem může spamassassin klasifikovat i běžnou zprávu jako spam. Proto bývá vhodné jej pečlivě nastavit a po nějakou dobu sledovat, jak poštu klasifikuje.</p>
+<h4>Antivirus</h4>
+<p>Ve světě Linuxu neexistuje příliš velká motivace používat antivirus, s výjimkou provozování poštovního serveru. Implementace nějakého antiviru je vhodná, přinejmenším kvůli uživatelům využívajícím jiný operační systém než GNU/Linux.</p>
+<p>Takovým antivirem může být např. clamav, který bývá součástí většiny distribucí.</p>
+<h4>Restrikce na úrovni poštovního serveru</h4>
+<p>Na úrovni poštovního serveru lze specifikovat řadu restrikcí. Je možné vynutit ohlášení klienta pomocí HELO/EHLO, je možné kontrolovat hodnotu <code>MAIL FROM:</code> a ujistit se, že je použito plně kvalifikované doménové jméno, popřípadě že je použito existující doménové jméno, apod.</p>
+<p>Problémem tohoto přístupu je, že tím můžete některé poštovní servery (nebo poštovní klienty) odříznout, a spolu s nimi odříznout i regulerní poštu.</p>
+<h4>Blacklisty</h4>
+<p>Veřejné blacklisty představují jistou kontroverzní metodu boje se spamem. Za blacklisty obvykle stojí nějaká organizace. Fungují tak, že určitou metodou sbírají určité IP adresy a prostřednictvím DNS dotazů umožňují poštovním serverům zjistit, zda-li se klient, který se právě připojil a hodlá předat zprávu, nachází či nenachází v daném blacklistu. Pokud se v něm nachází, poštovní servery pak zprávu obvykle odmítnou doručit (a vygenerují příslušnou chybovou hláškou), ale kontrolu vůči blacklistům je možné implementovat i jinam, např. do antispamu, a u e-mailu odeslaného z počítače v blacklistu pouze zvýšit skóre.</p>
+<p>Blacklisty mohou obsahovat nejenom počítače rozesílající spam, ale také počítače, které se nachází v síti nějakého ISP (např. poskytovatele připojení pro domácnosti), nebo počítače, které se na seznam dostanou omylem.</p>
+<p>Budete-li používat blacklisty, určitě se podívejte, jaké IP adresy se sbírají a jakou metodikou. Zároveň se také podívejte, co je třeba k tomu, aby mohl správce svůj server z blacklistu vyřadit. Blacklisty, které vyžadují zaplacení poplatku nebo mají přehnané požadavky, byste používat neměli, alespoň v rámci solidarity s kolegy správci jiných poštovních serverů.</p>
+<p>Problém s blacklisty lze opět shrnout na možné odmítání regulerní pošty, popřípadě na obtížnost vyjmutí serveru z blacklistu.</p>
+<p>Dlužno dodat, že existují i široké možnosti lokálních blacklistů, tedy blacklistů na úrovni vašeho serveru. Můžete odmítat poštu na základě nejrůznějších vlastních kritérií. Zde je výhodou, že nad tímto procesem máte plnou kontrolu.</p>
+<h4>Greylisting</h4>
+<p>Greylisting je z praktického hlediska velmi účinnou metodou, přitom jeho princip je velmi jednoduchý. V rámci něj se kontroluje tzv. triplet, tedy kombinace IP adresy doručovatele e-mailu, odesílatele a příjemce (dle SMTP). Byl-li tento triplet viděn dříve, server e-mail akceptuje. Pokud se objevil poprvé, server e-mail dočasně odmítne převzít (např. po dobu 5 minut). Teprve po opětovném doručení po uplynutí této doby jej převezme a daný triplet uloží do databáze.</p>
+<p>Greylisting vychází z toho, že normální SMTP server by se měl pokusit zprávu doručit znovu, zatímco nástroje spammerů tak obvykle nečiní. Nevýhodou Greylistingu je související prodleva – ta může trvat různě dlouho, 15 minut i čtyři hodiny (nebo déle). Špatně nakonfigurované SMTP servery vám třeba nemusí daný e-mail znovu doručit vůbec – po prvním pokusu to vzdají. Může také dojít k jiným problémům v závislosti na okolnostech (viz odkazy pod článkem). Greylisting je však v dnešní době natolik používanou metodou, že by na ni <em>měly</em> SMTP servery brát ohled.</p>
+<h4>Akce</h4>
+<p>V mnoha situacích můžete rozhodnout, co se má stát s e-mailem, který nevyhověl některému pravidlu. Můžete jej odmítnout převzít, přesměrovat, zahodit nebo doručit do specifické složky, atd. Některé z těchto řešení jsou vhodné, jiné zcela katastrofální (např. tiché zahození e-mailu). Vždy se pokuste myslet na ty, kteří vám chtějí doručit regulerní poštu – jak zjistí, že pošta dorazila nebo ne, když e-mail zůstane bez reakce?</p>
+<h4>Nepříjemné komplikace</h4>
+<p>Spam představuje velký problém, který různí správci řeší různě. Díky němu se v doručování e-mailů objevují prodlevy (Greylisting), regulerní e-maily končí ve spamovém koši, pošta z určitých serverů je odmítána na základě blacklistů, přičemž s tím vším jako správci přijdete do styku. A to jak z pohledu konfigurátorů a pánů nad vlastním serverem, tak z pohledu SMTP serverů, které se snaží doručit poštu na jiný server, který se s vámi nechce bavit.</p>
+
+<pre id="links">https://en.wikipedia.org/wiki/Mail_user_agent Wikipedia, MUA
+https://en.wikipedia.org/wiki/Mbox Wikipedia, Mbox
+https://en.wikipedia.org/wiki/Maildir Wikipedia, Maildir
+https://en.wikipedia.org/wiki/Internet_Message_Access_Protocol Wikipedia, IMAP
+https://en.wikipedia.org/wiki/Post_Office_Protocol Wikipedia, POP
+https://en.wikipedia.org/wiki/Sieve_%28mail_filtering_language%29 Wikipedia, Sieve
+https://en.wikipedia.org/wiki/STARTTLS Wikipedia, STARTTLS
+https://en.wikipedia.org/wiki/Greylisting Wikipedia, Greylisting
+http://www.postfix.org/postconf.5.html Postfix, konfigurační volby</pre>

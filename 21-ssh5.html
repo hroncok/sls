@@ -1,0 +1,64 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Praktické rady pro zabezpečení (nejen) SSH IV</h1>
+
+<p>V tomto díle proberu aktivní zabezpečení SSH na úrovni firewallu s využitím modulu recent a nástroj scponly.</p>
+
+<h3>Aktivní zabezpečení SSH na úrovni firewallu</h3>
+<p>Pokročilejší techniku zabezpečení SSH na úrovni firewallu představuje následující řešení, které tvoří jistou obdobu Denyhosts a Fail2ban, i když stále zde platí, že firewall nemůže zjistit, bylo-li dané přihlášení úspěšné, či nikoliv. Nutností je v tomto případě dostupnost jaderného modulu <a href="http://www.snowman.net/projects/ipt_recent/">ipt_recent</a> (v distribučním jádře Debianu tento modul k dispozici je). Příslušná pravidla vypadají zhruba takto:</p>
+<pre>1. iptables -N ssh
+2. iptables -A ssh -s 1.2.3.4 -j ACCEPT
+3. iptables -A ssh -m recent --update --seconds 15 --hitcount 5 --name SSH -j DROP
+4. iptables -A ssh -m recent --set --name SSH -j ACCEPT
+5. iptables -A ssh -j ACCEPT
+
+6. iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ssh</pre>
+<p>Pochopit tento příklad je asi trošku obtížnější. Pokusy o připojení k SSH jsou směřovány do řetězce s názvem "ssh" (řádek 6). V tomto řetězci je nejprve povolen přístup z IP adresy <code>1.2.3.4</code> (řádek 2). Na řádku 4 je každý procházející paket zařazen do mechanismu modulu recent, a sice do jeho vlastního řetězce s názvem SSH, a propuštěn (tj. povolen). Třetí řádek je pak jádro celého mechanismu. Byla-li daná zdrojová IP adresa procházejícího paketu viděna vícekrát než 5krát za 15 sekund, je zařazena na blacklist a paket je zahozen. Pokud z dané IP adresy nepřijde žádná další žádost o pokus o připojení k SSH během 15 sekund, je daná IP adresa vyjmuta z blacklistu a může se znovu pokusit o přihlášení. Pokud z této IP adresy přijde další žádost, zatímco je v blacklistu, paket je zahozen a počítá se znovu od nuly.</p>
+<p>Trošku komplexnější příklad může vypadat takto:</p>
+<pre>iptables -N ssh-blacklist
+iptables -A ssh-blacklist -m recent --name blacklist --set
+iptables -A ssh-blacklist -m limit --limit 1/minute --limit-burst 100 -j LOG --log-prefix "iptables ssh-blacklist: "
+iptables -A ssh-blacklist -j DROP
+
+iptables -N ssh-whitelist
+iptables -A ssh-whitelist -s 1.2.3.4 -j ACCEPT
+iptables -A ssh-whitelist -j RETURN
+
+iptables -N ssh
+iptables -A ssh -j ssh-whitelist
+iptables -A ssh -m recent --update --name blacklist --seconds  43200 --hitcount  1 -j DROP         
+iptables -A ssh -m recent --set    --name short
+iptables -A ssh -m recent --set    --name long
+iptables -A ssh -m recent --update --name short --seconds   15 --hitcount  5 -j ssh-blacklist
+iptables -A ssh -m recent --update --name long --seconds  3600 --hitcount 30 -j ssh-blacklist
+iptables -A ssh -j ACCEPT
+
+iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ssh</pre>
+<p>Zde vidíte tři řetězce, řetězec <code>ssh</code>, kam směřují nová spojení s portem 22, dále řetězec <code>ssh-whitelist</code>, kde jsou specifikovány IP adresy a rozsahy, které mají být povoleny bez filtrování (v tomto případě je to jediná adresa - <code>1.2.3.4</code>). Řetězec <code>ssh-blacklist</code> provádí dvě podstatné úlohy. Jednak zařazuje danou IP adresu na blacklist a příslušný paket zahazuje, ale ještě před tím, než paket zahodí, jej zaloguje. Zde vidíte modul <code>limit</code>, který jsem představil výše. V tomto případě omezuje počet hlášek v logu na průměrně jednu za minutu (s možností najednou pojmout až 100 hlášek). Podstatné je, že do tohoto řetězce se příslušný paket dostane pouze jednou, a sice když je na blacklist zařazen - jinak ho zahazuje první "recent" pravidlo v řetězci <code>ssh</code>. Pro blacklist jsou stanovena dvě různá časová pásma, a sice 5 spojení za 15 sekund a 30 spojení za hodinu (3600 sekund). Pokud se nějaká IP adresa pokusí o více spojení za daný časový úsek, bude zařazena na blacklist. Doba, po kterou pak v blacklistu zůstane, je minimálně 1 den (43200 sekund). Daná IP adresa bude vyjmuta, pokud se během 1 dne od zařazení do blacklistu už nepokusí o přístup k SSH. Pokud to zkusí znovu během této doby, počítadlo se vynuluje a začíná se znovu.</p>
+<p>Jak už bylo řečeno, modul recent nebere v úvahu úspěch či neúspěch pokusu o přihlášení, pouze počet průchozích paketů za jednotku času. Oproti modulu <code>limit</code> má však podstanou výhodu v tom, že počítadla paketů jsou specifická pro každou zdrojovou IP adresu průchozího paketu. To znamená, že pokud bude útočník útočit z jedné IP adresy, ta bude brzy zablokována, ale přístup odjinud bude fungovat normálně.</p>
+<p>Uznávám, že modul <code>recent</code> je trošku "vyšší dívčí", čemuž bohužel napomáhá i lehký nedostatek podrobnější dokumentace. Popis jednotlivých voleb a základní princip však lze pochopit jednak z výše odkazované dokumentace, a pak z manuálové stránky nástroje <code>iptables</code>.</p>
+<h3>scponly</h3>
+<p>Posledním nástrojem, který v rámci tohoto miniseriálu představím, je <code>scponly</code>. Jelikož SSH a SCP jdou ruku v ruce, může se stát, že v některých případech budete chtít, aby měl některý váš uživatel možnost přes SSH/SCP kopírovat soubory, ale současně aby se nemohl dostat k shellu a pouštět příkazy. A právě k tomu je určen nástroj <code>scponly</code>.</p>
+<p>Po instalaci stejnojmenného balíčku stačí jediný jednoduchý krok - vyměnit výchozí shell uživatele za <code>scponly</code>, takto:</p>
+<pre>usermod -s /usr/bin/scponly uzivatel</pre>
+<p>Z bezpečnostních důvodů je nutné, aby daný uživatel neměl právo zápisu do svého domovského adresáře (aby nemohl upravovat konfigurační soubory v <code>.ssh</code> a potenciálně si tak otevřít vrátka k shellu):</p>
+<pre>chown root:root /home/uzivatel
+chmod 755 /home/uzivatel</pre>
+<p>V rámci tohoto nastavení přesto vyvstává minimálně jeden další potenciální problém - uživatel může v tomto případě stále cestovat v adresářové struktuře mimo svůj domovský adresář. Pokud chcete zabránit i tomuto, je třeba využít <code>chroot</code> variantu <code>scponly</code>. Za tímto účelem je nejprve potřeba tuto verzi povolit:</p>
+<pre>dpkg-reconfigure scponly</pre>
+<p>Zde musím upozornit na to, že v takovém případě <code>scponly</code> získá <code>setuid</code> bit a bude spouštěn s právy uživatele <code>root</code>. Případná zranitelnost v <code>scponly</code> pak může mít katastrofální dopad (útočník získá rootovská oprávnění). Dalším krokem je užití pomocného skriptu v adresáři <code>/usr/share/doc/scponly/setup_chroot</code> s názvem <code>setup_chroot.sh</code>. Tento skript je před použitím třeba rozbalit:</p>
+<pre>cd /usr/share/doc/scponly/setup_chroot
+gzip -d setup_chroot.sh.gz
+chmod u+x setup_chroot.sh
+./setup_chroot.sh</pre>
+<p>Skript za vás vytvoří uživatele, zkopíruje všechny nutné nástroje a knihovny do chrootu, zajistí úpravu práv domovského adresáře uživatele a vytvoří adresář, kam bude mít daný uživatel právo k zápisu. Naneštěstí, v Debianu Lenny tento skript neprovede jednu velmi důležitou operaci, a sice vytvoření <code>/dev/null</code> v chrootu, což je třeba provést ručně:</p>
+<pre>mkdir /home/uzivatel/dev
+cp -a /dev/null /home/uzivatel/dev/</pre>
+
+<pre id="links">http://www.ducea.com/2006/06/28/using-iptables-to-block-brute-force-attacks/ Using iptables to Block Brute Force Attacks
+http://www.debian-administration.org/articles/187 Using iptables to rate-limit incoming connections
+http://www.snowman.net/projects/ipt_recent/ Dokumentace modulu ipt_recent
+http://www.fail2ban.org/ Fail2ban - projektový web
+http://tadek.pietraszek.org/blog/2006/10/18/restricted-shell-account-ssh-and-subversion/ Restricted shell account (SSH and Subversion)
+http://sublimation.org/scponly/ sponly - projektový web</pre>

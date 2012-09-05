@@ -1,0 +1,88 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: S.M.A.R.T. logy</h1>
+
+<p>V tomto dílu budu pokračovat v popisu technologie S.M.A.R.T., konkrétně se podívám na S.M.A.R.T. logy, a na některé zajímavé závěry studie Googlu o vlivu teploty na životnost disku.</p>
+
+<h3>S.M.A.R.T. logy</h3>
+<p>Jak už bylo řečeno dříve, kromě zaznamenávání řady údajů provádí technologie S.M.A.R.T. logování - pokud firmware disku detekuje chybový stav, zaznamená jej do svého vlastního vnitřního logu. Kapacita tohoto logu je bohužel velmi omezena - ukládá se pouze pět posledních záznamů. Výpis z logu může vypadat takto:</p>
+<pre>SMART Error Log Version: 1
+ATA Error Count: 36 (device log contains only the most recent five errors)
+	CR = Command Register [HEX]
+	FR = Features Register [HEX]
+	SC = Sector Count Register [HEX]
+	SN = Sector Number Register [HEX]
+	CL = Cylinder Low Register [HEX]
+	CH = Cylinder High Register [HEX]
+	DH = Device/Head Register [HEX]
+	DC = Device Command Register [HEX]
+	ER = Error register [HEX]
+	ST = Status register [HEX]
+Powered_Up_Time is measured from power on, and printed as
+DDd+hh:mm:SS.sss where DD=days, hh=hours, mm=minutes,
+SS=sec, and sss=millisec. It "wraps" after 49.710 days.
+
+Error 36 occurred at disk power-on lifetime: 27 hours (1 days + 3 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 08 00 43 de e0  Error: UNC 8 sectors at LBA = 0x00de4300 = 14566144
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  c8 00 08 00 43 de e0 08      00:28:29.500  READ DMA
+  27 00 00 00 00 00 e0 08      00:28:29.500  READ NATIVE MAX ADDRESS EXT
+  ec 00 00 00 00 00 a0 0a      00:28:29.500  IDENTIFY DEVICE
+  ef 03 42 00 00 00 a0 0a      00:28:29.400  SET FEATURES [Set transfer mode]
+  27 00 00 00 00 00 e0 08      00:28:29.400  READ NATIVE MAX ADDRESS EXT
+</pre>
+<p>Povšimněte si údajů o celkovém počtu chyb (druhý řádek výpisu). Samotná chyba je popsána poměrně detailně, včetně série příkazů, které vedly k chybovému stavu, a časového údaje, ze kterého je možné v tomto případě vyčíst, že k poslední chybě (chybě č. 36) došlo ve 27. hodině fungování pevného disku. S.M.A.R.T. logy je nicméně nutné brát v kontextu k ostatním údajům - teprve pak mají vhodnou vypovídací schopnost. Časovou značku chyby (27 hodin) lze porovnat se S.M.A.R.T. údajem "power on hours", který udává celkovou dobu fungování disku:</p>
+<pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  9 Power_On_Hours          0x0012   100   100   000    Old_age   Always       -       4339
+</pre>
+<p>Z toho je vidět, že chyba nastala velmi brzy po zařazení disku do užívání, a od té doby nenastal žádný problém. Což je povzbudivé. Podívejte se ještě na ostatní důležité údaje:</p>
+<pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     0x000b   100   100   016    Pre-fail  Always       -       0
+  4 Start_Stop_Count        0x0012   100   100   000    Old_age   Always       -       72
+  5 Reallocated_Sector_Ct   0x0033   100   100   005    Pre-fail  Always       -       0
+  7 Seek_Error_Rate         0x000b   100   100   067    Pre-fail  Always       -       0
+  9 Power_On_Hours          0x0012   100   100   000    Old_age   Always       -       4339
+ 10 Spin_Retry_Count        0x0013   100   100   060    Pre-fail  Always       -       0
+193 Load_Cycle_Count        0x0012   100   100   000    Old_age   Always       -       92
+194 Temperature_Celsius     0x0002   171   171   000    Old_age   Always       -       35 (Lifetime Min/Max 21/49)
+196 Reallocated_Event_Count 0x0032   100   100   000    Old_age   Always       -       0
+197 Current_Pending_Sector  0x0022   100   100   000    Old_age   Always       -       0
+198 Offline_Uncorrectable   0x0008   100   100   000    Old_age   Offline      -       0
+199 UDMA_CRC_Error_Count    0x000a   200   200   000    Old_age   Always       -       0
+</pre>
+<p>Realokovaných sektorů je nula, reallocated event count je nulový, raw read error rate také (jedná se o disk Hitachi, který u tohoto atributu udává reprezentativní surovou hodnotu), offline uncorrectable také vykazuje nulovou hodnotu. Z toho je patrné, že disk by měl být v pořádku, přestože má v logu spoustu chyb.</p>
+<p>Právě na tomto příkladu bych rád ukázal a zdůraznil, že chybové hlášky v logu ještě nutně nemusí znamenat problém s diskem. V tomto konkrétním případě došlo k přerušení napájení, když disk prováděl zápis. Výsledkem bylo několik sektorů u kterých došlo k nekonzistenci mezi daty a ECC záznamy (Error Checking and Correction). Z toho disk při čtení usoudil, že sektor nelze přečíst (jakmile porovnal data a příslušné ECC záznamy), tudíž došlo k neopravitelné chybě čtení (viz UNC = uncorrectable error in data v chybové hlášce v logu). Po přepsání těchto sektorů problém zmizel a disk nyní funguje bezvadně.</p>
+<p>Pokud tedy budete posuzovat zdraví nějakého pevného disku, a v logu objevíte nějaké chybové hlášky, pak je rozhodně vnímejte v kontextu se S.M.A.R.T. údaji (a pokud jste na pochybách, pak disk otestujte).</p>
+<h3>Teplota a zdraví pevných disků</h3>
+<p>Pokud se podíváte na studii Googlu (<a href="http://research.google.com/archive/disk_failures.pdf">PDF</a>), na kterou jsem vás odkazoval v minulém díle, pak zjistíte, že teplota sice hraje roli v rámci životnosti disku, ale možná ne tak, jak byste očekávali. Z výsledků této studie totiž mj. vyplývá, že diskům vadí spíše příliš nízké teploty (kolem 15°C) než příliš vysoké. Teplota do výše 50°C ovlivňuje negativně životnost disku méně než teploty pod 25°C. Teplotní optimum se podle dané studie nachází někde kolem 40°C.</p>
+<p>Některé disky umí v rámci S.M.A.R.T. zaznamenat nejen svou aktuální teplotu, ale i celoživotní minimum a maximum:</p>
+<pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+194 Temperature_Celsius     0x0002   171   171   000    Old_age   Always       -       35 (Lifetime Min/Max 21/49)
+</pre>
+<p>Přirozeně, nejpodstatnější pro pevný disk je spíše průměrná teplota než minimum a maximum.</p>
+<h3>S.M.A.R.T. a vnější chyby</h3>
+<p>Růst hodnot některých S.M.A.R.T. atributů nemusí být nutně spojen s opotřebením nebo blížící se poruchou pevného disku. Některé hodnoty mohou růst třeba následkem vadné kabeláže (typicky UDMA CRC Error Count), apod. - tyto faktory je nutné brát v potaz a pokusit se jejich vliv při diagnostice zohlednit.</p>
+<h3>S.M.A.R.T. a BIOS</h3>
+<p>BIOSy moderních základních desek obvykle umožňují při bootování hlídat stav S.M.A.R.T. a hlásit případný problém. Na tuto funkcionalitu není dobré spoléhat - hlídá totiž pouze jednu jedinou hodnotu, a tou je celkový stav. Ve výpisu nástroje <code>smartctl</code> je tato hodnota také k dispozici:</p>
+<pre>=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+</pre>
+<p>Co tato hodnota znamená? V podstatě pouze to, že nebyl překročen práh (treshold) žádného ze S.M.A.R.T. atributů. To je samozřejmě důležitá hodnota a ve chvíli, kdy bude udávat "FAILED", je vhodné data zálohovat a disk co nejdříve vyřadit. Naneštěstí to, že tato hodnota udává "PASSED", ještě neznamená, že nelze bližším studiem konkrétních hodnot S.M.A.R.T. atributů odhadnout blížící se potenciální problém dlouho před tím, než se tato hodnota změní.</p>
+<h3>S.M.A.R.T. a firmware disku</h3>
+<p>S.M.A.R.T. je de facto software, který je součástí firmwaru disku. A jako každý software, i implementace S.M.A.R.T. (potažmo firmware disku jako takový) může mít chyby. Takové chyby občas postihnou některé série pevných disků, a stává se to čas od času snad úplně každému výrobci pevného disku.</p>
+<p>Disk tedy může selhat nebo vypadnout z diskového pole nejenom následkem mechanického poškození nebo opotřebení, ale i následkem chyby ve firmwaru, která může provést téměř cokoliv počínaje vracením nepravdivých S.M.A.R.T. údajů a úplným zamrznutím disku konče. I to je jeden z důvodů, proč se do diskových polí doporučuje dávat různé disky od různých výrobců.</p>
+<p>Tímto bych pro tentokrát skončil, s tím, že příště se podívám na S.M.A.R.T. testy a na to, jak lze změny S.M.A.R.T. údajů monitorovat.</p>
+
+<pre id="links">http://en.wikipedia.org/wiki/S.M.A.R.T. S.M.A.R.T. (Wikipedia)
+http://en.wikipedia.org/wiki/Hard_disk_failure Hard disk failure (Wikipedia)
+http://research.google.com/archive/disk_failures.pdf Failure Trends in a Large Disk Drive Population, Google (PDF)
+http://en.wikibooks.org/wiki/Minimizing_hard_disk_drive_failure_and_data_loss Minimizing hard disk drive failure and data loss (Wikibooks)</pre>

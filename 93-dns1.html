@@ -1,0 +1,97 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Úvod do DNS</h1>
+
+<p>DNS je po TCP/IP jedna z nejdůležitějších služeb na internetu. Ať chcete nebo nechcete provozovat vlastní DNS server, základy DNS potřebuje znát každý správce serverů. Tento díl seriálu osvětlí tuto problematiku.</p>
+
+<h3>Rychlokurz DNS</h3>
+<p>K čemu slouží DNS? Většina z vás to asi bude vědět, ale přesto si neodpustím malé opakování. Komunikace mezi jednotlivými dvěma uzly na internetu (např. mezi klientem a serverem) je řešena protokolem IP – každý z uzlů má přidělenou IP adresu, která jej jednoznačně identifikuje (pokud není z privátního rozsahu, ale to je úplně jiný problém pro samostatný traktát) a umožní pomocí směrovačů mezi oběma uzly doručovat data z jednoho uzlu na druhý a naopak.</p>
+<p>IP adresa je vhodný strojový identifikátor, ale nikoliv vhodný identifikátor pro použití člověkem. Čtyři čísla oddělená tečkou (IPv4) nebo osm skupin čtyř hexadecimálních číslic (IPv6) není snadné k zapamatování – člověk si mnohem lépe zapamatuje jméno (linuxexpres.cz) než hromadu číslic (91.214.192.101). Služba DNS zajišťuje převod jmen na IP adresy (a do jisté míry „naopak“).</p>
+<h4>Stromový charakter</h4>
+<p>Jmenný systém DNS má charakter stromu. Kořenem tohoto stromu je tzv. kořenová doména, která se vyjadřuje tečkou. Pod kořenovou doménou jsou tzv. TLD, top-level domény, které se dělí na generické (com, org, net atd.), státní (cz, pl, co.uk, us atd.) a infrastrukturní (arpa). Přidělování TLD jednotlivým správcům má na starosti <a href="http://www.icann.org/">ICANN</a>. Správci TLD pak, zpravidla za poplatek, umožňují registraci domén druhého (někdy i dalšího) řádu. Domény druhého řádu pak patří pod danou TLD. Zápis jednotlivých úrovní DNS jmen se provádí zprava doleva, tzn. máte-li doménu druhého řádu "linuxexpres" a TLD "cz", zápis bude vypadat takto:</p>
+<pre>linuxexpres.cz.</pre>
+<p>Tečka na konci (tedy kořenová doména) se běžně neuvádí, ale je součástí protokolu DNS, a pokud budete spravovat vlastní DNS server, v jeho konfiguraci ji uvádět budete. Pro lepší ilustraci se můžete podívat na obrázek znázorňující stromový charakter jmenného systému DNS:</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/6571.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/6571.jpg','Ilustrace stromového charakteru jmenných prostorů DNS','426','204'); return false;"><img alt="Ilustrace stromového charakteru jmenných prostorů DNS" class="ph_detail" height="204" src="http://www.linuxexpres.cz/uploads/gallery/detail/6571.jpg" width="426" /></a> <span class="ph_title">Ilustrace stromového charakteru jmenných prostorů DNS</span></p>
+<p>Pokud si zaregistrujete doménu druhého řádu, budete si moci vytvářet další subdomény, tj. domény třetího řádu, domény čtvrtého řádu atd., např.:</p>
+<pre>www.linuxexpres.cz
+server.example.org
+my.server.example.org</pre>
+<p>Registrace domén probíhá přes tzv. registrátory. Ti za vás vyřídí nejenom registraci dané domény, ale také zpravidla umožňují vytvořit a spravovat vaši doménu na jejich DNS serverech. Děje se tak obvykle přes webové rozhraní. Můžete si samozřejmě vytvořit vlastní DNS server a svoje domény spravovat na něm (jak, to se dozvíte v dalších dílech seriálu).</p>
+<h4>Protokol DNS</h4>
+<p>Z technického hlediska běží DNS nejčastěji na UDP, ale může používat i TCP. UDP je používáno kvůli rychlosti – jak možná víte, než mohou přes TCP proudit nějaká data, musí dojít k vytvoření spojení, k čemuž jsou potřeba tři pakety, a pak je teprve možné vznést DNS dotaz. UDP je v tomto případě rychlejší, na DNS dotaz stačí jediný paket.</p>
+<p>Pro diagnostiku a studium DNS doporučuji nástroj <em>dig</em>, který se ukrývá v balíčku <code>dnsutils</code>. Na Debianu jej nainstalujete takto:</p>
+<pre>aptitude install dnsutils</pre>
+<p>Základní DNS dotaz můžete provést takto:</p>
+<pre>dig example.org
+
+; &lt;&lt;&gt;&gt; DiG 9.9.1-P1 &lt;&lt;&gt;&gt; example.org
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 10873
+;; flags: qr rd ra ad; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;example.org.                   IN      A
+
+;; ANSWER SECTION:
+example.org.            172800  IN      A       192.0.43.10
+
+;; AUTHORITY SECTION:
+example.org.            172800  IN      NS      b.iana-servers.net.
+example.org.            172800  IN      NS      a.iana-servers.net.
+
+;; Query time: 879 msec
+;; SERVER: 10.0.1.254#53(10.0.1.254)
+;; WHEN: Tue Jul 24 17:08:10 2012
+;; MSG SIZE  rcvd: 104</pre>
+<p>V tomto výpisu vidíte dotaz (question section), odpověď (answer section) a autoritativní servery pro daný dotaz. Všimněte si tečky za každým doménovým jménem (kořenová doména).</p>
+<p>DNS dotazy mají charakter otázka-odpověď, nicméně je třeba tušit, koho se musíte zeptat, jakou odpověď vám poskytne a co s ní budete dále dělat. Více viz dále.</p>
+<h4>Hierarchie DNS serverů</h4>
+<p>Zadali jste jednoduchý DNS dotaz a přišla vám odpověď. Jakým způsobem ale byla získána? DNS je hierarchický systém, tzn. neexistuje jeden server, kterého byste se na cokoliv zeptali, a on by znal odpověď. DNS serverů je řada a každý z nich obsahuje jiné informace. Na počátku hierarchie DNS stojí tzv. root servery. Ty obsahují informaci o kořenové doméně a tuší, kde jsou autoritativní servery jednotlivých TLD. Nic víc netuší. Autoritativní servery jednotlivých TLD obsahují informace o autoritativních serverech jednotlivých domén druhého řádu.</p>
+<p>Uvažte doménové jméno <code>wikipedia.org</code>. Abyste toto jméno přeložili na IP adresu, musíte se nejprve zeptat některého z kořenových serverů. Jak zjistíte jeho IP adresu? Nijak – seznam kořenových serverů v podobě jednotlivých IP adres musíte mít někde uložený.</p>
+<p>Kořenový server sice netuší, jakou IP adresu má <code>wikipedia.org</code>, ale poskytne vám seznam autoritativních serverů pro danou TLD, tedy <code>org</code>. Tyto servery spravuje majitel dané TLD. Vy si některý z nich vyberete a dotážete se ho na <code>wikipedia.org</code>. Konkrétní IP adresu sice zpravidla vědět nebude, ale dá vám opět seznam autoritativních serverů, tentokrát ale autoritativních pro doménu <code>wikipedia.org</code>. Vy si opět vyberete některého z nich, a ten vám konečně řekne, že pod jménem <code>wikipedia.org</code> se skrývá počítač <em>208.80.152.201</em>.</p>
+<p>Kdybyste si to chtěli vyzkoušet, vyberte si nějaký kořenový server (seznam najdete třeba na Wikipedii) a nějakou doménu, kterou chcete přeložit (např. <code>wikipedia.org</code>) a proveďte:</p>
+<pre>dig wikipedia.org @korenovy_server
+
+;; AUTHORITY SECTION:
+org.                    172800  IN      NS      a0.org.afilias-nst.info.
+;; ADDITIONAL SECTION:
+a0.org.afilias-nst.info. 172800 IN      AAAA    2001:500:e::1
+a0.org.afilias-nst.info. 172800 IN      A       199.19.56.1
+</pre>
+<p>Výpis je zkrácený, nicméně vidíte, že kořenový server na daný dotaz odpověděl seznamem autoritativních serverů pro top-level doménu <code>org</code>. Přiložil také A a AAAA záznamy daných DNS serverů. Jeden z nich si vyberte a dotaz opakujte:</p>
+<pre>dig wikipedia.org @199.19.56.1
+
+;; AUTHORITY SECTION:
+wikipedia.org.          86400   IN      NS      ns1.wikimedia.org.
+
+;; ADDITIONAL SECTION:
+ns0.wikimedia.org.      86400   IN      A       208.80.152.130</pre>
+<p>Ani zde se nedočkáte přímé odpovědi, nicméně nyní už víte, které DNS servery spravují doménu <code>wikipedia.org</code>. Některý z nich si vyberte a dotaz opakujte:</p>
+<pre>dig wikipedia.org @208.80.152.130
+
+;; ANSWER SECTION:
+wikipedia.org.          3600    IN      A       208.80.152.201</pre>
+<p>A je hotovo, vrátil se vám A záznam pro <code>wikipedia.org</code> ukazující na IP adresu <em>208.80.152.201</em>.</p>
+<h4>Typy DNS záznamů a zóny</h4>
+<p>Zóna je část doménového jména, jehož správa byla někomu svěřena. Vy se asi nejčastěji setkáte s doménou druhého řádu, např. <code>example.org</code>. Zóna obsahuje jednotlivé DNS záznamy (resource records). Tyto záznamy mohou být různého typu. Nejčastější je A záznam, který mapuje jméno (např. <code>example.org</code>) na konkrétní IPv4 adresu. Pro mapování jména na IPv6 adresu slouží AAAA záznam. Ptáte-li se tedy na IP adresu jména <code>example.org</code>, ptáte se vlastně na A záznam. Doména může také obsahovat záznam typu MX (mail exchange), který označuje jednotlivé poštovní servery pro danou doménu a jejich priority. Častý je také záznam typu CNAME, což je v podstatě alias mapující jméno na jméno tzn. např. <code>core.example.org</code> může být aliasem pro <code>www.example.org</code>. Důležitý je také záznam typu NS, kterým můžete delegovat subdoménu na jiný DNS server. Kořenové servery obsahují výhradně záznamy typu NS pro jednotlivé TLD.</p>
+<h4>DNS resolver a kešování</h4>
+<p>Pokud chcete vyřešit DNS dotaz, sami víte, že se přímo nemusíte ptát kořenových DNS serverů a řešit, koho se máte ptát dál. Prostě zadáte jméno třeba do prohlížeče a váš počítač DNS dotaz vyřeší a spojí se s daným serverem. Jak jej ale vyřeší? Operační systémy mají jednu vestavěnou funkčnost pro řešení DNS dotazů, říká se jí resolver. Resolver se v GNU/Linuxu nastavuje v konfiguračním souboru <code>/etc/resolv.conf</code>. Tento soubor obsahuje seznam DNS serverů, kterých se bude resolver ptát. Tyto servery vám obvykle přidělí ISP, ale můžete využít i některé veřejně dostupné DNS servery (nebo si zřídit vlastní, ale o tom až někdy příště). Tento soubor obvykle vypadá nějak takto:</p>
+<pre>nameserver 1.2.3.4
+nameserver 4.3.2.1</pre>
+<p>Dobrá. Takže zadáte do prohlížeče nějaké jméno. Prohlížeč se zeptá resolveru. Resolver se nejprve podívá do své vlastní keše, jestli tam to jméno už nemá. Pokud ano, vrátí ho prohlížeči a proces je ukončen. Pokud ne, zeptá se některého z DNS serverů specifikovaných v <code>/etc/resolv.conf</code>. Ten se také nejprve podívá do vlastní keše a vyhledává pouze informace, které v keši nemá. Resolveru nakonec přijde odpověď, kterou předá procesu, jenž se ptal, a záznam si uloží do své keše pro případnou budoucí potřebu.</p>
+<p>Všechny DNS záznamy mají časově omezenou platnost, která řídí, jak dlouho si mají kešovací DNS servery a resolver informace ponechat. Po uplynutí této doby se záznam z keše vymaže.</p>
+<h4>Typy DNS serverů</h4>
+<p>DNS servery se dají členit dle různých kritérií. Výše jsem několikrát použil pojem „autoritativní DNS server“. Tímto pojmem je označován server, který obsahuje původní informace o dané zóně (informace z první ruky). Pokud se zeptáte kešovacího DNS serveru, jsou to informace z druhé ruky. Autoritativní servery spravuje majitel dané zóny.</p>
+<p>V redukovaných výpisech výše to asi nebylo patrné, ale pokud si nějaké dotazy budete zkoušet, zjistíte, že autoritativních DNS serverů je vždy více. Je to redundance pro případ, že by některý selhal. Jeden z nich je vždy primární a ostatní sekundární. Sekundární přebírají informace z primárních.</p>
+<p>Tím bych tento díl ukončil. V dalších se budeme problematikou DNS zabývat hlouběji.</p>
+
+<pre id="links">http://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie: DNS
+http://en.wikipedia.org/wiki/Domain_Name_System Anglická Wikipedie: DNS
+http://www.madboa.com/geek/dig/ DiG HOWTO
+http://en.wikipedia.org/wiki/Internet_Corporation_for_Assigned_Names_and_Numbers Anglická Wikipedie: ICANN
+http://cs.wikipedia.org/wiki/TCP/IP Česká Wikipedie: TCP/IP
+http://en.wikipedia.org/wiki/Root_name_server Anglická Wikipedie: Root name server</pre>

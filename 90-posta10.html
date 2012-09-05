@@ -1,0 +1,101 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Antivirus a antispam</h1>
+
+<p>Na většině linuxových poštovních serverů běží dva základní nástroje pro boj se spamem, a sice SpamAssassin v roli antispamu a ClamAV v roli antivirového řešení. V tomto díle se dozvíte, jak je nainstalovat a nastavit i na vašem poštovním serveru.</p>
+
+<p>Mnohé předešlé díly se věnovaly řešením, které by měly pomoci omezit množství spamu, které váš server propustí. Za jedno z nejúčinnějších řešení je považován greylisting, ale není to jediná technika, která může pomoci.</p>
+<p><a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-agenti-e-mailu-metody-ochrany">Dosud probírané techniky</a> mají však jeden společný faktor – omezují spam na základě způsobu odesílání, tzn. kdo e-mail poslal, jak se jeho SMTP server choval a jak byl nastaven. To úspěšně odfiltruje řadu automatizovaných nástrojů pro posílání spamu (a bohužel i některé špatně nastavené poštovní servery), ale spam pocházející z korektně pracujících poštovních serverů, které (zatím) nejsou na žádných blacklistech, uvedené metody nezadrží. Zde je třeba nasadit poslední obrannou linii, kontrolu obsahu.</p>
+<h3>Amavis, SpamAssassin, ClamAV</h3>
+<p>Kontrolu obsahu zajišťuje <strong>SpamAssassin</strong>, nejrozšířenější antispamové řešení (nejen) na linuxových serverech. Je napsaný v Perlu a pracuje tak, že na základě sady pravidel prověřuje průchozí poštu. V případě, že konkrétnímu pravidlu e-mail vyhoví, upraví se jeho celkové skóre o počet bodů, který náleží danému pravidlu. Kupříkladu, obsahuje-li tělo e-mailu slovo „viagra“, zvýší se skóre o 2,7 bodu. Některá pravidla mohou e-mailu skóre i snížit. Výsledné skóre se pak porovná s prahovou hodnotou (výchozí je 5,0 bodů) a v případě, že e-mail hodnotu dosáhne nebo překročí, je označen jako spam.</p>
+<p>Skóre u jednotlivých pravidel nejsou navrhována náhodně, ale měla by při prahové hodnotě 5,0 bodů dosahovat jednoho falešného pozitiva (korektního e-mailu označeného jako spam) v dvou a půl tisících regulérních e-mailech (tzv. hamech).</p>
+<p>Prahovou hodnotu i skóre jednotlivých pravidel si můžete upravit. Dokonce si můžete tvořit i vlastní pravidla. Podstatnou informací je i to, že sada pravidel SpamAssassinu se podobně jako v případě antivirových databází časem mění a aktualizuje. Pokud chcete, můžete pomocí <a href="http://www.linuxexpres.cz/praxe/cron-spravca-uloh">cronu</a> aktualizovat nejenom antivirovou databázi, ale i pravidla pro SpamAssassin. Více v návodu níže.</p>
+<p>Pokud uživatelé vašeho serveru nepoužívají operační systém Microsoft Windows, v podstatě antivirus nepotřebujete. Máte-li však takové uživatele, je vhodné je chránit pomocí antivirového řešení, které bude hledat viry v poště a likvidovat je. Základním antivirovým nástrojem v GNU/Linuxu je <strong>ClamAV</strong>.</p>
+<p>Je třeba zmínit, že testování obsahu e-mailů pomocí SpamAssassinu a ClamAV je náročné na výkon serveru (nejenom na CPU, ale i na paměť), což je i důvod, proč se správci poštovních serverů tolik věnují ostatním metodám obrany proti spamu. Čím více toho odfiltrují restrikce, greylisting apod., tím méně toho zbude na antispam, potažmo antivirus.</p>
+<p>A k čemu že je <strong>Amavis</strong>? Amavis je spolehlivý nástroj, opět napsaný v Perlu, který stojí mezi vaším <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-postovniho-serveru">MTA</a> a filtry obsahu v podobě SpamAssassinu a ClamAV.</p>
+<h3>Instalace</h3>
+<p>Instalaci všech tří nástrojů provedete jednoduše, přes správce balíčků, v případě Debianu takto:</p>
+<pre>aptitude install amavisd-new spamassassin clamav-daemon</pre>
+<p>Schopnosti detekce antivirů můžete posílit, pokud nainstalujete nástroje pro dekompresi souborů (díky tomu bude ClamAV schopen prověřovat i obsahy archívů). Pozor! Některé z těchto nástrojů nepatří mezi svobodný software, tudíž důrazně doporučuji projít jejich licenční ujednání před tím, než je nasadíte na server. Také budete v tomto případě potřebovat contrib a non-free repozitáře Debianu.</p>
+<pre>aptitude install arj bzip2 cabextract cpio file gzip lha nomarch pax unrar unzip zip</pre>
+<h3>Nastavení ClamAV</h3>
+<p>Nejprve přidejte uživatele <em>clamav</em> do skupiny <em>amavis</em>, aby měl ClamAV přístup k souborům pro antivirový sken:</p>
+<pre>gpasswd -a clamav amavis</pre>
+<p>Následně ClamAV démona restartujte:</p>
+<pre>service clamav-daemon restart</pre>
+<h3>Nastavení SpamAssassinu</h3>
+<p>Tím je nastavení ClamAV hotové. Zbývá nastavit SpamAssassin. Upravte soubor <code>/etc/default/spamassassin</code> a nastavte proměnnou <code>ENABLED</code> na jedničku:</p>
+<pre>ENABLED=1</pre>
+<p>Chcete-li, aby se pravidla SpamAssassinu aktualizovala každý den pomocí cronu, ve stejném souboru nastavte proměnnou <code>CRON</code> také na jedničku:</p>
+<pre>CRON=1</pre>
+<p>Jak už bylo řečeno výše, činnost SpamAssassinu je náročná na procesor, tudíž nemusí být úplně od věci nastavit SpamAssassinu nízkou prioritu, aby se přednostně vyřizovaly aktuální požadavky ostatních démonů. Nejnižší priorita znamená nejvyšší „niceness“ hodnotu, tedy 19, standard je 0 a nejvyšší priorita (nejnižší „niceness“) je –﻿20. Rozumně nízká priorita (15) je v konfiguračním souboru připravená, stačí ji pouze odkomentovat (popřípadě upravit):</p>
+<pre>NICE="--nicelevel 15"</pre>
+<p>Poté nastartujte SpamAssassin:</p>
+<pre>service spamassassin start</pre>
+<h3>Nastavení Amavisu</h3>
+<p>Ve výchozím nastavení Amavis neprovádí ani antispamovou, ani antivirovou kontrolu. Je tedy třeba mu říci, aby je prováděl, a to v souboru <code>/etc/amavis/conf.d/15-content_filter_mode</code>, kde je třeba odkomentovat následující dva bloky:</p>
+<pre>@bypass_virus_checks_maps = (
+   \%bypass_virus_checks, \@bypass_virus_checks_acl, \$bypass_virus_checks_re);
+
+@bypass_spam_checks_maps = (
+   \%bypass_spam_checks, \@bypass_spam_checks_acl, \$bypass_spam_checks_re);</pre>
+<p>Když se podíváte do <code>/etc/amavis/conf.d</code>, uvidíte jednotlivé soubory obsahující nastavení Amavisu. Projděte si minimálně soubor <code>/etc/amavis/conf.d/20-debian_default</code>, kde jsou výchozí nastavení od tvůrců Debianu. V případě Debianu Squeeze tato nastavení nejsou optimální a je třeba je upravit (viz dále). Tento soubor však neměňte, pouze příslušné proměnné nadefinujte dle svých požadavků v souboru <code>/etc/amavis/conf.d/50-user</code>, který je pro lokální úpravy určen.</p>
+<p>Do tohoto souboru můžete umístit tyto hodnoty:</p>
+<pre>@local_domains_acl = ( ".$mydomain" );
+
+$sa_tag_level_deflt  = -999;  
+$sa_tag2_level_deflt = 5; 
+$sa_kill_level_deflt = 12; 
+
+$final_spam_destiny       = D_DISCARD;</pre>
+<p>První řádek definuje domény, pro které má Amavis filtrovat poštu – domény, které zde nebudou uvedeny, nebude Amavis filtrovat (pokud vám tedy Amavis nefiltruje poštu, prověřte, zda jsou zde uvedeny všechny vaše domény). Máte-li jich více, můžete je oddělit čárkou:</p>
+<pre>@local_domains_acl = ( ".$mydomain", "example.com", "example.org" );</pre>
+<p>Proměnná <code>@sa_tag_level_deflt</code> udává, od jakého skóre se do e-mailu budou přidávat hlavičky <code>X-Spam-*</code>. Hodnota –﻿999 zafunguje pro všechny e-maily. Pro úvodní ladění a testování je to více než vhodné, jelikož se sem vypisují i hodnoty jednotlivých testů, což vám pomůže identifikovat, proč byl e-mail označen jako spam. Proměnná <code>@sa_tag2_level_deflt</code> udává, od jakého skóre má být daný e-mail označen jako spam. A konečně proměnná <code>$sa_kill_level_deflt</code> udává, od jaké úrovně se má se spamem provést akce definovaná ve <code>$final_spam_destiny</code>.</p>
+<p>Výchozí nastavení Debianu Squeeze obsahuje v této proměnné <code>D_BOUNCE</code>, což je pro mne nepochopitelná hodnota – tato hodnota totiž způsobí, že se e-mail s vysokým skóre odmítne a vygeneruje se zpráva o nepřijetí, která se pošle odesílateli. Jak ale sami víte, odesílatel se dá snadno zfalšovat a u spamu bývá falšován téměř vždy. Pokud byste tuto hodnotu ponechali ve výchozím stavu, váš server by na spamy „odpovídal“, což by vyústilo v tzv. backscatter, tedy odesílání e-mailů o nepřijetí nevinným osobám. Doporučuji tedy nastavit buď na <code>D_DISCARD</code> (zahodit, popřípadě dle konfigurace poslat do karantény) nebo <code>D_PASS</code> (propustit).</p>
+<p>Následně restartujte Amavis:</p>
+<pre>service amavis restart</pre>
+<h3>Nastavení Postfixu</h3>
+<p>Nejprve vložte do <code>/etc/postfix/main.cf</code> řádku:</p>
+<pre>content_filter = smtp-amavis:[127.0.0.1]:10024</pre>
+<p>Nyní je třeba definovat příslušnou službu v souboru <code>/etc/postfix/master.cf</code>:</p>
+<pre>smtp-amavis unix    -       -       n       -       2     smtp
+    -o smtp_data_done_timeout=1200
+    -o smtp_send_xforward_command=yes
+    -o disable_dns_lookups=yes
+    -o max_use=20
+
+127.0.0.1:10025 inet n    -       n       -       -     smtpd
+    -o content_filter=
+    -o smtpd_delay_reject=no
+    -o smtpd_client_restrictions=permit_mynetworks,reject
+    -o smtpd_helo_restrictions=
+    -o smtpd_sender_restrictions=
+    -o smtpd_recipient_restrictions=permit_mynetworks,reject
+    -o smtpd_data_restrictions=reject_unauth_pipelining
+    -o smtpd_end_of_data_restrictions=
+    -o smtpd_restriction_classes=
+    -o mynetworks=127.0.0.0/8
+    -o smtpd_error_sleep_time=0
+    -o smtpd_soft_error_limit=1001
+    -o smtpd_hard_error_limit=1000
+    -o smtpd_client_connection_count_limit=0
+    -o smtpd_client_connection_rate_limit=0
+    -o receive_override_options=no_header_body_checks,no_unknown_recipient_checks,no_milters
+    -o local_header_rewrite_clients=</pre>
+<p>Amavis jako takový naslouchá na portu 10024. Postfix musí Amavisu předat poštu pro filtrování na tento port, ale zároveň je třeba, aby mu Amavis poštu předal po filtrování zpět, což se řeší výše uvedenou definicí služby na portu 10025. Na tomto portu pak Postfix bude od Amavisu přijímat výsledek filtrování.</p>
+<p>Na závěr je třeba Postfixu oznámit změnu konfigurace:</p>
+<pre>service postfix reload</pre>
+<h3>Otestování funkčnosti</h3>
+<p>Pro základní otestování postačí, když pošlete na server e-mail, do kterého umístíte heslo „viagra“ – to poměrně spolehlivě zvýší skóre na nenulovou hodnotu. Můžete také využít GTUBE řetězec, který ve výchozím nastavení přiřadí vašemu mailu skóre 999. Tento řetězec má tuto podobu:</p>
+<pre>XJS*C4JDBQADN1.NSBN3*2IDNEN*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL*C.34X</pre>
+<h3>Slovo závěrem</h3>
+<p>Amavis je komplexní nástroj, který toho umí poměrně hodně. Pokud jej na svůj server nasadíte, doporučuji vám projít si jeho dokumentaci (můžete začít u odkazů v závěru článku), zejména pak hodnoty v souboru <code>/etc/amavis/conf.d/20-debian_defaults</code>.</p>
+
+<pre id="links">http://colekcolek.com/2012/02/25/install-spamassasin-clamav-amavis-ubuntu-debian-squeeze/ How to Install SpamAssasin, ClamAV, Amavis on Ubuntu / Debian Squeeze
+http://workaround.org/ispmail/lenny/amavis-filtering-spam-and-viruses AMaViS: Filtering spam and viruses
+http://gogs.info/books/debian-mail/chunked/antispam.amavis.html Fighting spam
+http://spamassassin.apache.org/gtube/ The GTUBE
+http://spamassassin.apache.org/ SpamAssassin (stránka projektu)
+http://www.clamav.net/ ClamAV (stránka projektu)
+http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)</pre>

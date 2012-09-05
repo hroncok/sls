@@ -1,0 +1,55 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Monitorování serveru pomocí nástroje Munin</h1>
+
+<p>Monitorování serveru zahrnuje mimo jiné i nutnost sledovat změny různých veličin v čase. Právě k tomu slouží nástroj Munin, který umožňuje zaznamenávat hodnoty mnoha systémových proměnných a vytvářet z nich grafy. Ty vám pak mohou pomoci nejenom odhalit řadu problémů, ale také odhadnout, kdy serveru přidat RAM, kdy nestačí dostupný výkon atd.</p>
+
+<h3>Úvod</h3>
+<p>Munin je jedním z řady nástrojů, které umožňují sledovat různé systémové veličiny (obsazení RAM, zátěž procesoru, zatížení databáze, průběh e-mailů frontou atd.) v čase. Ze získaných dat vytvoří sadu HTML stránek s grafy, které mohou být zpřístupněny přes běžící webový server. Munin je modulární aplikací, nabízí řadu modulů, které zajišťují sběr specifických veličin (MySQL dotazy, Apache procesy atd.). Je samozřejmě možné si napsat vlastní moduly pro sběr dat, které Munin sbírat neumí. Munin je koncipován také jako síťový nástroj - umožňuje sbírat informace ze vzdálených zdrojů, a shromažďovat tak data z mnoha serverů na jednom místě k pohodlnému prohlížení.</p>
+<p>Každý generovaný graf je k dispozici v několika variantách - průběh hodnot během dne, týdne, měsíce a roku. Generované grafy mohou vypadat třeba takto (obrázek pochází z produkčního virtuálního serveru):</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4214.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4214.jpg','Výstup Muninu na produkčním serveru, obsazení paměti a swapu','1011','752'); return false;"><img alt="Výstup Muninu na produkčním serveru, obsazení paměti a swapu" class="ph_detail" height="332" src="http://www.linuxexpres.cz/uploads/gallery/detail/4214.jpg" width="446" /></a> <span class="ph_title">Výstup Muninu na produkčním serveru, obsazení paměti a swapu</span></p>
+<h3>Instalace a zprovoznění</h3>
+<p>Instalace Muninu je velmi prostá. V případě Debianu postačí nainstalovat dva balíčky, a sice <code>munin</code> a <code>munin-node</code>:</p>
+<pre>aptitude install munin munin-node</pre>
+<p>První z uvedených balíčků obsahuje „serverovou část“ nástroje, spouštěnou cronem, která sbírá údaje ze všech uzlů prostřednictvím démona (<code>munin-node</code>), který na daných uzlech běží. Výchozí konfigurace v Debianu je provozuschopná, tzn. po výše uvedeném kroku je již Munin zprovozněn, monitoruje danou stanici a generuje grafy do <code>/var/cache/munin/www</code> (toto umístění platí pro Debian Squeeze, v Debianu Lenny je to <code>/var/www/munin</code>).</p>
+<p>I když to není nutné, doporučuji si hlavní konfigurační soubory projít a upravit podle svých představ. Stěžejní jsou dva, a sice <code>/etc/munin/munin.conf</code>, který řídí „serverovou část“, a <code>/etc/munin/munin-node.conf</code>, který řídí „klientského“ démona běžícího na monitorovaném serveru. Určitě zkontrolujte <code>munin-node.conf</code> a konfigurační volbu <code>host</code>, která určuje, kde má démon naslouchat. Dodám, že tento démon běží s oprávněními uživatele <code>root</code>. Ve výchozím nastavení naslouchá na všech síťových rozhraních, což se hodí pouze u vzdálených uzlů, ze kterých chcete získávat údaje. U místního uzlu to není nutné, proto je vhodné konfiguraci upravit, aby démon naslouchal pouze na místní smyčce, takto:</p>
+<pre># Which address to bind to;
+#host *
+host 127.0.0.1</pre>
+<h3>Přístup přes webový server</h3>
+<p>Grafy Muninu mohou obsahovat některé citlivější údaje, které mohou být využity případnými útočníky. I když veřejná dostupnost generovaných grafů na dobře zabezpečeném serveru nemusí představovat velké bezpečnostní riziko, je lepší přístup k nim zabezpečit, a to na úrovni webového serveru. V případě Apache můžete použít např. omezení na určité IP adresy naznačené níže:</p>
+<pre>Alias /munin /var/cache/munin/www
+&lt;Directory /var/cache/munin/www&gt;
+        Order allow,deny
+        Allow from localhost 127.0.0.0/8 ::1
+        Allow from 1.2.3.4
+        Deny from all
+        Options None
+&lt;/Directory&gt;</pre>
+<p>Jinou možností může být HTTP autentizace a související nutnost se prokázat jménem a heslem. Z bezpečnostního hlediska je dobré takovou záležitost realizovat na virtuálním webu (virtual host) chráněném SSL a ujistit se, že na HTTP virtuálních webech je daný adresář nepřístupný.</p>
+<p>V Debianu Lenny se HTML výstup Muninu generuje do <code>/var/www/munin</code>, který je ve výchozí konfiguraci webových serverů veřejně přístupný, tudíž zde je vhodné přístup omezit. V Debianu Squeeze se výstupy generují do <code>/var/cache/munin/www</code> a do konfigurace Apache, pokud je nainstalovaný, je automaticky přidán konfigurační soubor <code>/etc/munin/apache.conf</code>, který tento adresář zpřístupňuje (pod aliasem <code>/munin</code>) takovým způsobem, že přístup k výstupu Muninu odjinud než z místní smyčky (localhost) je zakázán. Zde je tedy třeba povolit přístup z počítačů, odkud chcete k výstupům Muninu přistupovat.</p>
+<h3>Práce s moduly</h3>
+<p>Moduly, které máte k dispozici, naleznete v <code>/usr/share/munin/plugins</code>. Moduly, které jsou aktivní, tj. které bude Munin (resp. <code>munin-node</code>) brát v úvahu při svém běhu, naleznete v <code>/etc/munin/plugins</code>. Aktivaci libovolného pluginu provedete vytvořením symbolického odkazu nebo prostým překopírováním. Některé moduly mohou vyžadovat dodatečné údaje, např. název rozhraní či databáze. Obvykle je to řešeno prakticky - přejmenováním. Tzn. pokud byste chtěli monitorovat konkrétní síťové rozhraní, použijete modul <code>if_</code>. Abyste jej spojili s příslušným rozhraním, např. <code>eth1</code>, vytvoříte symbolický odkaz nebo kopii v <code>/etc/munin/plugins</code>, která se bude jmenovat <code>if_eth1</code>. Podobně je to řešeno třeba s monitorováním konkrétní databáze atd.</p>
+<p>Některé pluginy mohou vyžadovat dodatečnou konfiguraci, která je pak realizována v <code>/etc/munin/conf.d/plugin-conf.d</code>, kde do libovolného souboru zapíšete příslušnou konfiguraci. Kupříkladu moduly pracující s databází PostgreSQL vyžadují konfigurační volbu v podobě uživatele, pod kterým se mají připojit k databázovému serveru (v Debianu je to uživatel „postgres“). Tato konfigurace by vypadala takto:</p>
+<pre>[postgres_*]
+user postgres</pre>
+<p>V hranatých závorkách je název konkrétního modulu, resp. souboru (či souborů). Následují konfigurační volby. Ke zjištění, které volby jsou pro daný modul dostupné, popřípadě jak máte modul použít, se podívejte přímo na jeho „zdrojový kód“, kde se kromě kódu nachází i dokumentace. Samotný modul je pak obyčejným spustitelným souborem - nejčastěji se jedná o shellové či perlové skripty. Samotné psaní vlastních modulů není nijak těžké, pokud umíte psát shellové skripty, zvládnete vytvořit vlastní modul. V odkazech pod článkem naleznete odkaz na příslušné HOWTO.</p>
+<h3>Příjem dat z více serverů</h3>
+<p>Chcete-li shromažďovat data z více serverů na jednom počítači, postupujte následovně. Na všechny počítače, které chcete sledovat, nainstalujte <code>munin-node</code>. Jelikož ve výchozím stavu tento démon naslouchá na síti, postačí už jen povolit přístup z „centrálního“ počítače. To provedete přidáním volby <code>allow</code> do <code>/etc/munin/munin-node.conf</code>:</p>
+<pre>allow ^1\.2\.3\.4$</pre>
+<p>Jak je vidět, parametrem volby <code>allow</code> není IP adresa, ale regulární výraz. Výchozí konfigurace povoluje pouze přístup z místní smyčky (localhostu). Pokud chcete, démony můžete ještě navíc ochránit pomocí <code>iptables</code>. Tito démoni poslouchají na portu 4949.</p>
+<p>Posledním krokem je úprava nastavení Muninu, který běží na centrálním počítači, tedy souboru <code>/etc/munin/munin.conf</code>, kam je třeba přidat nastavení pro každý z monitorovaných počítačů. Toto nastavení může vypadat třeba takto:</p>
+<pre>[stroj1.example.org]
+    address 1.2.3.4
+    use_node_name yes
+
+[stroj2.example.org]
+    address 4.3.2.1
+    use_node_name yes</pre>
+<p>Poté už jen vyčkejte a zkontrolujte, že se grafy generují pro všechny monitorované počítače.</p>
+
+<pre id="links">http://www.howtoforge.com/server-monitoring-with-munin-and-monit-on-debian-lenny Server Monitoring With munin And monit On Debian Lenny
+http://www.debiantutorials.com/monitoring-multiple-servers-with-munin/ Monitoring multiple servers with Munin
+http://www.debian-administration.org/articles/597 Monitoring with Munin
+http://munin-monitoring.org/wiki/HowToWritePlugins How to write Munin plugins</pre>

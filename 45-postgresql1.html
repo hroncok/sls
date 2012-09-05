@@ -1,0 +1,61 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: PostgreSQL: Instalace a zprovoznění</h1>
+
+<p>PostgreSQL je špičkový open-source databázový systém s řadou zajímavých vlastností. V tomto díle se dozvíte, jak PostgreSQL nainstalovat, aktualizovat a jak v něm provést ty nejzákladnější úkoly jako vytvoření databáze a uživatele.</p>
+
+<h3>Úvod</h3>
+<p>Databázových systémů (DBMS) je v GNU/Linuxu dostupných poměrně dost. Mezi ty nejznámější patří určitě MySQL, která se na webových serverech používá nejčastěji a jejíž základní zprovoznění bylo již v tomto seriálu <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-instalace-lamp">probráno</a>. Kromě MySQL existuje ovšem řada jiných možností, které mohou být pro různé typy použití lepší volbou, a zde nelze nepřehlédnout PostgreSQL, špičkovou open-source databázi šířenou pod BSD/MIT-like licencí, s dlouhou tradicí a velmi působivými vlastnostmi.</p>
+<p>Samotným porovnáním obou DBMS se tento článek zabývat nebude, nicméně v odkazech pod ním naleznete články, které oba DBMS velmi podrobně srovnávají. Aby to nevypadalo, že v GNU/Linuxu existují pouze MySQL a Postgres, dodám také, že kromě těchto dvou DBMS existuje řada dalších, ať již open-source nebo proprietárních, běžících pod GNU/Linuxem. Více viz odkazy pod článkem nebo viz článek <a href="http://www.linuxexpres.cz/software/srovnani-databazovych-serveru">Srovnání databázových serverů</a> zde na LinuxEXPRESu.</p>
+<h3>Instalace Postgresu</h3>
+<p>Instalace Postgresu v Debianu je triviální, postačí pouze nainstalovat příslušný balíček. Jedním možným problémem, alespoň u starších verzí Postgresu, bylo výchozí nastavení porovnávání (collation), které se obvykle nastavuje při inicializaci clusteru (příkaz <code>initdb</code>), kterou Debian provádí automaticky při instalaci Postgresu a které zůstávalo v platnosti pro všechny následně vytvořené databáze bez možnosti nastavení změnit. Porovnávání určil instalační skript podle aktivního nastavení lokalizace. Od verze 8.4 již Postgres umožňuje nastavit porovnávání na úrovni jednotlivých databází, takže zde problém odpadá.</p>
+<p>Pokud však instalujete starší verzi, dejte si pozor na nastavení locales před instalací Postgresu. V Debianu můžete toto nastavení změnit následujícím příkazem:</p>
+<pre>dpkg-reconfigure locales</pre>
+<p>Pokud jste již nainstalovali starší verzi, naplnili ji daty, začali používat a časem jste zjistili problém s nastavením porovnávání, nezbude vám nic jiného než provést export DB, znovu vytvořit cluster (provést initdb) a provést import.</p>
+<p>Samotnou instalaci Postgresu provedete příkazem:</p>
+<pre>aptitude install postgresql</pre>
+<h3>Upgrady Postgresu</h3>
+<p>Pokud budete nasazovat Postgres, měli byste vědět, jaký je doporučený postup ohledně jeho aktualizací. Postgres využívá schéma verzování ve tvaru <code>x.y.z</code>, kde <code>x.y</code>, tedy první dvě čísla verze, náleží tzv. hlavní (major) verzi, zatímco číslo <code>z</code> udává vedlejší (minor) verzi. Formát uložení dat by se v rámci hlavní (major) verze neměl měnit, tudíž, budete-li aktualizovat v rámci jedné hlavní verze, stačí aktualizovat příslušný balíček a je hotovo. Pokud však aktualizujete z jedné hlavní verze na jinou, tedy např. z 8.4 na 9.0, měli byste postupovat následovně:</p>
+<ol>
+<li>
+<p>proveďte zálohu (dump) všech 	databází (příkaz <code>pg_dumpall</code>)</p>
+</li>
+<li>
+<p>zastavte běh staré verze serveru</p>
+</li>
+<li>
+<p>nainstalujte novou verzi 	Postgresu, incializujte cluster (příkaz initdb), pokud to za vás 	instalační skripty balíčku neprovedou (v Debianu to dělat 	nemusíte)</p>
+</li>
+<li>
+<p>zprovozněte a nastartujte novou 	verzi Postgresu</p>
+</li>
+<li>
+<p>importujte data ze zálohy</p>
+</li>
+</ol>
+<h3>Postgres 9.0 v Debianu Squeeze</h3>
+<p>Pokud používáte nově vydaný Debian Squeeze, pak asi víte, že v repozitářích je k dispozici Postgres řady 8.4, nicméně „na trhu” je již dostupná řada 9.0, která přináší řadu zajímavých novinek (soupis je <a href="http://wiki.postgresql.org/wiki/Illustrated_9_0">zde</a>). Od toho tu máme projekt Debian Backports, nyní již oficiální součástí Debianu, který nabízí nové verze balíčků portované pro stabilní vydání. Více viz <a href="http://backports.debian.org/">stránky projektu</a>.</p>
+<h3>Vytváření uživatelů a databází</h3>
+<p>V MySQL je databázový administrátor „root“, stejně jako v unixových systémech. V Postgresu se účet správce jmenuje „postgres“. Jelikož tento účet vyžaduje po instalaci přístup s heslem, které nemáte k dispozici, musíte si pomoci jinak - staňte se systémovým, tedy unixovým uživatelem „postgres“, který má veškerá oprávnění k DBMS. Pokud máte práva roota, můžete tuto operaci provést následujícím příkazem:</p>
+<pre>su postgres -</pre>
+<p>Jako uživatel „postgres“ můžete nyní vytvářet databáze a uživatele pomocí příkazů <code>createuser</code> a <code>createdb</code>. Můžete začít vytvořením uživatele, který bude vlastnit následně vytvořenou databázi. Řekněme, že chcete vytvořit uživatele „michal“, takže zapíšete následující příkaz:</p>
+<pre>createuser -P michal</pre>
+<p>Budete vyzváni k zadání hesla, a poté budete dotázáni na tři podstatné věci - zdali má mít nově vytvořená role (tj. uživatel) administrátorská oprávnění (doporučuji odpovědět ne), zdali má mít právo vytvářet databáze (opět doporučuji odpovědět ne) a konečně, zdali má mít právo vytvářet nové role (rovněž doporučuji odpovědět ne).</p>
+<p>Nyní zbývá vytvořit databázi, kterou bude vlastnit nově vytvořený uživatel. Řekněme, že tato databáze se bude jmenovat „faktury“. K vytvoření databáze využijete příkaz <code>createdb</code>:</p>
+<pre>createdb faktury -O michal</pre>
+<p>Tento příkaz vytvoří databázi „faktury“ s vlastníkem (<code>-O</code>) „michal“. Budete-li chtít jednoznačně specifikovat české porovnávání a kódování UTF-8, použijete o něco komplikovanější příkaz:</p>
+<pre>createdb faktury --locale cs_CZ.UTF8 -O michal -T template0</pre>
+<p>V tomto příkazu asi není na první pohled jasné použití parametru <code>-T</code>, který specifikuje šablonu použitou při vytvoření databáze. Postgres využívá v základu dvě databázové šablony, <code>template0</code> a <code>template1</code>. Šablona je ve své podstatě databáze s nějakým základním obsahem, který se zkopíruje do vámi vytvořené nové databáze. Smysl více šablon spočívá v tom, abyste po úpravách jedné šablony měli stále k dispozici „čistou“ šablonu pro vytvoření databáze bez vámi provedených úprav. Šablona <code>template1</code> je určena k úpravám, a proto je také automaticky použita při vytváření nové databáze (viz předchozí příkaz, kde parametr „<code>-T“</code> nebyl specifikován, tudíž byla použita šablona <code>template1</code>). Chcete-li si pro svou databázi vynutit vlastní porovnávání, budete muset použít jako šablonu právě <code>template0</code>.</p>
+<h3>Postgres a webové aplikace</h3>
+<p>Na závěr článku jen zmíním, jak je to s Postgresem a webovými aplikacemi, které byste chtěli nasadit. Velká rozšířenost MySQL v této oblasti, spolu s rozdíly mezi oběma DBMS, má za následek řadu projektů, které fungují pouze s MySQL, a ne s Postgresem. Z velmi známých CMS je to třeba Joomla!, naopak její velký konkurent Drupal na Postgresu funguje. Jak jsem sám procházel seznamy CMS a webových aplikací, podpora Postgresu není ani mizivá, ale ani široká.</p>
+<p>Aby Postgres s webovými aplikacemi pracoval, budete nejspíše potřebovat příslušný databázový adaptér pro jazyk, ve kterém je příslušná webová aplikace napsána. V případě PHP je potřeba nainstalovat balíček <code>php5-pgsql</code>:</p>
+<pre>aptitude install php5-pgsql</pre>
+
+<pre id="links">http://postgres.cz Český portál/wiki o Postgresu
+http://www.wikivs.com/wiki/MySQL_vs_PostgreSQL MySQL vs PostgreSQL
+http://wiki.postgresql.org/wiki/Why_PostgreSQL_Instead_of_MySQL_2009 Why PostgreSQL Instead of MySQL 2009
+http://en.wikipedia.org/wiki/Comparison_of_relational_database_management_systems Wikipedia: Comparison of relational database management systems
+http://simononsoftware.com/postgresql-collation/ PostgreSQL Collation – part 1
+http://simononsoftware.com/postgresql-collation-2/ PostgreSQL Collation – part 2
+http://www.postgresql.org/docs/8.4/static/install-upgrading.html PostgreSQL manual - Upgrading</pre>

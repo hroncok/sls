@@ -1,0 +1,69 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Úvod do konfigurace Apache</h1>
+
+<p>V tomto dílu bude probrán základ konfigurace Apache v prostředí Debianu, který má ke konfiguraci Apache specifický přístup. V druhé části článku budou probrány virtuální weby (virtual hosts), tedy možnosti provozu více různých webových prezentací na jednom webovém serveru.</p>
+
+<h3>Úvod</h3>
+<p>Jelikož konfigurace Apache má bohaté možnosti a je velmi komplexní, mají různé distribuce různý přístup k jeho konfiguraci. V Debianu je konfigurace Apache rozdělena do modulární struktury, která se nachází v <code>/etc/apache2</code>. Výhodou takto rozdělené konfigurace je relativně jednoduchá obsluha i velmi komplikovaného nastavení, neb místo hledání v jednom sáhodlouhém konfiguračním souboru sáhnete po mnohem menším, který obsahuje nastavení relevantní pro konkrétní „virtual host“ nebo modul.</p>
+<p>Hlavním konfiguračním souborem je <code>apache2.conf</code>. Pokud budete potřebovat upravit nastavení uložená v tomto souboru, popřípadě budete chtít nastavení webového serveru něčím doplnit, je lepší za tímto účelem použít <code>httpd.conf</code>, který je k tomu určený. Jednak tím získáte přehled o změnách, které jste provedli vůči distribuční konfiguraci, a jednak se vyhnete problémům při aktualizaci, kdy se může distribuční konfigurace změnit, a vy pak budete muset rozdíly v distribuční konfiguraci zpracovat a zahrnout ručně.</p>
+<p>Ke konfiguraci sítě, respektive IP adres a portů, kde bude Apache naslouchat, je určen soubor <code>ports.conf</code> (podrobnější popis viz níže). Následuje několik adresářů s řadou konfiguračních souborů a symbolických odkazů:</p>
+<h4><code>conf.d</code></h4>
+<p>Tento adresář je určen k umístění dodatečných konfiguračních souborů. Typicky zde naleznete různá doplňující nastavení, tématicky rozložená do jednotlivých souborů. Pokud máte nainstalovaný <code>phpmyadmin</code> z distribučních repozitářů, naleznete zde symbolický odkaz <code>phpmyadmin.conf</code> ukazující na konfigurační soubor, který upraví nastavení Apache tak, abyste mohli k webové aplikaci <code>phpmyadmin</code> přistupovat prostřednictvím aliasu <code>/phpmyadmin</code>. Repozitáře Debianu obsahují řadu webových aplikací, z nichž mnohé jsou konfigurovány pro Apache tímto způsobem. Pokud byste si nainstalovali třeba Drupal (balíček <code>drupal6</code> v Debianu Lenny), naleznete tu také příslušný symbolický odkaz vedoucí ke konfiguračnímu souboru s nastavením Apache pro Drupal.</p>
+<h4><code>mods-available</code> a <code>mods-enabled</code></h4>
+<p>Pomocí modulů můžete měnit funkčnost webového serveru, respektive přidávat a odebírat různé vlastnosti. Součástí distribuce Apache je sada základních, nejčastěji používaných modulů. V repozitářích Debianu, ale i mnoha jiných distribucí, naleznete řadu doplňkových modulů. Pokud jste se drželi návodu na <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-instalace-lamp">instalaci LAMP</a> o dva díly zpět, nainstalovali jste jeden z doplňkových modulů v balíčku <code>libapache2-mod-php5</code>, který zprostředkovává použití PHP interpretu ve webových stránkách.</p>
+<p>Moduly je třeba zavést, popřípadě ještě nastavit. Konfigurační soubory pro dostupné moduly naleznete v adresáři <code>mods-available</code> (hledejte příslušný soubor s příponou <code>.conf</code>). Soubory s příponou <code>.load</code> zajišťují pouze natažení modulu.</p>
+<p>To, co je v adresáři <code>mods-available</code>, však Apache při svém spuštění ignoruje - bere v úvahu pouze to, co je k dispozici v adresáři <code>mods-enabled</code>. Tento adresář obsahuje obvykle pouze symbolické odkazy vedoucí ke konfiguračním souborům modulů v <code>mods-available</code>, které se mají zavést. Díky tomuto mechanismu se natáhnou pouze ty moduly, které chcete. Abyste nemuseli příslušné symbolické odkazy vytvářet ručně, má Debian k dispozici dva nástroje na práci s moduly - <code>a2enmod</code> („zapíná“ moduly) a <code>a2dismod</code> („vypíná“ moduly). Oba nástroje lze použít jak v příkazovém režimu, kde parametr tvoří jméno modulu, který má být aktivován či deaktivován, tak v interaktivním režimu (k tomu postačí daný nástroj spustit bez parametru).</p>
+<h4><code>sites-available</code> a <code>sites-enabled</code></h4>
+<p>Podobný princip konfigurace a správy připravili správci Debianu i pro práci s virtuálními weby (virtual host). Jejich konfigurační soubory jsou umístěny v <code>sites-available</code>, přičemž Apache tento adresář v úvahu nebere, naopak bere v úvahu vše, co je v adresáři <code>sites-enabled</code>. Jednotlivé virtuální weby lze tedy snadno „vypínat“ a „zapínat“, podobně jako moduly, a to buď ručním vytvořením příslušného symbolického odkazu, nebo použitím nástrojů <code>a2ensite</code> a <code>a2dissite</code>. S těmito nástroji se pracuje úplně stejně jako s těmi určenými pro práci s moduly.</p>
+<h3>Základy konfigurace Apache</h3>
+<p>Po nainstalování Apache jsou aktivní některé základní moduly a jeden virtuální web (<code>sites-available/default</code>). Co je vlastně virtuální web (virtual host)? Virtuální web je koncept, který slouží k provozu více webů (či domén) na jednom webovém serveru. Je možné provozovat různé weby na různých IP adresách či mnoho domén na jedné nebo více IP adresách (popř. ještě i různých portech), a to vše v rámci jednoho běžícího webového serveru. Jednotlivé weby či domény je však třeba od sebe oddělit, aby Apache poznal, který HTTP požadavek má směrovat na který virtuální web. A právě k tomu slouží v případě Apache direktiva <code>VirtualHost</code> (více viz níže).</p>
+<h4>Konfigurace sítě</h4>
+<p>Základem práce webového serveru je práce se sítí. Naslouchání na určité IP adrese a portu se nastavuje prostřednictvím volby <code>Listen</code> v souboru <code>ports.conf</code>, tedy např:</p>
+<pre>Listen 80</pre>
+<p>Tato volba zapříčiní, že Apache bude poslouchat na portu 80 všech IP adres, které má server k dispozici. Pokud chcete omezit Apache na jednotlivé IP adresy či porty, můžete to provést takto:</p>
+<pre>Listen 1.2.3.4:80
+Listen [2001:db8:a1:b2:c3:d4:e5:f6]:80</pre>
+<p>Z příkladu výše je patrné jednak to, že direktiv <code>Listen</code> je možno použít více, a jednak to, že IPv6 adresy je třeba oddělit hranatými závorkami.</p>
+<h4>Pár slov o virtuálních webech a HTTPS</h4>
+<p>Virtuální weby mohou být od sebe odděleny dvěma způsoby, buď na základě jména (name-based), nebo na základě IP adresy (IP-based). Můžete tedy mít více různých webů na různých IP adresách, nebo jednu či více domén směřující na jednu nebo více IP adres. Problém nastane v případě protokolu HTTPS, kde jmenné rozlišování z principu nefunguje. Je tomu tak proto, že se nejprve vytváří SSL spojení, a teprve pak se v rámci již vytvořeného SSL spojení přenáší HTTP požadavek obsahující doménové jméno. To znamená, že webový server nemůže zjistit příslušnost k virtuálnímu webu podle jména. Díky tomu je na jedné IP adrese možné provozovat pouze jediný HTTPS virtuální web. Na jednom HTTPS virtuálním webu sice je možné jistým způsobem provozovat více domén (během dalších dílů bude osvětleno), ale SSL certifikát lze použít pouze jediný.</p>
+<p>Aby Apache mohl rozlišovat virtuální weby podle jména, musí vědět, na kterých IP adresách a portech má podle jména vyhledávat. K tomu slouží direktiva <code>NameVirtualHost</code>, jejímž parametrem je IP adresa, popřípadě IP adresa doplněná číslem portu (oddělovačem je dvojtečka). Výchozí nastavení v Debianu naleznete v <code>ports.conf</code> v této podobě:</p>
+<pre>NameVirtualHost *:80</pre>
+<p>Toto nastavení zapříčiní, že na všech IP adresách dostupných webovému serveru bude aktivováno hledání virtuálních webů podle jména.</p>
+<h4>Konfigurace virtuálních webů</h4>
+<p>Definice virtuálního webu se řídí direktivou <code>VirtualHost</code>, která se používá úplně stejně jako HTML tag. Otevírací tag má parametr v podobě IP adresy a portu, kde bude virtuální web k dispozici. IP adres může být více (v takovém případě jdou za sebou, odděleny mezerou). Hvězdička na místě IP adresy značí, že daný virtuální web bude k dispozici na všech IP adresách, na kterých Apache naslouchá. Příkladem definice virtuálního webu může být toto:</p>
+<pre>&lt;VirtualHost *:80&gt;
+
+ServerName www.domena1.tld
+ServerAlias domena1.tld *.domena1.tld
+DocumentRoot /var/www/domena1
+
+&lt;/VirtualHost&gt;</pre>
+<p>Uvnitř direktivy <code>VirtualHost</code> je dobré specifikovat příslušné doménové jméno v direktivě <code>ServerName</code>. <code>ServerAlias</code> obsahuje všechna alternativní doménová jména společná pro daný virtuální web. V tomto případě se ke stejnému webu dostanete, i pokud zadáte jen „domena1.tld“ bez „www“, nebo zadáte jinou doménu třetího řádu, např. „test.domena1.tld“.</p>
+<p>Umístění kořenu webové prezentace daného virtuálního webu je lze zadat jako parametr direktivy <code>DocumentRoot</code>. Pokud ji nezadáte, použije se výchozí, definovaná mimo všechny <code>VirtualHost</code> direktivy (čili např. v <code>httpd.conf</code>). Tato „dědičnost“ funguje i v případě dalších direktiv. V případě, že není hodnota definovaná nikde, použije se hodnota výchozí.</p>
+<p>V Debianu by definice virtuálního webu měla být umístěna do samostatného, vhodně pojmenovaného souboru v <code>/etc/apache2/sites-available</code>. Daný virtuální web pak povolíte nástrojem <code>a2ensite</code> a restartem Apache uvedete do provozu.</p>
+<p>Další virtuální web byste pak přidali vytvořením dalšího souboru v <code>sites-available</code> s obdobným obsahem, např. takto:</p>
+<pre>&lt;VirtualHost *:80&gt;
+
+ServerName www.domena2.tld
+ServerAlias domena2.tld *.domena2.tld
+DocumentRoot /var/www/domena2
+
+&lt;/VirtualHost&gt;</pre>
+<p>Poté byste použili obdobný postup pro „aktivaci“ daného webu (nástroj <code>a2ensite</code>). Tímto postupem byste získali dva virtuální weby, jeden s doménou <code>domena1.tld</code> a vlastním obsahem webu dostupným ve <code>/var/www/domena1</code>, druhý s doménou <code>domena2.tld</code> a obsahem webu v <code>/var/www/domena2</code>. Oba by mohly běžet v rámci jedné instance Apache třeba na jedné veřejné IP adrese.</p>
+<h4>Plně kvalifikované doménové jméno</h4>
+<p>Jeden z nejčastějších problémů řešeným v souvislosti s konfigurací Apache je varování, které říká, že Apache nemohl spolehlivě zjistit plně kvalifikované doménové jméno serveru. Tato hláška může vypadat třeba takto:</p>
+<pre>apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.0.1 for ServerName</pre>
+<p>Aby mohl Apache správně fungovat, potřebuje o každém virtuálním webu znát dvě věci - jméno serveru a alespoň jednu jemu příslušnou IP adresu. Kromě toho ovšem Apache potřebuje znát IP adresu a doménové jméno samotného serveru. Toto hledá v globální definici <code>ServerName</code> (tj. definici mimo všechny direktivy <code>VirtualHost</code>, v Debianu nejspíše v <code>/etc/apache2/httpd.conf</code>). Pokud ji nenajde, pokusí se použít <code>hostname</code> daného serveru (v Debianu se hostname nastavuje v <code>/etc/hostname</code>). To se nejspíše povede, ale ne vždy je jako hostname použito plně kvalifikované doménové jméno (<a href="http://cs.wikipedia.org/wiki/FQDN">FQDN</a>), a to je podstata problému. V řadě případů je jako hostname použito jen obyčejné slovo, popřípadě „localhost“, a to FQDN není. V zásadě - FQDN musí obsahovat alespoň jednu tečku (např. <code>example.org</code>). Nejčastěji se za tímto účelem upravuje <code>/etc/hosts</code>, kde se přidává příslušný záznam, který může vypadat třeba takto:</p>
+<pre>1.2.3.4 example.org</pre>
+<p>Pokud ve jmenné části specifikujete více jmen, dejte si pozor, ať je FQDN na prvním místě, tj. následující příklad je špatně:</p>
+<pre>1.2.3.4 example example.org</pre>
+<p>Správně by bylo:</p>
+<pre>1.2.3.4 example.org example</pre>
+<h3>Pár slov na závěr</h3>
+<p>Virtuální weby umožňují na jednom webovém serveru provozovat více různých webů rozlišených podle jména nebo IP adresy, nejčastěji pak podle doménového jména. Konkrétní postup nastavení a oddělení jednotlivých webových prezentací podle jména byl popsán v článku. Každý z virtuálních webů může mít specifikovány různé volby a možnosti, které jsou zapsané uvnitř direktivy <code>VirtualHost</code>. Některé z těchto voleb a možností, stejně jako některé z modulů webového serveru Apache, budou probrány v příštím díle.</p>
+
+<pre id="links">http://httpd.apache.org/docs/current/bind.html Binding
+http://httpd.apache.org/docs/current/vhosts/name-based.html Name-based Virtual Host Support
+http://httpd.apache.org/docs/current/dns-caveats.html Issues Regarding DNS and Apache</pre>

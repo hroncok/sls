@@ -1,0 +1,120 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Úvod do poštovního serveru</h1>
+
+<p>Tímto dílem začíná menší exkurze do světa poštovních serverů a poštovních služeb. Podíváme se na základní terminologii a základní principy elektronické pošty.</p>
+
+<h3>Úvod</h3>
+<p>Elektronická pošta představuje jednu z nejzákladnějších, nejpoužívanějších a také nejstarších služeb internetu. Z pohledu správce představuje poštovní server jednu z nejnáročnějších služeb na konfiguraci, správu a zabezpečení, což platí dvojnásob, jedná-li se o větší nebo firemní poštovní server.</p>
+<p>Pokud se na elektronickou poštu podíváte podrobněji, zjistíte, že se v žádném případě nejedná o jednu jedinou službu. Jedná se o řadu různě provázaných služeb používajících různé mechanismy a různé protokoly. Prakticky na každé úrovni máte k dispozici alternativy a široké možnosti nastavení. Díky tomu se nastavení poštovního serveru stává komplexní, až téměř tvůrčí činností.</p>
+<p>Vezměme to ale popořadě. Z čeho všeho se tedy skládá nebo může skládat taková poštovní služba?</p>
+<h3>MTA: Mail Transport Agent</h3>
+<p>Tato komponenta je patrně tou nejzásadnější částí celého mechanismu – MTA je služba zodpovědná za přenos pošty z jednoho počítače na druhý, a to prostřednictvím klient–server architektury (server poštu přijímá, klient posílá). Poštu k odeslání může MTA získat buď z jiného MTA (pak se jedná o tzv. „relay“, tedy předání zprávy jinému „poštovnímu serveru“), nebo od MUA (pod čímž si zatím představte např. Thunderbird).</p>
+<p>V GNU/Linuxu je k dispozici řada MTA. Tento seriál se bude zabývat Postfixem, nicméně existuje celá řada dalších jako sendmail, Exim, qmail atd.</p>
+<h4>SMTP</h4>
+<p>K přenosu zpráv je využíván protokol SMTP (port 25). Jedná se o velmi starý protokol, který byl postupem času poměrně dost rozšiřován, nicméně základní principy zůstaly stejné. Jedná se o klasický textový protokol, kde klient zadává určité příkazy a server na ně reaguje. To, jak protokol SMTP vypadá v praxi, můžete vidět v příkladu níže:</p>
+<pre>server: 220 mail.example.org ESMTP Postfix (Debian/GNU)
+klient: EHLO client.example.org
+server: 250-mail.example.org
+server: 250-PIPELINING
+server: 250-SIZE 10240000
+server: 250-ETRN
+server: 250-STARTTLS
+server: 250-AUTH LOGIN PLAIN
+server: 250-AUTH=LOGIN PLAIN
+server: 250-ENHANCEDSTATUSCODES
+server: 250-8BITMIME
+server: 250 DSN
+klient: MAIL FROM: <span class="eaddress">michal.docekal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>
+server: 250 2.1.0 Ok
+klient: RCPT TO: <span class="eaddress">jan.novak@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span>
+server: 250 2.1.5 Ok
+klient: DATA
+server: 354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
+klient: From: "Michal Docekal" &lt;<span class="eaddress">michal.docekal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>&gt;
+klient: To: "Jan Novak" &lt;<span class="eaddress">jan.novak@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span>&gt;
+klient: Date: Tue, 20 Mar 2012 10:54:50 +0100
+klient: Subject: Predmet zpravy
+klient:
+klient: Ahoj,
+klient:
+klient: posilam velmi dulezitou zpravu.
+klient: 
+klient: Michal Docekal
+klient: 
+klient: .
+server: 250 2.0.0 Ok: queued as D882C297011E
+klient: QUIT
+server: 221 2.0.0 Bye</pre>
+<p>Přirozeně, označení „klient“ a „server“ byly do výpisu přidány za účelem objasnění rolí klienta a serveru, nejsou součástí protokolu SMTP.</p>
+<p>Jak je patrné, relace doručování e-mailu začíná příkazem <code>EHLO</code> (u hodně starých MTA/MUA to může být i <code>HELO</code>). Zde se klient identifikuje serveru – parametrem <code>EHLO</code> by mělo být plně kvalifikované doménové jméno klienta, přinejhorším specifikace IP adresy (IPv4 adresa se vkládá do hranatých závorek: <code>[1.2.3.4]</code>).</p>
+<p>Klient dále pokračuje specifikací odesílatele <code>MAIL FROM:</code>, specifikací příjemce nebo příjemců <code>RCPT TO:</code>, načež následuje příkaz <code>DATA</code>, po kterém následuje tělo zprávy. Tělo začíná hlavičkami jako <code>From:</code>, <code>To:</code>, <code>Date:</code> a samozřejmě nechybí ani předmět zprávy <code>Subject:</code>. Text zprávy je ukončen sekvencí znaků konce řádku, tečky a dalšího konce řádku. Klient ukončuje relaci příkazem <code>QUIT</code>. Všimněte si také reakcí serverů, které jsou zde více či méně samovysvětlující. Máte-li zájem dozvědět se o SMTP protokolu více, podívejte se na <a href="https://tools.ietf.org/html/rfc5321">RFC 5321</a>, kde je nejnovější revize protokolu SMTP z roku 2008.</p>
+<p>Interakci s MTA pomocí protokolu SMTP si můžete vyzkoušet sami, ručně, a to buď pomocí nástroje <code>telnet</code>, nebo <code>nc</code>:</p>
+<pre>telnet postovni-server.example.org 25
+nc postovni-server.example.org 25</pre>
+<p>Tento postup je velmi vhodný také pro testování a diagnostiku vlastních poštovních serverů (a nejen poštovních serverů, tohoto postupu lze využít u jakéhokoliv textového protokolu), přeci jen, možnost si ručně vyzkoušet, jak se váš server chová v různých situacích, je nedocenitelná pomůcka.</p>
+<h4>DNS</h4>
+<p>Funkcionalita SMTP je přímo závislá na DNS. Asi vám nemusím připomínat, že e-mailová adresa má nejčastěji tvar <code>jmeno@domena</code>. Otázkou je, podle čeho určí MTA server, na který má poštu doručit. Odpovědí jsou tzv. MX záznamy příslušné domény. Ty specifikují jeden nebo více poštovních serverů a přiřazují jednotlivým serverům danou prioritu. Priorita je číslo, kde nižší číslo odpovídá vyšší prioritě (podobně jako „niceness“ u unixových procesů). MX záznamy si můžete poměrně snadno vypsat:</p>
+<pre>host -t MX example.org</pre>
+<p>Nebo, pokud preferujete nástroj <code>dig</code>:</p>
+<pre>dig -t MX example.org</pre>
+<p>Pro ilustraci, výstup prvního z uvedených příkazů může vypadat např. takto:</p>
+<pre>example.org mail is handled by 20 mail-backup.example.org.
+example.org mail is handled by 10 mail.example.org.</pre>
+<p>Z výpisu je patrné, že MX záznamy domény <code>example.org</code> jsou v tomto případě dva. Nejvyšší prioritu má server <code>mail.example.com</code>, nižší prioritu má pak <code>mail-backup.example.org</code>. To znamená, že pokud se MTA nepodaří doručit poštu serveru s nejvyšší prioritou, měl by zkusit server s nižší prioritou. V případě, že má několik serverů stejnou prioritu, vybere si z nich MTA náhodně.</p>
+<p>Pokud pro danou doménu neexistuje vůbec žádný MX záznam, použije se A záznam dané domény místo něj.</p>
+<h4>Nastavení poštovního serveru versus SMTP</h4>
+<p>Poštovní server lze nastavit různým způsobem. Můžete respektovat příslušná RFC, což určitě patří k „dobrým mravům“ správců serverů. Naneštěstí bývá podstatně jednodušší nechat se strhnout úmyslem efektivnějšího boje se spamem (popřípadě neznalostí RFC) a RFC porušit. Kupříkladu, některé servery jako parametr <code>EHLO</code> vyžadují plně kvalifikované doménové jméno, i když podle RFC tam být nemusí. Takových příkladů bychom určitě našli mnoho.</p>
+<p>Je třeba mít na paměti, že čím striktněji svůj server nastavíte, tím méně pošty budete dostávat, a to platí pro spam i pro regulérní poštu, kterou dostávat chcete. Bohužel, v tomhle nepomáhá vždy ani důsledné respektování RFC, jelikož správci poštovních serverů je ne vždy správně nastaví (důvodem je mj. relativní složitost poštovních služeb zmíněná v úvodu), což, paradoxně, činí správu poštovních serverů ještě složitější.</p>
+<h4>Anatomie e-mailu</h4>
+<p>Pokud jste tak ještě nikdy neučinili, bylo by velmi vhodné si vyhlédnout jednu nebo několik zpráv ve vaší poštovní schránce a podívat se na jejich „zdrojový kód“. Ten může vypadat např. takto:</p>
+<pre>Return-Path: &lt;<span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />cz</span>&gt;
+X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on example.net
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+        SPF_PASS,T_DKIM_INVALID autolearn=ham version=3.3.1
+X-Original-To: <span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />net</span>
+Delivered-To: <span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />net</span>
+Received: from mail.example.cz (mail.example.cz [1.2.3.4])
+        (using TLSv1 with cipher ADH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by example.net (Postfix) with ESMTPS id 84BA8297011E
+        for &lt;<span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />net</span>&gt;; Tue, 20 Mar 2012 16:03:33 +0100 (CET)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by example.cz (Postfix) with ESMTP id 27788214C37
+        for &lt;<span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />net</span>&gt;; Tue, 20 Mar 2012 16:03:33 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at server.example.cz
+Received: from server.example.cz ([127.0.0.1])
+        by localhost (server.example.cz [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id G9yD4RqiBxFh for &lt;<span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />net</span>&gt;;
+        Tue, 20 Mar 2012 16:03:32 +0100 (CET)
+Received: from localhost.localdomain (unknown [4.3.2.1])
+        (using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+        (No client certificate requested)
+        by server.example.cz (Postfix) with ESMTPSA id A759A214C36
+        for &lt;<span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />net</span>&gt;; Tue, 20 Mar 2012 16:03:31 +0100 (CET)
+Date: Tue, 20 Mar 2012 16:03:25 +0100
+From: Michal =?UTF-8?B?RG/EjWVrYWw=?= &lt;<span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />cz</span>&gt;
+To: <span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />net</span>
+Subject: =?UTF-8?B?VGVzdG92YWPDrQ==?= e-mail
+Message-ID: &lt;<span class="eaddress">20120320160325.5df8d7b8@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />cz</span>&gt;
+X-Mailer: Claws Mail 3.8.0 (GTK+ 2.24.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Ahoj,
+
+pos=C3=ADl=C3=A1m testovac=C3=AD e-mail.
+
+Michal Do=C4=8Dekal</pre>
+<p>Všimněte si, že si e-mail s sebou tahá veškerou historii, kterými servery e-mail procházel (hlavičky <code>Received:</code>). Tuto historii čtěte v pořadí od posledního záznamu k prvnímu. Všimněte si, že jedním serverem může e-mail procházet více než jednou (e-mail je zpracováván různými dalšími službami a poté opět předán SMTP serveru). Jsou zde patrné i hlášky těchto dalších služeb (amavis, spamassassin atd.).</p>
+<p>Samotné tělo obsahuje zprávu v kódování UTF-8, avšak jelikož SMTP protokol je skutečně čistě textovým protokolem, všechny netextové znaky musí být zakódovány (zde je použito „quoted-printable“). Tento postup samozřejmě zvětšuje objem přenášených dat, což je nejvíce patrné v případě přenosu binárních dat (e-mailových příloh), kde dojde v důsledku kódování ke zvýšení objemu přenášených dat přibližně o 1/3.</p>
+<p>Jednotlivé parametry hlavičky mailu (např. pole <code>From:</code>) obvykle nejsou kontrolovány (ono v podstatě ani není jak je důsledně zkontrolovat) a mohou obsahovat různé hodnoty (včetně nesmyslných nebo podvržených). Není tedy problém vytvořit si „falešnou identitu“. To je problémem stáří a snahy zachování zpětné kompatibility protokolu SMTP – bezpečnost (MITM útoky), soukromí (e-mail je v řadě případů posílán a vždy skladován nešifrovaný, v čisté textové podobě) nebo autentizace (možnost si ověřit, že komunikuji skutečně s tím, s kým komunikuji) nebyly brány v úvahu při jeho tvorbě. Toto do jisté míry řeší nástroje jako GnuPG či PGP, které umožňují e-maily podepisovat a šifrovat. V praxi se, alespoň v mém případě, ukazuje jako největší problém neochota komunikačních protistran podepisovat a šifrovat.</p>
+<p>Tím bych tento díl ukončil. Příště se budu věnovat zbytku úvodu do problematiky poštovního serveru.</p>
+
+<pre id="links">https://tools.ietf.org/html/rfc5321 RFC 5321: Simple Mail Transfer Protocol
+https://cs.wikipedia.org/wiki/SMTP Wikipedia (CZ), Protokol SMTP
+https://cs.wikipedia.org/wiki/MX_z%C3%A1znam Wikipedia (CZ), MX záznam
+https://cs.wikipedia.org/wiki/MTA Wikipedia (CZ), MTA</pre>
