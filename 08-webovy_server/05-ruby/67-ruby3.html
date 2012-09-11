@@ -1,0 +1,162 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Redmine: Thin a Nginx</h1>
+
+<p>Minulý díl načal nasazení systému pro správu projektů Redmine. Dozvěděli jste se, jak dospět k funkční testovací instanci Redmine. V tomto dílu se dočtete, jak nasadit Redmine produkčně pomocí webových serverů Thin a Nginx.</p>
+
+<h3>Úvod</h3>
+<p>Tento návod je dokončením, které navazuje na předchozí dva díly seriálu. Doporučuji vám si tyto dva díly (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-zprovozneni-ruby-aplikaci-s-rvm">1. díl</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-nasazeni-aplikace-redmine">2. díl</a>) projít, pokud jste tak ještě neučinili.</p>
+<h3>Webový server Thin</h3>
+<p>Minulý díl skončil funkční instancí Redmine, kterou jste si mohli otestovat pomocí webového serveru Webrick, jenž se ovšem nehodí pro produkční nasazení. Dalším krokem je tedy zprovoznění webového serveru Thin. Jak bylo řečeno v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-zprovozneni-ruby-aplikaci-s-rvm">prvním dílu</a> miniseriálu o nasazení Ruby aplikací, Thin je server napsaný v Ruby, zralý pro produkční nasazení (na rozdíl od Webricku, který se doporučuje používat pouze na testování Ruby aplikací). Thin lze propojit s Nginx, což provedeme za chvíli. Získejte tedy oprávnění uživatele Redmine:</p>
+<pre>su redmine -
+cd</pre>
+<p>A následně nainstalujte Thin:</p>
+<pre>gem install thin</pre>
+<p>Pro samotné spouštění Thin můžete použít vlastní skript, který Thin nahodí (popř. podle potřeby shodí). Pokud budete používat pokročilejší vlastnosti RVM, můžete specifikovat konkrétní gemset před spuštěním Thinu. Pokud jste postupovali podle návodu, nemusíte si s touto informací dělat starosti.</p>
+<p>Vytvořte adresář <code>$HOME/bin</code>:</p>
+<pre>su redmine -
+cd 
+mkdir bin</pre>
+<p>V tomto adresáři vytvořte skript pojmenovaný <code>redmine-thin</code>:</p>
+<pre>nano bin/redmine-thin</pre>
+<p>Obsah skriptu může být následující:</p>
+<pre>#!/bin/bash
+
+if [ -z "$1" ]; then
+   echo 'Specifikujte parametr pro Thin server (napr. "start", "stop" apod.)'
+   exit 0
+fi
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] &amp;&amp; source "$HOME/.rvm/scripts/rvm"
+cd "$HOME/redmine-1.2.1"
+thin -e production $1 -s1 --socket "$HOME/redmine.sock" -d</pre>
+<p>Tento skript si vylaďte podle libosti. Zejména parametry Thinu, jako např. počet serverů (parametr <code>-s</code>) či konkrétní soubor se socketem, přes který bude Thin komunikovat. Socket je rychlejší než komunikace přes síť, proto je lepší používat socket – v případě problémů se můžete vrátit k použití sítě a spustit Thin na nějakém portu na místní smyčce (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-nasazeni-aplikace-redmine">viz minulý díl</a>). Dodávám jen, že Thin mění pojmenování socketu, i když je nastaven pro běh jen jednoho serveru, přidává tam číslo (<code>redmine.0.sock</code>). Zohledněte to pak v konfiguraci Nginx.</p>
+<p>Následně učiňte skript spustitelným:</p>
+<pre>chmod a+x bin/redmine-thin</pre>
+<p>Adresář <code>$HOME/bin</code> můžete zařadit do prohledávací cesty, tedy do proměnné <code>PATH</code>. Do <code>.bashrc</code> uživatele <code>redmine</code> tedy přidejte:</p>
+<pre>PATH="$PATH:$HOME/bin"</pre>
+<p>Spusťte Thin pomocí skriptu:</p>
+<pre>$HOME/bin/redmine-thin start</pre>
+<p>Následně zkontrolujte, zda byl příslušný socket vytvořen (pozor, chvilku to trvá, zejména na pomalejších serverech, nelekejte se tedy, že se tam soubor hned neobjeví). Pokud ne, podívejte se v adresáři s Redmine do logu, který je umístěn v <code>log/thin.0.log</code>, zda vám nenapoví, kde je problém.</p>
+<p>Tento soubor pak můžete spouštět s právy roota takto:</p>
+<pre>su redmine -c '/home/redmine/bin/redmine-thin start'</pre>
+<p>Aby se tento skript spustil při startu serveru, nejjednodušší je přidat příkaz k jeho spuštění do <code>/etc/rc.local</code>, ale mnohem čistší řešení je vytvořit pro něj skript v <code>/etc/init.d</code> a zařadit ho do příslušné úrovně běhu pomocí <code>update-rc.d</code>. Abyste zajistili jeho nepřerušený běh, resp. jeho případný automatický restart, pokud by spadl, můžete použít nástroj Monit. Tento nástroj byl představen ve dvou dílech seriálu (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-hlidani-serveru-pomoci-nastroje-monit">1. díl</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-hlidani-pomoci-monitu-pokracovani">2. díl</a>).</p>
+<h3>Nginx</h3>
+<p>Nyní by vám již měl Redmine běžet a měl by být dostupný na socketu <code>/home/redmine/redmine.sock</code>. Zbývá propojit webový server s tímto socketem. Nainstalujte tedy Nginx:</p>
+<pre>aptitude install nginx</pre>
+<p>Nginx je třeba nakonfigurovat. Ideální je, pokud vám Redmine bude běžet přes zabezpečený protokol HTTPS, k čemuž ovšem potřebujete certifikát, a to ideálně ne self-signed (na který jsou prohlížeče v dnešní době již silně alergické), ale certifikát podepsaný od nějaké důvěryhodné certifikační autority. Nechcete-li příliš utrácet, můžete použít např. <a href="https://www.startssl.com/">StartSSL</a> nebo <a href="https://www.cacert.org/">CACert.org</a>, které vám vydají certifikát zdarma.</p>
+<p>Vytvořte tedy konfigurační soubor pro Nginx:</p>
+<pre>nano /etc/nginx/sites-available/redmine</pre>
+<p>A naplňte jej následujícím obsahem:</p>
+<pre>upstream  backend {
+   server   unix:/home/redmine/redmine.0.sock;
+}
+
+server {
+        listen  1.2.3.4:443;
+        server_name  jmeno.serveru.cz;
+
+        client_max_body_size 10M;
+        client_body_buffer_size 128k;
+
+        ssl  on;
+        ssl_certificate  /etc/nginx/certifikat.pem;
+        ssl_certificate_key  /etc/nginx/klic.pem;
+
+        ssl_session_cache  builtin:1000  shared:SSL:10m;
+        ssl_session_timeout  3m;
+
+        access_log  /var/log/nginx/redmine.access.log;
+        root /home/redmine/redmine-1.2.1/public;
+
+        location / {
+                proxy_set_header  X-Real-IP  $remote_addr;
+                proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host $http_host;
+                proxy_redirect off;
+                if (-f $request_filename/index.html) {
+                        rewrite (.*) $1/index.html break;
+                }
+                if (-f $request_filename.html) {
+                        rewrite (.*) $1.html break;
+                }
+                 if (!-f $request_filename) {
+                        proxy_pass http://backend;
+                        break;
+                }
+        }
+
+}
+
+server {
+    listen 1.2.3.4:80;
+    rewrite ^(.*) https://$host$1 permanent;
+}</pre>
+<p>Pokud byste přeci jen nechtěli používat zabezpečený přístup ke své instanci Redmine a stačil by vám nešifrovaný protokol HTTP, můžete použít následující konfigurační soubor:</p>
+<pre>upstream  backend {
+   server   unix:/home/redmine/redmine.0.sock;
+}
+
+server {
+        listen  1.2.3.4:80;
+        server_name  jmeno.serveru.cz;
+
+        client_max_body_size 10M;
+        client_body_buffer_size 128k;
+
+        access_log  /var/log/nginx/redmine.access.log;
+        root /home/redmine/redmine-1.2.1/public;
+
+        location / {
+                proxy_set_header  X-Real-IP  $remote_addr;
+                proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host $http_host;
+                proxy_redirect off;
+                if (-f $request_filename/index.html) {
+                        rewrite (.*) $1/index.html break;
+                }
+                if (-f $request_filename.html) {
+                        rewrite (.*) $1.html break;
+                }
+                 if (!-f $request_filename) {
+                        proxy_pass http://backend;
+                        break;
+                }
+        }
+
+}</pre>
+<p>V tomto souboru si určitě upravte všechny potřebné informace jako IP adresy serveru, dále cesty k logům, cestu k Redmine (direktiva <code>root</code>), cestu k socketu nebo socketům, samozřejmě pak také cesty k certifikátům v SSL variantě konfiguračního souboru výše apod.</p>
+<p>Budete-li používat více než jeden běžící server, socketů se vytvoří také více – v takovém případě ke všem z nich uveďte cestu:</p>
+<pre>upstream  backend {
+   server   unix:/home/redmine/redmine.0.sock;
+   server   unix:/home/redmine/redmine.1.sock;
+   server   unix:/home/redmine/redmine.2.sock;
+   server   unix:/home/redmine/redmine.3.sock;
+}</pre>
+<p>Posledním krokem je "aktivace" konfigurace, resp. vytvoření symbolického odkazu v adresáři <code>/etc/nginx/sites-enabled</code>:</p>
+<pre>ln -s /etc/nginx/sites-available/redmine /etc/nginx/sites-enabled/redmine</pre>
+<p>A konečně můžete spustit nakonfigurovaný Nginx:</p>
+<pre>/etc/init.d/nginx start</pre>
+<p>Nyní se přihlaste do Redmine a konfigurujte, vytvářejte projekty, uživatelské účty apod. Připomínám, že výchozím uživatelem je "admin" a heslo k němu je "admin". Opět dodávám, že by bylo vhodné toto heslo urychleně změnit.</p>
+<h3>Doladění konfigurace Redmine</h3>
+<p>Na závěr zbývá doladit konfiguraci Redmine, a sice vyřešit rozesílání e-mailů. Redmine má velmi propracovaný systém e-mailových oznámení, a proto potřebuje přístup k poštovnímu serveru, aby mohl poštu rozesílat. Asi nejjednodušší je použít nástroj <code>sendmail</code> k odesílání pošty, ale můžete použít i klasický SMTP server. Získejte tedy oprávnění uživatele redmine a dostaňte se do adresáře s Redmine:</p>
+<pre>su redmine -
+cd ~/redmine-1.2.1</pre>
+<p>Můžete použít předlohu, <code>configuration.yml.example</code>, a zkopírovat ji do neexistujícího <code>configuration.yml</code>:</p>
+<pre>cp config/configuration.yml.example config/configuration.yml</pre>
+<p>Tento soubor je bohatě komentovaný, varianta se sendmailem je tam naznačena:</p>
+<pre>production:
+   email_delivery:
+   delivery_method: :sendmail</pre>
+<p>Stejně tak varianta s použitím místního poštovního serveru:</p>
+<pre>production:
+   email_delivery:
+   delivery_method: :smtp
+   smtp_settings:
+   address: "localhost"
+   port: 25</pre>
+<p>K dispozici jsou i varianty s externím poštovním serverem s autentifikací. Pokud budete používat tento soubor jako předlohu, berte na vědomí, že je v něm již doručování e-mailů nastaveno (SMTP server s autentifikací), je tedy vhodné tuto konfiguraci najít a upravit (soubor je velký a klíčový odkomentovaný kousíček snadno přehlédnete). Tím je instalace a konfigurace Redmine hotová.</p>
+<p>Z bezpečnostního hlediska běží Thin a celé Redmine pod separátním, neprivilegovaným účtem <code>redmine</code>. Ke Thinu se pak připojuje Nginx, který také běží pod neprivilegovaným účtem, v Debianu pod účtem <code>www-data</code>. S MySQL, Thinem a Nginx jsem se na OpenVZ virtuálním stroji s 256 RAM vešel do 150 MB, i s poštovním serverem. Použil jsem jeden paralelní Thin server, jak jsem naznačil v návodu výše.</p>
+
+<pre id="links"></pre>

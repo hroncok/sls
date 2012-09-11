@@ -1,0 +1,165 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: OpenVPN server (pokračování)</h1>
+
+<p>Minulý díl se zabýval základy OpenVPN a velmi jednoduchou konfigurací propojení dvou počítačů. Tento díl osvětlí komplexnější řešení pro OpenVPN server s více klienty a možnost směrování veškeré komunikace přes VPN.</p>
+
+<h3>Komplexní řešení pro více klientů</h3>
+<p>Vytvoření tunelu mezi dvěma počítači je jistě užitečné, ale co když se chcete připojovat na VPN server z více počítačů, nebo dokonce nabídnout klientům možnost směrovat veškerou svou komunikaci přes VPN? I to samozřejmě OpenVPN umí. Pro snadnou správu přístupu mnoha klientů k VPN serveru využívá OpenVPN <a href="http://cs.wikipedia.org/wiki/PKI">PKI</a>. Je tedy třeba začít vytvořením certifikační autority, dále certifikátu serveru a certifikátu klientů.</p>
+<h4>Vytvoření certifikační autority</h4>
+<p>Prvním krokem je vytvoření vlastní certifikační autority. Můžete tak učinit buď ručně pomocí nástroje <code>openssl</code>, nebo si značně usnadnit práci pomocí pomocných skriptů. V Debianu naleznete příslušné skripty v adresáři <code>/usr/share/doc/openvpn/examples/easy-rsa</code>, takže si je odtud zkopírujte někam jinam, třeba do <code>/etc/openvpn</code>, takto:</p>
+<pre>cd /etc/openvpn
+cp -r /usr/share/doc/openvpn/examples/easy-rsa .
+cd easy-rsa/2.0</pre>
+<p>Postup pro vytvoření certifikační autority je následující. Upozorňuji, že tento postup (přesněji druhý příkaz) smaže všechny klíče, které jste dosud vytvořili (pokud toto provádíte poprvé, není se samozřejmě čeho obávat).</p>
+<pre>. ./vars
+./clean-all
+./build-ca</pre>
+<p>Po dokončení této procedury byste měli nalézt příslušné výstupy, tzn. zejména soubor <code>ca.crt</code> s kořenovým certifikátem certifikační autority a soubor <code>ca.key</code> se soukromým klíčem certifikační autority (tím se pak podepisují jednotlivé dílčí certifikáty).</p>
+<h4>Vytvoření serverového klíče</h4>
+<p>Máte-li vygenerovanou certifikační autoritu, můžete si nechat vygenerovat serverový certifikát. To provedete ve stejném adresáři následujícím příkazem:</p>
+<pre>./build-key-server server</pre>
+<p>Za slovo <code>server</code> si dosaďte libovolné jméno. Zde budete opět vyzváni k zadání řady informací. Ujistěte se, že na konci odpovíte na dotaz "y", tedy opravdu podepsat daný certifikát.</p>
+<h4>Vygenerování certifikátů a klíčů pro uživatele</h4>
+<p>Pro každého uživatele vygenerujte jeho vlastní certifikát spolu s klíčem, pomocí kterých se bude připojovat k serveru. K tomu vám poslouží následující příkaz:</p>
+<pre>./build-key jmeno_klienta</pre>
+<h4>Vygenerování Diffie Hellman parametrů</h4>
+<p>Posledním krokem je vygenerování parametrů pro Diffie Hellman protokol. To provedete příkazem:</p>
+<pre>./build-dh</pre>
+<h4>Umístění jednotlivých souborů</h4>
+<p>Až budete mít vygenerované všechny soubory, bude potřeba je vhodně rozmístit. Obecně, soubory s příponami <code>.key</code> obsahují privátní klíče a měly by být pečlivě střeženy (doporučuji jim nastavit práva <code>400</code>), ostatní být střeženy nemusí. Přípona <code>.crt</code> označuje jednotlivé certifikáty - certifikát certifikační autority, certifikát serveru a certifikáty klientů. Diffie Hellman parametry se pak nacházejí v souboru <code>dh*.pem</code>, kde hvězdička bude odpovídat velikosti klíče - výchozí hodnota je <code>1024</code>, ale je samozřejmě možné vygenerovat větší.</p>
+<h5>Soubory pro klienta</h5>
+<p>Klienti by měli mít k dispozici následující soubory:</p>
+<ul>
+<li>
+<p><code>ca.crt</code> - kořenový certifikát certifikační autority</p>
+</li>
+<li>
+<p><code>klient1.crt</code> - odpovídající certifikát klienta</p>
+</li>
+<li>
+<p><code>klient1.key</code> - odpovídající 	privátní klíč klienta</p>
+</li>
+</ul>
+<h5>Soubory pro server</h5>
+<p>Server musí mít k dispozici následující soubory:</p>
+<ul>
+<li>
+<p><code>ca.crt - viz 	výše</code></p>
+</li>
+<li>
+<p><code>server.crt</code> - serverový certifikát</p>
+</li>
+<li>
+<p><code>server.key</code> - soukromý klíč k serverovému certifikátu</p>
+</li>
+<li>
+<p><code>dh*.pem</code> - Diffie Hellman 	parametry</p>
+</li>
+</ul>
+<h5>Ostatní soubory</h5>
+<p>Jediným souborem, který jste vygenerovali a nebyl popsán výše, je soubor <code>ca.key</code> s klíčem pro kořenový certifikát certifikační autority. Ten není nutné mít přímo na serveru - je totiž nutný pouze k podepisování certifikátů. Z bezpečnostních důvodů je dokonce vhodné, aby byl někde v bezpečí mimo server.</p>
+<h4>Konfigurace OpenVPN serveru</h4>
+<p>Příklad konfigurace serveru může vypadat následovně. Konfiguraci si přizpůsobte svým potřebám:</p>
+<pre>local 1.2.3.4
+dev tap
+mode server
+ifconfig 10.45.42.1 255.255.255.0
+ifconfig-pool 10.45.42.2 10.45.42.102 255.255.255.0
+tls-server
+ca /etc/openvpn/ca.crt
+cert /etc/openvpn/server.crt
+key /etc/openvpn/server.key
+dh /etc/openvpn/dh1024.pem
+user nobody
+group nogroup
+comp-lzo
+keepalive 10 20
+ping-timer-rem
+persist-tun
+persist-key
+verb 3
+duplicate-cn
+client-to-client
+max-clients 100</pre>
+<p>U všech cest k souborům se ujistěte, že ukazují správně. Parametr <code>local</code> označuje IP adresu serveru, kde bude k dispozici OpenVPN server. Parametr <code>ifconfig</code> označuje IP adresu serveru v rámci VPN tunelu. Klientům budou přiřazovány IP adresy z rozsahu, který je specifikován parametrem <code>ifconfig-pool</code>. Mezi další důležité parametry patří:</p>
+<ul>
+<li>
+<p><code>tls-server</code> - zapíná TLS v režimu serveru</p>
+</li>
+<li>
+<p><code>duplicate-cn</code> - umožní, aby se připojilo více klientů se stejným 	certifikátem</p>
+</li>
+<li>
+<p><code>client-to-client</code> - umožní klientům, aby na sebe "viděli" a mohli spolu 	komunikovat</p>
+</li>
+<li>
+<p><code>max-clients 100</code> - limit počtu 	současně připojených klientů</p>
+</li>
+</ul>
+<h4>Konfigurace klienta</h4>
+<p>Pro klienty použijte následující vzor konfiguračního souboru:</p>
+<pre>remote 1.2.3.4
+client
+dev tap
+tls-client
+ns-cert-type server
+ca /etc/openvpn/ca.crt
+cert /etc/openvpn/klient1.crt
+key /etc/openvpn/klient1.key
+nobind
+comp-lzo
+keepalive 10 20
+ping-timer-rem
+persist-tun
+persist-key
+verb 3</pre>
+<p>Řadu parametrů zde již jistě znáte, pro jistotu ještě zopakuji upozornění, abyste si přizpůsobili veřejnou IP adresu serveru (parametr <code>remote</code>) a cesty k jednotlivým souborům. Mezi důležité volby patří:</p>
+<ul>
+<li>
+<p><code>tls-client</code> - zapíná TLS v režimu klienta</p>
+</li>
+<li>
+<p><code>ns-cert-type server</code> - ověřuje 	serverový certifikát (pomáhá zabránit man-in-the-middle útokům, 	kdy by se útočník vydával za server)</p>
+</li>
+</ul>
+<h4>Extra zabezpečení pomocí sdíleného klíče</h4>
+<p>Ačkoliv infrastruktura založená na certifikátech nevyžaduje použití sdílených klíčů (což je ostatně jejím účelem), můžete pro zvýšení bezpečnosti sdílený klíč přeci jen vytvořit a používat jako bezpečnostní vrstvu navíc - server pak bude kontrolovat HMAC podpisy paketů a bude ignorovat pakety, které nebudou mít správný podpis. Klíč vytvoříte následujícím příkazem:</p>
+<pre>openvpn --genkey --secret klic</pre>
+<p>Následně je třeba dopravit klíč všem klientům a upravit konfiguraci serveru přidáním následující řádky do konfiguračního souboru:</p>
+<pre>tls-auth soubor_s_klicem 0</pre>
+<p>Nezapomeňte doplnit cestu k souboru s klíčem. Do konfiguračních souborů klientů je třeba doplnit podobnou řádku, ale s číslem 1 místo nuly:</p>
+<pre>tls-auth soubor_s_klicem 1</pre>
+<h3>Směrování komunikace přes VPN</h3>
+<p>OpenVPN umožňuje, aby klienti směrovali veškerou svou komunikaci přes VPN tunel, což umožňuje vytvářet různé "anonymizační" služby založené na této technologii. Tato vlastnost se hodí mj. i k tomu, abyste zabezpečili svou komunikaci, pokud se třeba připojujete přes nešifrovanou wifi, kde vás může kdokoliv ve vaší blízkosti šmírovat (alespoň vaši nezabezpečenou komunikaci).</p>
+<h4>Směrování paketů</h4>
+<p>Abyste zajistili směrování komunikace v rámci OpenVPN serveru, musíte nejprve povolit směrování paketů. To můžete provést buď s dobou trvání do příštího restartu, nebo permanentně. Dočasné nastavení provedete příkazem:</p>
+<pre>sysctl -w net.ipv4.ip_forward=1</pre>
+<p>Permanentní nastavení provedete zapsáním níže uvedené řádky do souboru <code>/etc/sysctl.conf</code>:</p>
+<pre>net.ipv4.ip_forward=1</pre>
+<p>Podívejte se na nastavení firewallu (<code>iptables -L -n -v</code>), zejména pak na řetěz <code>FORWARD</code>, který musí povolovat průchozí pakety z virtuálního rozhraní VPNky směrem na vnější síťové rozhraní.</p>
+<h4>NAT / maškaráda</h4>
+<p>Jelikož VPN síť využívá adresy z privátního rozsahu, je nutné vytvořit maškarádu, tedy vhodnou formu NATu (překladu adres), která zajistí, aby si pakety zvenčí našly cestu k příslušnému klientovi, který si je vyžádal. To zajistíte následujícím příkazem:</p>
+<pre>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</pre>
+<p>Toto nastavení bude fungovat pouze do příštího restartu serveru. Permanentní nastavení je v Debianu možné zařídit pomocí balíčku <code>iptables-persistent</code> a nástroje <code>iptables-save</code>:</p>
+<pre>iptables-save &gt; /etc/iptables/rules</pre>
+<p>Tento příkaz uloží aktuální konfiguraci pravidel Netfiltru a při příštím spuštění systému bude zajištěno jejich opětovné načtení.</p>
+<h4>Úprava konfigurace OpenVPN serveru</h4>
+<p>Následně upravte konfigurační soubor OpenVPN serveru a přidejte do něj následující řádky:</p>
+<pre>push "route-gateway 10.45.42.1"
+push "redirect-gateway def1"
+push "dhcp-option DNS 10.45.42.1"</pre>
+<p>Jako parametr pro volbu <code>route-gateway</code> zadejte IP adresu serveru v rámci VPN, tedy IP adresu, kterou jste zadali jako parametr volby <code>ifconfig</code>. První řádka zajistí, že se klientovi pošle specifikovaná IP adresa brány. Druhá volba zajistí, že se klientovi nařídí, aby přesměroval veškerou svou komunikaci přes VPN. Parametr <code>def1</code> zajistí, aby se neodstranila původní brána z konfigurace sítě klienta.</p>
+<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď <a href="http://cs.wikipedia.org/wiki/OpenDNS">OpenDNS</a>, nebo <a href="http://code.google.com/intl/cs-CZ/speed/public-dns/">Google DNS</a>. Stavba vlastního DNS serveru je mimo zaměření tohoto článku, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>.</p>
+<h4>Úprava konfigurace OpenVPN klientů</h4>
+<p>U linuxových OpenVPN klientů se ovšem nastavení DNS pomocí <code>dhcp-option</code> neprojeví - je nutné jej odchytit z proměnných prostředí a zpracovat skriptem. Tento skript si naštěstí nemusíte psát sami - měl by být součástí OpenVPN balíku a měl by sídlit v <code>/etc/openvpn/update-resolv-conf</code>. Ke své činnosti vyžaduje balík <code>resolvconf</code>, takže se raději ujistěte, že jej máte nainstalovaný. Pak už jen postačí upravit konfiguraci klienta přidáním následujících řádků do konfiguračního souboru OpenVPN:</p>
+<pre>up /etc/openvpn/update-resolv-conf
+down /etc/openvpn/update-resolv-conf
+script-security 2</pre>
+<h4>Neposlušný klient aneb Jak si nenechat mluvit do směrování</h4>
+<p>Pokud máte takto nastavený server a jste v pozici klienta, který nechce, aby se mu veškerá komunikace směrovala přes VPN, ale vytvořit VPN tunel chcete, můžete do svého konfiguračního souboru přidat parametr <code>route-nopull</code>. Tento parametr způsobí, že OpenVPN nebude ze serveru přebírat informace pro směrování.</p>
+
+<pre id="links">http://openvpn.net/index.php/open-source/documentation/howto.html OpenVPN howto
+http://www.jariq.sk/2008/10/14/vpn-siete-s-openvpn-1/ VPN siete s OpenVPN
+http://www.iprint.sk/instalace-konfigurace-openvpn-serveru/ Instalace a konfigurace OpenVPN serveru</pre>

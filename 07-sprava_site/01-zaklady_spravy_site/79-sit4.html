@@ -1,0 +1,87 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Úvod do skenování sítí pomocí Nmap</h1>
+
+<p>Nmap je jeden z nejpopulárnějších nástrojů pro skenování portů. Umí toho poměrně dost a výborně se hodí k základním prověrkám bezpečnosti, zejména pak po různých úpravách firewallu nebo konfigurace sítě. V tomto dílu vás s tímto nástrojem seznámím.</p>
+
+<h3>Úvod</h3>
+<p>Jako správci jste se určitě setkali s potřebou ověřit si, zda vámi nastavený firewall funguje podle vašich představ, zda jste na něco nezapomněli nebo zda jste se v něčem nespletli. Stejně tak jste možná chtěli zjistit, jaké informace mohou o vašich serverech (a službách na nich dostupných) získat případní útočníci.</p>
+<p>Nmap je, jak už bylo v úvodu řečeno, jeden z nejpopulárnějších nástrojů pro skenování sítí, alespoň v oblasti GNU/Linuxu. Je to velmi pokročilý nástroj, který má mnoho možností. Umí samozřejmě skenovat porty, ale také zvládne skenovat sítě (a hledat běžící počítače), dokáže detekovat nejenom běžící služby, ale i verze příslušných démonů a také verzi použitého operačního systému.</p>
+<p>Na závěr úvodu musím bezpodmínečně upozornit na to, že byste měli skenovat pouze ty počítače nebo sítě, které máte pod svou správou. V ostatních případech byste Nmap měli používat pouze se souhlasem všech dotčených subjektů (majitelé a správci příslušných počítačů nebo sítí). Skenování portů bez svolení může být detekováno a považováno za formu útoku.</p>
+<p>Dejte si také pozor na skenování sítí v organizaci, pro kterou pracujete (pracujete-li pro nějakou). Zejména, pokud máte na starosti správu serverů a sítě spravuje někdo jiný. Skenování portů bývá často monitorováno pomocí různých IDS a bylo by nemilé, kdyby se na vás po použití Nmapu vyřítil rozezlený správce sítě.</p>
+<h3>Instalace a GUI pro Nmap</h3>
+<p>Před samotným použitím Nmapu by bylo vhodné jej nainstalovat. Jelikož Nmap je masivně rozšířený v linuxových distribucích, s největší pravděpodobností naleznete stejnojmenný balíček, který můžete nainstalovat pomocí správce balíčků. V Debianu byste to provedli třeba takto:</p>
+<pre>aptitude install nmap</pre>
+<p>V Arch Linuxu a možná i v jiných distribucích je součástí balíčku <code>nmap</code> i jeho GUI, <code>zenmap</code>. V Debianu a Fedoře tomu tak není, tam je balíček s GUI osamostatněn:</p>
+<pre>aptitude install zenmap</pre>
+<p>GUI Nmapu může být poměrně užitečné, jelikož umí značně zpřehlednit výsledky skenování. Umí také kombinovat informace získané z různých skenů, dokonce zvládne i skenované sítě vizualizovat. Určitě tedy doporučuji se na něj podívat, i když v tomto článku se jím zabývat nebudu. Jeho ovládání není nijak komplikované, a pochopíte-li základy práce s Nmapem, měli byste být schopni bez problémů zvládnout práci s jeho GUI.</p>
+<h3>Základní použití</h3>
+<p>Oficiální syntax pro Nmap vypadá takto:</p>
+<pre>nmap [volby] [cíle]</pre>
+<p>V zásadě ale na pořadí nezáleží, Nmap je v tomhle poměrně tolerantní. Na úvod si můžete zkusit oskenovat vlastní počítač:</p>
+<pre>nmap localhost</pre>
+<p>Přirozeně, sken zevnitř a sken zvenčí budou dávat odlišné výsledky, jelikož skenování sebe sama jde přes místní smyčku (local loopback, localhost), kde obvykle běží řada služeb, které ze sítě nemusí být vůbec dostupné. Pokud si vzpomenete na díly o bezpečnosti, zdůrazňoval jsem v nich možnost nakonfigurovat démony tak, aby naslouchaly pouze na místní smyčce a nikde jinde. Např. MySQL je tak (přinejmenším v Debianu) po čerstvé instalaci již nastaven. Dodám, že pro skenování sebe sama nemusí být Nmap vhodným nástrojem, osobně bych doporučil použít <code>netstat</code>:</p>
+<pre>netstat -tulpn</pre>
+<p>Pro úplnost dodám, že volby <code>-t</code> a <code>-u</code> zobrazují služby běžící na TCP a UDP, dále <code>-l</code> je zodpovědná za vypisování pouze naslouchajících služeb (chcete-li zobrazit všechna spojení, použijte <code>-a</code>), <code>-n</code> vypíná překlad adres na jména (výstup tedy bude vyjádřen v číslech) a konečně <code>-p</code> zobrazí PID i název démona, který je zodpovědný za obsazení daného portu. Toto je velmi užitečný nástroj a také velmi užitečná kolona parametrů.</p>
+<p>Ale zpět k Nmapu. Většinou jej budete používat na konkrétní počítač na síti:</p>
+<pre>nmap 10.0.1.13</pre>
+<p>Výstup takového příkazu by mohl vypadat takto:</p>
+<pre>Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-26 16:48 CET
+Nmap scan report for 10.0.1.13
+Host is up (0.019s latency).
+Not shown: 999 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+Nmap done: 1 IP address (1 host up) scanned in 0.39 seconds</pre>
+<p>Na tomto konkrétním počítači je patrný pouze jediný otevřený port, a sice SSH (port 22). Ostatní porty jsou zavřené.</p>
+<p>Pokud nenastavíte žádné volby, využije Nmap pro všechny parametry výchozí hodnoty. Ty zahrnují mj. typ skenu, rozsah portů, rychlost skenování apod. Nmap také volí různé hodnoty v závislosti na tom, jaká máte privilegia. Kupříkladu, pouštíte-li jej pod rootem, provádí TCP SYN scan (<code>-sS</code>), zatímco pokud byste jej pustili pod neprivilegovaným uživatelem, kde není k dispozici přímý přístup k síťovému rozhraní, zvolí Nmap náhradní variantu, TCP connect scan (<code>-sT</code>). Skutečnost, že různé funkce Nmapu vyžadují různá privilegia, byste měli mít na paměti, jelikož Nmap ne vždy varuje, že mu privilegia chybí. Pak se můžete dlouho divit, proč vrací prázdný výsledek, i když jste parametry specifikovali dobře.</p>
+<p>Ve výchozím stavu provádí Nmap před samotným skenováním portů test, zda je příslušný počítač online (host discovery). Pokud v této fázi nezjistí, že je počítač online, nebude provádět skenování portů:</p>
+<pre>nmap 10.0.1.254  
+
+Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 17:28 CET
+Note: Host seems down. If it is really up, but blocking our ping probes, try -PN
+Nmap done: 1 IP address (0 hosts up) scanned in 3.00 seconds</pre>
+<p>Zde naštěstí Nmap rovnou radí, že zjištění stavu lze přeskočit pomocí volby <code>-PN</code>:</p>
+<pre>nmap -PN 10.0.1.254 
+
+Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 17:28 CET
+Nmap scan report for orion (10.0.1.254)
+Host is up (0.00035s latency).
+Not shown: 998 filtered ports
+PORT    STATE  SERVICE
+22/tcp  open   ssh
+53/tcp  open   domain
+
+Nmap done: 1 IP address (1 host up) scanned in 4.56 seconds</pre>
+<p>Ke zjištění stavu cílového počítače využívá Nmap různé nástroje – kromě klasického ICMP echo (ping) využívá také protokol ARP, ovšem pouze v privilegovaném režimu (viz varování výše).</p>
+<h3>Skenování sítí</h3>
+<p>Nmap umí skenovat nejenom konkrétní počítače, ale také celé sítě. Realizuje se to velmi snadno, prostě specifikujete konkrétní subnet místo jednoho počítače:</p>
+<pre>nmap 10.0.1.0/24</pre>
+<p>Pokud nechcete provádět skenování portů jednotlivých počítačů, ale pouze zjištění, které počítače jsou v dané síti dostupné, můžete skenování portů vypnout (volbou <code>-sP</code>):</p>
+<pre>nmap -sP 10.0.1.0/24
+
+Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 16:54 CET
+Nmap scan report for 10.0.1.12
+Host is up (0.00013s latency).
+Nmap scan report for 10.0.1.13
+Host is up (0.014s latency).
+Nmap scan report for 10.0.1.15
+Host is up (0.0018s latency).
+Nmap scan report for 10.0.1.16
+Host is up (0.00059s latency).
+Nmap scan report for 10.0.1.17
+Host is up (0.0017s latency).
+Nmap scan report for 10.0.1.51
+Host is up (0.00097s latency).
+Nmap scan report for 10.0.1.252
+Host is up (0.015s latency).
+Nmap done: 256 IP addresses (7 hosts up) scanned in 3.01 seconds</pre>
+<h3>Interpretace výsledků</h3>
+<p>Jednotlivé porty se mohou jevit buď otevřené (open), zavřené (closed), nebo filtrované (filtered). Otevřený port znamená dostupnou službu a potenciální prostor pro průnik útočníka do systému. Služba, která je zvenčí dostupná, může být (a bývá) vystavena nejrůznějším útokům, a měla by tedy být velmi dobře zabezpečena. Pokud nemusí být přístupná světu (např. SSH), bývá dobré ji na firewallu omezit pouze pro ty počítače a sítě, ze kterých se na ni potřebujete hlásit.</p>
+<p>Zavřený port je takový, který odmítá pokus o spojení (v <code>iptables</code> je to typicky <code>-j REJECT</code>). Tím se liší od filtrovaného portu, který neodpovídá vůbec (ekvivalent <code>-j DROP</code>). Pokud chcete být hodní a chovat se podle norem, měli byste na pokus o spojení reagovat odmítnutím. To však podstatně urychluje skenování portů. Mimo jiné i proto řada správců využívá možnosti zahazovat neoprávněné žádosti o spojení bez jakéhokoliv oznamování. Skenování portů pak trvá déle, jelikož nelze s jistotou říci, zda paket k cíli dorazil nebo ne, tudíž se déle čeká. Skenování portů ovšem zahazování žádostí o spojení nijak nezabrání.</p>
+<h3>Pokračování příště</h3>
+<p>Tolik tedy k úvodu do Nmapu. Příští díl se bude věnovat jeho bohatému spektru voleb a jednotlivým typům skenů.</p>
+
+<pre id="links"></pre>

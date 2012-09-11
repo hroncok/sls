@@ -1,0 +1,108 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Zprovoznění Ruby aplikací s RVM, Thin a Nginx</h1>
+
+<p>Ruby on Rails je jeden z mnoha frameworků jazyka Ruby určený pro tvorbu webových aplikací. Ačkoliv webových aplikací pro ně není tolik jako pro PHP, mnohé z nich určitě stojí za zvážení. Na rozdíl od PHP však jejich zprovoznění z pohledu správců serverů nemusí být úplně přímočaré. Tento článek osvětlí univerzální způsob nasazení Ruby (a zejména Rails) aplikací za pomoci RVM, Thin a Nginx.</p>
+
+<h3>Úvod</h3>
+<p>Na úvod musím předeslat, že nejsem Rails vývojář, tudíž se na tuto problematiku dívám primárně očima správce.</p>
+<p>Ruby on Rails není jediný framework postavený na jazyce Ruby, těch je více (viz např. <a href="http://accidentaltechnologist.com/ruby/10-alternative-ruby-web-frameworks/">tento</a> článek nebo příslušné <a href="https://en.wikipedia.org/wiki/Ruby_(programming_language)">heslo</a> Wikipedie) a řada z nich je velmi zajímavá. Jejich nasazení je však obvykle pro správce zvyklého na LAMP poněkud problematické, zejména v prostředí linuxových distribucí, kde se naráží na několik problémů.</p>
+<p>Jedním kamenem úrazu je fakt, že jazyk Ruby má svůj vlastní balíčkovací systém s názvem <a href="https://en.wikipedia.org/wiki/RubyGems">RubyGems</a>, který, zcela přirozeně, koliduje s balíčkovacím systémem distribucí. Je sice možné instalovat pouze balíčky z distribuce, ale pokud vaše aplikace používá konkrétní verzi, která (pochopitelně) v repozitářích není, nastává problém. Použití balíčkovacího systému Ruby pak může přinášet jiné problémy (konflikty souborů, soubory nepatřící žádnému balíčku).</p>
+<p>Druhým kamenem úrazu je skutečnost, že jazyk Ruby zaznamenal podstatné změny (přechod z řady 1.8 na řadu 1.9) a nové verze Ruby interpretů zatím ještě nejsou podporovány řadou na Ruby postavených komponent a aplikací. V Debianu je sice možné vedle sebe nainstalovat dvě různé verze Ruby interpretu, ale např. modul Passenger pro Apache, který mu umožňuje pracovat s Ruby aplikacemi, zatím není schopen použít více než jednu verzi interpretu najednou. Není tedy možné prostřednictvím něj zprovoznit dvě aplikace, kde jedna vyžaduje starší verzi interpretu a jedna novější.</p>
+<h3>RVM, Thin a Nginx</h3>
+<p>Výše uvedené problémy pomáhá řešit kombinace RVM a serverů Thin a Nginx. Nejprve představím jednotlivé komponenty.</p>
+<p><a href="http://beginrescueend.com/rvm/">RVM</a> je zkratka pro Ruby Version Manager, tedy systém pro správu verzí Ruby. RVM můžete snadno využít k vytvoření optimálního prostředí pro běh Ruby aplikace. RVM nepotřebuje práva roota, poběží pod jakýmkoliv uživatelem a umožní vám nainstalovat jak konkrétní verzi Ruby interpretu, tak sadu „gemů“ (balíčků). Dokonce je možné nainstalovat více verzí interpretu a více „gemsetů“ (sad balíčků), přičemž pak se můžete mezi nimi přepínat. Má poměrně bohaté možnosti a také velmi dobrou dokumentaci.</p>
+<p><a href="http://code.macournoyer.com/thin/">Thin</a> je webový server napsaný v Ruby, který by měl být rychlý, stabilní a bezpečný. Je dostupný jako Ruby „gem“ (balíček).</p>
+<p><a href="http://www.nginx.org/">Nginx</a> je webový server, který velmi pravděpodobně naleznete v repozitářích vámi používané distribuce. Tento webový server má malé nároky na paměť a vysoký výkon. Umí také fungovat jako reverzní proxy, což je přesně to, co od něj v tomto řešení potřebujete. Dá se snadno propojit se serverem Thin, dokonce dvěma způsoby (přes síť a přes socket). Více informací o Nginx naleznete v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-webovy-server-nginx">jednom z předchozích dílů tohoto seriálu</a>.</p>
+<p>Postup řešení je následující – nejprve si vytvoříte uživatele, pod kterým bude aplikace běžet (nebo použijete nějakého existujícího). Následně zprovozníte RVM a nainstalujete potřebné verze Ruby interpretu a příslušných „gemů“, které vaše aplikace vyžaduje. Poté nainstalujete gem „thin“. Thin spustíte a dostanete buď sockety, nebo síťové porty, kde Thin běží. Ty pak vložíte do konfigurace Nginx a propojíte s ním konkrétní virtuální server (virtual host).</p>
+<p>V tomto dílu popíšu obecný postup, v příštím dílu na něj navážu a prakticky jej demonstruji na zprovoznění vynikajícího <a href="http://www.linuxexpres.cz/lexikon/foss">FOSS</a> systému pro správu projektů <a href="http://www.redmine.org/">Redmine</a>, který určitě doporučuji vaší pozornosti.</p>
+<p>Na závěr zmíním jediný možný problém – budete-li takto nasazovat více aplikací, každou s různým Ruby interpretem a gemy, patrně budete potřebovat zajistit dostatek RAM.</p>
+<h3>RVM</h3>
+<p>Předpokladem pro instalaci RVM je nainstalovaný Git, pokud jej nemáte, nainstalujte jej (v Debianu a podobných distribucích) příkazem:</p>
+<pre>aptitude install git</pre>
+<p>Instalace RVM je velmi jednoduchá. Nejprve však doporučuji vytvořit příslušného uživatele, pod kterým aplikace poběží.</p>
+<pre>adduser uzivatel
+su uzivatel -
+cd</pre>
+<p>Nyní, s právy daného uživatele, je možné provést samotnou instalaci RVM. Konkrétní podobu příkazu raději získejte z oficiální <a href="http://beginrescueend.com/rvm/install/">dokumentace</a> a níže uvedený příkaz berte spíše jako ukázku (pro případ, že by se od vydání článku něco změnilo):</p>
+<pre>bash &lt; &lt;(curl -s https://rvm.beginrescueend.com/install/rvm)</pre>
+<p>Po instalaci by se měl automaticky upravit váš <code>.bashrc</code> (pokud existuje), abyste mohli RVM po přihlášení spouštět. Tím je instalace RVM jako takového hotová.</p>
+<p>Jelikož se Ruby interpreti kompilují, bude před jejich instalací ještě třeba nainstalovat potřebné balíčky, tj. kompilátory a hlavičkové soubory. Seznam (včetně konkrétního příkazu pro instalaci) získáte zadáním:</p>
+<pre>rvm requirements</pre>
+<p>Po instalaci příslušných balíčků je možné začít s instalací konkrétní verze Ruby interpretu – zde je třeba se obrátit na dokumentaci k vámi nasazované aplikaci a zjistit, jakou verzi potřebuje. Potřebuje-li verzi <code>1.8.7</code>, nainstalujete ji takto:</p>
+<pre>rvm install 1.8.7</pre>
+<p>Tuto verzi interpretu můžete pro momentální shellové sezení „aktivovat“ následujícím způsobem:</p>
+<pre>rvm use 1.8.7</pre>
+<p>Pokud byste instalovali pouze jedinou aplikaci, nemusíte si dělat starosti s gemsety, tedy s možností používat různé sady Ruby balíčků s různými verzemi interpretu pro různé aplikace. Pro zjednodušení budu předpokládat právě tuto variantu. Chcete-li používat více aplikací, podívejte se do dokumentace k RVM, je velmi pěkně udělaná a vše je tam pěkně demonstrováno na příkladech.</p>
+<p>Chcete-li učinit nějakou verzi Ruby interpretu výchozí, použijte tento příkaz:</p>
+<pre>rvm use 1.8.7 --default</pre>
+<p>Ruby aplikace si mohou s sebou tahat řadu závislostí – na vás tedy pak zbude doinstalování toho, co není distribuováno spolu s aplikací (zde je opět třeba se obrátit na dokumentaci k aplikaci). Kupříkladu, vyžaduje-li aplikace Rails framework ve verzi <code>2.3.11</code>, nainstalovali byste jej takto:</p>
+<pre>gem install rails -v=2.3.11</pre>
+<h3>Instalace Thinu</h3>
+<p>Thin nainstalujete úplně stejně jako jakýkoliv gem, tj. v rámci RVM prostředí použijete příkaz:</p>
+<pre>gem install thin</pre>
+<h3>Testovací aplikace</h3>
+<p>Pro účely testování může posloužit „hello world“ aplikace napsaná ve frameworku (resp. DSL) Sinatra. Vytvořte si nějaký adresář v domovském adresáři (např. <code>testapp</code>) a v něm soubor <code>app.rb</code> s následujícím obsahem:</p>
+<pre>require 'sinatra'
+
+get '/' do
+  "LinuxEXPRES"
+end</pre>
+<p>Následně vytvořte soubor <code>config.ru</code> s následujícím obsahem:</p>
+<pre>require './app'
+run Sinatra::Application</pre>
+<p>Nyní můžete server v tomto adresáři spustit, a to příkazem:</p>
+<pre>thin -s 1 -R config.ru -a 127.0.0.1 -p 3100 start</pre>
+<p>Většinu parametrů je možné dekódovat užitím selského rozumu, <code>-a</code> udává IP, na které bude server naslouchat, <code>-p</code> pak konkrétní port, <code>-R config.ru</code> bere vámi vytvořený konfigurační soubor, který pouští Sinatra aplikaci, parametr <code>start</code> udává, že se má nastartovat příslušný server (funguje samozřejmě také <code>stop</code> či <code>restart</code>). Jediný parametr, který asi není jednoduché dekódovat, je <code>-s</code>, který udává počet běžících serverů. V tomto případě je zvolen jeden jediný, kdyby jich bylo více, první by poslouchal na portu <code>3100</code>, další na <code>3101</code> atd.</p>
+<p>Zda se zprovoznění aplikace povedlo, můžete otestovat textovým prohlížečem Lynx:</p>
+<pre>lynx 127.0.0.1:3100</pre>
+<p>Měli byste vidět text <code>LinuxEXPRES</code>.</p>
+<h3>Propojení s Nginx</h3>
+<p>Šablona pro nastavení Nginx může vypadat takto:</p>
+<pre>upstream  nas_thin {
+   server 127.0.0.1:3100;
+   server 127.0.0.1:3101;
+   server 127.0.0.1:3102;
+}
+
+server {
+        listen  1.2.3.4:80;
+        server_name  example.cz;
+
+        access_log  /var/log/nginx/example.cz.access.log;
+        root /home/uzivatel/testapp/public;
+
+        location / {
+                proxy_set_header  X-Real-IP  $remote_addr;
+                proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host $http_host;
+                proxy_redirect off;
+                if (-f $request_filename/index.html) {
+                        rewrite (.*) $1/index.html break;
+                }
+                if (-f $request_filename.html) {
+                        rewrite (.*) $1.html break;
+                }
+                if (!-f $request_filename) {
+                        proxy_pass http://nas_thin;
+                        break;
+                }
+        }
+
+}</pre>
+<p>Povšimněte si direktivy <code>upstream</code> – to je jednoduchý load balancer, tedy systém pro rozložení zátěže. Využívají se tedy střídavě všechny servery. Je možné specifikovat váhy jednotlivých serverů, ale to už je mimo rozsah tohoto článku (více vám napoví dokumentace k Nginx).</p>
+<p>Většině parametrů je asi více méně rozumět (direktiva <code>listen</code>, <code>server_name</code>, nastavení proxy, rewrite pravidla pro statický obsah). Osvětlím dvě důležité věci:</p>
+<pre>root /home/uzivatel/testapp/public</pre>
+<p>V příkladu výše nepadlo o adresáři <code>public</code> ani slovo. Webové aplikace postavené na Ruby (a nejenom ty) obvykle obsahují řadu adresářů, v nichž je zdrojový kód, konfigurace apod., a pak nějaký adresář, který se má použít jako kořen pro webovou prezentaci. Je tomu tak proto, aby se zamezil přístup k těm ostatním souborům, kde je např. konfigurace databáze apod. Budete-li nasazovat Ruby aplikace, budete nejspíše používat adresář <code>public</code> v adresářovém stromu dané aplikace.</p>
+<pre>if (!-f $request_filename) {
+     proxy_pass http://nas_thin;
+     break;
+}</pre>
+<p>Toto je poslední rewrite pravidlo, které nasměruje všechny ostatní požadavky na příslušný <code>upstream</code> zdroj, <code>nas_thin</code> zde odpovídá stejnojmennému zdroji specifikovanému v rámci direktivy <code>upstream</code>.</p>
+<p>Tím bych tento díl ukončil. V příštím díle osvětlím celý tento proces na instalaci systému Redmine.</p>
+
+<pre id="links">http://beginrescueend.com/rvm/ Dokumentace RVM
+http://jsani.com/2011/09/ubuntu-10-xx-nginx-thin-rails-3-a-how-to/ Ubuntu 10.XX + Nginx + Thin + Rails 3: A HOW-TO
+https://gautamrege.wordpress.com/2009/11/10/capistrano-nginx-thin-deployment-on-linode/ Capistrano + Nginx + Thin deployment on Linode
+http://wiki.nginx.org/NginxHttpUpstreamModule Nginx HttpUpstreamModule</pre>

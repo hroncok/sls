@@ -1,0 +1,85 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Sledování logů pomocí nástroje logwatch</h1>
+
+<p>Minulý díl byl věnován nástroji logcheck, který posílá e-mailem výběr hlášek z logů. Logwatch, kterému se bude věnovat tento díl, se na rozdíl od něj snaží hlášky z logů interpretovat a kompletovat – zasílá tedy spíše přehled důležitých událostí a příslušné statistiky než samotné hlášky.</p>
+
+<h3>Logwatch</h3>
+<p>Logwatch je patrně nejpoužívanějším nástrojem pro sledování a analýzu logů. Od nástroje <code>logcheck</code> představeného v minulém díle se liší právě tím, že na rozdíl od něj logy analyzuje. V čem je rozdíl? Představte si, že máte zhruba tři stovky hlášek tohoto typu:</p>
+<pre>Apr 08 06:45:40 debian amavis[31840]: (31840-15) Passed CLEAN, LOCAL [127.0.0.1] [127.0.0.1]  -&gt; , Message-ID: &lt;<span class="eaddress">1302410739.0@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>&gt;, mail_id: RmtIbaalm5pu, Hits: -4, size: 1200, queued_as: 94208214411, 675 ms</pre>
+<p>Zatímco Logcheck by tyto hlášky buď zahodil, nebo vám je naopak všechny poslal, Logwatch se pokusí tyto hlášky „seskupit“ a v zaslaném e-mailu budete mít místo hromady hlášek prostou a jednoduchou informaci, že tolik a tolik e-mailů bylo prověřeno a prošlo:</p>
+<pre> --------------------- Amavisd-new Begin ------------------------ 
+
+ 253 messages checked and passed.
+ 
+ ---------------------- Amavisd-new End ------------------------- </pre>
+<p>Přehled o úspěšných a neúspěšných přihlášeních přes SSH pak vypadá místo hromady hlášek o zamítnutí či povolení přístupu takto (upozorňuji, že některé identifikátory byly ve výpisu upraveny):</p>
+<pre> --------------------- SSHD Begin ------------------------ 
+
+ 
+ Illegal users from:
+    61.132.244.xxx (smtp3.vip.xxx.com): 5 times
+    74.63.113.xxx (.): 133 times
+    173.32.89.xxx (CPE002481b244a8-CM0011ae8bba18.cpe.net.cable.xxx.com): 138 times
+    174.120.122.xxx (mx1.client19.xxx.com.br): 2 times
+    203.99.60.xxx (mbl-99-60-214.dsl.xxx.pk): 100 times
+ 
+ Users logging in through sshd:
+    root:
+       1.2.3.4 (example.org): 8 times
+    spathi:
+       4.3.2.1 (example.cz): 65 times
+ 
+ 
+ Received disconnect:
+    11: disconnected by user : 65 Time(s)
+ 
+ SFTP subsystem requests: 61 Time(s)
+ 
+ **Unmatched Entries**
+ reverse mapping checking getaddrinfo for . [74.63.113.xxx] failed - POSSIBLE BREAK-IN ATTEMPT! : 168 time(s)
+ reverse mapping checking getaddrinfo for cpe-186-22-34-43.xxx.com.ar [186.22.34.xxx] failed - POSSIBLE BREAK-IN ATTEMPT! : 221 time(s)
+ 
+ ---------------------- SSHD End -------------------------</pre>
+<p>Ačkoliv to není předmětem tohoto článku, povšimněte si v přehledu klasických automatizovaných útoků na SSH, kde útočníci zkoušejí sadu nejčastěji používaných kombinací jmen a hesel (např. uživatel „test“ s heslem „test“). Tento konkrétní server nemá nainstalovaný žádný nástroj pro aktivní obranu a zablokování útočících IP adres, takže jsou vidět poměrně vysoká čísla neúspěšných pokusů o přihlášení. Má však zakázanou autentikaci heslem, takže prakticky veškeré pokusy o přihlášení skončily pro útočníka hláškou „Permission denied (publickey)“ bez toho, aby mu vůbec bylo umožněno heslo zadat (útočníci zde očividně použili „hloupý“ nástroj, který pro tuto eventualitu nebyl připraven, a tak to i bez ohledu na velmi nízkou možnost dodatečného úspěchu zkoušel znovu a znovu). Ale zpět k nástroji Logwatch.</p>
+<h3>Instalace nástroje Logwatch</h3>
+<p>Prvním krokem, pokud Logwatch ve svém systému ještě nemáte, je jej nainstalovat. V Debianu toho dosáhnete následujícím příkazem:</p>
+<pre>aptitude install logwatch</pre>
+<p>Tento nástroj je natolik rozšířený, že byste ho měli najít prakticky v libovolné distribuci, takže pokud používáte něco jiného než Debian, bude nejspíše stačit podívat se po balíčku stejného jména.</p>
+<p>Pokud nechce Logwatch konfigurovat, nemusíte. Po instalaci je již plně funkční a během 24 hodin byste měli očekávat první e-mail, zaslaný na e-mail uživatele <code>root</code>.</p>
+<h3>Konfigurace Logwatch</h3>
+<p>Po instalaci nástroje vám určitě instinkt správce zavelí, abyste se podívali do <code>/etc/logwatch</code>. Tam však naleznete pouze prázdné adresáře bez jakýchkoliv souborů. Dvě další typická umístění pro související soubory s jednotlivými nainstalovanými balíčky jsou v Debianu <code>/usr/share</code> a <code>/usr/share/doc</code>. Výchozí konfiguraci pro Logwatch naleznete v <code>/usr/share/logwatch/default.conf</code> (pozor, to je adresář, ne soubor). Tato konfigurace patří do <code>/etc/logwatch/conf</code> (obojí má stejnou strukturu podadresářů). Můžete se také podívat na dostupnou dokumentaci, kterou najdete v <code>/usr/share/doc/logwatch</code>.</p>
+<p>Je jasné, že k samotné analýze logů musí mít Logwatch něco, co mu řekne, jaké hlášky má hledat a jak je má interpretovat. K tomu má Logwatch jednotlivé skripty, napsané v Perlu, které logy parsují a produkují výstup. Pokud by vás zajímaly, můžete je najít v <code>/usr/share/logwatch/scripts/services</code>. Pokud byste si vytvořili vlastní skript, bylo by vhodné jej umístit do <code>/etc/logwatch/scripts</code>.</p>
+<p>Mezi dva hlavní konfigurační soubory patří <code>logwatch.conf</code>, který nastavuje samotný Logwatch, a <code>ignore.conf</code>, kam patří na jednotlivé řádky regulární výrazy, které by měl Logwatch při svém parsování logů ignorovat. Podobný mechanismus má i Logcheck, který byl představen v minulém díle. I když se v tomto článku regulárním výrazům věnovat nebudu, v odkazech pod článkem naleznete několik zdrojů, kde se je můžete rychle naučit.</p>
+<p>Konfigurační soubory, které chcete upravit, si nejprve přesuňte do odpovídajícího umístění v <code>/etc/logwatch</code>, aby vám případný upgrade nástroje nepřepsal vaše pečlivě odladěné nastavení. Hlavní konfigurační soubor, <code>logwatch.conf</code>, je velmi dobře zdokumentován, avšak je poměrně rozsáhlý. Mezi stěžejní parametry je možné zařadit následující:</p>
+<pre>#Formát e-mailu, "text" nebo "html"
+Format = text
+
+# E-mailová adresa příjemce
+MailTo = root
+
+# From pole zasílaných e-mailů
+MailFrom = Logwatch
+
+# Ze kdy se mají záznamy zpracovávat, "all" - všechny, "today" - dnešní, "yesterday" včerejší
+Range = yesterday
+
+# Úroveň podrobnosti, "Low" - nízká, "Med" - střední, "High" - vysoká
+Detail = Low</pre>
+<p>Jelikož Logwatch neběží jako démon, nýbrž jako perlový skript spouštěný Cronem v určitou dobu, je možné snadno ovlivnit, kdy a jak často budete e-maily dostávat. Toto nastavení naleznete v případě distribuce Debian v souboru <code>/etc/cron.daily/00logwatch</code>.</p>
+<h4>Zablokování konkrétního skriptu</h4>
+<p>Může se stát, že určité typy informací nechcete dostávat vůbec. V takovém případě se vám může hodit způsob, jak zablokovat určitý skript, který tyto informace generuje. Za tímto účelem se podívejte do hlavního konfiguračního souboru, <code>/etc/logwatch/conf/logwatch.conf</code>. Pokud ho v tomto adresáři nemáte, překopírujte si jej z <code>/usr/share/logwatch/default.conf</code>. V tomto souboru nalezněte následující řádku:</p>
+<pre>Service = All</pre>
+<p>Tato řádka sice povoluje všechny služby, ovšem s výjimkou těch, které deaktivujete později. Pod tuto řádku tedy přidejte řádku se stejnou volbou, avšak minusem před názvem konkrétní služby, kterou chcete zakázat. Kupříkladu, pokud byste takto chtěli zakázat skript „amavis“, zapsali byste toto:</p>
+<pre>Service = "-amavis" </pre>
+<h4>Konfigurace konkrétního skriptu</h4>
+<p>Jednotlivé skripty mají své konfigurační soubory, a to dokonce dvojího rázu. První je nastavení souborů s logy, ve kterých se budou příslušné záznamy vyhledávat. Toto nastavení by mělo být uloženo do <code>/etc/logwatch/conf/logfiles</code>, přičemž konkrétní konfigurační soubor si můžete překopírovat z výchozí konfigurace v <code>/usr/share/logwatch/default.conf/logfiles</code> a upravit. Jméno souboru odpovídá názvu konfigurovaného skriptu.</p>
+<p>Skripty však také mohou mít svoje parametry, které upravují jejich činnost, resp. informace, které v e-mailech dostáváte. Pro toto nastavení je vhodné místo v adresáři <code>/etc/logwatch/conf/services</code>, kam příslušný konfigurační soubor skriptu překopírujte z <code>/usr/share/logwatch/default.conf/services</code>. Tyto soubory jsou bohatě zdokumentované, včetně příkladů použití jednotlivých voleb.</p>
+<h3>Pár slov na závěr</h3>
+<p>Logwatch je nejčastěji používaným nástrojem pro sledování logů, a to z dobrého důvodu. Zasílá zprávy s přehledem událostí spíše než jednotlivé řádky z logů. Nabízí široké možnosti úprav konfigurace i rozšíření jeho záběru. Ale ať už se rozhodnete použít jakýkoliv nástroj, klíčové pro správu jakéhokoliv serveru je logy skutečně sledovat, najít si čas a procházet je. Máte tak šanci odhalit skrytý problém, podezřelou aktivitu či průnik útočníka. Máte-li problém s délkou zpráv, určitě věnujte čas úpravě konfigurace zvoleného nástroje, abyste dostávali zprávy pouze s těmi informacemi, které jsou pro vás zásadní. Určitě není dobře, pokud vám přijde každý den z každého spravovaného serveru 50 kB velký e-mail, kde pak pouze „vyzobáváte“ to, co je pro vás skutečně podstatné.</p>
+
+<pre id="links">http://www.ubuntugeek.com/how-to-setup-logwatch-on-ubuntu-desktopserver.html How to setup Logwatch on Ubuntu Desktop/Server
+http://www.regularnivyrazy.info/regularni-vyrazy-zaklady.html Miroslav Pecka, Základy regulárních výrazů
+http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí syntaxe regulárních výrazů
+http://cs.wikipedia.org/wiki/Regul%C3%A1rn%C3%AD_v%C3%BDraz Wikipédie, Regulární výraz</pre>

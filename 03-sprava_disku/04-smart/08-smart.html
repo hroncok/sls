@@ -1,0 +1,211 @@
+<h1>Správa linuxového serveru: S.M.A.R.T. a zdraví pevných disků</h1>
+
+<p>Pevné disky obsahují obvykle to nejcennější - vaše data. Ať už využíváte linuxového softwarového RAIDu nebo ne, hlídat zdraví disků je určitě velmi důležité, stejně jako mít možnost odhadnout, v jakém stavu je disk, který se vám zrovna dostal pod ruku.</p>
+
+<p>Pevné disky jsou v dnešní době relativně uzavřené systémy s vlastní vnitřní logikou, ale také vnitřním monitorováním a diagnostikou, a to je právě <a href="http://cs.wikipedia.org/wiki/S.M.A.R.T.">S.M.A.R.T.</a> (<em>Self Monitoring, Analysis and Reporting Technology</em>). Původní myšlenkou této technologie byla schopnost předpovědět selhání disku a varovat uživatele ještě před tím, než k tomu dojde.</p>
+<p>Realita je taková, že S.M.A.R.T. dokáže předpovědět blížící se selhání pevného disku jen v některých případech. Přesné procento případů udávají různé zdroje různě (Wikipedie udává 64 %, ale zdroj, ze kterého byla tato informace převzata, udává 30 %). Je jasné, že už jen z podstaty věci může S.M.A.R.T. předpovědět jenom takové typy poruch, které se projevují časem, pozvolna, nikoliv poruchy, které nastanou okamžitě a bez varování. To ale neznamená, že nemá cenu tuto technologii využít, naopak - i když není dokonalá, dokáže nám v řadě případů pomoci.</p>
+<h3>Fungování S.M.A.R.T.</h3>
+<p>S.M.A.R.T. dělá tři věci. Jednak shromažďuje řadu údajů, které mají větší či menší vypovídací hodnotu o možném budoucím selhání. Pokud zjistí nějakou chybu při práci s diskem, pak ji zaznamená do svého vnitřního logu. Poslední věc, kterou S.M.A.R.T. umí, je testování disků na povel, tedy jakási vnitřní samodiagnostika.</p>
+<h3>smartmontools</h3>
+<p>Balíček, který umožňuje využívat technologii S.M.A.R.T. v GNU/Linuxu se nazývá <code>smartmontools</code>. Naleznete ho v repositářích Debianu, ale i mnoha jiných distribucí.</p>
+<p>To nejjednodušší, co můžete udělat, je přečíst údaje z konkrétního pevného disku, což provedete příkazem:</p>
+<pre>smartctl -a /dev/sda | less
+</pre>
+<p>Výpis vás asi na první pohled odradí, protože bude velmi dlouhý (proto také doporučuji použít <code>less</code> nebo <code>more</code>). Výpis nemusíte číst celý, stačí se zaměřit na ty nejpodstatnější části. První takovou částí je výpis hodnot <a href="http://en.wikipedia.org/S.M.A.R.T.">atributů</a>, které S.M.A.R.T. měří:</p>
+<pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     0x000f   200   200   051    Pre-fail  Always       -       0
+  3 Spin_Up_Time            0x0003   187   186   021    Pre-fail  Always       -       1616
+  4 Start_Stop_Count        0x0032   100   100   000    Old_age   Always       -       577
+  5 Reallocated_Sector_Ct   0x0033   200   200   140    Pre-fail  Always       -       0
+  7 Seek_Error_Rate         0x000e   100   253   051    Old_age   Always       -       0
+  9 Power_On_Hours          0x0032   097   097   000    Old_age   Always       -       2716
+ 10 Spin_Retry_Count        0x0013   100   100   051    Pre-fail  Always       -       0
+ 11 Calibration_Retry_Count 0x0012   100   100   051    Old_age   Always       -       0
+ 12 Power_Cycle_Count       0x0032   100   100   000    Old_age   Always       -       514
+192 Power-Off_Retract_Count 0x0032   200   200   000    Old_age   Always       -       146
+193 Load_Cycle_Count        0x0032   199   199   000    Old_age   Always       -       4787
+194 Temperature_Celsius     0x0022   112   098   000    Old_age   Always       -       35
+196 Reallocated_Event_Count 0x0032   200   200   000    Old_age   Always       -       0
+197 Current_Pending_Sector  0x0012   200   200   000    Old_age   Always       -       0
+198 Offline_Uncorrectable   0x0010   100   253   000    Old_age   Offline      -       0
+199 UDMA_CRC_Error_Count    0x003e   200   200   000    Old_age   Always       -       0
+200 Multi_Zone_Error_Rate   0x0009   200   200   051    Pre-fail  Offline      -       0
+</pre>
+<p>Tento výpis vypadá sice na první pohled značně komplikovaně, ale jeho čtení není až tak těžké. Vlevo je název atributu, ten je ve většině případů samovysvětlující. Konkrétní hodnota daného atributu je zobrazena ve sloupci <code>RAW_VALUE</code> ("surová" hodnota). Surová hodnota není u některých atributů vždy zcela reprezentativní, protože disky od různých výrobců mohou zaznamenávat trošku jiná čísla (bohužel, technologie S.M.A.R.T. není standardizována, takže z části platí "každý pes, jiná ves").</p>
+<p>Kupříkladu, výše uvedený výpis pochází z disku od firmy Western Digital. Povšimněte si, že první atribut (raw read error rate) má nulovou "surovou" hodnotu. Naopak jiný disk od firmy Seagate mi hlásí hodnotu <code>177587740</code>, která je nepoměrně vyšší, což ale neznačí, že by disk měl nějakou poruchu - pro disky od tohoto výrobce je to běžné a neznamená to nic znepokojivého. Podobně vysoká hodnota je u Seagatu běžná i u atributu <em>hardware ECC recovered</em> (jak je patrné z výpisu, tento disk od Western Digital tento atribut nemá). Samsungy hlásí podobně vysoké hodnoty u <em>hardware ECC recovered</em>, ale už ne u <em>raw read error rate</em>. Řada důležitých údajů má však reprezentativní a porovnatelnou hodnotu napříč disky od různých výrobců.</p>
+<p>V některých případech se může hodit pro referenci použít interpretované hodnoty (value, worst, treshold). Interpretovaná hodnota funguje následovně: Firmware disku umí každý atribut přepočítat do reprezentativní, normalizované hodnoty. Pro každý atribut je určen práh (treshold), jehož přetečení indikuje vážný problém. Tento problém může být dvojího rázu, a to podle typu atributu - jedná-li se o atribut pre-fail, pak překročení daného prahu značí hrozící akutní selhání disku. Jedná-li se o atribut old age, pak přetečení prahu značí, že disk je již příliš starý a opotřebovaný.</p>
+<p>Aktuální interpretovaná hodnota se nachází ve sloupci "value", ve sloupci "worst" naleznete nejhorší dosaženou hodnotu (nejblíže prahu) za celý život pevného disku, a samotný práh naleznete ve sloupci "tresh" (jako treshold - práh).</p>
+<h3>Klíčové údaje</h3>
+<p>Mezi ty nejdůležitější údaje, na které byste se měli zaměřit, patří:</p>
+<p><strong>Read error rate</strong> indikuje počet hardwarových chyb při čtení z disku (pro některé výrobce je typická extrémně vysoká hodnota, která ovšem neznamená problém - viz výše).</p>
+<p><strong>Reallocated sector count</strong> udává počet realokovaných sektorů. Moderní pevné disky již nenechávají správu špatných sektorů na operačním systému, řeší si ho sami. Mají totiž zásobu rezervních sektorů, takže jakmile firmware pevného disku zjistí, že se zápisem do nějakého sektoru je problém, označí jej jako vadný a přesune data do rezervní oblasti. Disk se tak nadále pro operační systém chová jako disk bez špatných sektorů. Zvyšující se počet realokovaných sektorů značí problém s povrchem disku.</p>
+<p><strong>Reallocation event count</strong> je počet úspěšných i neúspěšných pokusů přesunout data do rezervní oblasti.</p>
+<p><strong>Current pending sector count</strong> označuje počet "problémových" sektorů, kde došlo k chybě čtení (takový sektor není přemapován, neboť se následné čtení ještě může podařit). Pokud se následný zápis nebo čtení tohoto sektoru podaří, tato hodnota se sníží.</p>
+<p><strong>Uncorrectable sector count</strong> je počet neopravitelných chyb při čtení nebo zápisu. Zvýšení této hodnoty indikuje problém s povrchem disku.</p>
+<p><strong>Spin retry count</strong> je počet neúspěšných pokusů o náběh disku na provozní otáčky - zvyšující se hodnota značí problém s mechanikou disku.</p>
+<p>Další atributy jsou <a href="http://en.wikipedia.org/wiki/S.M.A.R.T.">popsány</a> podrobně v anglické Wikipedii, nicméně výše uvedené mají obvykle dostatečnou vypovídací schopnost.</p>
+<p>Hodnoty jednotlivých atributů je třeba vhodně interpretovat, a k tomu vám bohužel přímé vodítko neposkytnu. Zvyšující se hodnoty klíčových atributů uvedených výše značí možný problém, tedy možné selhání disku v blízké budoucnosti, ale pouze s jistou pravděpodobností. To, že máte na disku třeba jeden realokovaný sektor, ještě nemusí vylučovat možnost, že disk bude spolehlivě fungovat ještě roky. Stejně tak fakt, že veškeré "klíčové" atributy mají nulové hodnoty, neznamená, že disk nemůže během hodiny katastrofálně selhat.</p>
+<p>Mohu vás nicméně odkázat na <a href="http://research.google.com/archive/disk_failures.pdf">studii o poruchovosti disků (PDF)</a>, kterou provedl Google, a která zohledňuje některé S.M.A.R.T. atributy a jejich vztah k pravděpodobnosti selhání disku. Tato studie je poměrně komplexní a zahrnuje i další faktory, jako je například teplota.</p>
+
+<h3>S.M.A.R.T. logy</h3>
+<p>Jak už bylo řečeno dříve, kromě zaznamenávání řady údajů provádí technologie S.M.A.R.T. logování - pokud firmware disku detekuje chybový stav, zaznamená jej do svého vlastního vnitřního logu. Kapacita tohoto logu je bohužel velmi omezena - ukládá se pouze pět posledních záznamů. Výpis z logu může vypadat takto:</p>
+<pre>SMART Error Log Version: 1
+ATA Error Count: 36 (device log contains only the most recent five errors)
+	CR = Command Register [HEX]
+	FR = Features Register [HEX]
+	SC = Sector Count Register [HEX]
+	SN = Sector Number Register [HEX]
+	CL = Cylinder Low Register [HEX]
+	CH = Cylinder High Register [HEX]
+	DH = Device/Head Register [HEX]
+	DC = Device Command Register [HEX]
+	ER = Error register [HEX]
+	ST = Status register [HEX]
+Powered_Up_Time is measured from power on, and printed as
+DDd+hh:mm:SS.sss where DD=days, hh=hours, mm=minutes,
+SS=sec, and sss=millisec. It "wraps" after 49.710 days.
+
+Error 36 occurred at disk power-on lifetime: 27 hours (1 days + 3 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 08 00 43 de e0  Error: UNC 8 sectors at LBA = 0x00de4300 = 14566144
+
+  Commands leading to the command that caused the error were:
+  CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
+  -- -- -- -- -- -- -- --  ----------------  --------------------
+  c8 00 08 00 43 de e0 08      00:28:29.500  READ DMA
+  27 00 00 00 00 00 e0 08      00:28:29.500  READ NATIVE MAX ADDRESS EXT
+  ec 00 00 00 00 00 a0 0a      00:28:29.500  IDENTIFY DEVICE
+  ef 03 42 00 00 00 a0 0a      00:28:29.400  SET FEATURES [Set transfer mode]
+  27 00 00 00 00 00 e0 08      00:28:29.400  READ NATIVE MAX ADDRESS EXT
+</pre>
+<p>Povšimněte si údajů o celkovém počtu chyb (druhý řádek výpisu). Samotná chyba je popsána poměrně detailně, včetně série příkazů, které vedly k chybovému stavu, a časového údaje, ze kterého je možné v tomto případě vyčíst, že k poslední chybě (chybě č. 36) došlo ve 27. hodině fungování pevného disku. S.M.A.R.T. logy je nicméně nutné brát v kontextu k ostatním údajům - teprve pak mají vhodnou vypovídací schopnost. Časovou značku chyby (27 hodin) lze porovnat se S.M.A.R.T. údajem "power on hours", který udává celkovou dobu fungování disku:</p>
+<pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  9 Power_On_Hours          0x0012   100   100   000    Old_age   Always       -       4339
+</pre>
+<p>Z toho je vidět, že chyba nastala velmi brzy po zařazení disku do užívání, a od té doby nenastal žádný problém. Což je povzbudivé. Podívejte se ještě na ostatní důležité údaje:</p>
+<pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+  1 Raw_Read_Error_Rate     0x000b   100   100   016    Pre-fail  Always       -       0
+  4 Start_Stop_Count        0x0012   100   100   000    Old_age   Always       -       72
+  5 Reallocated_Sector_Ct   0x0033   100   100   005    Pre-fail  Always       -       0
+  7 Seek_Error_Rate         0x000b   100   100   067    Pre-fail  Always       -       0
+  9 Power_On_Hours          0x0012   100   100   000    Old_age   Always       -       4339
+ 10 Spin_Retry_Count        0x0013   100   100   060    Pre-fail  Always       -       0
+193 Load_Cycle_Count        0x0012   100   100   000    Old_age   Always       -       92
+194 Temperature_Celsius     0x0002   171   171   000    Old_age   Always       -       35 (Lifetime Min/Max 21/49)
+196 Reallocated_Event_Count 0x0032   100   100   000    Old_age   Always       -       0
+197 Current_Pending_Sector  0x0022   100   100   000    Old_age   Always       -       0
+198 Offline_Uncorrectable   0x0008   100   100   000    Old_age   Offline      -       0
+199 UDMA_CRC_Error_Count    0x000a   200   200   000    Old_age   Always       -       0
+</pre>
+<p>Realokovaných sektorů je nula, reallocated event count je nulový, raw read error rate také (jedná se o disk Hitachi, který u tohoto atributu udává reprezentativní surovou hodnotu), offline uncorrectable také vykazuje nulovou hodnotu. Z toho je patrné, že disk by měl být v pořádku, přestože má v logu spoustu chyb.</p>
+<p>Právě na tomto příkladu bych rád ukázal a zdůraznil, že chybové hlášky v logu ještě nutně nemusí znamenat problém s diskem. V tomto konkrétním případě došlo k přerušení napájení, když disk prováděl zápis. Výsledkem bylo několik sektorů u kterých došlo k nekonzistenci mezi daty a ECC záznamy (Error Checking and Correction). Z toho disk při čtení usoudil, že sektor nelze přečíst (jakmile porovnal data a příslušné ECC záznamy), tudíž došlo k neopravitelné chybě čtení (viz UNC = uncorrectable error in data v chybové hlášce v logu). Po přepsání těchto sektorů problém zmizel a disk nyní funguje bezvadně.</p>
+<p>Pokud tedy budete posuzovat zdraví nějakého pevného disku, a v logu objevíte nějaké chybové hlášky, pak je rozhodně vnímejte v kontextu se S.M.A.R.T. údaji (a pokud jste na pochybách, pak disk otestujte).</p>
+<h3>Teplota a zdraví pevných disků</h3>
+<p>Pokud se podíváte na studii Googlu (<a href="http://research.google.com/archive/disk_failures.pdf">PDF</a>), na kterou jsem vás odkazoval v minulém díle, pak zjistíte, že teplota sice hraje roli v rámci životnosti disku, ale možná ne tak, jak byste očekávali. Z výsledků této studie totiž mj. vyplývá, že diskům vadí spíše příliš nízké teploty (kolem 15°C) než příliš vysoké. Teplota do výše 50°C ovlivňuje negativně životnost disku méně než teploty pod 25°C. Teplotní optimum se podle dané studie nachází někde kolem 40°C.</p>
+<p>Některé disky umí v rámci S.M.A.R.T. zaznamenat nejen svou aktuální teplotu, ale i celoživotní minimum a maximum:</p>
+<pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+194 Temperature_Celsius     0x0002   171   171   000    Old_age   Always       -       35 (Lifetime Min/Max 21/49)
+</pre>
+<p>Přirozeně, nejpodstatnější pro pevný disk je spíše průměrná teplota než minimum a maximum.</p>
+<h3>S.M.A.R.T. a vnější chyby</h3>
+<p>Růst hodnot některých S.M.A.R.T. atributů nemusí být nutně spojen s opotřebením nebo blížící se poruchou pevného disku. Některé hodnoty mohou růst třeba následkem vadné kabeláže (typicky UDMA CRC Error Count), apod. - tyto faktory je nutné brát v potaz a pokusit se jejich vliv při diagnostice zohlednit.</p>
+<h3>S.M.A.R.T. a BIOS</h3>
+<p>BIOSy moderních základních desek obvykle umožňují při bootování hlídat stav S.M.A.R.T. a hlásit případný problém. Na tuto funkcionalitu není dobré spoléhat - hlídá totiž pouze jednu jedinou hodnotu, a tou je celkový stav. Ve výpisu nástroje <code>smartctl</code> je tato hodnota také k dispozici:</p>
+<pre>=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+</pre>
+<p>Co tato hodnota znamená? V podstatě pouze to, že nebyl překročen práh (treshold) žádného ze S.M.A.R.T. atributů. To je samozřejmě důležitá hodnota a ve chvíli, kdy bude udávat "FAILED", je vhodné data zálohovat a disk co nejdříve vyřadit. Naneštěstí to, že tato hodnota udává "PASSED", ještě neznamená, že nelze bližším studiem konkrétních hodnot S.M.A.R.T. atributů odhadnout blížící se potenciální problém dlouho před tím, než se tato hodnota změní.</p>
+<h3>S.M.A.R.T. a firmware disku</h3>
+<p>S.M.A.R.T. je de facto software, který je součástí firmwaru disku. A jako každý software, i implementace S.M.A.R.T. (potažmo firmware disku jako takový) může mít chyby. Takové chyby občas postihnou některé série pevných disků, a stává se to čas od času snad úplně každému výrobci pevného disku.</p>
+<p>Disk tedy může selhat nebo vypadnout z diskového pole nejenom následkem mechanického poškození nebo opotřebení, ale i následkem chyby ve firmwaru, která může provést téměř cokoliv počínaje vracením nepravdivých S.M.A.R.T. údajů a úplným zamrznutím disku konče. I to je jeden z důvodů, proč se do diskových polí doporučuje dávat různé disky od různých výrobců.</p>
+<p>Tímto bych pro tentokrát skončil, s tím, že příště se podívám na S.M.A.R.T. testy a na to, jak lze změny S.M.A.R.T. údajů monitorovat.</p>
+
+<h3>S.M.A.R.T. testy</h3>
+<p>Třetí a poslední funkcionalitou, kterou S.M.A.R.T. poskytuje, je testování pevného disku (tedy jakási samodiagnostika). Tyto testy probíhají na pozadí, lze je tedy použít i na běžícím systému. Je jasné, že intenzivní práce s diskem průběh příslušného testu pozdrží.</p>
+<p>Testy jsou celkem tři, krátký (short), dlouhý (long) a "přepravní" (conveyance). Každý z těchto testů dělá něco malinko jiného, krátký testuje základní funkčnost disku, dlouhý provádí totéž, ale trošku důkladněji (a kromě toho testuje i povrch disku) a conveyance test je schopen určit poškození disku způsobené přepravou (ne všechny pevné disky jej ale umí provést).</p>
+<p>Délka testů se liší model od modelu, přičemž očekávanou délku testu se dozvíte už z celkového výpisu (<code>smartctl -a /dev/disk</code>):</p>
+<pre>Short self-test routine 
+recommended polling time: 	 (   1) minutes.
+Extended self-test routine
+recommended polling time: 	 ( 235) minutes.
+</pre>
+<p>Testy je možné zadávat a vyhodnocovat opět pomocí nástroje <code>smartctl</code> a přepínače <code>-t</code>. Krátký test se spustí příkazem:</p>
+<pre>smartctl -t short /dev/sda
+</pre>
+<p>U dlouhého testu se u parametru <code>-t</code> použije hodnota <code>long</code>, a u přepravního testu se použije hodnota <code>conveyance</code>. Pokud test tímto způsobem zadáte, objeví se vám podobný výpis:</p>
+<pre>debian ~# smartctl -t short /dev/sda
+smartctl version 5.38 [x86_64-unknown-linux-gnu] Copyright (C) 2002-8 Bruce Allen
+Home page is http://smartmontools.sourceforge.net/
+
+=== START OF OFFLINE IMMEDIATE AND SELF-TEST SECTION ===
+Sending command: "Execute SMART Short self-test routine immediately in off-line mode".
+Drive command "Execute SMART Short self-test routine immediately in off-line mode" successful.
+Testing has begun.
+Please wait 2 minutes for test to complete.
+Test will complete after Tue Jan 12 15:47:26 2010
+
+Use smartctl -X to abort test.
+</pre>
+<p>Z výpisu se dozvíte očekávanou dobu trvání testu i očekávaný čas jeho dokončení. Nástroj <code>smartctl</code> vám také radí, že test lze zrušit pomocí parametru <code>-X</code>.</p>
+<p>Výsledek testu se dozvíte opět z výpisu <code>smartctl -a /dev/disk</code>:</p>
+<pre>SMART Self-test log structure revision number 1
+Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA_of_first_error
+# 1  Extended offline    Completed without error       00%      2290         -
+# 2  Extended offline    Completed without error       00%       302         -
+# 3  Short offline       Completed without error       00%        83         -
+# 4  Extended offline    Completed without error       00%        70         -
+# 5  Extended offline    Interrupted (host reset)      40%        65         -
+# 6  Extended offline    Completed: read failure       90%        27         14566144
+# 7  Extended offline    Completed: read failure       90%        26         14566144
+</pre>
+<p>Zde vidíte celkem sedm testů, jsou seřazeny inverzně dle doby, kdy byly provedeny. Všechny typy testů kromě třetího jsou "dlouhé" (long), čtyři naposledy prováděné testy (1-4) nevykazují žádný problém, pátý test byl přerušen restartem počítače zhruba v 60% průběhu, přičemž šestý a sedmý skončil s chybou. U těchto dvou testů vidíte i číslo bloku (14566144), kde k chybě došlo.</p>
+<p>Tento výpis náleží disku Hitachi, kterého se týkal onen problém s výpadkem napájení a následné nekonzistenci mezi ECC záznamem a daty v osmi sektorech, která vyvolala chybu čtení. Srovnejme to nyní s výpisem ze S.M.A.R.T. logu:</p>
+<pre>Error 36 occurred at disk power-on lifetime: 27 hours (1 days + 3 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER ST SC SN CL CH DH
+  -- -- -- -- -- -- --
+  40 51 08 00 43 de e0  Error: UNC 8 sectors at LBA = 0x00de4300 = 14566144
+
+  ...
+</pre>
+<p>Jak je vidět, číslo bloku se shoduje (14566144). Z výpisu testů je jasně patrné, že tato chyba byla odstraněna (pozdější testy proběhly bez chyby) a nulová hodnota S.M.A.R.T. atributu "reallocated sectors count" potvrzuje, že se nejednalo o špatné sektory, které by bylo nutné přemapovat. Tento disk je tedy zcela v pořádku.</p>
+<h3>S.M.A.R.T. monitorování</h3>
+<p>Hodnoty S.M.A.R.T. atributů je možné sledovat prostřednictvím démona, který bude zachytávat změny hodnot a ve výchozí konfiguraci zapisovat změny do systémového logu. Tento démon je součástí balíčku <code>smartmontools</code>, tudíž pokud máte nainstalován ten, stačí démona jen povolit.</p>
+<p>V Debianu je za tímto účelem třeba upravit konfigurační soubor <code>/etc/default/smartmontools</code> a odkomentovat následující řádku:</p>
+<pre>start_smartd=yes
+</pre>
+<p>Démona je možné konfigurovat i poněkud precizněji, a to prostřednictvím konfiguračního souboru <code>/etc/smartd.conf</code>. V něm je možné nastavit mj. kupříkladu zasílání varování o změnách na zadaný e-mail.</p>
+<h3>Parkování hlaviček a úsporný režim disků</h3>
+<p>Jedním z atributů, jehož hodnoty S.M.A.R.T. sleduje, je i počet zaparkování hlaviček disku (load cycle count) za celou dobu jeho života. Toto množství je totiž svým způsobem omezené - výrobci disků udávají vždy pouze určitý počet parkování, které by disk měl zvládnout. Desktopové a serverové disky obvykle zvládnou podstatně méně než disky určené pro notebooky (kde je parkování vítaným prostředkem jednak pro ochranu pevného disku před poškozením daným manipulací s notebookem, a jednak jako součást procesu řízení spotřeby).</p>
+<p>Pevné disky mají obvykle vlastní systém řízení spotřeby (power management), který lze u řady disků ovlivňovat parametrem <code>-B</code> nástroje <code>hdparm</code>, jehož hodnoty jdou od 1 do 255 s tím, že u jedničky dochází k maximálnímu šetření energie, zatímco u 254 by měl být maximálně zohledněn výkon (na úkor spotřeby). Hodnota 255 by měla řízení spotřeby vypnout (ne všechny disky ji bohužel podporují). Hodnoty od 1 do 127 povolují zastavení disku (spindown), hodnoty od 128 výše nikoliv. Nastavení hodnoty režimu řízení spotřeby by se u konkrétního pevného disku provedlo příkazem:</p>
+<pre>hdparm -B 128 /dev/disk
+</pre>
+<p>Pokud byste chtěli disku zabránit v parkování hlaviček a parametr <code>-B</code> by nepomohl, můžete ještě disku nařídit, ať neprovádí zastavení disku:</p>
+<pre>hdparm -S 0 /dev/disk
+</pre>
+<p>V případě domácích serverů byste asi řekli, že se jich tato problematika netýká. To jsem si myslel také, dokud jsem nenarazil na <a href="http://forum.synology.com/enu/viewtopic.php?f=124&amp;t=11653">jednu sérii</a> úsporných disků jisté značky, u kterých docházelo k příliš častému parkování hlaviček, a aby to nebylo tak jednoduché, příslušné disky nereagovaly na adekvátní příkazy <code>hdparm -B</code> a <code>hdparm -S</code>. Jediné, co zbývalo, byla úprava firmwaru (já jsem se do ní nepouštěl a disk raději rovnou vyměnil).</p>
+<p>Bohužel, snaha o úsporu energie, související marketing a možná laxní přístup některých výrobců k testování svých pevných disků pod více operačními systémy, může vést k podobným nepříjemným situacím.</p>
+<p>Z tohoto důvodu nebývá úplně od věci kontrolovat u pevných disků i počet parkování hlaviček (load cycle count):</p>
+<pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
+193 Load_Cycle_Count        0x0032   199   199   000    Old_age   Always       -       4789
+</pre>
+<p>Pevné disky obvykle snesou hodnoty v řádu desítek až set tisíců, u notebookových disků tato hodnota může být i 500000. Záleží na konkrétním modelu. Příliš rychle rostoucí hodnotu load cycle count je vhodné řešit způsobem naznačeným výše. Debian nastavuje hodnoty <code>hdparm</code> při bootu, a tyto hodnoty lze upravovat i pro jednotlivé disky v konfiguračním souboru <code>/etc/hdparm.conf</code>.</p>
+<h3>Vývoj pravděpodobnosti selhání disku v čase</h3>
+<p>Statistická pravděpodobnost selhání pevného disku není po dobu jeho existence stejná. Vzhledem k přepravě a výrobnímu procesu je zvýšená pravděpodobnost selhání disku během prvních měsíců jeho užívání (proto se také vyplácí provádět zátěžové testy). Poté pravděpodobnost selhání klesne, a s rostoucím časem opět roste (disk stárne).</p>
+<p>Z toho vyplývá jediné - příliš mladému a příliš starému disku byste neměli bezvýhradně věřit. I proto se vyplatí diskové pole obměňovat postupně v delším rozmezí, spíše než naráz. Kandidáty na vyloučení vybírejte s ohledem na S.M.A.R.T. údaje (disky s realokovanými sektory nebo s nenulovou hodnotou u některých kritických atributů by měly být vyměněny v první řadě).</p>
+<h3>Jak pomoci S.M.A.R.T.u, když si nejste jisti</h3>
+<p>Pokud si u pevného disku nejste jisti jeho zdravím, a nemáte na něm důležitá data, můžete S.M.A.R.T.u trošku pomoci použitím programu <code>badblocks</code> a jeho read/write testu. Ten můžete spustit příkazem:</p>
+<pre>badblocks -s -w /dev/disk
+</pre>
+<p>Pozor - tímto příkazem přepíšete všechna data na daném pevném disku! Pokud si nemůžete dovolit data přesunout, můžete použít dlouhý S.M.A.R.T. test, který povrch disku prověří.</p>
+
+<pre id="links">http://en.wikipedia.org/wiki/S.M.A.R.T. S.M.A.R.T. (wikipedia)
+http://en.wikipedia.org/wiki/Hard_disk_failure Hard disk failure (wikipedia)
+http://research.google.com/archive/disk_failures.pdf Failure Trends in a Large Disk Drive Population, Google
+http://en.wikibooks.org/wiki/Minimizing_hard_disk_drive_failure_and_data_loss Minimizing hard disk drive failure and data loss (Wikibooks)</pre>

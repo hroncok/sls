@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1024px"
+   height="768px"
+   id="svg6202"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="lvm.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/home/michal/Vyvoj/sprava-debianu-lvm-schema.png"
+   inkscape:export-xdpi="300"
+   inkscape:export-ydpi="300">
+  <defs
+     id="defs6204">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 384 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1024 : 384 : 1"
+       inkscape:persp3d-origin="512 : 256 : 1"
+       id="perspective6210" />
+    <filter
+       inkscape:collect="always"
+       id="filter6865"
+       x="-0.035932236"
+       width="1.0718645"
+       y="-0.18171345"
+       height="1.3634269">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="4.6731915"
+         id="feGaussianBlur6867" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter6895"
+       x="-0.036009097"
+       width="1.0720182"
+       y="-0.17977292"
+       height="1.3595458">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="4.6981915"
+         id="feGaussianBlur6897" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter6933"
+       x="-0.013162651"
+       width="1.0263253"
+       y="-0.1358549"
+       height="1.2717098">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.5504364"
+         id="feGaussianBlur6935" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter7005"
+       x="-0.039458899"
+       width="1.0789178"
+       y="-0.12514849"
+       height="1.250297">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="3.2706333"
+         id="feGaussianBlur7007" />
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.95442708"
+     inkscape:cx="512"
+     inkscape:cy="373.6012"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     showgrid="false"
+     inkscape:window-width="1278"
+     inkscape:window-height="977"
+     inkscape:window-x="0"
+     inkscape:window-y="45" />
+  <metadata
+     id="metadata6207">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <g
+       id="g13790">
+      <g
+         transform="translate(176.37381,-220.05625)"
+         id="g6905">
+        <rect
+           ry="17.404495"
+           y="678.94128"
+           x="13.443382"
+           height="59.72168"
+           width="310.13364"
+           id="rect6869"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter6895)" />
+        <rect
+           style="fill:#000080;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="rect6216"
+           width="310.13364"
+           height="59.72168"
+           x="13.443382"
+           y="678.94128"
+           ry="17.404495" />
+        <text
+           xml:space="preserve"
+           style="font-size:36px;font-style:normal;font-weight:normal;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="32.227421"
+           y="722.10413"
+           id="text6222"><tspan
+             sodipodi:role="line"
+             x="32.227421"
+             y="722.10413"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ffffff;font-family:URW Gothic L;-inkscape-font-specification:URW Gothic L Semi-Bold"
+             id="tspan6250">DISKOVÝ ODDÍL</tspan></text>
+      </g>
+      <g
+         transform="translate(176.37381,-220.05625)"
+         id="g7075">
+        <rect
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter6865)"
+           id="rect6847"
+           width="310.13364"
+           height="59.72168"
+           x="347.67535"
+           y="677.89355"
+           ry="17.404495" />
+        <rect
+           ry="17.404495"
+           y="677.89355"
+           x="347.67535"
+           height="59.72168"
+           width="310.13364"
+           id="rect6837"
+           style="fill:#224585;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        <text
+           id="text6226"
+           y="721.0564"
+           x="366.45938"
+           style="font-size:36px;font-style:normal;font-weight:normal;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           xml:space="preserve"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ffffff;font-family:URW Gothic L;-inkscape-font-specification:URW Gothic L Semi-Bold"
+             y="721.0564"
+             x="366.45938"
+             id="tspan6228"
+             sodipodi:role="line">DISKOVÝ ODDÍL</tspan></text>
+      </g>
+      <g
+         transform="translate(176.37381,-154.04806)"
+         id="g7123">
+        <g
+           id="g6937"
+           transform="translate(0,-71.072319)">
+          <rect
+             ry="17.404495"
+             y="578.00818"
+             x="13.443382"
+             height="59.72168"
+             width="644.3656"
+             id="rect6911"
+             style="opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter6933)" />
+          <rect
+             style="opacity:1;fill:#ffb380;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             id="rect6214"
+             width="644.3656"
+             height="59.72168"
+             x="13.443382"
+             y="578.00818"
+             ry="17.404495" />
+        </g>
+        <text
+           xml:space="preserve"
+           style="font-size:36px;font-style:normal;font-weight:normal;fill:#713232;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="154.82208"
+           y="547.26587"
+           id="text6945"><tspan
+             sodipodi:role="line"
+             id="tspan6947"
+             x="154.82208"
+             y="547.26587"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#713232;fill-opacity:1;font-family:URW Gothic L;-inkscape-font-specification:URW Gothic L Semi-Bold">LVM - volume group</tspan></text>
+      </g>
+      <g
+         transform="translate(176.37381,-220.05625)"
+         id="g7093">
+        <g
+           id="g7009">
+          <rect
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter7005)"
+             id="rect7003"
+             width="195.92902"
+             height="59.721649"
+             x="13.443382"
+             y="467.99454"
+             ry="17.404495" />
+          <rect
+             ry="17.404495"
+             y="467.99454"
+             x="13.443382"
+             height="59.721649"
+             width="195.92902"
+             id="rect6968"
+             style="fill:#f3f347;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        </g>
+        <text
+           id="text6970"
+           y="508.85336"
+           x="102.96589"
+           style="font-size:36px;font-style:normal;font-weight:normal;fill:#713232;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           xml:space="preserve"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#713232;fill-opacity:1;font-family:URW Gothic L;-inkscape-font-specification:URW Gothic L Semi-Bold"
+             y="508.85336"
+             x="102.96589"
+             id="tspan6972"
+             sodipodi:role="line">/</tspan></text>
+      </g>
+      <g
+         transform="translate(176.37381,-220.05625)"
+         id="g7052">
+        <g
+           id="g7013"
+           transform="translate(213.74079,0)">
+          <rect
+             ry="17.404495"
+             y="467.99454"
+             x="13.443382"
+             height="59.721649"
+             width="195.92902"
+             id="rect7015"
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter7005)" />
+          <rect
+             style="fill:#f3f347;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+             id="rect7017"
+             width="195.92902"
+             height="59.721649"
+             x="13.443382"
+             y="467.99454"
+             ry="17.404495" />
+        </g>
+        <text
+           xml:space="preserve"
+           style="font-size:36px;font-style:normal;font-weight:normal;fill:#713232;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           x="262.44342"
+           y="508.18735"
+           id="text7025"><tspan
+             sodipodi:role="line"
+             id="tspan7027"
+             x="262.44342"
+             y="508.18735"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#713232;fill-opacity:1;font-family:URW Gothic L;-inkscape-font-specification:URW Gothic L Semi-Bold">/home</tspan></text>
+      </g>
+      <g
+         transform="translate(176.37381,-220.05625)"
+         id="g7045">
+        <g
+           transform="matrix(1.1080046,0,0,1,425.14389,0)"
+           id="g7035"
+           style="fill:#ffffff">
+          <rect
+             style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter7005)"
+             id="rect7037"
+             width="195.92902"
+             height="59.721649"
+             x="13.443382"
+             y="467.99454"
+             ry="17.404495" />
+          <rect
+             ry="17.404495"
+             y="467.99454"
+             x="13.443382"
+             height="59.721649"
+             width="195.92902"
+             id="rect7039"
+             style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:2;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        </g>
+        <text
+           id="text7041"
+           y="508.02536"
+           x="496.99606"
+           style="font-size:36px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+           xml:space="preserve"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;font-family:URW Gothic L;-inkscape-font-specification:URW Gothic L Semi-Bold"
+             y="508.02536"
+             x="496.99606"
+             id="tspan7043"
+             sodipodi:role="line">volno</tspan></text>
+      </g>
+      <text
+         id="text7059"
+         y="567.95935"
+         x="357.74112"
+         style="font-size:36px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;font-family:URW Gothic L;-inkscape-font-specification:URW Gothic L Semi-Bold"
+           y="567.95935"
+           x="357.74112"
+           id="tspan7061"
+           sodipodi:role="line">physical volumes</tspan></text>
+      <text
+         id="text7067"
+         y="220.16467"
+         x="256.82553"
+         style="font-size:36px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;font-family:URW Gothic L;-inkscape-font-specification:URW Gothic L Semi-Bold"
+           y="220.16467"
+           x="256.82553"
+           id="tspan7069"
+           sodipodi:role="line">logical volumes</tspan></text>
+      <path
+         inkscape:connection-start="#g6905"
+         inkscape:connector-type="polyline"
+         id="path7102"
+         d="M 394.32773,457.38503 L 462.55627,414.10948"
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connection-start="#g7075"
+         inkscape:connector-type="polyline"
+         id="path7104"
+         d="M 629.17865,456.3373 L 561.93732,414.10948"
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connection-end="#g7093"
+         inkscape:connector-type="polyline"
+         id="path7106"
+         d="M 444.99946,351.3878 L 354.7822,309.15994"
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connection-end="#g7052"
+         inkscape:connector-type="polyline"
+         id="path7108"
+         d="M 508.86912,351.3878 L 504.65336,309.15994"
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         inkscape:connection-end="#g7045"
+         inkscape:connector-type="polyline"
+         id="path7110"
+         d="M 575.63579,351.3878 L 661.16223,309.23886"
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

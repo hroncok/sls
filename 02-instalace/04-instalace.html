@@ -1,0 +1,56 @@
+
+<h1>Správa linuxového serveru: Instalace</h1>
+
+<p>Jelikož čtenáři tohoto seriálu mají již jisté znalosti, nemyslím si, že je nutné procházet instalaci krok za krokem. Zaměřím se spíše na praktické záležitosti kolem instalačního procesu, upozorním na některé problémy a především osvětlím spektrum možností, které máte v případě instalace Debian GNU/Linuxu.</p>
+
+<h3>Instalační média a možnosti instalace Debianu</h3>
+<p>Instalačních média Debianu lze rozdělit do dvou kategorií - klasická instalační média zahrnující 31 CD nebo 5 DVD obsahující veškerý software z hlavních repositářů a speciální instalační média zahrnující mj. minimalistické médium určené pro síťovou instalaci (<a href="http://www.debian.org/CD/netinst/">netinst</a>). O tom, jak je software umístěn do jednotlivých médií rozhoduje jeho popularita - nejpopulárnější software je na prvním médiu a nejméně populární na posledním.</p>
+<p>Máte-li k dispozici připojení na síť, není důvod nepoužít médium pro síťovou instalaci (iso obraz má pod 200MB). Postačí samozřejmě i první "klasické" instalační CD. Více není důvod stahovat.</p>
+<p>Debian lze nainstalovat i jinými způsoby, třeba z disket, flash disku nebo pomocí bootování ze sítě. Nainstalovat Debian je možné i z jiné distribuce (nebo ručně z instalačního média - více viz níže).</p>
+<p>Instalátor Debianu má klasickou textovou verzi, ale také grafickou, která je funkčně prakticky totožná. Pokud budete instalovat Debian 5.0, a budete chtít pomocí instalátoru vytvořit LVM, RAID, dm-crypt/LUKS, zvolte raději grafický instalátor. Textový instalátor má tendenci v tomto vydání padat o dost více než ten grafický.</p>
+<h3>Rozdělení disku</h3>
+<p>U desktopu si vystačíte i s jediným oddílem vyhrazeným pro Linux, u serveru bývá dobré vytvořit více oddílů a některé adresáře od sebe oddělit. Pokud budete využívat LVM, RAID nebo dm-crypt/LUKS, pak budete muset vytvořit kromě kořenového oddílu samostatný oddíl pro <code>/boot</code>. Je možné mít /boot oddíl zrcadlený pomocí linuxového softwarového RAIDu 1 na více disků. Pokud budete vytvářet dané pole ručně, dejte si pozor, ať ho vytvoříte tak, aby bylo možné příslušný souborový systém /boot přimountovat přímo z diskového oddílu (tedy ne z pole, ale z jednoho disku v poli). Bez toho nebude GRUB schopen se ani nainstalovat, natož bootovat (bude hlásit chybu č. 17).</p>
+<p>Kromě /boot je vhodné osamostatnit data od zbytku systému, pokud možno zahrnující jak webové aplikace, tak domovské adresáře uživatelů, databázi, poštu, apod. - toto vše je možné buď přesunout do jediného adresáře (obvykle /home), nebo rozdělit do více oddílů (třeba i s různými souborovými systémy).</p>
+<p>Velmi vhodné je též osamostatnit adresář /var/log, který mívá tendenci v určitých situacích nadměrně růst. Pokud bude na samostatném oddílu, budete mít o starost méně, protože pokud by náhodou "přetekl", neohrozí vám to zbytek systému (nedostatek místa v některých adresářích může způsobit velké problémy).</p>
+<p>Je možné osamostatnit i adresář /var, kde se nachází různá "proměnlivá" data, mj. třeba cache správce balíčků (/var/cache/apt), data z databází (MySQL, PostgreSQL, apod.), ale také kritické systémové adresáře jako /var/run, kam se zaznamenávají informace o běžících démonech, a kde by v žádném případě nemělo dojít místo.</p>
+<p>Samostatný oddíl pro swap je též velmi vhodný. Samotná velikost swap oddílu by se měla pohybovat v rozumných mezích vzhledem k dostupné paměti na daném serveru (dle <a href="http://www.linux&lt;code&gt;om/news/software/applications/8208-all-about-linux-swap-space">některých</a> zdrojů postačí polovina RAM, <a href="http://www.cyberciti.biz/tips/linux-swap-space.html">jiné zdroje</a> uvádějí sofistikovanější pravidla pro určení velikosti swapu). Obecně, vytvářet příliš velký swap je zbytečné, ale stejně tak není dobré na swap úplně zapomenout. Je třeba si uvědomit, že server běží obvykle velmi dlouho v kuse, software na něm běžící si ukládá data do paměti, ale ne vždy k nim potřebuje často přistupovat. Oblasti operační paměti, které nejsou delší dobu využívány, tak mohou být odloženy do swapu, čímž zůstane více operační paměti pro ty aplikace, které ji potřebují, nebo pro diskovou cache.</p>
+<p>Adresář /tmp může využívat buď <em>tmpfs</em>, což je virtuální souborový systém, který místo pevného disku využívá operační paměť (nebo swap), nebo pro něj vyčlenit samostatný oddíl. Do /tmp má právo zapisovat kdokoliv, tudíž je vhodné počítat s možným zaplněním tohoto oddílu a následky z toho plynoucími (bohužel, samotné zaplnění /tmp bude s některými aplikacemi či démony dělat psí kusy). Pokud budete využívat <em>tmpfs</em>, jistě mu nezapomeňte specifikovat maximální velikost.</p>
+<h3>Paměť na serveru</h3>
+<p>Na serveru je nutné sledovat využití paměti a ve chvíli, kdy začne paměť docházet, je třeba dokoupit novou (nebo situaci řešit jinak). Pokud systém vyčerpá celou paměť, nebo téměř celou paměť, začne docházet ke dvěma věcem. Systém se kriticky zpomalí tím, že začne přesouvat data z paměti do swapu a naopak (trashing) a pokud paměť skutečně dojde (včetně swapu, nebo pokud swap není), pak se nastartuje <a href="http://linux-mm.org/OOM_Killer">oom_killer</a>. To je procedura jádra, která uvolní kus paměti tím, že sestřelí nějaký běžící proces. Rozhoduje se podle určitých kritérií, ovšem ne vždy se jí podaří situaci správně ohodnotit. Není možné spoléhat na to, že <code>oom_killer</code> úspěšně sestřelí nějaký splašený proces, aniž by ohrozil procesy jiné. Pro lepší představu, v dokumentaci k příslušné proceduře se <a href="http://linux-mm.org/OOM_Killer">píše</a>:</p>
+<pre>/*
+ * oom_badness - calculate a numeric value for how bad this task has been
+ * @p: task struct of which task we should calculate
+ * @p: current uptime in seconds
+ *
+ * The formula used is relatively simple and documented inline in the
+ * function. The main rationale is that we want to select a good task
+ * to kill when we run out of memory.
+ *
+ * Good in this context means that:
+ * 1) we lose the minimum amount of work done
+ * 2) we recover a large amount of memory
+ * 3) we don't kill anything innocent of eating tons of memory
+ * 4) we want to kill the minimum amount of processes (one)
+ * 5) we try to kill the process the user expects us to kill, this
+ *    algorithm has been meticulously tuned to meet the principle
+ *    of least surprise ... (be careful when you change it)
+ */
+</pre>
+<h3>Rootovské heslo</h3>
+<p>Jelikož nejsme na desktopu, ale na serveru, kde je třeba být přeci jen zodpovědnější než na desktopu, dodávám, že heslo pro roota byste měli zvolit pečlivě a s ohledem na obecné zásady pro tvorbu <a href="http://www.linuxexpres.cz/praxe/jak-vytvorit-opravdu-silne-heslo">bezpečných hesel</a>.</p>
+<p>Dodám  jen jeden drobný postřeh z praxe - v heslech je dobré se obloukem vyhnout diakritice. Speciální znaky jsou v pořádku (hvězdička, tečka, pomlčka, apod.), ale s diakritikou obvykle bývá celá řada problémů a člověka ne vždy napadne, že problém by mohl být zrovna tady.</p>
+<h3>Přizpůsobení instalátoru a manuální instalace</h3>
+<p>Proces instalace v rámci instalátoru Debianu je možné různými způsoby ovlivňovat. Především je možné se kdykoliv vrátit k některému z předchozích kroků a cokoliv změnit pomocí klávesy [Esc]. Druhou zajímavou možností je "expertní režim", který je možný navolit v boot menu instalačního média přes <code>Advanced options | Expert install</code>. Tento režim umožňuje ovlivnit řadu parametrů, které si instalátor jinak řídí sám.</p>
+<p>Ani to ale někdy nemusí pomoci, a proto je dobré vědět, že je možné provést i plnou ruční instalaci v příkazové řádce. V takovém případě budete postupovat velmi podobně jako s instalátorem, jen ručně (nebo i kus s pomocí instalátoru) - zprovozníte síť (a připojení k Internetu), připravíte si oddíly, namountujete je někam do adresářové struktury a využijete nástroje <em>debootstrap</em> <a href="http://www.debian-administration.org/articles/426">k instalaci základu systému</a> do připraveného adresáře, takto:</p>
+<pre>debootstrap lenny /mnt/new_system</pre>
+<p>Poté je třeba upravit některé konfigurační soubory jako /etc/fstab, nakonfigurovat zavaděč (LILO nebo GRUB) a nainstalovat jej na správné místo (obvykle MBR).</p>
+<h3>Minimální instalace</h3>
+<p>U serveru je vhodné nainstalovat co nejmenší počet balíčků nutný k tomu, abyste zajistili jeho optimální funkci. Už jen z bezpečnostního hlediska - čím méně běžících procesů, čím méně balíčků, čím méně kódu, který bude na serveru aktivně využíván, tím menší pravděpodobnost výskytu nějaké zranitelnosti.</p>
+<p>Debian umí provést minimální instalaci, kdy nainstaluje skutečně pouze základ systému s tím, že si pak vy jako správci doinstalujete to, co potřebujete (a jen to, co potřebujete). Při instalaci stačí ve fázi, kdy se vás instalátor ptá na software, který má nainstalovat, odškrtnout obě výchozí zvolené volby (<strong>Desktop system</strong> a <strong>Standard installation</strong>). Tento postup doporučuji, pokud budete instalovat nový server.</p>
+<p>A tímto bych tento díl ukončil s tím, že příště proberu základní poinstalační aktivity a pozvu vás na menší exkurzi do vašeho nového systému.</p>
+
+<pre id="links">http://www.debian.org/CD/netinst/ Instalační médium pro síťovou instalaci
+http://linux-mm.org/OOM_Killer OOM Killer
+http://www.linux.com/news/software/applications/8208-all-about-linux-swap-space All about Linux swap space
+http://www.cyberciti.biz/tips/linux-swap-space.html Linux swap space
+http://www.linuxexpres.cz/praxe/jak-vytvorit-opravdu-silne-heslo Jak vytvořit opravdu silné heslo</pre>

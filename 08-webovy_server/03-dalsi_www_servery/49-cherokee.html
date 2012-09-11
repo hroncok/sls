@@ -1,0 +1,62 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Webový server Cherokee</h1>
+
+<p>Nejpoužívanějším webovým serverem je Apache. Existuje však celá řada dalších webových serverů s řadou zajímavých vlastností. Jedním z nich je rychlý a „uživatelsky přívětivý“ webový server Cherokee. A právě ten vám představím v tomto dílu.</p>
+
+<h3>Úvod</h3>
+<p>Cherokee zaujme hned v několika oblastech. V první řadě se jedná o server vyvíjený s velkým důrazem na výkon, měl by tedy být rychlejší než Apache, alespoň ve výchozím nastavení a v určitých situacích (jeden drobný benchmark naleznete v odkazech pod článkem). Webových serverů s důrazem na výkon existuje samozřejmě více, např. Lighttpd či Nginx. Cherokee má ovšem také vlastnost, která je u unixových webových serverů relativně unikátní – webové GUI. Cherokee tedy můžete nastavit pohodlně přes webové administrační rozhraní, alespoň z větší části. Díky tomu je možné uvažovat o Cherokee nejenom pro produkční server, ale také pro testovací stroje vývojářů, i když tam bude Cherokee soutěžit s balíkem <a href="http://www.apachefriends.org/en/xampp.html">XAMPP</a>, který obsahuje Apache, MySQL, PHP a Perl v jedné instalaci.</p>
+<h3>Instalace</h3>
+<p>Samotná instalace webového serveru Cherokee je v Debianu velice jednoduchá, postačí nainstalovat Cherokee z distribučních repozitářů:</p>
+<pre>aptitude install cherokee</pre>
+<p>V případě jiných distribucí by to mělo jít obdobným způsobem, Cherokee je už poměrně zaběhnutý a známý projekt.</p>
+<h3>Webové rozhraní</h3>
+<p>Jak už bylo zmíněno výše, Cherokee se konfiguruje přes webové rozhraní. Konfigurační soubor samozřejmě existuje a sídlí v <code>/etc/cherokee/cherokee.conf</code>. I když je možné jej ručně upravovat, není to doporučeno a samotný soubor neobsahuje prakticky žádné komentáře. Je rozhodně lepší a pohodlnější použít webové rozhraní. Za tímto účelem je třeba administrační webové rozhraní nejprve nahodit, k čemuž slouží následující příkaz:</p>
+<pre>cherokee-admin</pre>
+<p>Po spuštění tohoto příkazu se vám objeví výpis podobný tomuto:</p>
+<pre>Login:
+  User:              admin
+  One-time Password: ewXpVKjHp2LQbi6v
+
+Web Interface:
+  URL:               http://127.0.0.1:9090/
+
+Cherokee Web Server 1.0.8 (Jan 12 2011): Listening on port 127.0.0.1:9090, TLS
+disabled, IPv6 enabled, using epoll, 4096 fds system limit, max. 2041
+connections, caching I/O, single thread</pre>
+<p>Jak je patrné, webové rozhraní běží na portu 9090 místní smyčky (localhost). Stejně tak je patrné, že vám byly přiděleny jednorázové přihlašovací údaje, které můžete použít k přihlášení do webového rozhraní (to je chráněno klasickou HTTP autentikací).</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4538.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4538.jpg','Úvodní obrazovka administračního webového rozhraní Cherokee','1000','548'); return false;"><img alt="Úvodní obrazovka administračního webového rozhraní Cherokee" class="ph_detail" height="244" src="http://www.linuxexpres.cz/uploads/gallery/detail/4538.jpg" width="446" /></a> <span class="ph_title">Úvodní obrazovka administračního webového rozhraní Cherokee</span></p>
+<p>Pokud vám server běží na localhostu místního počítače, není to problém, stačí spustit prohlížeč a zadat URL <code>http://127.0.0.1:9090/</code>. Běží-li vám server na vzdáleném počítači, máte dvě možnosti. Buď použijete SSH tunel a namapujete si vzdálený port 9090 na místní port, nebo webové rozhraní pustíte na síť, ale v takovém případě by bylo vhodné jej nějakým způsobem ochránit. Zmíněný SSH tunel můžete vytvořit takto:</p>
+<pre>ssh -N -f user@server -L 9090:127.0.0.1:9090</pre>
+<p>Pokud se rozhodnete pro druhou variantu, použijte parametr <code>-b</code> a specifikujte IP adresu, na které má <code>cherokee-admin</code> naslouchat, takto:</p>
+<pre>cherokee-admin -b 4.3.2.1</pre>
+<p>Před tím by ovšem bylo vhodné daný port zabezpečit, aby se k němu nemohl připojit někdo jiný. Za tímto účelem můžete použít linuxový firewall (Netfilter) a konfigurační nástroj <code>iptables</code> a provést něco podobného tomuto:</p>
+<pre>iptables -I INPUT -p tcp --dport 9090 -j REJECT
+iptables -I INPUT -p tcp --dport 9090 -s 1.2.3.4 -j ACCEPT</pre>
+<p>Jen pro informaci, každé z těchto pravidel se vždy přidá na začátek řetězu (parametr <code>-I</code>), proto jsou pravidla zapsána v „obráceném“ pořadí. První pravidlo, které skončí jako druhé, zakáže přístup na port 9090. Druhé pravidlo, které skončí jako první, povolí přístup na port 9090 z IP adresy <code>1.2.3.4</code>.</p>
+<p>Samotné konfiguraci se příliš věnovat nebudu, neboť s grafickým (resp. webovým) rozhraním by nastavení mělo být relativně intuitivní. Porty a IP adresy pro naslouchání specifikujete na kartě <strong>General | Ports to listen</strong>. Virtuální servery se konfigurují na kartě <strong>vServers</strong>. Pro každý virtuální server můžete mít vlastní <strong>D</strong><strong>ocument root</strong> (záložka <strong>Basics</strong> u zvoleného virtuálního serveru) a řadu pravidel pro zpracování obsahu (záložka <strong>Behaviour</strong>). To, který virtuální server se vám zobrazí za kterých okolností, nastavujete na kartě <strong>Host match</strong>. Můžete specifikovat jméno, wildcard (např. *.example.org), IP adresy či regulární výrazy.</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4540.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4540.jpg','Konfigurace virtuálních serverů v Cherokee','1000','730'); return false;"><img alt="Konfigurace virtuálních serverů v Cherokee" class="ph_detail" height="326" src="http://www.linuxexpres.cz/uploads/gallery/detail/4540.jpg" width="446" /></a> <span class="ph_title">Konfigurace virtuálních serverů v Cherokee</span></p>
+<p>Po jakékoliv změně nezapomeňte konfiguraci uložit klepnutím na <strong>Save</strong> vpravo nahoře. Pokud bude potřeba restart, nabídne vám Cherokee několik možností – nerestartovat, provést bezpečný restart a restartovat natvrdo. Určitě zkuste nejdříve <strong>Graceful restart</strong>.</p>
+<h3>PHP</h3>
+<p>Jelikož Cherokee přistupuje k PHP přes rozhraní CGI, je potřeba nainstalovat balíček <code>php5-cgi</code> a ujistit se, že v souboru <code>/etc/php5/cgi/php.ini</code> je řádka s následujícím obsahem:</p>
+<pre>cgi.fix_pathinfo=1</pre>
+<p>Nastavení PHP v Cherokee je uživatelsky přívětivé, jen je důležité vědět, odkud začít. Klepněte na kartu <strong>vServers</strong> a zvolte si požadovaný virtuální server. Podívejte se na kartu <strong>Behaviour</strong> a klikněte na tlačítko <strong>Rule Management</strong>. V levém horním rohu rozhraní vytvořte nové pravidlo klepnutím na <strong>New</strong>. Měl by se spustit průvodce, který vidíte na obrázku níže. Zvolte <strong>Languages</strong> a následně <strong>PHP</strong>. Klepněte na <strong>Add</strong> a následně na <strong>Create</strong>. Konfiguraci nezapomeňte uložit, popřípadě server restartovat. Tím by mělo být nastavení hotové – můžete jej zkusit zkontrolovat vytvořením testovacího souboru s příponou <code>php</code> a obsahem:</p>
+<pre>&lt;?php phpinfo(); ?&gt;</pre>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4539.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4539.jpg','Průvodce pro konfiguraci PHP interpretu v Cherokee','994','560'); return false;"><img alt="Průvodce pro konfiguraci PHP interpretu v Cherokee" class="ph_detail" height="251" src="http://www.linuxexpres.cz/uploads/gallery/detail/4539.jpg" width="446" /></a> <span class="ph_title">Průvodce pro konfiguraci PHP interpretu v Cherokee</span></p>
+<p>Dodám, že webové rozhraní Cherokee se poměrně dost měnilo mezi jednotlivými verzemi. Tento návod je určen pro Debian Squeeze a Cherokee 1.0.8. U jiných verzí může být rozvržení webového rozhraní Cherokee mírně odlišné.</p>
+<h3>Cherokee a SSL</h3>
+<p>Konfigurace SSL v Cherokee přívětivá rozhodně není, alespoň v případě Debianu Squeeze. Správce očekávající jednoduché nastavení pak může skončit v <a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=607898">e-mailové konferenci</a> Debianu s domněnkou, že podpora pro SSL/TLS nebyla do balíčků Cherokee zakompilována, i když opak je pravdou.</p>
+<p>Jako první krok nainstalujte knihovnu <code>libssl</code> pro Cherokee. Ta není v závislostech Cherokee, takže nebyla nainstalována společně s ním. To můžete provést následujícím příkazem.</p>
+<pre>aptitude install libcherokee-mod-libssl</pre>
+<p>Poté byste měli nastavit SSL/TLS port. Klepněte na <strong>General | Network</strong>. U položky <strong>SSL/TLS back-end</strong> vyberte z rozbalovacího seznamu možnost <strong>OpenSSL / libssl</strong>. Nyní už můžete nastavit SSL port na kartě <strong>Ports to listen</strong>. Přidejte port <strong>443</strong> a zaškrtněte u něj políčko <strong>TLS/SSL port</strong>.</p>
+<p>V tuto chvíli zbývá už jen přiřadit certifikáty jednotlivým virtuálním serverům (karta <strong>Security</strong> u zvoleného virtuálního serveru). Práce s certifikáty již byla v tomto seriálu popsána, konkrétně <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">v článku o konfiguraci Apache</a>. Cherokee implicitně využívá SNI (<a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">Server Name Identification</a>), takže můžete hostovat více virtuálních serverů s různými certifikáty na jedné IP adrese. Problém s touto metodou je v (ne)podpoře ze strany některých prohlížečů na některých operačních systémech (viz <a href="http://en.wikipedia.org/wiki/Server_Name_Indication#Support">seznam na Wikipedii</a>). Pokud prohlížeč nepodporuje SNI, Cherokee mu pošle certifikát, který je přiřazen k výchozímu virtuálnímu serveru.</p>
+<p>Více informací o nastavení SSL/TLS v Cherokee <a href="http://www.cherokee-project.com/doc/cookbook_ssl.html">naleznete</a> na webu projektu.</p>
+<h3>Paměťová náročnost a OpenVZ</h3>
+<p>Z mého testování vyplynula poměrně nepříjemná informace – i když je Cherokee paměťově nenáročný (z hlediska reálně zabrané paměti), rezervuje si velké hodnoty virtuální paměti (neboť spouští poměrně hodně vláken), což na fyzickém stroji nevadí, ale může to vadit u některých virtualizačních řešení, zejména u těch založených na kontejnerech (OpenVZ atd.). Tam se totiž tato paměť, byť nevyužitá, započítává do paměťové kvóty. Nejrychlejším řešením je minimalizovat počet vláken – v konfiguraci Cherokee je to karta <strong>Advanced | Resources</strong> a položka <strong>Thread Number</strong> (nastavte třeba na <strong>1</strong>). V <a href="http://www.lowendbox.com/blog/reduce-stack-limit-for-multi-thread-apps/">článku na lowendbox.com</a> je navrženo ještě jiné, možná trošku krkolomnější, nicméně také velmi účinné řešení. Dodám, že na Xenu či KVM tento problém není.</p>
+
+<pre id="links">http://www.cherokee-project.com/ Web projektu
+http://arnisoft.com/239/server-benchmark-apache-nginx-cherokee/ Server Benchmark: Apache, Nginx, Cherokee, Lighttp
+http://www.howtoforge.com/installing-cherokee-with-php5-and-mysql-support-on-debian-squeeze Installing Cherokee With PHP5 And MySQL Support On Debian Squeeze
+http://www.lowendbox.com/blog/reduce-stack-limit-for-multi-thread-apps/ Reduce Stack Limit for Multi-Thread Apps
+http://www.cherokee-project.com/doc/cookbook_ssl.html Cookbook: SSL, TLS and certificates</pre>

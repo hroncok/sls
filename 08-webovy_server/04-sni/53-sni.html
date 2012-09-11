@@ -1,0 +1,164 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: SNI, webové servery a prohlížeče</h1>
+
+<p>SNI (Server Name Indication) je metoda umožňující provoz více HTTPS virtuálních webů (virtual host) s různými certifikáty na jedné jediné IP adrese. V tomto článku se dozvíte, jak to vypadá s podporou SNI na straně prohlížečů i na straně serverů, a pochopitelně se také dozvíte, jak SNI nakonfigurovat na nejpoužívanějších linuxových webových serverech.</p>
+
+<h3>Úvod</h3>
+<p>Zásadním problémem HTTPS bylo po dlouhou dobu pořadí vykonávaných činností, kdy se v prvním kroku vytvořilo SSL spojení, a teprve přes něj se přenesl HTTP požadavek se jménem webu, který klient požadoval. To znamenalo, že webový server nemohl při vytváření SSL spojení vědět, který certifikát má klientovi předložit. V praxi to znamenalo (a bohužel stále v případě mnoha serverů znamená), že na jedné IP adrese mohly být virtuální weby pouze s jedním certifikátem. Pokud jste chtěli použít pro každý virtuální web jiný certifikát, museli jste si zajistit odpovídající počet IP adres a každé IP adrese přiřadit konkrétní certifikát (a webovou prezentaci).</p>
+<p>Tento problém se bohužel nedá dost dobře řešit na úrovni certifikátů – i když je možné vytvořit certifikát pro více domén, certifikát může být vydán pouze pro jednu osobu či organizaci. Řešení tedy muselo přijít v podobě rozšíření protokolů SSL a TLS, a právě tomuto rozšíření se říká SNI (Server Name Indication). Toto rozšíření umožňuje prohlížeči předat jméno požadovaného webu ještě před vytvářením šifrovaného spojení, což dává serveru možnost servírovat i na jediné IP adrese různé certifikáty podle toho, který web klient požaduje.</p>
+<h3>Podpora v prohlížečích</h3>
+<p>Aby mohlo SNI fungovat, musí být podporováno na straně serveru, ale také na straně klienta. Jako správci serverů máte serverovou část pod kontrolou, tudíž hlavní problém spočívá v podpoře na straně klientů. V této oblasti se sice hnuly ledy a řada prohlížečů dnes SNI bez problémů podporuje, ale ani zdaleka ne všechny a ne na všech systémech. Problémy jsou zejména na Windows XP a mobilních zařízeních, ale i na Linuxu. Aktuální seznam naleznete <a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">na Wikipedii</a>. Dle tohoto zdroje SNI podporují následující verze prohlížečů:</p>
+<ul>
+<li>
+<p>IE 7 a výše, ovšem ne na 	Windows XP, kde SNI v IE nefunguje bez ohledu na verzi</p>
+</li>
+<li>
+<p>Mozilla Firefox 2.0 a vyšší</p>
+</li>
+<li>
+<p>Opera 8.0 a vyšší</p>
+</li>
+<li>
+<p>Google Chrome (na XP až od verze 	6)</p>
+</li>
+<li>
+<p>Safari 2.1 a výše</p>
+</li>
+<li>
+<p>Android – výchozí prohlížeč 	od verze Honeycomb</p>
+</li>
+<li>
+<p><a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">atd.</a></p>
+</li>
+</ul>
+<p>SNI naopak nepodporuje třeba Konqueror, IE a Safari na XP, wget, Windows Mobile až po 6.5, Oracle Java JSSE <a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">atd</a>. Co se Konqueroru týče, podpora SNI <a href="https://bugs.kde.org/show_bug.cgi?id=122433">snad</a> velmi brzy přibude (měla by být součástí verze 4.7), ale než se nový Konqueror dostane do distribucí, chvíli to ještě potrvá.</p>
+<p>Jak je vidět, není to sice úplně špatné, ale stejně tak to ještě pořád není to pravé ořechové. Pokud se tedy budete rozhodovat o nasazení SNI, určitě berte na vědomí, že ne všichni vaši klienti jej patrně podporují.</p>
+<p>S tím se pojí zásadní otázka – co se stane, pokud váš server navštíví klient nepodporující SNI? Server by měl zareagovat více či méně podle očekávání, tzn. měl by použít výchozí certifikát (obvykle první certifikát v definici virtuálních webů) a po vytvoření SSL spojení naservírovat klientovi správný web. Klient se tedy na web dostane, ale ne bez obvyklého varování o problému s předloženým certifikátem.</p>
+<h3>Podpora ve webových serverech</h3>
+<p>Dle Wikipedie podporují SNI webové servery v následujících verzích:</p>
+<ul>
+<li>
+<p>Apache 2.2.12 a výše</p>
+</li>
+<li>
+<p>Cherokee zkompilované s podporou 	TLS</p>
+</li>
+<li>
+<p>lighttpd 1.4 a 1.5 s patchem nebo 	1.4.24 a výše bez patche</p>
+</li>
+<li>
+<p>Nginx 0.5.32 a vyšší, podpora musí být zakompilována a 	podmínkou je OpenSSL podporující SNI, tj. verze 0.9.8f a vyšší</p>
+</li>
+</ul>
+<p>S výjimkou serveru Apache, kde zmiňuji i řešení pro starší systémy (Debian Lenny), by příklady uvedené níže měly fungovat až v Debianu Squeeze s tím, že na starších verzích Debianu jsem testování neprováděl.</p>
+<h4>SNI a Apache</h4>
+<p>Máte-li k dispozici Apache 2.2.12 nebo novější, můžete použít <code>mod_ssl</code>. Na starších systémech musíte použít <code>mod_gnutls</code>. Následující ukázka je určena pro <code>mod_ssl</code>:</p>
+<pre>Listen 443
+    
+NameVirtualHost *:443
+
+&lt;VirtualHost *:443&gt;
+  DocumentRoot /var/www/example1.cz
+  ServerName www.example1.cz
+
+  SSLEngine On
+  SSLCertificateFile /etc/apache2/example1.pem
+  SSLCertificateKeyFile /etc/apache2/example1.key
+
+&lt;/VirtualHost&gt;
+
+&lt;VirtualHost *:443&gt;
+  DocumentRoot /var/www/example2.cz
+  ServerName www.example2.cz
+  
+  SSLEngine On
+  SSLCertificateFile /etc/apache2/example2.pem
+  SSLCertificateKeyFile /etc/apache2/example2.key
+
+&lt;/VirtualHost&gt;</pre>
+<p>Jak je vidět, na samotném nastavení není nic obtížného, postačí klasický <code>NameVirtualHost</code> a pak jednotlivé virtuální weby lišící se jménem a certifikáty. V případě, že Apache získá požadavek od nekompatibilního klienta, použije certifikát prvního takto definovaného virtuálního webu, tedy v tomto případě to bude <code>example1</code>.</p>
+<p>Pokud byste raději, aby Apache v případě nekompatibilního klienta vygeneroval chybovou hlášku 403 a nedovolil klientovi přístup, nastavte volbu <code>SSLStrictSNIVHostCheck</code> na „<code>on</code>“ (výchozí nastavení je „<code>off</code>“, takže pokud tuto volbu neuvedete, Apache se zachová, jak bylo uvedeno výše).</p>
+<p>Máte-li starší systém se starší verzí Apache, zbývá vám kromě možnosti použít novější Apache z backportů jen <code>mod_gnutls</code>. Konfigurace SNI tímto způsobem by vypadala takto (nezapomeňte modul <code>gnutls</code> nejprve nainstalovat a aktivovat):</p>
+<pre>Listen 443
+    
+NameVirtualHost *:443
+
+&lt;VirtualHost *:443&gt;
+  DocumentRoot /var/www/example1.cz
+  ServerName www.example1.cz
+
+  GnuTLSEnable on
+  GnuTLSExportCertificates on
+  GnuTLSCertificateFile /etc/apache2/example1.pem
+  GnuTLSKeyFile /etc/apache2/example1.key
+ 
+&lt;/VirtualHost&gt;
+
+&lt;VirtualHost *:443&gt;
+  DocumentRoot /var/www/example2.cz
+  ServerName www.example2.cz
+
+  GnuTLSEnable on
+  GnuTLSExportCertificates on
+  GnuTLSCertificateFile /etc/apache2/example2.pem
+  GnuTLSKeyFile /etc/apache2/example2.key
+ 
+&lt;/VirtualHost&gt;</pre>
+<h4>SNI a Lighttpd</h4>
+<p>Pokud máte aktivovaný modul <code>ssl</code>, postačí do definice virtuálních webů přidat direktivu <code>ssl.pemfile</code> s odkazem na soubor obsahující jak certifikát, tak privátní klíč, takto:</p>
+<pre>$HTTP["host"] == "www.example1.cz" {
+    server.document-root = "/var/www/example1.cz"
+    ssl.pemfile = "/etc/lighttpd/server.pem" 
+}
+$HTTP["host"] == "www.example2.cz" {
+    server.document-root = "/var/www/example2.cz"
+    ssl.pemfile = "/etc/lighttpd/server2.pem" 
+}</pre>
+<h4>SNI a Cherokee</h4>
+<p><a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-webovy-server-cherokee">Cherokee</a> používá SNI již ve výchozím nastavení jako mechanismus pro odlišení SSL virtuálních webů, takže zde není návod třeba. Jediné, na co byste si měli dát pozor, je přiřazení certifikátu výchozímu virtuálnímu serveru, jehož certifikát se použije v případě, že klient SNI nepodporuje.</p>
+<h4>SNI a Nginx</h4>
+<p>Použití SNI v případě serveru Nginx je také relativně jednoduché, resp. postačí podobná strategie jako v případě serveru Apache, tj. normálně definovat virtuální weby běžící na portu 443 se zapnutým <code>ssl</code> (příklad viz níže). Stejně jako u Apache platí i zde, že certifikát prvního virtuálního webu se použije jako výchozí certifikát pro nekompatibilní klienty.</p>
+<p>Abyste si ověřili, zdali Nginx podporuje SNI, resp. byl zkompilován s podporou SNI, můžete použít následující příkaz:</p>
+<pre>nginx -V</pre>
+<p>Ve výpisu byste měli vidět následující řádku:</p>
+<pre>TLS SNI support enabled</pre>
+<p>Pokud ji neuvidíte, nezbude vám než si Nginx zkompilovat ručně. Následuje příklad konfigurace SNI v Nginx:</p>
+<pre>server {
+  listen   443;
+  server_name  www.example1.cz;
+
+  ssl  on;
+  ssl_certificate  /etc/nginx/example2.pem;
+  ssl_certificate_key /etc/nginx/example2.key;
+
+  location / {
+    root   /var/www/example1.cz;
+    index  index.html index.htm;
+  }
+}
+
+server {
+  listen   443;
+  server_name  www.example2.cz;
+
+  ssl  on;
+  ssl_certificate  /etc/nginx/example1.pem;
+  ssl_certificate_key /etc/nginx/example1.key;
+
+  location / {
+    root   /var/www/example2.cz;
+    index  index.html index.htm;
+  }
+}</pre>
+<h3>Pár slov na závěr</h3>
+<p>V úvodu zmíněný problém s HTTPS řeší nejenom SNI, ale také svým způsobem protokol IPv6, i když přechod klientů na IPv6 bude možná podstatně pomalejší než přechod klientů na prohlížeče schopné používat SNI. Faktem nicméně je, že podpora SNI na straně klientů v tuto chvíli stále není bezproblémová a nějakou dobu ještě nebude, což celkem logicky brzdí nasazení SNI na produkční servery.</p>
+
+<pre id="links">http://en.wikipedia.org/wiki/Server_Name_Indication Server Name Indication (anglická Wikipedie)
+http://cs.wikipedia.org/wiki/Server_Name_Indication Server Name Indication (česká Wikipedie)
+http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI SSL with Virtual Hosts Using SNI (Apache wiki)
+http://www.outoforder.cc/projects/apache/mod_gnutls/docs/ mod_gnutls Documentation
+http://redmine.lighttpd.net/wiki/1/Docs:SSL#Server-Name-Indication-SNI Secure HTTP (Lighttpd wiki)
+http://www.cherokee-project.com/doc/cookbook_ssl.html Cookbook: SSL, TLS and certificates (Cherokee dokumentace)
+http://nginx.org/en/docs/http/configuring_https_servers.html Configuring HTTPS servers (Nginx dokumentace)</pre>

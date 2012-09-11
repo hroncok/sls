@@ -1,0 +1,96 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Jabber (XMPP) server ejabberd</h1>
+
+<p>V minulém díle jsem nakousl problematiku Jabber/XMPP serverů. Tento díl volně navazuje na předchozí a představí vám robustní a výkonný XMPP server ejabberd.</p>
+
+<h3>Úvod</h3>
+<p>Pokud jste si neprošli <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-xmpp-jabber-server-prosody">minulý díl</a> seriálu, doporučuji, abyste tak učinili, jelikož se v něm nachází některé obecné informace o Jabberu/XMPP, zejména pak nastavení SRV záznamů v DNS.</p>
+<p>Ejabberd je výkonný XMPP server napsaný v jazyce Erlang a šířený pod licencí GNU/GPL. Pokud se minule představený server Prosody výborně hodil na soukromé VPS a na servery pro relativně málo uživatelů, ejabberd se výborně hodí na větší servery s větším provozem, kde se také velmi často používá. To mu ovšem přesto nebrání fungovat i na menších serverech, kde se dá rovněž nasadit (pouze spotřeba paměti v porovnání s Prosody je o něco vyšší). Ejabberd je používán mnoha známými subjekty, jako např. BBC Radio, KDE Talk, největším českým Jabber serverem Jabbim či jistou velmi známou sociální sítí.</p>
+<p>Ejabberd podporuje fungování v režimu clusteru, replikaci i rozložení zátěže, je tedy pomocí něj možné postavit řešení s vysokou dostupností. Provoz více domén (virtual hosting) je rovněž samozřejmostí. Jako datové úložiště je používán distribuovaný <a href="http://cs.wikipedia.org/wiki/Systém_řízení_báze_dat">SŘBD</a> (DBMS) Mnesia, který byl vyvinut pro jazyk Erlang. Prostřednictvím ODBC je však možné použít i jiné SŘBD jako např. MySQL či PostgreSQL.</p>
+<p>Jelikož Mnesia je distribuovaná databáze, ukládá si kvůli zachování konzistence i jméno příslušného uzlu, tedy hostname. Změna hostname nebo přesun databáze na jiný stroj má pak za následek odmítnutí spuštění ejabberdu. Chcete-li změnit hostname nebo přesunout databázi jinam, podívejte se na heslo „Change Computer Hostname“ v <a href="http://www.process-one.net/docs/ejabberd/guide_en.html">dokumentaci</a> projektu, kde je postup popsán. Aby to nebylo jednoduché, tento postup funguje pouze v ejabberdu řady 2.1.x (to je ta, která je momentálně v Debianu Squeeze), pro řadu 2.0.x (Debian Lenny) je k dispozici <a href="http://www.ejabberd.im/migrate-host">jiný</a> návod, který je o něco složitější a také trochu dobrodružnější, jelikož se v něm nevyhnete použití Erlang shellu.</p>
+<h3>Instalace</h3>
+<p>Čtete-li tento seriál pravidelně, tušíte už asi, že instalace bude obnášet instalaci stejnojmenného balíčku. V Debianu by to šlo provést příkazem:</p>
+<pre>aptitude install ejabberd</pre>
+<p>Jak je v Debianu zvykem, součástí instalace balíčku je i jeho zprovoznění, ejabberd se tedy po instalaci rovnou spustí.</p>
+<h3>Základní konfigurace</h3>
+<p>Pokud s ejabberdem začínáte, není od věci jako první krok zálohovat konfigurační soubor (<code>/etc/ejabberd/ejabberd.cfg</code>). Stejně jako v případě XMPP serveru Prosody, konfigurační soubor je de facto psán v jazyce, ve kterém je napsán daný server. Syntax je tedy podstatně odlišná od toho, co znáte z klasických unixových konfiguračních souborů, a není těžké udělat chybu, kvůli které se pak server už nespustí. Proto je dobré mít zálohu, ke které se můžete vrátit nebo se kterou můžete porovnat aktuální stav.</p>
+<h4>Obsluhované domény (virtual hosty)</h4>
+<p>Jako první zvolte doménu nebo domény, které bude ejabberd obsluhovat. K tomu slouží proměnná hosts, přičemž výchozí hodnotou je „localhost“. Tuto hodnotu tedy změňte na příslušnou doménu, takto:</p>
+<pre>{hosts, ["example.cz"]}.</pre>
+<p>Specifikovat můžete samozřejmě i více domén, takto:</p>
+<pre>{hosts, ["example.cz", "example.org"]}.</pre>
+<h4>Nastavení certifikátu pro jednu doménu</h4>
+<p>Součástí instalace ejabberd je vygenerovaný certifikát <code>/etc/ejabberd/ejabberd.pem</code>, podepsaný sám sebou. Obsluhujete-li jen jednu doménu a máte k dispozici vlastní certifikát, upravte cestu v proměnné <code>certfile</code> v rámci specifikace portu 5222 (předposlední řádek výpisu):</p>
+<pre>  {5222, ejabberd_c2s, [
+                        {access, c2s},
+                        {shaper, c2s_shaper},
+                        {max_stanza_size, 65536},
+                        %%zlib,
+                        starttls, {certfile, "/etc/ejabberd/ejabberd.pem"}
+                       ]},</pre>
+<h4>Nastavení certifikátů pro více domén</h4>
+<p>Máte-li více obsluhovaných domén a více certifikátů, je změna malinko složitější. Jako první krok odstraňte specifikaci certifikátu (<code>certfile</code>) z výše uvedeného výpisu, takto:</p>
+<pre>  {5222, ejabberd_c2s, [
+                        {access, c2s},
+                        {shaper, c2s_shaper},
+                        {max_stanza_size, 65536},
+                        %%zlib,
+                        starttls
+                       ]},</pre>
+<p>Poté na globální úroveň, třeba těsně za konec sekce <code>listen</code> (tj. za první výskyt znaků „<code>]}.</code>“ bez uvozovek od počátku definice sekce <code>listen</code>) umístěte definice doménových certifikátů:</p>
+<pre>{domain_certfile, "example.cz", "/etc/ejabberd/example_cz.pem"}.
+{domain_certfile, "example.org", "/etc/ejabberd/example_org.pem"}.</pre>
+<h4>Aktivace starého SSL portu 5223</h4>
+<p>Tento port by se v dnešní době již neměl používat, nicméně kvůli starým klientům můžete zvážit jeho aktivaci. Je zakomentovaný, stačí jej tedy odkomentovat:</p>
+<pre>  {5223, ejabberd_c2s, [
+                      {access, c2s},
+                      {shaper, c2s_shaper},
+                      {max_stanza_size, 65536},
+                      zlib,
+                      tls, {certfile, "/etc/ejabberd/ejabberd.pem"}
+                     ]},</pre>
+<h4>Správa uživatelů z příkazové řádky</h4>
+<p>Pomocí nástroje <code>ejabberdctl</code> můžete ejabberd řídit z příkazové řádky. Relevantní příkazy pro správu uživatelských účtů jsou:</p>
+<ul>
+<li>
+<p>vytvoření uživatele: 	<code>ejabberdctl register jméno doména.cz heslo</code></p>
+</li>
+<li>
+<p>smazání uživatele: <code>ejabberdctl 	unregister jméno doména.cz heslo</code></p>
+</li>
+<li>
+<p>změna hesla uživatele: <code>ejabberdctl 	change_password jméno doména novéHeslo</code></p>
+</li>
+</ul>
+<h4>Webové rozhraní a nastavení účtu správce</h4>
+<p>Ejabberd obsahuje jednoduché webové rozhraní pro správu a zobrazení statistik. Toto rozhraní běží na portu 5280 a vyžaduje HTTP autentikaci. Jelikož ve výchozím stavu není nastaven žádný správce, nemůžete se k němu nijak přihlásit. Za tímto účelem si vytvořte nějaký Jabber účet:</p>
+<pre>ejabberdctl register jméno doména.cz heslo</pre>
+<p>Poté upravte nastavení administrátora v konfiguračním souboru, takto:</p>
+<pre>{acl, admin, {user, "jméno", "doména.cz"}}.</pre>
+<p>Následně server restartujte. Pak byste měli mít možnost se přihlásit k webovému rozhraní prostřednictvím následujícího URL: <code>http://doména.cz:5280/admin</code>.</p>
+<h3>Zabezpečení</h3>
+<p>Ejabberd je trošku problematičtější zabezpečit, jelikož otevírá více portů nad rámec standardních 5222 a 5269, které slouží k připojení klientů a komunikaci mezi servery (v tomto pořadí). Tyto porty samozřejmě není třeba zavírat, nicméně port 5280, kterému náleží webové rozhraní ejabberdu, světu vystavovat nemusíte. Zde můžete buď webové rozhraní omezit firewallem, nebo jej zrušit úplně. Úplné zrušení provedete zakomentováním definice portu 5280, takto:</p>
+<pre>%%  {5280, ejabberd_http, [
+%%                         %%{request_handlers,
+%%                         %% [
+%%                         %%  {["pub", "archive"], mod_http_fileserver}
+%%                         %% ]},
+%%                         %%captcha,
+%%                         http_bind,
+%%                         http_poll,
+%%                         web_admin
+%%                        ]}</pre>
+<p>Zde upozorním na jeden problém – tato položka je na konci seznamu, tudíž za specifikací portu 5280 již není čárka (viz konec posledního řádku výpisu). Za poslední položkou seznamu nesmí čárka následovat, tudíž ji musíte odstranit z poslední nezakomentované položky seznamu (jelikož ta se právě stala poslední, a tudíž má na konci nepovolenou čárku). Pokud jste neprováděli žádné změny sekce <code>listen</code> a používáte Debian Squeeze, pak poslední nezakomentovanou položkou před specifikací portu 5280 je specifikace portu 5269. Na jejím konci uvidíte „<code>]},</code>“, a zde stačí odstranit čárku.</p>
+<p>Kromě portu 5280 je velmi vhodné, ne-li ještě vhodnější, zablokovat port 4369, který náleží démonu epmd (Erlang Port Mapper Daemon). To je malý nameserver, který je využíván Erlang aplikacemi při komunikaci mezi uzly v clusteru. K němu potřebuje mít přístup ejabberd běžící na místním stroji (můžete tedy zakázat přístup odjinud než z lokální smyčky). Stavíte-li cluster, musí mít k tomuto portu přístup všechny jeho uzly.</p>
+<h3>Aktualizace ejabberdu</h3>
+<p>Při povýšení verze vámi používané distribuce si na ejabberd určitě dejte pozor, jelikož se občas stane, že přechod na novou verzi není hladký a vyžaduje ruční zásah. Určitě si přečtěte poznámky k novému vydání a k procesu aktualizace, nebo ještě lépe – upgrade si někde bokem vyzkoušejte.</p>
+
+<pre id="links">http://www.ejabberd.im/ ejabberd (stránka projektu)
+http://www.process-one.net/docs/ejabberd/guide_en.html Oficiální dokumentace ejabberd
+http://www.codernotes.com/2011/173/install-and-configure-ejabberd-on-debian-6-squeeze/ Install and Configure Ejabberd on Debian 6 
+http://en.wikipedia.org/wiki/Ejabberd Wikipédie: Erlang
+http://en.wikipedia.org/wiki/Mnesia Wikipédie: Mnesia
+http://cs.wikipedia.org/wiki/Extensible_Messaging_and_Presence_Protocol XMPP (Popis protokolu na české Wikipédii)
+http://www.jabber.cz/wiki/Hlavn%C3%AD_strana Česká Jabber wiki</pre>

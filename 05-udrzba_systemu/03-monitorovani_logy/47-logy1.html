@@ -1,0 +1,79 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Sledování logů pomocí nástroje logcheck</h1>
+
+<p>Každý zodpovědný správce linuxového serveru sleduje, co se na serveru děje, zdali nedochází k nějakým problémům či zdali nedošlo k nějakému bezpečnostnímu incidentu. Sledování serveru zahrnuje kromě monitorování základních veličin i prohlížení a sledování logů. Jelikož ruční procházení megabytů logů není ani pohodlné, ani reálné, existují nástroje, které tuto činnost usnadňují. Jedním z těchto nástrojů, konkrétně pak nástrojem logcheck, se bude zabývat tento díl.</p>
+
+<h3>Stručný úvod do logů</h3>
+<p>Jak jistě víte, logy jsou soubory obsahující hlášení různých komponent systému, počínaje jádrem až po hlášení jednotlivých démonů. Zaznamenávání systémových hlášení má na starosti démon <code>syslog</code>. Aby to nebylo jednoduché, existuje hned několik implementací syslogu. V Debianu je výchozí <code>rsyslog</code>, jehož konfigurační soubor sídlí v <code>/etc/rsyslog.conf</code> (a jeho doplňky v <code>/etc/rsyslog.d</code>). Zde se obvykle nastavuje především to, jaké hlášky putují do jakých logů.</p>
+<p>Samotné soubory s logy sídlí ve <code>/var/log</code>, přičemž jednotlivé záznamy bývají rozděleny do řady souborů kvůli snazšímu vyhledávání. Mezi podstatné systémové logy v Debianu patří <code>messages</code>, <code>syslog</code>, <code>auth.log</code>, <code>debug</code>, <code>kern.log</code> a <code>mail.log</code>. Jednotliví démoni si obvykle založí adresář ve <code>/var/log</code> a zaznamenávají svoje hlášky do souborů v něm. Je nutné zmínit, že v jiných distribucích může být (a bývá) nastavení syslogu jiné, a tudíž i obsah jednotlivých souborů či jejich názvy se mohou lišit.</p>
+<p>Jelikož logy mají tendenci s časem narůstat, provádí se jejich rotace a následný výmaz. Rotace logů způsobí, že po určité definované době se aktuální soubor přejmenuje, popřípadě ještě zkomprimuje, a začne se logovat do nového. Staré logy se pak vymažou. Toto chování má na starosti nástroj <code>logrotate</code>, který má konfigurační soubory v <code>/etc/logrotate.conf</code> a pro jednotlivé služby pak v <code>/etc/logrotate.d</code>.</p>
+<p>Na závěr ještě doplním, že logování se může nasměrovat nejenom do souborů, ale je také možné jednotlivá hlášení přenášet sítí na nějaký počítač, který bude hlášky skladovat. To pak může pomoci v případě napadení, kdy útočník na napadeném stroji vymaže systémové logy. Pokud ovšem budou všechny hlášky kopírovány nebo ukládány mimo napadený počítač, na kterém bude přístupný třeba pouze démon syslog, pak bude mít útočník smůlu (nebude-li mít k dispozici exploit pro danou verzi syslogu).</p>
+<h3>Práce s logy</h3>
+<p>Možností, jak sledovat či efektivně prohlížet logy je celá řada. Samotné prohlížení logů lze realizovat pohodlně pomocí nástroje <code>less</code>, který patrně dobře znáte, či <code>zless</code>, který slouží k prohlížení komprimovaných souborů. Tyto nástroje jsou interaktivní (na rozdíl třeba od <code>more</code>), po textu je možné se pohybovat a hledat velmi podobným způsobem jako v editoru Vi. Pro úplnost uvádím seznam základních klávesových zkratek:</p>
+<ul>
+<li>
+<p><code>h</code>, <code>j</code>, 	<code>k</code>, <code>l</code> - 	posun vlevo, dolu, nahoru a vpravo o jeden znak/řádek (ekvivalent 	šipek)</p>
+</li>
+<li>
+<p><code>g</code> - 	přesun na začátek souboru</p>
+</li>
+<li>
+<p><code>G</code> - 	přesun na konec souboru</p>
+</li>
+<li>
+<p><code>/</code> - 	vyhledat zadaný výraz od kurzoru dolů</p>
+</li>
+<li>
+<p><code>?</code> - 	vyhledat zadaný výraz od kurzoru nahoru</p>
+</li>
+<li>
+<p><code>n</code> - 	posun po směru vyhledávání na další výskyt výrazu</p>
+</li>
+<li>
+<p><code>N</code> - 	posun proti směru vyhledávání na další výskyt výrazu</p>
+</li>
+<li>
+<p><code>&amp;</code> - zobrazit pouze řádky odpovídající zadanému výrazu</p>
+</li>
+<li>
+<p><code>h</code> - 	zobrazit nápovědu</p>
+</li>
+<li>
+<p><code>q</code> - ukončení programu</p>
+</li>
+</ul>
+<p>Pokud chcete v logu nebo celém stromu logů hledat nějaký výraz, určitě vám pomůže nástroj <code>grep</code>, popřípadě jeho rekurzivní režim <code>grep -R</code>.</p>
+<h3>Sledování logů</h3>
+<p>Inspekci logů můžete provádět ručně, ale jak už bylo řečeno v úvodu článku, je to přinejmenším nepraktické, zejména, pokud každý den přibudou tisíce či statisíce záznamů. Praktičtější je použít nástroj, který z logů vytáhne to podstatné a pošle vám to e-mailem. Mezi tyto nástroje lze zařadit <code>logcheck</code> a <code>logwatch</code>. Každý z nich pracuje na trošku jiném principu - <code>logcheck</code> posílá e-maily jednou za hodinu a posílá hlášky, které propadly přes všechny jeho filtry, zatímco <code>logwatch</code> (kterým se bude zabývat následující díl seriálu) se snaží určité typy zpráv sumarizovat, a v ideálním případě tak zasílat pouze souhrn událostí, popřípadě statistiky, spíše než konkrétní řádky z logů.</p>
+<p>V některých případech můžete požadovat ohlášení určité události, jakmile nastane (např. úspěšné přihlášení roota nebo uživatele přes SSH apod.), popřípadě zareagovat na určitou událost jiným způsobem. Takovou funkcionalitu vám může nabídnout nástroj <a href="http://swatch.sourceforge.net/">swatch</a>, který se klasifikuje jako aktivní monitorovací nástroj pro logy, tzn. umí na hlášky vámi definovaného typu reagovat vámi nastaveným způsobem.</p>
+<h3>Logcheck</h3>
+<p>Logcheck je jednoduchý, lehký nástroj pro sledování logů. Pro své spouštění využívá <code>cron</code> a vždy jednou za určitou dobu (resp. při každém spuštění z cronu) zašle e-mail s relevantními hláškami z logů (výchozí dobou je jedna hodina). Jeho princip práce spočívá v eliminaci „obvyklých“ hlášek, které nemají pro správce příliš velký význam, přičemž všechny hlášky, které tyto filtry propustí, se pošlou v těle e-mailu.</p>
+<p>Cron tabulky náležející jednotlivým démonům naleznete obvykle v <code>/etc/cron.d</code>. V případě Logwatch tomu není jinak, takže jeho cronový záznam naleznete v <code>/etc/cron.d/logcheck</code>, kde si můžete frekvenci jeho spouštění upravit.</p>
+<h4>Instalace a základní konfigurace</h4>
+<p>Nejprve je samozřejmě třeba Logcheck nainstalovat, což lze v Debianu provést následujícím způsobem:</p>
+<pre>aptitude install logcheck</pre>
+<p>Výchozí nastavení v Debianu je plně funkční, ale je vhodné změnit přinejmenším e-mailovou adresu, kam se mají výňatky z logů posílat. Zde postačí upravit hodnotu proměnné <code>SENDMAILTO</code> v hlavním konfiguračním souboru Logchecku, <code>/etc/logcheck/logcheck.conf</code>, podle následujícího vzoru:</p>
+<pre>SENDMAILTO="<span class="eaddress">michal@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>"</pre>
+<p>Pokud toto nastavení neprovedete, budou se hlášky zasílat na <code>logcheck@localhost</code>, který je aliasem pro <code>root@localhost</code>. To je sice obvykle funkční nastavení, ale vhodnější je posílat výňatky z logů do poštovní schránky mimo server, který sledujete (případný útočník může e-maily z místních schránek vymazat).</p>
+<h4>Konfigurace Logchecku podrobněji</h4>
+<p>Pro úplnost bych rád prošel konfiguraci Logchecku malinko podrobněji. Základem pro jeho nastavení je určení sady pravidel, která se má použít pro filtraci. Tyto sady jsou dostupné celkem tři - <code>wo class="western"rkstation</code>, <code>server</code> a <code>paranoid</code> - a jejich volba ovlivňuje množství filtrovaných informací. Výchozí hodnotou je <code>server</code>, což by mělo pro běžné použití na serveru postačovat. Každý z těchto režimů si samozřejmě budete moci upravit (viz dále). Nastavení konkrétního režimu provedete v proměnné <code>REPORTLEVEL</code> v <code>/etc/logcheck/logcheck.conf</code>. Zbylé volby jsou velmi dobře okomentované a pro základní funkčnost postačí je ponechat tak, jak jsou.</p>
+<p>Dalším důležitým souborem je <code>/etc/logcheck/logcheck.logfiles</code>, který, jak naznačuje jeho název, slouží k určení souborů, ze kterých se bude samotný extrakt provádět. V základní konfiguraci Debianu je to <code>syslog</code> a <code>auth.log</code>. Tento seznam můžete samozřejmě podle libosti rozšířit.</p>
+<h4>Úpravy filtrovacích pravidel</h4>
+<p>Sady filtrovacích pravidel se nachází v <code>/etc/logwatch/ignore.d.[režim]</code>, kde za <code>[režim]</code> dosaďte hodnotu, kterou jste nastavili v proměnné <code>REPORTLEVEL</code>, tedy ve výchozím stavu by to měl být <code>/etc/logwatch/ignore.d.server</code>. Tento adresář obsahuje značné množství souborů s filtrovacími pravidly. Při filtrování se použijí filtrovací pravidla ze všech souborů v tomto adresáři, takže na názvu souboru nezáleží a není problém si zde vytvořit řadu souborů s vlastními pravidly, kterým filtrování doladíte podle svých představ. Nemusí být od věci svoje vlastní pravidla umisťovat do jasně označených souborů, abyste pak byli schopni dohledat, které soubory pochází z distribuce Logchecku a které jste vytvořili sami. Nutné to ale samozřejmě není.</p>
+<p>Co se týče pravidel pro filtrování, pak pokud umíte regulární výrazy, nebudete mít sebemenší problém vytvářet vlastní filtrovací pravidla, protože ničeho jiného než regulárních výrazů se zde nepoužívá. Filtrovací pravidlo tedy vypadá třeba takto (tato ukázka pochází ze souboru <code>/etc/logwatch/ignore.d.server/postfix</code>, z distribuce Logchecku):</p>
+<pre>^\w{3} [ :[:digit:]]{11} [._[:alnum:]-]+ postfix/n?qmgr\[[[:digit:]]+\]: [[:alnum:]]+: removed$</pre>
+<p>Tato řádka odstraní hlášky o odstranění e-mailu z fronty Postfixu, tedy obrovskou spoustu hlášek tohoto typu:</p>
+<pre>Mar 28 09:01:12 debian postfix/qmgr[2266]: 841B2214405: removed
+Mar 28 09:01:12 debian postfix/qmgr[2266]: 405CF214404: removed
+Mar 28 09:10:06 debian postfix/qmgr[2266]: 91427214405: removed
+Mar 28 09:10:06 debian postfix/qmgr[2266]: CEA7D214404: removed
+Mar 28 09:10:06 debian postfix/qmgr[2266]: DE3D9214405: removed
+Mar 28 09:20:07 debian postfix/qmgr[2266]: 68F4E214405: removed</pre>
+<p>Regulárním výrazům se v tomto článku věnovat nebudu, ale v odkazech pod článkem (nebo v manuálové stránce nástroje <code>grep</code>) naleznete více než dostatek materiálu. Můžete se také podívat podrobněji na existující filtrovací pravidla a podle potřeby je zkopírovat a upravit.</p>
+
+<pre id="links">http://logcheck.org/ Logcheck - stránka projektu
+http://www.regularnivyrazy.info/regularni-vyrazy-zaklady.html Miroslav Pecka, Základy regulárních výrazů
+http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí syntaxe regulárních výrazů
+http://cs.wikipedia.org/wiki/Regul%C3%A1rn%C3%AD_v%C3%BDraz Wikipedie (CZ), Regulární výraz</pre>

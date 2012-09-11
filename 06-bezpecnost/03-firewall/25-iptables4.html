@@ -1,0 +1,62 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Linuxový firewall, základy iptables IV</h1>
+
+<p>V tomto díle se dozvíte o tabulkách v Netfiltru, o možnostech práce s NATem, o přesměrování portů či maškarádě a o některých dalších  zajímavých modulech Netfiltru, které vám pomohou při stavbě pokročilejších  firewallů.</p>
+
+<h3>Tabulky v Netfilteru</h3>
+<p>Už z názvu nástroje <code>iptables</code> lze odvodit, že paketový filtr v Linuxu pracuje s tabulkami. Tuto informaci jsem vám dosud tajil, abych vám pochopení základů příliš nekomplikoval. Nyní je ale čas, abych se podíval na jednotlivé tabulky v linuxovém paketovém filtru, a řekl vám, k čemu jsou.</p>
+<p>Pokud v rámci použití nástroje <code>iptables</code> nezadáte název tabulky, se kterou chcete pracovat, využije se výchozí tabulka <code>filter</code>, v rámci které probíhá samotné filtrování paketů. Kromě tabulky <code>filter</code> existují ještě tři další - tabulka <code>nat</code>, tabulka <code>mangle</code> a tabulka <code>raw</code>. V každé z těchto tabulek jsou různé výchozí řetězy, se kterými můžete pracovat. Tabulka  <code>mangle</code> slouží k modifikování nebo značkování paketů (užívá se  např. v rámci QoS). Tabulka <code>nat</code> se používá pro překlad adres a  tabulka <code>raw</code> se používá pro označení paketů, které se mají vyhnout  sledování spojení (connection tracking).</p>
+<p>Jelikož tento miniseriál je spíše orientován na základy linuxového paketového filtru, nebudu probírat všechny tabulky se všemi řetězy, které se v nich nachází. Místo toho se zaměřím na tabulku <code>nat</code> a dva řetězy v  ní, které nám trošku rozšíří schéma procházení paketů Netfiltrem. Pokud se  chcete o jednotlivých tabulkách dozvědět více, podívejte se na odkazy pod  článkem.</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/3479.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/3479.jpg','Jak procházejí pakety linuxovým paketovým filtrem','387','516'); return false;"><img alt="Jak procházejí pakety linuxovým paketovým filtrem" class="ph_detail" height="446" src="http://www.linuxexpres.cz/uploads/gallery/detail/3479.jpg" width="335" /></a><span class="ph_title">Jak procházejí pakety linuxovým paketovým filtrem</span></p>
+<p>Na tomto obrázku jsou vidět dva další výchozí řetězce, které patří tabulce  <code>nat</code> (vyznačené zeleně). Jsou jimi řetězy <code>PREROUTING</code> a  <code>POSTROUTING</code>. Řetěz <code>PREROUTING</code> v tabulce  <code>nat</code> zachytává pakety ještě před směrovacím rozhodnutím, a řetěz  <code>POSTROUTING</code> zachytává pakety těsně před tím, než opustí  daný počítač. Tyto dva řetězy využijete, pokud si chcete postavit nějakou formu NATu (viz níže).</p>
+<p class="box">Raději ještě doplním varování, abyste filtrování paketů neprováděli v  tabulce NAT místo v řetězech <code>INPUT</code> a <code>OUTPUT</code> v tabulce <code>filter</code>, jelikož některé pakety tabulku <code>nat</code> "obchází".</p>
+<h3>Netfiltr a NAT</h3>
+<p>NAT znamená "Network address translation", tedy překlad adres. Existují dvě formy NATu, zdrojový NAT (SNAT), kde se u paketů mění zdrojová adresa, a cílový  NAT (DNAT), v rámci kterého dochází k úpravě cílové adresy. Speciálním případem SNATu je maškaráda, která je vhodná pro připojení s dynamickou IP adresou.</p>
+<p>Je jasné, že jednotlivé formy NATu se uplatní pouze v jednom z řetězců  tabulky <code>nat</code>. Cílový NAT, tedy DNAT, uplatníte pouze v řetězci  <code>PREROUTING</code>, zatímco zdrojový NAT v řetězci <code>POSTROUTING</code>.  V těchto řetězcích pak můžete pro zpřesnění využít specifikaci vstupních nebo výstupních síťových rozhraní (parametry <code>-o</code> a <code>-i</code>). S tím ale pozor, v řetězci <code>PREROUTING</code> není možné se odkazovat na výstupní rozhraní (parametr <code>-o</code>), neboť ještě nebylo rozhodnuto, kam bude paket směřován. Stejně tak vstupní rozhraní (parametr <code>-i</code>) nelze použít v řetězci <code>POSTROUTING</code>.</p>
+<p class="box">Překlad adres využijete asi nejčastěji ve dvou podobách - přesměrování portů a maškaráda (za kterou "schováte" třeba domácí síť před svým poskytovatelem).</p>
+<h4>Přesměrování portů a DNAT</h4>
+<p>Přesměrování portů využijete v mnoha oblastech, ať už v případě domácího serveru, kde dostanete na routeru jednu veřejnou IP adresu, a budete chtít  přesměrovat některé porty na server v domácí síti (nejlépe v demilitarizované  zóně), nebo v případě, že máte na jednom počítači více virtuálních strojů, a  chcete, aby některé jejich služby byly přístupné na IP adrese daného fyzického  počítače. Ideální by samozřejmě bylo získat více IP adres a adresovat každý z počítačů ve vnitřní/virtuální síti a řídit přístup k nim prostřednictvím firewallu, ale toto není bohužel všude možné.</p>
+<p>Podívejte se na následující příklad přesměrování portů:</p>
+<pre>iptables -t nat -A PREROUTING -i eth1 -p tcp --dport 80 -j DNAT --to 10.0.2.200:8080
+iptables -A FORWARD -i eth1 -o eth2 -d 10.0.2.200 -p tcp --dport 8080 -j ACCEPT
+</pre>
+<p>Na prvním řádku je specifikováno pravidlo pro přesměrování portu. Toto  pravidlo změní cílovou adresu a cílový port paketů směřujících na port 80  rozhraní <code>eth1</code> na IP adresu <code>10.0.2.200</code> a port <code>8080</code>. Všímněte si  specifikace tabulky nat (<code>-t nat</code>). Výše  zmíněné pravidlo změní pouze cílovou adresu paketu, který pravidlu vyhovuje, nic  jiného s paketem nedělá. Takový paket pak projde směrovacím rozhodnutím a  putuje do řetězce <code>FORWARD</code>, kde je třeba zajistit jeho průchod (viz  druhé pravidlo, které umožní takovému paketu odcestovat rozhraním  <code>eth2</code>). Nezapomeňte také na to, že je třeba povolit směrování paketů jako takové, viz <span class="mw_field">### link article=3255 text=minulý díl seriálu title=Správa linuxového serveru: Linuxový firewall, základy iptables III mode=inline ###</span>.</p>
+<p>V rámci DNATu samozřejmě není nutné specifikovat cílový port, takže je možné přesměrovat veškerou komunikaci:</p>
+<pre>iptables -t nat -A PREROUTING -i eth1 -d 10.0.0.1 -j DNAT --to 10.0.2.200
+</pre>
+<p>Toto pravidlo přesměruje veškerý síťový provoz proudící na rozhraní  <code>eth1</code> a určený pro IP adresu <code>10.0.0.1</code> na IP adresu <code>10.0.2.200</code>.</p>
+<h4>Maškaráda a SNAT</h4>
+<p>Pokud jste v situaci, kdy vám poskytovatel přidělí dynamicky IP adresu třeba na rozhraní modemu <code>ppp0</code>, a vy chcete za tento jeden počítač "schovat" celou vnitřní síť, použijete maškarádu. Ta zajistí, že se u všech odchozích paketů směřujících na dané rozhraní změní zdrojová IP adresa na IP adresu přidělenou danému rozhraní:</p>
+<pre>iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+</pre>
+<p>Maškaráda je podoblastí zdrojového NATu a oproti klasickému cíli <code>SNAT</code> v rámci <code>iptables</code> má dva zásadní rozdíly. Jedním je absence  nutnosti specifikovat zdrojovou adresu (použije se IP adresa výstupního  rozhraní), druhým je pak skutečnost, že při shození daného rozhraní Netfilter  "zapomene" informace o všech relevantních spojeních. Pokud se adresa daného  rozhraní nemění, pak místo maškarády použijte klasický <code>SNAT</code>:</p>
+<pre>iptables -t nat -A POSTROUTING -o eth2 -j SNAT --to 10.0.5.15
+</pre>
+<p>Toto pravidlo změní zdrojovou IP adresu všech odchozích paketů směřujících na rozhraní <code>eth2</code> na <code>10.0.5.15</code>.</p>
+<h3>Některé další moduly Netfiltru</h3>
+<p>Netfilter nabízí celou řadu modulů, které umožňují filtrovat pakety dle řady doplňujících kritérií. Na závěr miniseriálu o Netfiltru ještě představím tři z nich.</p>
+<h4>Vlastník paketu (owner)</h4>
+<p>Na serveru nemusí být úplně od věci monitorovat nejenom příchozí komunikaci,    ale i odchozí. V rámci této odchozí komunikace se vám může hodit filtrovat    pakety na základě UID nebo GID procesu, který je generuje:</p>
+<pre>iptables -A OUTPUT -o eth0 -m owner --uid-owner podezrely-uzivatel -m limit --limit 1/s --limit-burst 10 -j LOG
+</pre>
+<p>Toto pravidlo bude logovat odchozí pakety generované procesy uživatele  <code>podezrely-uzivatel</code> a směřující na síťové rozhraní  <code>eth0</code>. Naznačil jsem zde i ochranu proti přeplnění logů, pokud by uživatel generoval  příliš velký síťový traffic. Ta je zajištěna modulem <code>limit</code>. Pokud byste chtěli logovat provoz všech uživatelů (členů skupiny <code>users</code>), specifikovali byste příslušnou skupinu takto:</p>
+<pre>iptables -A OUTPUT -o eth0 -m owner --gid-owner users -m limit --limit 1/s --limit-burst 10 -j LOG
+</pre>
+<h4>Počet spojení (connlimit)</h4>
+<p>V některých situacích se vám může hodit zaškrtit určitý provoz, pokud překoná určitý počet spojení:</p>
+<pre>iptables -A FORWARD -i eth2 -o eth0 -m connlimit --connlimit-above 10 -j REJECT
+</pre>
+<p>Toto pravidlo, použité na směrovači, omezí síťový provoz z rozhraní  <code>eth2</code> na <code>eth0</code> tak, že povolí pouze 10 spojení.  Ostatní pak bude odmítat.</p>
+<h4>Multiport</h4>
+<p>Pokud chcete v jednom pravidlu specifikovat více TCP/UDP portů, můžete použít    modul <code>multiport</code>:</p>
+<pre>iptables -A INPUT -p tcp -m multiport --ports 22,80,40000:50000 -j ACCEPT
+</pre>
+<p>Zde je naznačeno jak specifikování několika portů za sebou (oddělovač je čárka), tak specifikování rozsahu (oddělovačem rozsahu je dvojtečka). Takto je možné specifikovat až 15 portů (rozsah je počítán jako dva porty).</p>
+<h4>Další moduly</h4>
+<p>Informace o modulech Netfiltru jsou dobře popsány v manuálových stránkách nástroje <code>iptables</code>, kam vám určitě doporučuji někdy zavítat.</p>
+
+<pre id="links">http://fedorasolved.org/Members/kanarip/iptables-howto iptables Howto 
+http://www.faqs.org/docs/iptables/traversingoftables.html iptables tutorial, Traversing of tables and chains
+http://netfilter.org/documentation/HOWTO/NAT-HOWTO-6.html Linux 2.4 NAT HOWTO, Saying How To Mangle The Packets</pre>
