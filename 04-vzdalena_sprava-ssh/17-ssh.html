@@ -1,14 +1,17 @@
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<h1>Úvod do SSH</h1>
 
+<p>Každý administrátor unixových serverů by měl být seznámen se SSH a jeho
+schopnostmi a možnostmi. SSH lze z pohledu administrátora chápat jako šifrovaný
+tunel mezi dvěma počítači na bázi klient/server. Přes něj můžete přistupovat k
+shellu vzdáleného počítače, ale také kopírovat soubory, spouštět vzdáleně Xkové
+aplikace, vytvářet roury z místního počítače na vzdálený či vytvářet šifrované
+tunely pro vzdálený přístup k nějaké službě, která je za firewallem.
+Prostřednictvím <a
+href="http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh">sshfs</a>
+je dokonce možné připojit vzdálený souborový systém přes FUSE na místní
+adresář.</p>
 
-<h1>Správa linuxového serveru: Úvod do SSH pro správce</h1>
-
-<p>Každý administrátor unixových serverů by měl být seznámen se SSH a jeho schopnostmi a možnostmi. V tomto díle se podívám na zoubek SSH jako takovému, proberu široké možnosti jeho použití a některé nástroje, které vám umožní využít SSH pohodlně a bezpečně.</p>
-
-<h3>SSH pro správce</h3>
-<p>SSH lze z pohledu administrátora chápat jako šifrovaný tunel mezi dvěma počítači na bázi klient/server. Přes něj můžeme přistupovat k shellu vzdáleného počítače, ale také kopírovat soubory, spouštět vzdáleně Xkové aplikace, vytvářet roury z místního počítače na vzdálený či vytvářet šifrované tunely pro vzdálený přístup k nějaké službě, která je za firewallem. Prostřednictvím <a href="http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh">sshfs</a> je dokonce možné připojit vzdálený souborový systém přes FUSE na místní adresář.</p>
 <h4>Přehled možností SSH</h4>
-<p>Jelikož základy SSH včetně spektra jeho možností probral již miniseriál Michala Vyskočila s názvem <em>SSH receptem na bezpečnost</em> - <a href="http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-1">první díl</a>, <a href="http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-2">druhý díl</a>, nebudu se o možnostech SSH příliš rozepisovat, dovolím si pouze v rychlosti projít možnosti SSH s jednoduchými příklady:</p>
 <p>Přihlášení se ke vzdálenému shellu (všimněte si parametru <code>-p</code>, který umožňuje zvolit jiný než standardní port 22 na cílovém serveru):</p>
 <pre>ssh -p cislo_portu uzivatel@server</pre>
 <p>Pro provedení jediného příkazu nepotřebujete přístup na vzdálený shell, příkaz můžete volat přímo. Příkladem může být získání výpisu obsazeného místa na připojených souborových systémech na serveru, který má SSH server na nestandardním portu, a sice 8022:</p>
@@ -28,7 +31,16 @@
 <p>SSH umí vytvářet i "reverzní" tunely, pomocí kterých můžete naopak zpřístupnit místní službu na vzdáleném počítači:</p>
 <pre>ssh -N -f uzivatel@server -R 5000:localhost:22</pre>
 <p>Tento příkaz vytvoří šifrovaný tunel mezi vaším počítačem a serverem, který zpřístupní váš místní port 22 (kde obvykle běží SSH) klientům serveru na portu 5000. Tudíž, pokud se nějaký klient spojí s portem 5000 na serveru, bude přes tunel přistupovat k vašemu místnímu portu 22.</p>
-<p>Přes SSH je možné pouštět i aplikace využívající grafického rozhraní, je-li to na serveru povoleno (volba <code>X11Forwarding</code>). Pro každý vzdálený server si můžete vytvořit specifickou konfiguraci v souboru <code>.ssh/config</code> ve svém domovském adresáři, kde můžete specifikovat i konkrétní SSH klíč, který se má k přístupu k serveru použít. Pro správu serverů přes nespolehlivé spojení se vám může hodit program <code>screen</code>, o kterém se dozvíte vše potřebné v <a href="http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu">tomto článku</a>.</p>
+<p>Přes SSH je možné pouštět i aplikace využívající grafického rozhraní, je-li to na serveru povoleno (volba <code>X11Forwarding</code>). Pro každý vzdálený server si můžete vytvořit specifickou konfiguraci v souboru <code>.ssh/config</code> ve svém domovském adresáři, kde můžete specifikovat i konkrétní SSH klíč, který se má k přístupu k serveru použít. Pro správu serverů přes nespolehlivé spojení se vám může hodit program <code>screen</code>, jehož stěžejní vlastností pro práci přes SSH je to, že po ukončení spojení zůstane běžet a vy se k němu můžete opět připojit pomocí:</p>
+<pre>screen -x</pre>
+<p>Screen se ovládá pomocí klávesových zkratek. Základní klávesové zkratky pro práci s ním jsou:</p>
+<ul>
+<li><b>Ctrl-A C</b> vytvořit nový shell</li>
+<li><b>Ctrl-A N</b> přejít na následující shell</li>
+<li><b>Ctrl-A P</b> přejít na předchozí shell</li>
+<li><b>Ctrl-A D</b> "odpojit" se od Screenu (zůstane běžet a bude možné se k danému sezení opět připojit přes výše uvedený přepínač <code>-x</code>)</li>
+</ul>
+<p>Tolik k nouzovému rychlokurzu Screenu. Pokud vás Screen zaujal, můžete se o něm dozvědět více třeba v <a href="http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu">tomto článku</a>.</p>
 <h4>sshfs</h4>
 <p><a href="http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh">Sshfs</a> je FUSE modul, který umožňuje připojovat vzdálené souborové systémy prostřednictvím SSH/SCP:</p>
 <pre>sshfs uzivatel@server:/cesta /kam/pripojit</pre>
@@ -43,7 +55,6 @@
 <p>SSH klientů je také celá řada. Kromě klasického <code>ssh</code> klienta z balíku OpenSSH vás upozorním na grafického klienta <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">Putty</a>, který je velmi známý zejména v prostředí MS Windows. Umí toho celou řadu a nehodí se ani zdaleka jenom k přihlašování přes SSH. Podpora SSH klíčů je samozřejmostí, i když klíče je třeba před použitím konvertovat (Putty nepodporuje klasické klíče generované v rámci OpenSSH, tedy ne přímo). Putty funguje dokonce i nativně v Linuxu, i když v Linuxu nám stačí emulátor terminálu a řádkový klient. Něco málo o klíčích v Putty se dozvíte <a href="http://www.linuxexpres.cz/okenko-do-oken/autentizace-pomoci-klicu">zde</a>.</p>
 <p>Pro kopírování souborů (scp/sftp) je možné použít řádkového klienta <code>scp</code>, výše zmíněného "protokolu" fish v KDE aplikacích nebo <code>sshfs</code>. V prostředí MS Windows lze použít grafický nástroj <a href="http://winscp.net/eng/docs/lang:cs">WinSCP</a>, který se podobá klasickému dvoupanelovému diskovému manažeru.</p>
 <h3>SSH klíče</h3>
-<p>Toto téma je z teoretického i praktického hlediska rozebráno v <a href="http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-2">tomto</a> článku, já si dovolím toto téma v rychlosti prolétnout a připravit pro vás opět menší kuchařku.</p>
 <p>SSH klíče fungují na bázi asymetrického šifrování, podobně jako GnuPG a jiné aplikace. Vygenerujete si pár klíčů, jeden soukromý (chráněný heslem, obvykle <code>$HOME/.ssh/id_rsa</code>) a jeden veřejný (obvykle <code>$HOME/.ssh/id_rsa.pub</code>). Veřejný klíč nahrajete do souboru <code>.ssh/authorized_keys</code> v domovském adresáři vzdáleného uživatelského účtu, a poté se můžete na server hlásit pomocí svého soukromého SSH klíče. Soukromý klíč není nutné chránit heslem, avšak pak je jasné, že případné zcizení souboru s klíčem může útočník přistupovat ke všem účtům na serverech, kde je umístěn veřejný klíč v <code>authorized_keys</code>. Chránění soukromého klíče heslem je proto vhodné bezpečnostní opatření.</p>
 <p>Vygenerování páru klíčů provedete příkazem:</p>
 <pre>ssh-keygen</pre>
@@ -51,7 +62,10 @@
 <pre>scp $HOME/.ssh/id_rsa.pub uzivatel@server:
 ssh uzivatel@server
 uzivatel@server$ mkdir .ssh
-uzivatel@server$ cat id_rsa.pub &gt;&gt; .ssh/authorized_keys</pre>
+uzivatel@server$ cat id_rsa.pub &gt;&gt; .ssh/authorized_keys
+uzivatel@server$ chmod 700 .ssh</pre>
+<p>Existuje nástroj obsažený ve standardní distribuci OpenSSH klienta, který celý tento proces podstatně zjednodušuje. Nemusíte tedy provádět výše uvedenou sadu příkazů, postačí vám jen zapsat:</p>
+<pre>ssh-copy-id uzivatel@server</pre>
 <p>V <code>authorized_keys</code> může být veřejných klíčů více, proto je vhodné používat přesměrování vstupu v režimu append (dvě většítka za  sebou). Klíč lze pak "revokovat" prostým výmazem odpovídajícího řádku v tomto souboru.</p>
 <p>Pokud máte více soukromých klíčů na různé servery, můžete buď využít ssh agent popsaný dále, nebo jednoznačně specifikovat soukromý klíč, který chcete použít při připojení k serveru (výchozí je <code>~/.ssh/id_rsa</code>):</p>
 <pre>ssh -i .ssh/soukromy_klic uzivatel@server</pre>
@@ -63,6 +77,7 @@ source $HOME/.keychain/$HOSTNAME-sh
 </pre>
 <p>Tím si zajistíte, že si Keychain vyžádá hesla ke klíčům, o které se má starat, a podle potřeby spustí ssh-agenta nebo jej pouze přidá do proměnných prostředí, pokud už běží. To vše provede po spuštění shellu. Každá další instance shellu (třeba v rámci virtuálního terminálu) se pak připojí k už spuštěnému ssh-agentovi, bez nutnosti opět zadávat heslo. Keychain má řadu voleb, které můžete využít. Já používám tyto (potlačují zbytečné výpisy a ignorují proměnnou SSH_ASKPASS):</p>
 <pre>/usr/bin/keychain -Q -q --nogui ~/.ssh/id_rsa</pre>
+
 <h3>Závěr</h3>
 <p>SSH je velmi mocný nástroj, který umí mnohé. Proto je vhodné vnímat SSH z pohledu správce nikoliv jako nástroj pro vzdálenou práci se shellem, ale jako komplexní nástroj umožňující vytvářet šifrované, zabezpečené tunely mezi dvěma nebo více počítači, a posílat přes ně nejrůznější data a přistupovat k nejrůznějším službám. SSH je samozřejmě pouze nástroj, jehož faktická bezpečnost záleží na správcích i uživatelích. Na bezpečnost SSH, zejména pak z pohledu správců serverů, se podíváme v části Bezpečnost.</p>
 
