@@ -40,7 +40,7 @@ Nástroj lshw je nedocenitelný pomocník, pokud se chcete dozvědět více o ha
 <li><code>/etc/apt/sources.list</code> - konfigurace repositářů správce balíčků Debianu</li>
 <li><code>/etc/pam.d/*</code> - konfigurace PAMu (zásuvné autentikační moduly)</li>
 </ul>
-<p>Většina těchto konfiguračních souborů má buď vestavěnou nápovědu, nebo manuálovou stránku. V dalších dílech si některé z nich představíme blíže.</p>
+<p>Většina těchto konfiguračních souborů má buď vestavěnou nápovědu, nebo manuálovou stránku. V dalších kapitolách si některé z nich představíme blíže.</p>
 <h4>Stěžejní skripty a umístění</h4>
 <p>Jak víte, po spuštění počítače a provedení příslušných testů předá BIOS řízení zavaděči (maličký program v prvních 446 bytech MBR). Zavaděč nahraje do paměti obraz jádra (popř. ještě iniciálního ramdisku) a spustí jej. Jádro připojí kořenový souborový systém a spustí <code>/sbin/init</code>, který začne pouštět další služby (démony) a procedury, jejichž obslužné skripty se nacházejí v <code>/etc/init.d</code>.</p>
 <p>V Linuxu je možné nadefinovat různé úrovně běhu (runlevel), v rámci kterých se spouští (nebo vypínají) různé služby. Úrovně běhu v Debianu jsou ve výchozím stavu nadefinované pouze dvě, a to úroveň 1, tedy jednouživatelský režim bez sítě, a úroveň 2, kde běží naopak úplně všechno. Pro úplnost dodávám, že existují ještě dvě další, výchozí úrovně běhu, úroveň 0, vypnutí systému (shutdown), a úroveň 6, restart.</p>
