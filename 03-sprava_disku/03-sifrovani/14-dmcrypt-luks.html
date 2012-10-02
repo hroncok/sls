@@ -1,39 +1,71 @@
 <h1>Správa linuxového serveru: Šifrování s dm-crypt/LUKS</h1>
 
 <h3>Co lze šifrovat a proč</h3>
+
 <p>Pomocí dm-crypt/LUKS lze šifrovat <strong>jakékoliv blokové zařízení</strong>, tzn. diskový oddíl, celý pevný disk, diskové pole (RAID), logický svazek v rámci LVM, atd.</p>
-<p>Připomínám, že i když se to na první pohled možná nezdá, šifrování jako takové <strong>nelze</strong> považovat za spolehlivý nástroj pro zajištění bezpečnosti dat před případným útočníkem s fyzickým přístupem k serveru. Nemůže tedy nahradit strážného, který hlídá přístup do serverovny. Důvody jsem popsal již  <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-lvm-a-diskove-sifrovani">dříve</a>. Může nicméně pomoci ochránit data při likvidaci nebo reklamaci pevných disků, může pomoci zabránit úniku SSH klíčů nebo jiných citlivých údajů ze zcizených laptopů administrátorů, apod.</p>
-<p class="ph_center"><img alt="Ilustrační obrázek" class="ph_detail" height="300" src="http://www.linuxexpres.cz/uploads/gallery/detail/2454.jpg" width="400" /></p>
+
+<p>Připomínám, že i když se to na první pohled možná nezdá, šifrování jako takové <strong>nelze</strong> považovat za spolehlivý nástroj pro zajištění bezpečnosti dat před případným útočníkem s fyzickým přístupem k serveru. Nemůže tedy nahradit strážného, který hlídá přístup do serverovny. Důvody jsem popsal již dříve. Může nicméně pomoci ochránit data při likvidaci nebo reklamaci pevných disků, může pomoci zabránit úniku SSH klíčů nebo jiných citlivých údajů ze zcizených laptopů administrátorů, apod.</p>
+
 <p>Jelikož se v současné době začínají masivně rozrůstat možnosti virtualizace, je nutné uvažovat o bezpečnosti takových řešení, a naprosté zbytečnosti šifrování jako ochrany před poskytovatelem virtuálního serveru, jelikož šifrovací klíče jsou uloženy v paměti, a do paměti má obvykle správce virtuálního serveru přístup.</p>
+
 <p>Budete-li tedy uvažovat o nasazení šifrování, uvažte pečlivě, jaká data  chcete chránit a před kým. Následně zauvažujte, zda-li má šifrování v daném scénáři smysl, a pokud ano, tak jak velký. Jelikož má šifrování negativní dopad na výkon i na případnou záchranu dat z poškozeného pole nebo disku, je třeba pečlivě zvážit, zda-li šifrování nasadíte a kam.</p>
+
 <h3>Co šifrovat</h3>
+
 <p>Aby mělo použití šifrování smysl, je třeba zajistit, aby na discích nezůstalo nic z chráněných dat v nešifrované podobě. Proto je každopádně třeba začít se šifrováním swapu. Dále je třeba kromě samotných úložišť citlivých dat zabezpečit i všechna místa, kam by se data mohla dostat. Typicky je to adresář <code>/tmp</code>, pro který bývá dobré využívat buď <code>tmpfs</code> nebo samostatný šifrovaný oddíl. V některých specifických případech to může být kromě obvyklého <code>/home</code> i adresář <code>/var</code>, <code>/srv</code> či jiné umístění.</p>
+
 <p>Šifrovat lze samozřejmě jak selektivně (tj. jen to důležité), tak téměř úplně všechno včetně celého systému s výjimkou zavaděče, obrazu jádra a initrd. V prvním případě je nutné dát si pozor na "prosakování" chráněných dat mimo šifrované svazky, ve druhém případě obvykle vznikne problém se zaváděním systému, během kterého bude třeba nějakým způsobem zadat heslo, což třeba u serveru, který je umístěn v nějakém datacentru, a ke kterému přistupujete vzdáleně, působí jistý problém. Ten je možné řešit pomocí malého ssh démona v initrd (třeba <a href="http://matt.ucc.asn.au/dropbear/dropbear.html">dropbear</a>), který se spustí a umožní správci přihlásit se a zadat heslo vzdáleně.</p>
+
 <p class="box">Návod pro toto řešení v rámci distribuce Debian naleznete <a href="http://www.debian-administration.org/articles/579">v článku na debian-administration.org</a>.</p>
+
 <h3>Výběr šifry a šifrovacího módu</h3>
+
 <p>Před samotným nasazením šifrování je třeba připomenout problematiku šifrovacích algoritmů a šifrovacích módů. V zásadě, šifrovací algoritmus byste měli vybírat nejlépe z <a href="http://en.wikipedia.org/wiki/Advanced_Encryption_Standard_process">finalistů AES</a>. Starším šifrám jako DES či Blowfish se doporučuji vyhnout. Se samotným výběrem vám neporadím, jen podotknu, že nejrychlejší implementací je samotný AES/Rijndael, v závěsu za ním pak Serpent a Twofish. Jejich bezpečnost by měla být velmi podobná.</p>
+
 <p>Pro diskové šifrování je klíčový výběr vhodného šifrovacího módu. Je totiž nutné šifrovat ohromné kvantum dat, která mají ovšem předvídatelnou strukturu (souborový systém, superblok, atd.), což může případnému útočníkovi usnadnit kryptoanalýzu, i když je samotný šifrovací algoritmus bezpečný. Pro diskové šifrování dnes přichází v úvahu především mód XTS. LRW je vzhledem k jeho objevené zranitelnosti nutné zavrhnout. Pro systémy se staršími jádry, které ještě nemají podporu pro mód XTS, je vhodné použít mód cbc-essiv (nikoliv však samotné cbc!).</p>
-<p>Řada distribucí nabízí v rámci instalátoru možnost postavit šifrovaný systém. Bohužel, tato možnost obvykle neumožňuje precizní nastavení šifrovacího algoritmu a šifrovacího módu, a mnohde bývají výchozí hodnoty nastavené patrně ve snaze zachovat kompatibilitu příliš konzervativně (což je i případ Debianu), tudíž není zvolen výchozí mód XTS, ale třeba cbc-essiv. V takových případech je tedy vhodnější postavit šifrovaný systém ručně, neboť šifrovací mód na  existujícím šifrovaném svazku měnit nelze.</p>
+
+<p>Řada distribucí nabízí v rámci instalátoru možnost postavit šifrovaný systém. Bohužel, tato možnost obvykle neumožňuje precizní nastavení šifrovacího algoritmu a šifrovacího módu, a mnohde bývají výchozí hodnoty nastavené patrně ve snaze zachovat kompatibilitu příliš konzervativně (což je i případ Debianu), tudíž není zvolen výchozí mód XTS, ale třeba cbc-essiv. V takových případech je tedy vhodnější postavit šifrovaný systém ručně, neboť šifrovací mód na existujícím šifrovaném svazku měnit nelze.</p>
+
 <h3>Alternativy pro šifrování v GNU/Linuxu</h3>
+
 <p>Pro diskové šifrování v GNU/Linuxu je ideální používat dm-crypt/LUKS, nicméně v oblasti šifrování to není jediný prostředek, který mají uživatelé k dispozici. Představím vám několik alternativ, ať už pro diskové šifrování, tak pro šifrování obecně.</p>
+
 <h4>dm-crypt</h4>
+
 <p>Asi nejjednodušší alternativou dm-crypt/LUKS je dm-crypt jako takový. Jeho asi jedinou výhodou (chcete-li se na to tak dívat) oproti jeho kombinaci s LUKSem je absence hlavičky, která dané blokové zařízení nezaměnitelně označí jako šifrované. Oproti LUKS nadstavbě má však řadu citelných nevýhod, počínaje nutností celý oddíl přešifrovat při změně hesla přes nemožnost použít více než jedno heslo až po absenci posílení hesla metodou PBKDF2.</p>
+
 <h4>Truecrypt</h4>
+
 <p>Nejvíce zmiňovanou alternativou pro dm-crypt/LUKS je Truecrypt, zejména kvůli přenositelnosti šifrovaných kontejnerů mezi GNU/Linuxem a MS Windows. V dnešní době je Truecrypt schopen využívat přímo linuxové CryptoAPI a vytváří přímo blokové zařízení prostřednictvím Device Mapperu, což jej řadí blízko k dm-cryptu a LUKS. Samotný Truecrypt nabízí uživatelům pěkné grafické rozhraní, stejně jako možnost jej ovládat přes příkazový řádek.</p>
+
 <p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související "plausible deniability" aneb možnost "hodnověrného popření" - skryté svazky využívají <a href="http://cs.wikipedia.org/wiki/Steganografie">steganografii</a>, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco "nápadnější" než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s Ext2/Ext3.</p>
+
 <p>Je nutné dodat, že licence Truecryptu je mnohými distribucemi (<a href="http://lists.debian.org/debian-legal/2006/06/msg00295.html">Debian</a>, <a href="http://fedoraproject.org/wiki/ForbiddenItems#TrueCrypt">Fedora</a> a další) považována za nesvobodnou a mj. pro distributory potenciálně problematickou. Proto třeba nenajdete Truecrypt v oficiálních repositářích Debianu.</p>
+
 <h4>encfs</h4>
+
 <p>Další alternativou je <code>encfs</code> (<a href="http://www.arg0.net/encfs">web projektu</a>) využívající FUSE. Jeho výhodou i nevýhodou zároveň (záleží na úhlu pohledu) je funkce "nad" existujícím souborovým systémem, nikoliv "pod" ním jako v případě ostatních zmíněných řešení. Šifrují se tedy přímo vlastní data, včetně názvů souborů a adresářů. Potenciálním problémem je zachování metadat (velikost souboru, datum vytvoření a poslední modifikace, atd.) pro případného útočníka. To sice nemá přímý bezpečnostní dopad ve smyslu usnadnění kryptoanalýzy, ale může to v některém případě odhalit jisté informace, které by nebyly k dispozici, kdyby byl zašifrovaný celý souborový systém.</p>
+
 <p>Encfs se však výborně hodí pro různé síťové disky a podobné online služby, kde příslušná data nemáte pod kontrolou a nevíte, kdo má k nim přístup. Jistě, je možné použít šifrovaný kontejner, ale to nemusí být zcela efektivní z hlediska využitého prostoru, který je v rámci daných služeb obvykle velmi omezený.</p>
+
 <h4>GnuPG</h4>
+
 <p>GnuPG je běžnou součástí distribucí a umožňuje jak šifrování souborů asymetrickým klíčem, tak šifrování běžnou, blokovou šifrou. Pomocí GnuPG lze tedy snadno zašifrovat nějaký soubor buď k přenosu přes nezabezpečenou síť nebo pro uložení na nějaké médium či síťový disk.</p>
+
 <p>GnuPG využívá, kupříkladu, zálohovací nástroj <a href="http://www.nongnu.org/duplicity/">Duplicity</a>, který umožňuje vytvářet na místním či vzdáleném úložišti šifrované zálohy.</p>
+
 <h3>Jak poskládat RAID, LVM a dm-crypt/LUKS?</h3>
-<p>Na závěr tohoto dílu navážu na předchozí tři díly, které se věnovaly LVM. Pokud se podíváme na možnosti uložení, zabezpečení a organizace dat, máme bloková zařízení (pevné disky), z těch můžeme vytvářet disková pole, z disků i diskových polí pak můžeme vytvářet skupiny svazků a logické svazky, přičemž šifrovat můžeme v podstatě kdekoliv.</p>
+
+<p>Pokud se podíváte na možnosti uložení, zabezpečení a organizace dat, máte bloková zařízení (pevné disky), z těch můžete vytvářet disková pole, z disků i diskových polí pak můžete vytvářet skupiny svazků a logické svazky, přičemž šifrovat můžete v podstatě kdekoliv.</p>
+
 <p>Základ v každém případě tvoří pevné disky nebo disková pole. U serverů je velmi vhodné použít diskové pole s redundancí k zajištění jisté odolnosti vůči výpadku. V případě většího množství disků, kde je velmi vhodné použít různé disky od různých výrobců, je možné použít RAID 10 (RAID 0 na  jednotlivých  párech zrcadlených disků). RAID 10 nebo 01 dosahuje optimálního kompromisu mezi výkonem a redundancí, ale potřebuje minimálně 4 disky.</p>
+
 <p>LVM je velmi vhodné provozovat z hlediska bezpečnosti dat nad diskovým polem s redundancí a používat jej spíše jen k rozdělení dostupného prostoru do logických  svazků, snapshotům, apod.</p>
+
 <p>dm-crypt/LUKS je ideální umístit buď mezi diskové pole a LVM nebo nad LVM (šifrovat logický svazek). Přidáním dalšího disku nebo disků lze pak postupně krok za krokem dostupný prostor rozšířit (dm-crypt/LUKS podporuje operaci <code>resize</code> a u LVM to zvládne <code>pvresize</code>).</p>
+
 <p>Šifrovat lze samozřejmě i pod softwarovým RAIDem, což bývá i doporučeno, jsou-li pevné disky příliš velké (příliš mnoho dat šifrovaných jedním postupem usnadňuje případnou kryptoanalýzu). Nutnost "odemknout" více zařízení může vyřešit malý šifrovaný oddíl na jednom z disků, který obsahuje klíče k "odemčení" zbylých disků v poli.</p>
+
 <p>Co se týče ostatních kombinací, provozovat softwarový RAID nad LVM je sice možné, ale naprosto nesmyslné a potenciálně problémové, a provozovat LVM bez RAIDu na více discích je nevhodné - stoupá pravděpodobnost selhání jednoho z disků a selhání kteréhokoliv z disků znamená ztrátu dat. Pokud byste používali zrcadlení v rámci LVM, je podle mého lepší využít rovnou softwarový nebo hardwarový RAID.</p>
 
 <h3>dm-crypt/LUKS</h3>
@@ -51,7 +83,8 @@ správu klíčů a funkci pro posílení uživatelského hesla <b>PBKDF2</b>.
 Specifikace LUKS je multiplatformní a je možné s jeho pomocí vytvářet šifrované
 kontejnery, které lze otevřít i v jiných operačních systémech (třeba s pomocí
 aplikace pro MS Windows s názvem <a
-href="http://www.freeotfe.org/">FreeOTFE</a>).</p>
+href="http://www.freeotfe.org/">FreeOTFE</a>, ale ta má dnes již citelné nevýhody,
+a proto je šifrování pomocí LUKS opět spíše Linuxová záležitost).</p>
 
 <p>Dvouúrovňové šifrování v případě LUKS znamená, že samotný svazek je šifrován
 tzv. hlavním klíčem (master key), který je následně zašifrován uživatelským
@@ -103,6 +136,9 @@ kvalitních (nebo od skutečných zašifrovaných dat):</p>
 ještě začátek oddílu s LUKS hlavičkou pomocí <code>/dev/urandom</code>:</p>
 
 <pre>dd if=/dev/urandom of=/dev/zarizeni bs=1M count=32</pre>
+
+<p>Lepší je ale v každém případě použít data z <code>/dev/urandom</code>,
+popřípadě použít řešení typu <em>frandom</em>.</p>
 
 <h3>Vytvoření šifrovaného svazku</h3>
 

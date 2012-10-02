@@ -1,33 +1,48 @@
 <h1>Správa linuxového serveru: Co dělat po instalaci</h1>
 
 <h3>Instalace některých důležitých balíčků</h3>
+
 <p>Těsně po instalaci je vhodné nainstalovat některé balíčky, které vám jako správcům usnadní práci. Já obvykle instaluji tyto balíčky:</p>
+
 <ul>
 <li><strong>openssh-server</strong> - SSH server pro vzdálenou správu</li>
 <li><strong>mc</strong> - terminálový panelový správce souborů (Midnight commander)</li>
 <li><strong>vim-nox</strong> - <a href="http://www.kit.tul.cz/~satrapa/docs/vim/">editor Vim</a> (bez závislosti na X)</li>
-<li><strong>screen</strong> - <span class="mw_field">### link article=2808 text=správce sezení v terminálu title=Screen: Správce sezení v terminálu mode=inline ###</span></li>
+<li><strong>screen</strong> - správce sezení v terminálu</li>
 <li><strong>htop</strong> - interaktivní správce úloh</li>
 <li><strong>lshw</strong> - jeden z nejlepších nástrojů pro získávání informací o hardwaru</li>
 <li><strong>iotop</strong> - sledování I/O operací procesů v reálném čase</li>
 <li><strong>apg</strong> - řádkový generátor hesel</li>
 </ul>
+
 <p>Po instalaci se určitě hodí nainstalovat SSH server, abyste mohli k serveru přistupovat vzdáleně a nemuseli být fyzicky u něj. Zabezpečení SSH serveru se budeme věnovat podrobně v některém z dalších dílů, prozatím postačí držet se několika rad:</p>
+
 <ul>
 <li>v <code>/etc/ssh/sshd_config</code> nastavit volbu <code>PermitRootLogin</code> na jinou hodnotu než <code>yes</code> (nebo zvolit opravdu velmi silné heslo pro roota) - v úvahu přichází hodnota <code>no</code> (zakáže vzdálené přihlášení na roota) nebo hodnota <code>without-password</code> (povolí vzdálené přihlášení roota pouze SSH klíčem)</li>
+
 <li>ujistit se, že v systému není žádný testovací uživatel se slabým heslem (uživatel <code>test</code> s heslem <code>test</code> zajistí téměř spolehlivě kompromitaci serveru útočníkem v řádu hodin)</li>
-<li>používat ke vzdálenému přístupu uživatelský účet, který jste si vytvořili při instalaci, a opatřit jej <span class="mw_field">### link article=1998 text=bezpečným heslem title=Jak vytvořit opravdu silné heslo mode=inline ###</span></li>
+
+<li>používat ke vzdálenému přístupu uživatelský účet, který jste si vytvořili při instalaci, a opatřit jej bezpečným heslem</li>
+
 <li>ideální je hlásit se pouze pomocí SSH klíčů a nastavit v <code>/etc/ssh/sshd_config</code> volbu <code>PasswordAuthentication</code> na <code>no</code>, čímž zakážete přihlašování heslem pro všechny uživatele</li>
+
 </ul>
 <p>Midnight Commander je výborným pomocníkem nejenom pro začínající správce. Spolu s ním získáte i uživatelsky přívětivý textový editor mcedit. Jako editor můžete samozřejmě používat i něco jiného, třeba můj oblíbený <a href="http://www.vim.org/">Vim</a> (Vi Improved). I když se vám do toho nemusí chtít, naučit se základy práce s editorem Vi není pro správce unixových serverů vůbec na škodu, protože s některou z jeho variant se zajisté setkáte u drtivé většiny serverů, které třeba dostanete pod svou správu. Naopak jiné editory nemusíte mít mnohde k dispozici.</p>
-<p>Pokud potřebujete provést nějakou časově náročnější operaci, provádět více operací současně, nebo pokud se připojujete přes ne zcela spolehlivé připojení, hodí se vám nástroj <span class="mw_field">### link article=2808 text=Screen title=Screen: Správce sezení v terminálu mode=inline ###</span>, který vám zajistí jednak možnost spouštět více "virtuálních terminálů" v jediném SSH sezení, ale který také zajistí kontinuitu vaší práce, pokud se třeba SSH spojení přeruší. Screen vám v takovém případě zůstane běžet na pozadí a vy se k němu můžete kdykoliv znovu "připojit" příkazem:</p>
+
+<p>Pokud potřebujete provést nějakou časově náročnější operaci, provádět více operací současně, nebo pokud se připojujete přes ne zcela spolehlivé připojení, hodí se vám nástroj Screen, který vám zajistí jednak možnost spouštět více "virtuálních terminálů" v jediném SSH sezení, ale který také zajistí kontinuitu vaší práce, pokud se třeba SSH spojení přeruší. Screen vám v takovém případě zůstane běžet na pozadí a vy se k němu můžete kdykoliv znovu "připojit" příkazem:</p>
+
 <p><code>screen -x</code></p>
+
 <p>Htop je trošku příjemnější nástroj pro správu procesů než klasický top, používá barvy a je trošku intuitivnější. Občas se vám pro diagnostiku hodí i nástroj iotop, který vám řekne, jaký proces zrovna provádí práci s disky a jak moc je zatěžuje.</p>
-<p>
-Nástroj lshw je nedocenitelný pomocník, pokud se chcete dozvědět více o hardwaru příslušného serveru. Umí toho zjistit neuvěřitelně mnoho, třeba i osazení jednotlivých paměťových bank. Vše umí prezentovat v jasné hierarchické struktuře a dokonce zvládá i export informací do HTML nebo XML.</p>
+
+<p>Nástroj lshw je nedocenitelný pomocník, pokud se chcete dozvědět více o hardwaru příslušného serveru. Umí toho zjistit neuvěřitelně mnoho, třeba i osazení jednotlivých paměťových bank. Vše umí prezentovat v jasné hierarchické struktuře a dokonce zvládá i export informací do HTML nebo XML.</p>
+
 <p>Pro rychlou změnu nebo nastavení hesel jsem zvyklý instalovat nástroj apg, pomocí kterého je možné generovat hesla přímo na serveru.</p>
+
 <h3>Exkurze do nového systému</h3>
+
 <p>Jako správci byste měli mít přehled o nejdůležitějších souborech, adresářích a skriptech v Debianu. Předesílám, že řada z těchto umístění je totožná i v případě jiných distribucí:</p>
+
 <h4>Stěžejní konfigurační soubory</h4>
 <ul>
 <li><code>/etc/fstab</code> - nastavení připojení souborových systémů do jednotlivých adresářů</li>
@@ -40,13 +55,18 @@ Nástroj lshw je nedocenitelný pomocník, pokud se chcete dozvědět více o ha
 <li><code>/etc/apt/sources.list</code> - konfigurace repositářů správce balíčků Debianu</li>
 <li><code>/etc/pam.d/*</code> - konfigurace PAMu (zásuvné autentikační moduly)</li>
 </ul>
+
 <p>Většina těchto konfiguračních souborů má buď vestavěnou nápovědu, nebo manuálovou stránku. V dalších kapitolách si některé z nich představíme blíže.</p>
+
 <h4>Stěžejní skripty a umístění</h4>
+
 <p>Jak víte, po spuštění počítače a provedení příslušných testů předá BIOS řízení zavaděči (maličký program v prvních 446 bytech MBR). Zavaděč nahraje do paměti obraz jádra (popř. ještě iniciálního ramdisku) a spustí jej. Jádro připojí kořenový souborový systém a spustí <code>/sbin/init</code>, který začne pouštět další služby (démony) a procedury, jejichž obslužné skripty se nacházejí v <code>/etc/init.d</code>.</p>
+
 <p>V Linuxu je možné nadefinovat různé úrovně běhu (runlevel), v rámci kterých se spouští (nebo vypínají) různé služby. Úrovně běhu v Debianu jsou ve výchozím stavu nadefinované pouze dvě, a to úroveň 1, tedy jednouživatelský režim bez sítě, a úroveň 2, kde běží naopak úplně všechno. Pro úplnost dodávám, že existují ještě dvě další, výchozí úrovně běhu, úroveň 0, vypnutí systému (shutdown), a úroveň 6, restart.</p>
+
 <p>O tom, jaké služby se ve které úrovni běhu spustí nebo vypnou, rozhodují symbolické odkazy v adresářích <code>/etc/rc?.d</code>. Na změny v těchto adresářích lze použít nástroj <code>update-rc.d</code>. Výchozí úroveň běhu a další typy služeb a procedur, které spouští <code>init</code>, se konfigurují v souboru <code>/etc/inittab</code>.</p>
+
 <p>Jako správcům se vám bude určitě hodit adresář <code>/usr/share/doc</code>, který obsahuje dokumentaci k jednotlivým nainstalovaným balíčkům. Zde najdete různé <code>README</code>, poznámky správců daných balíků, ale třeba i příklady konfiguračních souborů, apod.</p>
-<p>Tím bych exkurzi i tento díl seriálu ukončil. Příště se vrátím k tématu RAID z praktického pohledu a ukážu vám, jak softwarový RAID v Linuxu funguje, jak jej vytvořit a spravovat.</p>
 
 <pre id="links">http://www.kit.tul.cz/~satrapa/docs/vim/ Příručka editoru Vim
 http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu Screen - správce sezení v terminálu</pre>

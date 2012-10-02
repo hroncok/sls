@@ -2,8 +2,11 @@
 <h1>Správa linuxového serveru: LVM prakticky</h1>
 
 <h3>Vytvoření LVM svazku</h3>
+
 <p>Základem pro LVM jsou fyzické svazky (physical volumes). Nejprve tedy musíte vytvořit fyzické svazky, které později začleníte do skupiny svazků (volume group), kterou pak rozdělíte na jednotlivé logické svazky (logical volumes).</p>
-<p>Ukážu vám to na příkladu. Řekněme, že máte v počítači tři pevné disky, na každém jeden oddíl vyplňující celý disk:</p>
+
+<p>Dovolte mi to demonstrovat na příkladu. Řekněme, že máte v počítači tři pevné disky, na každém jeden oddíl vyplňující celý disk:</p>
+
 <pre>debian:~# cat /proc/partitions
 major minor  #blocks  name
 
@@ -14,12 +17,15 @@ major minor  #blocks  name
   22    64    5242880 hdd
   22    65    5237158 hdd1
 </pre>
+
 <p>Prvním krokem je vytvoření fyzického svazku. Vytvoříte tedy fyzický svazek z oddílu <code>hdb1</code>:</p>
+
 <pre>debian:~# pvcreate /dev/hdb1
   Physical volume "/dev/hdb1" successfully created
-debian:~# 
-</pre>
+debian:~# </pre>
+
 <p>Tímto byl vytvořen fyzický svazek. Podrobné informace o fyzickém svazku, který byl právě vytvořen, lze zobrazit s použitím nástroje <code>pvdisplay</code>, který vypíše informace o konkrétním fyzickém svazku, pokud mu jako parametr zadáte nějaký konkrétní, nebo vypíše informace o všech fyzických svazcích, o kterých ví (v tomto případě pouze o tom jednom), pokud jej spustíte bez parametrů:</p>
+
 <pre>debian:~# pvdisplay
   "/dev/hdb1" is a new physical volume of "4.99 GB"
   --- NEW Physical volume ---
@@ -33,12 +39,15 @@ debian:~#
   Allocated PE          0
   PV UUID               3wvOQk-M0uS-XJN6-nlrl-x8Uz-CJDF-in2fEs
 </pre>
+
 <p>Velikost svazku je 4.99GB, většina ostatních hodnot je poznamenána tím, že fyzický svazek není součástí žádné skupiny svazků (volume group). Abyste mohli fyzický svazek využít, musíte jej začlenit do skupiny svazků. Jelikož v tuto chvíli není k dispozici žádná skupina svazků, vytvoříte novou, třeba s názvem "data", s pomocí právě tohoto fyzického svazku:</p>
+
 <pre>debian:~# vgcreate data /dev/hdb1
   Volume group "data" successfully created
-debian:~#
-</pre>
+debian:~#</pre>
+
 <p>Pro zjišťování informací o skupině svazků je k dispozici podobný nástroj - <code>vgdisplay</code>, jehož výpis v tuto chvíli vypadá takto:</p>
+
 <pre>debian:~# vgdisplay 
   --- Volume group ---
   VG Name               data
@@ -61,19 +70,26 @@ debian:~#
   Free  PE / Size       1278 / 4.99 GB
   VG UUID               SmBDKH-iTL3-K3aM-I4e6-qgyZ-XL05-wxG7P1
  
-debian:~#
-</pre>
+debian:~#</pre>
+
 <p>Z výpisu je vidět použitý formát (<code>lvm2</code>), počet fyzických svazků přiřazených do skupiny, dále celkovou velikost skupiny svazků i její obsazení. Všimněte si také zkratky PE, jejíž význam odhaluje jádro fungování LVM.</p>
+
 <p><a href="http://cs.wikipedia.org/wiki/Logical_Volume_Manager">LVM</a> pracuje na fyzické úrovni tak, že si rozdělí fyzické svazky do bloků určité velikosti, které pak přiděluje jednotlivým logickým svazkům. Tyto bloky jsou nazývány jako "physical extent" (dále PE). Ve výpisu je vidět, že jeden PE má v tomto případě velikost 4MB a skupina svazků jich má k dispozici celkem 1278, z nichž žádný není dosud alokován (přiřazen logickému svazku).</p>
+
 <p>Ještě než se vrátím k vytváření logického svazku, upozorním ještě na to, čeho si pozorný čtenář jistě všiml, a sice nápadné podobnosti jednotlivých příkazů pro správu LVM, které se liší pouze úvodními dvěma písmeny. V případě LVM je dobré si v paměti uchovat anglické názvy všech pojmů jako "physical volume", "volume group" a "logical volume", protože počáteční písmena daných názvů tvoří prefix pro sadu příkazů, kterými je lze spravovat. Tudíž, pokud operujete s fyzickými svazky, použijete prefix <code>pv</code> následovaný slovíčky jako <code>display</code>, <code>create</code>, <code>extend</code>, atd., a analogický postup použijete v případě ostatních komponent LVM.</p>
+
 <p>Avšak zpět k vytváření LVM. V tuto chvíli je tedy vytvořena skupina svazků z jednoho fyzického svazku. Zbývá poslední krok, a sice vytvoření logického svazku:</p>
+
 <pre>debian:~# lvcreate -L 4.99G data -n zalohy
   Rounding up size to full physical extent 4.99 GB
-  Logical volume "zalohy" created
-</pre>
+  Logical volume "zalohy" created</pre>
+
 <p>Parametr <code>-L</code> udává velikost logického svazku, v tomto případě <code>4.99G</code>, kde <code>G</code> značí gigabyty. Parametr <code>-n</code> umožňuje dát příslušnému logickému svazku jméno, v tomto případě "<code>zalohy</code>".</p>
+
 <p>Příslušný logický svazek je k dispozici jako blokové zařízení <code>/dev/mapper/data-zalohy</code> a lze s ním zacházet jako s kterýmkoliv diskovým oddílem (nebo blokovým zařízením obecně). Příslušné zařízení má i symbolický odkaz <code>/dev/data/zalohy</code>, tudíž je k němu možné přistupovat i takto, o něco málo pohodlněji.</p>
+
 <p>Pokud byste nyní použili nástroj <code>lvdisplay</code> k zobrazení informací o nově vytvořeném logickém svazku, dostali byste výpis podobný tomuto:</p>
+
 <pre>debian:~# lvdisplay 
   --- Logical volume ---
   LV Name                /dev/data/zalohy
@@ -90,13 +106,19 @@ debian:~#
   - currently set to     256
   Block device           254:0
 </pre>
+
 <p>Na příslušném logickém svazku nyní zbývá už jen vytvořit souborový systém, v tomto případě <code>ext3</code>:</p>
-<pre>mkfs.ext3 /dev/data/zalohy
-</pre>
+
+<pre>mkfs.ext3 /dev/data/zalohy</pre>
+
 <p>Souborový systém na novém logickém svazku lze nyní připojit a začít na něj kopírovat data.</p>
+
 <h3>Rozšíření logického svazku</h3>
+
 <p>Úžasnou výhodou LVM je kromě nezávislosti logického členění svazků na fyzických svazcích také možnost provádět různé změny, a to klidně i za běhu systému. Mezi tu nejjednodušší změnu patří zvětšení logického svazku, kterou nyní předvedu.</p>
+
 <p>Podívejte se nejprve na to, co vypíše <code>vgdisplay</code> o skupině svazků (z výpisu jsem vybral pouze relevantní řádky):</p>
+
 <pre>debian:~# vgdisplay 
   --- Volume group ---
   VG Name               data
@@ -106,13 +128,17 @@ debian:~#
   Free  PE / Size       0 / 0   
   ...
 </pre>
+
 <p>Jak je vidět, všechny PE (physical extents) byly již alokovány, to znamená, že v tuto chvíli již není z čeho vytvořit nový logický svazek. Skupina svazků se ale může sestávat z více než jednoho fyzického svazku. Je tedy možné přidat další blokové zařízení (ať už disk, oddíl, diskové pole, apod.) a rozšířit dostupnou kapacitu skupiny svazků:</p>
+
 <pre>debian:~# pvcreate /dev/hdd1
   Physical volume "/dev/hdd1" successfully created
 debian:~# vgextend data /dev/hdd1
   Volume group "data" successfully extended
 </pre>
+
 <p>Prvním příkazem byl z diskového oddílu <code>hdd1</code> vytvořen fyzický svazek, ve druhém kroku byla rozšířena skupina svazků "<code>data</code>" o nový fyzický svazek. Nástroj <code>vgdisplay</code> nyní potvrzuje navýšení kapacity skupiny svazků:</p>
+
 <pre>...
   VG Size               9.98 GB
   PE Size               4.00 MB
@@ -121,7 +147,9 @@ debian:~# vgextend data /dev/hdd1
   Free  PE / Size       1278 / 4.99 GB
 ...
 </pre>
+
 <p>V tuto chvíli již tedy je z čeho rozšířit stávající logický svazek "<code>zalohy</code>". Jak rozšíření skupiny svazků, tak rozšíření logického svazku je možné provádět za běhu systému. Není ani potřeba odpojit souborový systém na daném zařízení:</p>
+
 <pre>debian:~# df -h
 Filesystem                 Size  Used Avail Use% Mounted on
 /dev/mapper/data-zalohy    5.0G  374M  4.3G   8% /mnt
@@ -130,10 +158,12 @@ debian:~# lvextend -L +2G /dev/data/zalohy
   Logical volume zalohy successfully resized
 debian:~# df -h
 Filesystem                 Size  Used Avail Use% Mounted on
-/dev/mapper/data-zalohy    5.0G  374M  4.3G   8% /mnt
-</pre>
+/dev/mapper/data-zalohy    5.0G  374M  4.3G   8% /mnt</pre>
+
 <p>Výstup příkazu <code>df</code> jsem uvedl pro lepší pochopení toho, co se stalo. Jak je patrné, ačkoliv byl logický svazek zvětšen o 2GB, tedy na 7GB celkem, souborový systém stále hlásí kapacitu 5GB. Logický svazek se v tomto směru chová jako diskový oddíl, který byl rozšířen, ale souborový systém na něm nebyl nijak pozměněn, tudíž hlásí stejnou kapacitu jako před tím. Aby mohl souborový systém nově vzniklý extra prostor využít, je třeba jej rozšířit ručně.</p>
-<p>V případě souborového systému <code>ext3</code> lze použít nástroje <code>resize2fs</code>, který umí změnit jeho velikost a roztáhnout jej na celý oddíl. Tuto změnu je o něco lepší provádět na odpojeném souborovém systému, jelikož se jedná o mírně riskantní operaci, ale lze ji samozřejmě provést i na připojeném souborovém systému přímo za běhu:</p>
+
+<p>V případě souborového systému <code>ext3</code> nebo <code>ext4</code> lze použít nástroje <code>resize2fs</code>, který umí změnit jeho velikost a roztáhnout jej na celý oddíl. Tuto změnu je o něco lepší provádět na odpojeném souborovém systému, jelikož se jedná o mírně riskantní operaci, ale lze ji samozřejmě provést i na připojeném souborovém systému přímo za běhu:</p>
+
 <pre>debian:~# resize2fs /dev/data/zalohy 
 resize2fs 1.41.3 (12-Oct-2008)
 Filesystem at /dev/data/zalohy is mounted on /mnt; on-line resizing required
@@ -143,24 +173,32 @@ The filesystem on /dev/data/zalohy is now 1832960 blocks long.
 
 debian:~# df -h
 Filesystem                Size  Used Avail Use% Mounted on
-/dev/mapper/data-zalohy   6.9G  375M  6.2G   6% /mnt
-</pre>
+/dev/mapper/data-zalohy   6.9G  375M  6.2G   6% /mnt</pre>
+
 <p>Nyní již souborový systém vykazuje správnou velikost, a tím byl proces rozšíření skupiny svazků i logického svazku dokončen.</p>
+
 <h3>Zmenšení logického svazku</h3>
-<p>Redukovat velikost souborového systému i logického svazku možné je, ale v tomto případě se již patrně nevyhnete nutnosti daný souborový systém odpojit, alespoň v případě <code>ext3</code>.</p>
-<p>Postup je třeba provést ve správném pořadí (špatné pořadí povede skoro jistě ke ztrátě dat) - nejprve je třeba změnit velikost souborového systému, a teprve poté lze bezpečně změnit velikost logického svazku. Nástroj <code>resize2fs</code> se naštěstí chová opatrně a nepředpokládá, že uživatel vždy ví, co dělá:</p>
+
+<p>Redukovat velikost souborového systému i logického svazku možné je, ale v tomto případě se již patrně nevyhnete nutnosti daný souborový systém odpojit, alespoň v případě <code>ext3</code> či <code>ext4</code>.</p>
+
+<p>Postup je třeba provést ve správném pořadí (špatné pořadí povede skoro jistě ke ztrátě dat) - nejprve je třeba změnit velikost souborového systému, pokud možno ještě pod hranici samotného zmenšení LVM, a teprve poté lze bezpečně změnit velikost logického svazku. Nástroj <code>resize2fs</code> se naštěstí chová opatrně a nepředpokládá, že uživatel vždy ví, co dělá:</p>
+
 <pre>debian:~# resize2fs /dev/data/zalohy 6G
 resize2fs 1.41.3 (12-Oct-2008)
 Filesystem at /dev/data/zalohy is mounted on /mnt; on-line resizing required
 On-line shrinking from 1832960 to 1572864 not supported.
 </pre>
+
 <p>Při pokusu zmenšit připojený souborový systém začal <code>resize2fs</code> protestovat. Odpojíte tedy příslušný souborový systém a zkusíte to znovu:</p>
+
 <pre>debian:~# umount /dev/data/zalohy
 debian:~# resize2fs /dev/data/zalohy 6G
 resize2fs 1.41.3 (12-Oct-2008)
 Please run 'e2fsck -f /dev/data/zalohy' first.
 </pre>
-<p>V tuto chvíli <code>resize2fs</code> zjistil, že souborový systém není označen jako "čistý" (patrně kvůli dřívějšímu zvětšení), tudíž doporučuje nechat souborový systém prověřit nástrojem <code>fsck</code>:</p>
+
+<p>V tuto chvíli <code>resize2fs</code> vybízí k tomu, abyste provedli test souborového systému ještě před úpravou velikosti, tudíž proveďte <code>fsck</code>:</p>
+
 <pre>debian:~# e2fsck -f /dev/data/zalohy
 e2fsck 1.41.3 (12-Oct-2008)
 Pass 1: Checking inodes, blocks, and sizes
@@ -172,38 +210,59 @@ Pass 5: Checking group summary information
 /dev/data/zalohy: ***** FILE SYSTEM WAS MODIFIED *****
 /dev/data/zalohy: 16269/458752 files (0.1% non-contiguous), 124768/1832960 blocks
 </pre>
-<p>Je vidět, že skutečně k nějaké úpravě, respektive opravě souborového systému došlo. Následuje třetí a poslední pokus o zmenšení souborového systému:</p>
-<p>debian:~# resize2fs /dev/data/zalohy 6G resize2fs 1.41.3 (12-Oct-2008) Resizing the filesystem on /dev/data/zalohy to 1572864 (4k) blocks. The filesystem on /dev/data/zalohy is now 1572864 blocks long.</p>
+
+<p>Je vidět, že v tomto případě dokonce skutečně k nějaké úpravě, respektive opravě souborového systému, došlo. Následuje třetí a poslední pokus o zmenšení souborového systému:</p>
+
+<pre>debian:~# resize2fs /dev/data/zalohy 6G
+resize2fs 1.41.3 (12-Oct-2008) 
+Resizing the filesystem on /dev/data/zalohy to 1572864 (4k) blocks. 
+The filesystem on /dev/data/zalohy is now 1572864 blocks long.</pre>
+
 <p>Operace proběhla úspěšně a souborový systém je nyní možné opět připojit.  Po opětovném připojení lze ověřit, že byl opravdu zmenšen:</p>
+
 <pre>debian:~# df -h
 Filesystem                Size  Used Avail Use% Mounted on
 /dev/mapper/data-zalohy   6.0G  374M  5.3G   7% /mnt
 </pre>
-<p>Úplně posledním krokem celého procesu je zmenšení samotného logického svazku:</p>
-<pre>debian:~# lvreduce -L 6G /dev/data/zalohy 
-  WARNING: Reducing active and open logical volume to 6.00 GB
+
+<p>Předposledním krokem celého procesu je zmenšení samotného logického svazku. Povšimněte si, že svazek se zmenšuje na větší hodnotu než je velikost souborového systému:</p>
+
+<pre>debian:~# lvreduce -L 7G /dev/data/zalohy 
+  WARNING: Reducing active and open logical volume to 7.00 GB
   THIS MAY DESTROY YOUR DATA (filesystem etc.)
 Do you really want to reduce zalohy? [y/n]: y
-  Reducing logical volume zalohy to 6.00 GB
-  Logical volume zalohy successfully resized
-</pre>
-<p>Zde je třeba si dát velký pozor na to, aby velikost logického svazku nebyla nikdy menší než velikost souborového systému. Varování programu <code>lvreduce</code> je v tomto ohledu dobré brát velmi vážně.</p>
+  Reducing logical volume zalohy to 7.00 GB
+  Logical volume zalohy successfully resized</pre>
+
+<p>Zde je opravdu třeba si dát velký pozor na to, aby velikost logického svazku nebyla nikdy menší než velikost souborového systému. Varování programu <code>lvreduce</code> je v tomto ohledu dobré brát velmi vážně. Následně proveďte opět změnu velikosti souborového systému, postačí bez parametrů. Souborový systém se poté roztáhne na celou novou velikost LVM:</p>
+
+<pre>debian:~# resize2fs /dev/data/zalohy
+resize2fs 1.41.3 (12-Oct-2008) 
+Resizing the filesystem on /dev/data/zalohy to 1835008 (4k) blocks. 
+The filesystem on /dev/data/zalohy is now 1835008 blocks long.</p>
 
 <h3>Přesun dat za běhu systému</h3>
+
 <p>Předpokládejme, že byl do systému přidán nový, velký pevný disk s tím, že starých dvou menších disků se chcete zbavit. Abyste to mohli udělat, musíte přenést data z dvou menších disků na velký, a následně odebrat příslušné fyzické svazky. K tomu slouží nástroj <code>pvmove</code>, který umí přesouvat data mezi jednotlivými fyzickými svazky, a to přímo za provozu (vzhledem k tomu, že vrstva logických svazků je v rámci LVM oddělena od fyzických svazků, nepředstavuje tato procedura pro souborové systémy na daných logických svazcích žádnou změnu).</p>
+
 <p>Pokud zadáte nástroji <code>pvmove</code> pouze jeden fyzický svazek, přesune všechna data z daného svazku na ostatní fyzické svazky v dané skupině svazků:</p>
+
 <pre>debian:~# pvmove /dev/hdb1
   /dev/hdb1: Moved: 37.2%
   /dev/hdb1: Moved: 67.3%
   /dev/hdb1: Moved: 100.0%
 </pre>
+
 <p>V tuto chvíli je fyzický svazek <code>hdb1</code> volný, a je tedy možné jej odstranit ze skupiny svazků:</p>
-<pre>debian:~# vgreduce data /dev/hdb1
-</pre>
+
+<pre>debian:~# vgreduce data /dev/hdb1</pre>
+
 <p>Teprve teď je možné zavolat <code>pvremove</code> k odstranění logického svazku, nebo, přesněji řečeno, příslušných metadat, které si na daný oddíl LVM zapsalo:</p>
-<pre>debian:~# pvremove /dev/hdb1
-</pre>
+
+<pre>debian:~# pvremove /dev/hdb1</pre>
+
 <p>Tento krok je samozřejmě nepovinný a není nutný - zejména, pokud máte v plánu přiřadit dané fyzické svazky jiné skupině svazků. Tentýž postup lze provést i s druhým diskem:</p>
+
 <pre>debian:~# pvmove /dev/hdd1
   /dev/hdd1: Moved: 32.2%
   /dev/hdd1: Moved: 64.0%
@@ -212,135 +271,196 @@ Do you really want to reduce zalohy? [y/n]: y
 debian:~# vgreduce data /dev/hdd1
   Removed "/dev/hdd1" from volume group "data"
 debian:~# pvremove /dev/hdd1
-  Labels on physical volume "/dev/hdd1" successfully wiped
-</pre>
+  Labels on physical volume "/dev/hdd1" successfully wiped</pre>
+
 <p>V tuto chvíli jsou všechna data přesunuta ze dvou menších disků na jeden větší. V případě výpadku napájení nebo pádu systému je po opětovném nastartování možné v přesunu pokračovat tím, že znovu spustíte nástroj <code>pvmove</code>, bez parametrů. Proceduru je možné i přerušit, použijete-li parametr <code>--abort</code>.</p>
+
 <p>Stav fyzických svazků je možné rychle prověřit pomocí <code>pvs</code> (podobnost s <code>ls</code> není čistě náhodná):</p>
+
 <pre>debian:~# pvs
   PV         VG   Fmt  Attr PSize  PFree
   /dev/hdc1  data lvm2 a-   10.99G 4.99G
 </pre>
+
 <p>Podobným způsobem můžete vyvolat informace o logických svazcích (nástroj <code>lvs</code>) nebo skupinách svazků (nástroj <code>vgs</code>). Tyto nástroje poskytují v porovnání s nástroji <code>*display</code> pouze základní přehled.</p>
+
 <p>Pokud by se vám někdy stalo, že zapomenete provést <code>vgreduce</code> a odstraníte prázdný, ale do skupiny zařazený fyzický svazek (navzdory protestům nástroje <code>pvremove</code>, kterému je v takovém případě nutné ještě přidat parametr <code>-ff</code>, aby tuto nebezpečnou operaci provedl), dojde k poměrně vážnému chybovému stavu, zejména v případě starších verzí LVM. Následky této nepříjemné situace je naštěstí možné jednoduše odstranit, a to následujícím příkazem:</p>
-<pre> vgreduce --removemissing volume_group
-</pre>
+
+<pre> vgreduce --removemissing volume_group</pre>
+
 <p>Na této hypotetické situaci bych rád ukázal tři věci. Jednak to, že varování nástrojů pro správu LVM je dobré nebrat na lehkou váhu a spíše se nejprve důkladně rozmyslet, jestli danou věc děláte správně, a teprve pak se pokusit obejít nějaký bezpečnostní mechanismus.</p>
+
 <p>Za druhé, nástroje pro správu LVM umí ledacos, včetně postupů pro zotavení z nějakého problémového stavu. Studiem manuálových stránek se pak můžete vyhnout časově náročným a velice komplikovaným <a href="http://bisqwit.iki.fi/story/howto/undopvremove/">ručním postupům</a>.</p>
+
 <p>A konečně za třetí - LVM představuje další funkční vrstvu mezi médiem a souborovým systémem, jejíž případné chyby (nebo chyby administrátora při její správě) mohou negativně ovlivnit vaše data a zkomplikovat vám práci při případných záchranných operacích, pokud třeba selže HW. V této souvislosti opět zopakuji, že zálohování je nutnost.</p>
+
 <h3>Snapshoty</h3>
+
 <p>Co je snapshot? Fotografové by tento termín přeložili asi jako "momentka". V případě LVM se jedná o "momentku" daného logického svazku a všech dat na něm, která se v daném okamžiku jakoby zmrazí. K této "momentce" pak můžete přistupovat jako k jinému logickému svazku (nebo obecně jako k blokovému zařízení), zatímco původní logický svazek byl již modifikován.</p>
+
 <p>Snapshoty lze provádět i za běhu s připojeným souborovým systémem, i když tento postup může vést k nekonzistentním datům. Je to dáno tím, že snapshot je prováděn na úrovni "pod" souborovým systémem, o jehož stavu nemá LVM žádné informace (a naopak, souborový systém netuší, že ve funkční vrstvě pod ním došlo k nějakému zmražení stavu). Pokud tedy v okamžiku vytvoření snapshotu nějaká aplikace právě provádí zápis dat do souboru, nebo si data k zapsání na disk teprve uchovává v paměti s cílem je později uložit, je jasné, že snapshot bude obsahovat nekonzistentní data.</p>
+
 <p>Souborový systém je možné před pořízením snapshotu odpojit nebo přepojit do režimu read-only, což by se, jen tak pro zajímavost, provedlo takto:</p>
-<pre>mount -o remount,ro /dev/zarizeni
-</pre>
-<p>LVM2, tedy aktuální implementace LVM v Linuxu, umí se snapshoty pracovat i v režimu pro zápis. Tím se liší od původní implementace LVM verze 1. LVM v Linuxu je schopné zahodit snapshot a nově i reintegrovat snapshot do původního svazku (merge). Tato poslední možnost však není k dispozici v Debianu Lenny, jelikož ten používá starší jádro i LVM nástroje. Dokonce jsem měl problémy s touto funkcionalitou i na Arch Linuxu s téměř aktuálním jádrem 2.6.32, pomohla až kompilace nového jádra 2.6.33, které se ještě ani nedostalo do repozitářů. Reintegrace snapshotů je tedy v tuto chvíli z hlediska serverů a jejich správy spíše hudbou budoucnosti, alespoň v případě "stabilních" distribucí jako Debian.</p>
+
+<pre>mount -o remount,ro /dev/zarizeni</pre>
+
+<p>LVM2, tedy aktuální implementace LVM v Linuxu, umí se snapshoty pracovat i v režimu pro zápis. Tím se liší od původní implementace LVM verze 1. LVM v Linuxu je schopné zahodit snapshot a nově i reintegrovat snapshot do původního svazku (merge).</p>
+
 <p>K čemu se dá využít snapshotů? K mnohému. Lze si díky nim vytvořit pojistku před nějakou radikálnější změnou (třeba upgrade celého systému na novou verzi), kterou je pak možné vrátit zpět, pokud se operace nezdaří nebo něco přestane fungovat.</p>
+
 <p>S pomocí snapshotů lze usnadnit proces zálohování, i když se jistému krátkému výpadku služeb nevyhnete, chcete-li mít zálohu konzistentní. Abyste zajistili konzistenci dat, postačí na okamžik zastavit běžící démony přistupující k danému svazku, poté jej přepojit do režimu pouze pro čtení (nebo na chvilku odpojit), vytvořit snapshot, souborový systém znovu připojit (nebo obnovit možnost zápisu) a vypnuté démony znovu spustit. Poté je možné snapshot připojit a z něj provést zálohu, jejíž pořízení může trvat jakkoliv dlouho. Výsledkem je jen minimální výpadek služeb v porovnání s konzistentní a korektně provedenou zálohou bez snapshotů.</p>
+
 <p>Ale dost již teorie, dovolte mi nyní práci se snapshoty demonstrovat prakticky. Předpokládejme, že máte k dispozici testovací logický svazek <code>snaptest</code> ve skupině svazků <code>vg</code>. Testovacímu svazku přiřadíte 5GB:</p>
-<pre>[root@arch ~]# lvcreate -L 5G -n snaptest vg
-  Logical volume "snaptest" created
-</pre>
+
+<pre>debian# lvcreate -L 5G -n snaptest vg
+  Logical volume "snaptest" created</pre>
+
 <p>Na svazku vytvoříte souborový systém, připojíte jej a překopírujete na něj nějaká data. Pro lepší představu uvádím příklad výpisu adresáře na daném logickém svazku před vytvořením snapshotu:</p>
+
 <pre>drwxr-xr-x   7 root root  4096 Feb 25 19:15 cache
 drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc
-drwxr-xr-x   2 root root  4096 Feb 25 18:53 obsolete
-</pre>
+drwxr-xr-x   2 root root  4096 Feb 25 18:53 obsolete</pre>
+
 <p>V tomto stavu se rozhodnete vytvořit snapshot. Snapshot se vytváří úplně stejně jako logický svazek, pouze se přidá parametr <code>-s</code>:</p>
-<pre>[root@arch ~]# lvcreate -s -L 2G -n momentka vg/snaptest
+
+<pre>debian# lvcreate -s -L 2G -n momentka vg/snaptest
   Logical volume "momentka" created
 </pre>
+
 <p>Všimněte si, že je nutné snapshotu přiřadit nějaký prostor (v tomto případě 2GB), kam se pak zapisují změny oproti fyzickému svazku, ze kterého je vytvořen.</p>
+
 <p>V tuto chvíli začnete provádět změny. Na fyzickém svazku odstraníte adresář <code>obsolete</code> obsahující stará a nezajímavá data. Přidáte nový adresář <code>archive</code>, kam umístíte nějaké zálohy. Výsledek bude vypadat takto:</p>
+
 <pre>drwxr-xr-x   5 root root  4096 Feb 25 20:53 archive
 drwxr-xr-x   7 root root  4096 Feb 25 19:15 cache
-drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc
-</pre>
+drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc</pre>
+
 <p>V tuto chvíli máte na výběr mezi dvěma variantami. Můžete snapshot zrušit, nebo jej reintegrovat do původního logického svazku (merge).</p>
+
 <h4>Zrušení snapshotu</h4>
+
 <p>Dojde-li ke zrušení snapshotu, přijdete o možnost dostat se k dřívějšímu stavu daného svazku, přičemž data na původním svazku zůstanou ve stavu, v jakém jsou před zrušením snapshotu, tj. veškeré změny, které jste od pořízení snapshotu provedli, zůstanou součástí daného logického svazku. V této situaci by tedy obsah logického svazku vypadal následovně:</p>
+
 <pre>drwxr-xr-x   5 root root  4096 Feb 25 20:53 archive
 drwxr-xr-x   7 root root  4096 Feb 25 19:15 cache
-drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc
-</pre>
+drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc</pre>
+
 <p>Rušení snapshotu je velmi jednoduché - postačí použít nástroj <code>lvremove</code> a odebrat snapshot, jako by se jednalo o jakýkoliv jiný logický svazek:</p>
-<pre>lvremove vg/momentka
-</pre>
+
+<pre>lvremove vg/momentka</pre>
+
 <h4>Merge snapshotu</h4>
-<p>Můžete se dostat do situace, kdy chcete provést rollback, tedy dostat obsah snapshotu zpět do logického svazku. Jak již bylo řečeno dříve, podmínkou je aktuální verze LVM a jádra, které zatím ještě nejsou v mnoha distribucích (např. v Debianu Lenny) k dispozici. Samotný merge zajišťuje nástroj <code>lvconvert</code> spuštěný s parametrem <code>--merge</code> a umístěním snapshotu:</p>
-<p>[root@arch ~]# lvconvert --merge vg/momentka   Merging of volume momentka started.   snaptest: Merged: 9.6%   snaptest: Merged: 0.0%   Merge of snapshot into logical volume snaptest has finished.   Logical volume "momentka" successfully removed</p>
+
+<p>Můžete se dostat do situace, kdy chcete provést rollback, tedy dostat obsah snapshotu zpět do logického svazku. Podmínkou je aktuální verze LVM a jádra, starší jádra a distribuce to nemusí umět. Debian Wheezy to samozřejmě umí. Samotný merge zajišťuje nástroj <code>lvconvert</code> spuštěný s parametrem <code>--merge</code> a umístěním snapshotu:</p>
+
+<pre>debian# lvconvert --merge vg/momentka
+   Merging of volume momentka started.
+   snaptest: Merged: 9.6%   
+   snaptest: Merged: 0.0%   
+   Merge of snapshot into logical volume snaptest has finished.
+   Logical volume "momentka" successfully removed</pre>
+
 <p>Samotný merge vyžaduje odpojený souborový systém na logickém svazku - pokud byste zadali výše uvedený příkaz a měli svazek nebo snapshot připojený, obdrželi byste následující chybovou hlášku:</p>
-<pre>[root@arch ~]# lvconvert --merge vg/momentka
+
+<pre>debian# lvconvert --merge vg/momentka
   Can't merge over open origin volume
   Merging of snapshot momentka will start next activation.
 </pre>
+
 <p>LVM by pak jen vyčkal, až bude možné merge provést, a jakmile by byl oddíl odpojen, proces by zahájil. V příkladu, který jsem uváděl, by po provedení této operace vypadal souborový systém takto:</p>
+
 <pre>drwxr-xr-x   7 root root  4096 Feb 25 19:15 cache
 drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc
 drwxr-xr-x   2 root root  4096 Feb 25 18:53 obsolete
 </pre>
+
 <h4>Snapshoty snapshotů</h4>
+
 <p>Jelikož lze se snapshoty pracovat jako s obyčejnými blokovými zařízeními, včetně zápisu na ně, vyvstává v této souvislosti otázka, zda-li je možné vytvořit snapshot ze snapshotu. Bohužel, tuto funkcionalitu LVM v Linuxu zatím nemá. Je však možné vytvořit více snapshotů pro jeden logický svazek:</p>
-<pre>[root@arch ~]# lvcreate -s -L 2G -n momentka2 vg/snaptest
+
+<pre>debian# lvcreate -s -L 2G -n momentka2 vg/snaptest
   Logical volume "momentka2" created
-[root@arch ~]# lvs
+debian# lvs
   LV        VG   Attr   LSize Origin   Snap%  Move Log Copy%  Convert
   momentka  vg   swi-a- 2.00g snaptest   0.00                        
   momentka2 vg   swi-a- 2.00g snaptest   0.00                        
   snaptest  vg   owi-ao 5.00g
 </pre>
+
 <h4>Co se stane, když se snapshot zaplní</h4>
+
 <p>Do snapshotu se de facto zapisují všechny rozdíly vůči logickému svazku, ze kterého byl vytvořen, a to metodou "<a href="http://cs.wikipedia.org/wiki/Copy-on-write">copy on write</a>". V zásadě, kapacita snapshotu se snižuje jak vlivem změn ve snapshotu, tak vlivem změn v logickém svazku, kterému snapshot náleží. Pokud dojde k zaplnění celého snapshotu, začnou se dít psí kusy:</p>
-<pre>[root@arch ~]# lvs
+
+<pre>debian# lvs
   /dev/dm-0: read failed after 0 of 4096 at 0: Input/output error
   LV       VG   Attr   LSize  Origin   Snap%  Move Log Copy%  Convert
   momentka vg   Swi-I-  2.00g snaptest 100.00                        
   snaptest vg   owi-a-  5.00g
-[root@arch ~]# mount -t ext3 /dev/vg/momentka /mnt
+debian# mount -t ext3 /dev/vg/momentka /mnt
 mount: wrong fs type, bad option, bad superblock on /dev/mapper/vg-momentka
 ...
 </pre>
+
 <p>Výpis hlášek jádra nástrojem <code>dmesg</code> začne ohlašovat nízkoúrovňové chyby na daném blokovém zařízení:</p>
+
 <pre>Buffer I/O error on device dm-0, logical block 1310718
-EXT3-fs (dm-0): error: unable to read superblock
-</pre>
+EXT3-fs (dm-0): error: unable to read superblock</pre>
+
 <p>V tuto chvíli je již snapshot definitivně mrtvý, nedá se oživit, nedá se připojit, lze jej pouze odstranit:</p>
-<pre>lvremove vg/momentka
-</pre>
+
+<pre>lvremove vg/momentka</pre>
+
 <p>Pokud se ptáte, co se v takovém případě stane se souborovým systémem na původním logickém svazku, odpovědí je nic. Data na něm samozřejmě zůstanou. Horší situace nastane, pokud třeba používáte LVM pro kořenový oddíl, před upgradem systému vytvoříte jeho snapshot, abyste se mohli vrátit k původnímu systému, pokud se upgradem něco pokazí, následně provede upgrade, začnete s testováním a odhalíte fatální problém. Ještě než se pokusíte provést reintegraci (rollback) snapshotu pomocí nástroje <code>lvconvert</code> a jeho parametru <code>--merge</code>, pokusíte se získat co nejvíce informací o tom, co a proč se pokazilo. Mezi tím ale dojde místo na snapshotu a vy zůstanete s nefunkčním systémem.</p>
+
 <p>Pokud budete používat snapshoty, pak je berte jako dočasné úložiště změn, o které můžete přijít, a původní logický svazek jako pevný bod, o který se můžete opřít. V situaci výše by bývalo stačilo, kdybyste před upgradem nastavili snapshot jako aktivní kořenový oddíl. Pak by přetečení snapshotu vyvolalo kolaps systému, ale vám by zůstal původní logický svazek ve stavu před upgradem.</p>
-<p>Pokud má vaše distribuce novější LVM a jádro, pak máte možnost použít výše zmíněný <code>merge</code>, čímž se vám rozšiřují možnosti práce se snapshoty - už nemusíte uvažovat o snapshotu jako o snímku, který nakonec budete muset zahodit. V průběhu času se budete moci rozhodnout jak snímek zahodit a používat nadále logický svazek v jeho aktuálním stavu, tak provést "rollback" a změny provedené na logickém svazku zahodit.</p>
-<p>Tím bych tento díl ukončil. Příště proberu používání zrcadlení na LVM a téma LVM definitivně uzavřu.</p>
+
+<p>Výše zmíněný <code>merge</code> vám rozšiřuje možnosti práce se snapshoty - už nemusíte uvažovat o snapshotu jako o snímku, který nakonec budete muset zahodit. V průběhu času se budete moci rozhodnout jak snímek zahodit a používat nadále logický svazek v jeho aktuálním stavu, tak provést "rollback" a změny provedené na logickém svazku zahodit.</p>
 
 <h3>Zrcadlení v rámci LVM</h3>
+
 <p>Ačkoliv LVM vyniká flexibilitou práce s úložným prostorem, jeho velkým problémem je možné selhání fyzických svazků (physical volume), na kterých je LVM postaveno. Pokud tedy vytvořím skupinu svazků (volume group) z několika pevných disků, je sice na jednu stranu hezké, že k tomu prostoru mohu přistupovat jako ke spojitému úložnému prostoru, se kterým mohu zacházet jako s jedním velkým pevným diskem, který mohu dále libovolně dělit, ale co když některý z těch disků selže? LVM se v tomto ohledu chová podobně jako RAID 0, nemá žádnou redundanci a selhání fyzického svazku znamená ztrátu dat.</p>
+
 <p>LVM v Linuxu však redundance přeci jen schopen je. V rámci LVM je totiž možné vytvořit logický svazek (logical volume), který bude fyzicky zrcadlen nad dvěma nebo více fyzických svazích. To je totéž, co provádí RAID 1. Předpokladem pro vytvoření zrcadleného svazku jsou alespoň tři (ano, opravdu tři) fyzické svazky. Je tomu tak kvůli nutnosti uložení diskového logu na třetí, nezávislé zařízení.</p>
+
 <p>Na úvod vám ukážu tu nejjednodušší situaci, do které se můžete dostat:</p>
+
 <pre>[root@debian ~]# pvs
   PV         VG   Fmt  Attr PSize  PFree 
   /dev/sdb   vg   lvm2 a-   10.00g 10.00g
   /dev/sdc   vg   lvm2 a-   10.00g 10.00g
-  /dev/sdd   vg   lvm2 a-   10.00g 10.00g
-</pre>
+  /dev/sdd   vg   lvm2 a-   10.00g 10.00g</pre>
+
 <p>Zde jsou vidět tři potřebné fyzické svazky s dostatečnou kapacitou. V takovém případě postačí vytvořit zrcadlený logický svazek, takto:</p>
+
 <pre>[root@debian ~]# lvcreate -L 9G -n zrcadlo -m 1 vg
   Logical volume "zrcadlo" created
 </pre>
+
 <p>Jakmile dojde k vytvoření zrcadleného oddílu, dojde i k zahájení úvodní synchronizace jednotlivých zrcadel. Je to proces velmi podobný jako v případě klasického RAIDu 1. Třetí disk, respektive malý kousek na něm, pak slouží jako synchronizační log, díky kterému bude možné udržet synchronizaci i po deaktivaci skupiny svazků (k té dojde třeba při restartu, apod.). Průběh synchronizace je možné sledovat pomocí nástroje <code>lvs</code>:</p>
+
 <pre>[root@debian ~]# lvs
   LV      VG   Attr   LSize Origin Snap%  Move Log          Copy%  Convert
   zrcadlo vg   mwi-a- 9.00g                    zrcadlo_mlog   1.39
 </pre>
+
 <p>Pokud byste chtěli sledovat situaci v reálném čase, můžete si pomoci nástrojem <code>watch</code>:</p>
-<pre>watch -n 1 lvs
-</pre>
+
+<pre>watch -n 1 lvs</pre>
+
 <p>Tento příkaz bude de facto spouštět nástroj <code>lvs</code> každou sekundu. Můžete samozřejmě použít i časy kratší, i když v tomto případě to patrně nebude nutné.</p>
+
 <h4>Co dělat, pokud máte pouze dva fyzické svazky</h4>
+
 <p>První komplikací, která může nastat, je absence třetího fyzického svazku pro uložení mirror logů. V takovém případě, nevadí-li vám nutnost opětovné synchronizace při každém restartu počítače, můžete použít následující trik:</p>
-<pre>lvcreate -L 5G -n zrcadlo -m 1 vg --mirrorlog core
-</pre>
+
+<pre>lvcreate -L 5G -n zrcadlo -m 1 vg --mirrorlog core</pre>
+
 <p>Můžete použít i kratší zápis <code>--corelog</code> místo <code>--mirrorlog core</code>. Obojí zajistí možnost vytvořit daný logický svazek pouze na dvou fyzických svazcích místo třech.</p>
+
 <h4>Nedostatek souvislého prostoru na fyzických svazích</h4>
+
 <p>Druhou možnou komplikací může být nedostatek souvislého prostoru na fyzických svazcích. Pro lepší ilustraci, uvažte následující situaci:</p>
+
 <pre>[root@debian ~]# lvs
   LV      VG   Attr   LSize Origin Snap%  Move Log Copy%  Convert
   root    vg   -wi-a- 8.00g                                      
@@ -351,78 +471,103 @@ EXT3-fs (dm-0): error: unable to read superblock
   /dev/sdc   vg   lvm2 a-   10.00g 10.00g
   /dev/sdd   vg   lvm2 a-   10.00g  2.00g
 </pre>
+
 <p>Pokud se podíváte na dostupnou kapacitu skupiny svazků, zjistíte, že je možné vytvořit až 7GB velký zrcadlený logický svazek, ale volné místo na discích <code>sdb</code> a <code>sdd</code> je po dvou GB. Pokud předpokládáte, že v této konfiguraci postačí zadat LVM vytvoření zrcadleného oddílu a on potřebné místo uvolní, pak vás musím zklamat, tohle LVM automaticky provést neumí:</p>
+
 <pre>[root@debian ~]# lvcreate -L 6G -n zrcadlo -m 1 vg
   Insufficient suitable allocatable extents for logical volume : 1025 more required
   Unable to allocate extents for mirror(s).
 </pre>
+
 <p>Dejme tomu, že vám bude stačit 6GB. Abyste tedy mohli zrcadlený svazek vytvořit, musíte uvolnit potřebné místo na jednotlivých fyzických svazcích ručně. K tomu použijete nástroj <code>pvmove</code>. Chcete-li 6GB velký svazek a máte-li v dané skupině svazků velikost fyzického extentu (PE) 4MB, budete potřebovat alespoň 1536 PE na dvou fyzických svazcích, neboť:</p>
-<pre>(6 * 1024) / 4 = 1536
-</pre>
+
+<pre>(6 * 1024) / 4 = 1536</pre>
+
 <p>Zjistit konkrétně hodnoty alokace PE můžete pomocí nástroje <code>vgdisplay</code>:</p>
+
 <pre>[root@debian ~]# pvdisplay /dev/sdb
   --- Physical volume ---
   PV Name               /dev/sdb
   PE Size               4.00 MiB
   Total PE              2559
   Free PE               511
-  Allocated PE          2048
-</pre>
+  Allocated PE          2048</pre>
+
 <p>Jelikož v tomto případě potřebujete 1536 volných PE, přesunete PE od extentu 1022 až po poslední alokovaný extent, tedy 2048, ze svazku <code>sdb</code> na svazek <code>sdc</code>:</p>
-<pre>pvmove /dev/sdb:1022-2048 /dev/sdc
-</pre>
+
+<pre>pvmove /dev/sdb:1022-2048 /dev/sdc</pre>
+
 <p>Totéž provedu se svazkem <code>sdd</code>:</p>
-<pre>pvmove /dev/sdd:1022-2048 /dev/sdc
-</pre>
+
+<pre>pvmove /dev/sdd:1022-2048 /dev/sdc</pre>
+
 <p>Výsledek bude vypadat takto:</p>
+
 <pre>[root@debian ~]# pvs
   PV         VG   Fmt  Attr PSize  PFree
   /dev/sdb   vg   lvm2 a-   10.00g 6.00g
   /dev/sdc   vg   lvm2 a-   10.00g 1.99g
-  /dev/sdd   vg   lvm2 a-   10.00g 6.00g
-</pre>
+  /dev/sdd   vg   lvm2 a-   10.00g 6.00g</pre>
+
 <p>Nyní již můžete konečně vytvořit požadovaný zrcadlený logický svazek:</p>
+
 <pre>[root@debian ~]# lvcreate -L 6G -n zrcadlo -m 1 vg 
-  Logical volume "zrcadlo" created
-</pre>
+  Logical volume "zrcadlo" created</pre>
+
 <p>Ruční žonglování s PE a nutnost řešit související matematické úlohy asi není to pravé ořechové, ale bohužel mi kromě možnosti napsat si za tímto účelem nějaký pomocný shellový skript není znám žádný rychlejší postup.</p>
+
 <h4>Když disk selže...</h4>
+
 <p>Pokud disk selže, projeví se to ve výpisu fyzických svazků takto:</p>
+
 <pre>[root@debian ~]# pvs
   Couldn't find device with uuid 'fM74J2-9Utu-jvCL-mGVg-7xJW-iiQd-l0Lvgf'.
   PV             VG   Fmt  Attr PSize  PFree
   /dev/sdc       vg   lvm2 a-   10.00g 1.98g
   /dev/sdd       vg   lvm2 a-   10.00g    0 
-  unknown device vg   lvm2 a-   10.00g    0
-</pre>
+  unknown device vg   lvm2 a-   10.00g    0</pre>
+
 <p>Pokud samotný zápis na zrcadlený svazek nevyvolá automatickou konverzi zrcadleného svazku na lineární (nezrcadlený), lze to učinit ručně, odebráním chybějících zařízení ze skupiny svazků:</p>
+
 <pre>[root@debian ~]# vgreduce --removemissing vg --force
   Couldn't find device with uuid 'fM74J2-9Utu-jvCL-mGVg-7xJW-iiQd-l0Lvgf'.
   WARNING: Bad device removed from mirror volume, vg/zrcadlo
   WARNING: Mirror volume, vg/zrcadlo converted to linear due to device failure.
   Wrote out consistent volume group vg
-  WARNING: dev_open(/etc/lvm/cache/.cache) called while suspended
-</pre>
+  WARNING: dev_open(/etc/lvm/cache/.cache) called while suspended</pre>
+
 <p>Po výměně disku postačí nový disk vložit do skupiny svazků:</p>
+
 <pre>[root@debian ~]# pvcreate /dev/sdb
   Physical volume "/dev/sdb" successfully created
 [root@debian ~]# vgextend vg /dev/sdb
   Volume group "vg" successfully extended
 </pre>
+
 <p>A následně provést konverzi nyní lineárního svazku "zrcadlo" na svazek zrcadlený:</p>
-<pre>lvconvert -m1 vg/zrcadlo
-</pre>
+
+<pre>lvconvert -m1 vg/zrcadlo</pre>
+
 <h3>Přístup k LVM ze záchranného/cizího systému</h3>
+
 <p>LVM si uchovává podstatné údaje jednak v <code>/etc/lvm</code> a jednak v hlavičkách fyzických svazků. Pokud máte celý systém na LVM a dojde k nějaké havárii a systém vám nenastartuje, pak musíte LVM připojit ručně.</p>
+
 <p>Nástroje <code>pvscan</code>, <code>vgscan</code> a <code>lvscan</code> po svém spuštění bez parametru osahají všechny dostupné disky a najdou všechny fyzické svazky (physical volumes), skupiny svazků (volume groups) a logické svazky (logical volumes).</p>
+
 <p>Abyste vytvořili všechna potřebná zařízení v <code>/dev</code>, použijte následující příkaz:</p>
-<pre>vgchange -ay
-</pre>
+
+<pre>vgchange -ay</pre>
+
 <p>Pak budete moci přistupovat ke všem logickým svazkům, připojit je a provést případnou záchranou operaci.</p>
+
 <h3>Strategie použití LVM na serveru</h3>
+
 <p>Pokud budete spravovat server (a nejenom v tomto případě), pak se rozhodně vyplatí alokovat jednotlivým logickým svazkům co nejméně, nechat si ve skupině svazků volné místo a spíše logické svazky rozšiřovat dle potřeby, než alokovat celý dostupný prostor a pak přemýšlet, co zmenšit. Volný prostor je nutný nejen k vytváření dalších logických svazků, ale i k vytváření snapshotů.</p>
+
 <h4>Zrcadlit pomocí LVM nebo RAIDem 1?</h4>
+
 <p>Podle mého názoru je nejideálnější schéma nasazení LVM nad nějakým RAIDem, ať už RAIDem 1, 5, 6 nebo třeba 10. Samotné zrcadlení v rámci LVM je zajímavé, ale trpí jistými drobnými nedostatky, počínaje nutností mít tři fyzické svazky. Také je nutné počítat s tím, že LVM je co do funkčnosti podstatně rozsáhlejší a složitější než samotný RAID 1, ať už softwarový či hardwarový. V případě problémů (hardwarových i softwarových) je RAID 1 přeci jen jednodušší v případě záchranných operací.</p>
+
 <p>Když už zmiňuji RAID a zrcadlení, neodpustím si zopakovat svou obligátní poznámku, že tyto technologie nejsou náhražkou zálohování, ba právě naopak. S každou funkcionalitou navíc rostou možnosti nějakého selhání či problému. V souvislosti s LVM je určitě dobré zmínit jeden velice zajímavý <a href="http://lwn.net/Articles/283161/">článek</a> o jeho vztahu k souborovým systémům.</p>
 
 <pre id="links">http://cs.wikipedia.org/wiki/Logical_Volume_Management Wikipédie, Logical Volume Management
