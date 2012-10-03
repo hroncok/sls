@@ -1,34 +1,50 @@
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-
 <h1>Správa linuxového serveru: Jak aktualizovat server(y)</h1>
 
-<p>Každý operační systém a software na něm je třeba aktualizovat. U serveru to platí dvojnásob, jelikož je permanentně vystaven útokům z celého světa. Přitom aktualizace serveru nebývají úplně triviální. V tomto dílu se dozvíte více o této problematice a doporučených postupech.</p>
-
-<h3>Předmluva</h3>
 <p>Oproti aktualizacím desktopu je aktualizace serveru přeci jen v pár věcech odlišná. Na desktopu je obvykle ve výchozí instalaci přítomen nějaký nástroj, který vás na dostupnost nových aktualizací upozorní a provede vás příslušným procesem, a to obvykle v pohodlí grafického prostředí. Na serveru si upozorňování i provádění aktualizací musíte zařídit sami. Druhým podstatným rozdílem je dopad případného problému při aktualizaci - na serveru obvykle jakýkoliv problém postihuje řádově větší množství lidí.</p>
+
 <p>Na základě vlastní zkušenosti si troufám odhadnout, že v případě stabilní větve Debianu je pravděpodobnost nějakého problému při aktualizaci velmi malá, správci se snaží o maximální stabilitu, takže aktualizace proběhnou v drtivé většině případů plně automaticky, bez nutnosti intervence správce. Samozřejmě tomu tak není úplně vždy, někdy je už z povahy aktualizace nutná intervence správce, a to i ve stabilní větvi distribuce, nehledě na různé testovací větve či rolling release distribuce, kde hrozí "rozbití" něčeho prakticky při každé aktualizaci. Proto není u serveru úplně vhodné provádět aktualizace automaticky třeba v rámci cronu, i když to samozřejmě technicky proveditelné je.</p>
+
 <p>Doufám, že nemusím příliš zdůrazňovat, že opačný přístup, tedy neprovádění aktualizací vůbec, je téměř jistá sebevražda. Už jsem měl tu čest s jedním serverem, kde se na aktualizaci distribuce čekalo tak dlouho, až server úspěšně napadl útočník a převzal nad ním kontrolu.</p>
+
 <h3>Druhy aktualizace a aktualizace v Debianu</h3>
-<p>Aktualizace lze členit dle více kritérií. Předně je třeba rozlišovat aktualizace v rámci určitého vydání distribuce (tj. třeba v rámci Debianu stable), aktualizace distribuce na novější verzi (tj. třeba aktualizaci Debianu 4.0 na Debian 5.0), a aktualizaci rolling release distribuce.</p>
+
+<p>Aktualizace lze členit dle více kritérií. Předně je třeba rozlišovat aktualizace v rámci určitého vydání distribuce (tj. třeba v rámci Debianu stable), aktualizace distribuce na novější verzi (tj. třeba aktualizaci Debianu 6.0 na Debian 7.0), a aktualizaci rolling release distribuce.</p>
+
 <p>Dále je třeba rozlišovat povahu aktualizace, tedy jedná-li se o bezpečnostní aktualizaci, nebo pouze o opravu nějakého problému, který nemá bezpečnostní dopad, nebo jedná-li se o aktualizaci na novou verzi dané komponenty.</p>
+
 <p>Aktualizace stabilní větve distribuce by měla být relativně bezproblémová, nemělo by docházet k tomu, aby aktualizace nějakého balíčku rozbila nějakým způsobem nakonfigurovanou službu. Do stabilní větve distribuce (alespoň u Debianu to tak je) by se měly dostávat pouze nutné opravy a bezpečnostní aktualizace, ne nové verze balíčků, kde by třeba vlivem změny syntaxe konfiguračních souborů došlo k narušení nakonfigurovaných služeb.</p>
+
 <p>Aktualizace na nové vydání distribuce je naopak poměrně komplikovaná záležitost. Jelikož se mění verze balíčků a mezi dvěma stabilními vydáními (nejen Debianu) je obvykle velká časová propast, je dost dobře možné, že se v rámci aktualizace nevyhnete problémům, kdy něco přestane fungovat (bude potřeba upravit konfigurační soubor, nebo samotnou databázi uchovávající data atd.). Abyste možnost výskytu takového problému omezili na minimum, doporučuji s aktualizací vyčkat rozumně dlouhou dobu po vydání nové verze distribuce, než se pokusíte provést upgrade. Během této doby se snad většina problémů buď vyřeší, nebo se na ně alespoň přijde a vy se na ně budete moci připravit.</p>
+
 <p>Před samotným upgradem se určitě podívejte po nějaké dokumentaci, a to jak po dokumentaci vztahující se k samotnému optimálnímu postupu aktualizace, tak po poznámkách k vydání, které bývají obzvláště důležité, neb ukrývají seznam známých problémů, na které můžete při aktualizaci narazit.</p>
+
 <p>V případě produkčních systémů bývá vhodné aktualizaci provést pro jistotu "nanečisto" na podobném systému nebo na kopii produkčního systému postavené třeba ze záloh, výsledek důkladně zkontrolovat a otestovat, a teprve pak aktualizovat ostrý server. Samotnou aktualizaci bývá velmi vhodné naplánovat v čase, kdy je server minimálně vytížen, resp. minimálně využíván. Zálohování (nejen) těsně před aktualizací je v tomto případě, jak pevně doufám, samozřejmost.</p>
+
 <p>Rolling release distribuce mají dost specifický charakter - do repositářů se dostávají rovnou nové verze programů (obvykle po otestování), což znamená, že každá aktualizace v sobě skrývá nebezpečí, že něco přestane fungovat. Z tohoto důvodu nebývají tyto typy distribucí příliš doporučovány na produkční servery, i když svědomitý a schopný správce jistě dokáže s jistou dávkou úsilí většině problémů úspěšně předejít. Jen to asi dá trošku více námahy.</p>
+
 <h4>Aktualizace v Debianu</h4>
+
 <p>V případě Debianu se aktualizace provádí následovně:</p>
+
 <pre>aptitude update &amp;&amp; aptitude full-upgrade</pre>
+
 <p>První část příkazu aktualizuje databázi balíčků (a stav balíčků v repositářích), druhá část provede vlastní aktualizaci. Tento příkaz by měl pokrýt i situace, kdy se mění závislostní vazby a kdy vyvstane nutnost nějaký balíček odstranit, aby bylo možné zaktualizovat úplně všechno. Bezpečnou alternativou, v rámci které se aktualizace omezí pouze na případnou instalaci nového balíčku, ale nikoliv už na odstranění některého nainstalovaného, je <code>safe-upgrade</code>:</p>
+
 <pre>aptitude update &amp;&amp; aptitude safe-upgrade</pre>
+
 <p>Samotný <code>safe-upgrade</code> má nepovinný parametr <code>--no-new-installs</code>, který zabrání i instalaci nových balíčků v rámci aktualizace.</p>
+
 <p>Domnívám se, že největší nebezpečí spojené s <code>full-upgrade</code> spočívá spíše v situaci, kdy máte buď přidané některé neoficiální repositáře (kde se mohou tlouci balíčky s oficiálními repositáři), nebo když se pokoušíte aktualizovat na novější verzi distribuce. U aktualizací v rámci stabilní větve Debianu by ke konfliktům docházet nemělo.</p>
+
 <p>Pokud dojde k nějakému konfliktu, a je potřeba nějaký balíček odstranit, nabídne vám Aptitude řešení. V každé takové situaci byste měli zbystřit a dávat pozor, s čím souhlasíte.</p>
+
 <h3>Strategie pro aktualizaci</h3>
+
 <p>První z možností je automatická aktualizace, tj. příslušný záznam v cronu, který pravidelně aktualizuje systém. Z důvodů popsaných výše důrazně nedoporučuji něco takového používat na produkčních serverech. O něčem podobném bych uvažoval u domácího serveru či u osobního VPS, kde tolik nevadí, pokud třeba něco přestane fungovat. Kromě ručního vytvoření skriptu, který vám toto zajistí, můžete využít balíček <code>cron-apt</code>.</p>
+
 <p>Druhou z možností je ruční aktualizace. Ta samozřejmě předpokládá nutnost dozvědět se o dostupnosti nových aktualizací. Za tímto účelem můžete použít výše zmíněný <code>cron-apt</code> nebo také <code>apticron</code>. Tyto nástroje vás budou informovat mailem o nových aktualizacích.</p>
+
 <p>Ve spolupráci s balíčkem <code>apt-listchanges</code> umí <code>apticron</code> posílat v mailech i podrobnosti o aktualizacích. Dozvíte se tak třeba, zdali se jedná o bezpečnostní aktualizaci, čeho se aktualizace týká a také, jak moc je doporučováno aktualizovat.</p>
+
 <p>V rámci ruční aktualizace máte samozřejmě možnost vybírat, kdy a co aktualizovat. Jedna z možných strategií je aktualizovat vše, druhou možností je aktualizovat jen to, co je opravdu nutné. K tomuto rozhodování vám velice dobře poslouží výše zmíněné nástroje. Nemusí být také úplně od věci přihlásit se k odběru zpráv o bezpečnostních problémech a aktualizacích. V případě Debianu se podívejte na <a href="http://www.debian.org/security/">Debian.org</a>.</p>
 
-<pre id="links"></pre>

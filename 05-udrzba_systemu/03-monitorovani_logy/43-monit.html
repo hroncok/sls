@@ -1,0 +1,149 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Hlídání serverů pomocí nástroje Monit</h1>
+
+<p>Stalo se vám někdy, že vám na serveru spadl nějaký důležitý démon, popřípadě že server samotný přestal reagovat, a vy jste to nezjistili včas? Nástroj Monit umí hlídat činnost serveru i nejrůznějších démonů a nejen upozornit v případě problému, ale i provést opravnou akci. Jak na to, to je předmětem tohoto článku.</p>
+
+<h3>Úvod</h3>
+<p>Monit je komplexní nástroj na sledování služeb, a to jak služeb běžících na místním serveru, tak služeb běžících na vzdáleném. Umožňuje velmi přesně definovat, co a jak se bude kontrolovat. U místních služeb může být prospěšný jak tím, že upozorní na jejich nedostupnost či blížící se problém (např. docházející paměť apod.), tak provedením opravné akce, kterou může být restart monitorované služby, ale také jakýkoliv jiný příkaz. Monitorovat lze nejen činnost konkrétních démonů, ale také řadu systémových veličin, jako je např. zatížení systému, volná paměť, využití swapu apod.</p>
+<p>Stav monitorovaných systémů či služeb je možné zjišťovat nejenom kontrolou poštovní schránky, kam přichází oznámení, ale také pomocí webového či shellového rozhraní. Tyto rozhraní umí nejenom sledovat stav veškerého monitorování, ale umožňují i provádět jisté změny přímo za běhu, tedy restart sledovaných služeb nebo pozastavení či opětovné zahájení konkrétního monitorování. Na to je dobré při případných upgradech či servisních zásazích nezapomenout, protože Monit pak třeba službu, která není aktivní, automaticky nastartuje, což v takových situacích může vadit.</p>
+<h3>Instalace</h3>
+<p>K instalaci postačí nainstalovat stejnojmenný balíček, v Debianu stačí zapsat následující příkaz:</p>
+<pre>aptitude install monit</pre>
+<p>Na rozdíl od řady jiných démonů je Monit po instalaci neaktivní, tzn. před samotným použitím je třeba jej nakonfigurovat (viz níže). Až budete mít Monit nakonfigurovaný, povolte jeho použití v <code>/etc/default/monit</code>, kde proměnné <code>startup</code> přiřaďte jedničku místo nuly:</p>
+<pre>startup=1</pre>
+<h3>Základní konfigurace Monitu</h3>
+<p>Proces konfigurace Monitu je poměrně jednoduchý. Máte na výběr ze dvou možností - buď budete přímo měnit hlavní konfigurační soubor Monitu, tedy <code>/etc/monit/monitrc</code>, nebo si jednotlivé služby i základní konfiguraci rozdělíte do libovolně pojmenovaných souborů v <code>/etc/monit/conf.d</code>.</p>
+<p>Výchozí konfigurační soubor <code>/etc/monit/monitrc</code> neobsahuje prakticky žádnou výchozí konfiguraci, ale je dobře zdokumentovaný a základní nastavení jsou v něm přítomna, pouze jsou zakomentována, takže stačí příslušné volby odkomentovat a nastavit si je podle svých představ. Základ by mohl vypadat třeba takto:</p>
+<pre>set daemon 120
+    with start delay 240
+set logfile syslog facility log_daemon
+set mailserver localhost
+set mail-format { from: <span class="eaddress">monit@muj-server<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />tld</span> }
+set alert root@localhost</pre>
+<p>První dva řádky nastavují režim démona a dva podstatné časové údaje. Prvním z nich je doba cyklu, tedy doba mezi jednotlivými kontrolami, zde nastavena na sto dvacet sekund. V jednotlivých pravidlech (viz dále) je možné stav služeb zjišťovat i v delším časovém rozmezí a konkrétní akci pak vázat na stav, který trvá po dobu několika cyklů.</p>
+<p>Na druhém řádku je nastavena úvodní čekací doba před zahájením monitorování. Tato doba se měří od spuštění Monitu a v tomto případě je nastavena na dvě stě čtyřicet sekund. Druhý řádek je samozřejmě nepovinný - je to pouze doplnění k prvnímu řádku, a pokud jej nespecifikujete, služby se začnou monitorovat okamžitě po spouštění Monitu.</p>
+<p>Třetí řádek nastavuje logování, čtvrtý pak poštovní servery (<code>mailserver</code>), prostřednictvím kterých budou odesílána oznámení. Mailserverů je možné specifikovat více, jako oddělovač použijte čárku. Máte-li možnost, nelze než doporučit použít víc než jeden poštovní server, Monit pak v případě nečinnosti jednoho pošle e-mail přes jiný (je nepříjemné, pokud by přestal fungovat poštovní server a vy byste se o tom nedozvěděli, protože Monit by neměl k dispozici žádný další). Pátý řádek upravuje formát zasílaných e-mailů, resp. nastavuje pole <code>From:</code> - to bývá vhodné přizpůsobit doménovému jménu vašeho serveru.</p>
+<p>Poslední řádek nastavuje příjemce upozornění. Příjemců může být pochopitelně více - potřebujete-li jich více, specifikujte <code>set alert</code> vícekrát, např. takto:</p>
+<pre>set alert admin1@localhost
+set alert admin2@localhost</pre>
+<p>Dodám ještě, že Monit umožňuje zasílat různé typy zpráv různým uživatelům, avšak zde vás už odkážu na <a href="http://mmonit.com/monit/documentation/monit.html#alert_messages">dokumentaci</a> nebo alespoň na drobný příklad v komentovaném <code>monitrc</code>.</p>
+<h3>Monitorování systému</h3>
+<p>Pokud chcete monitorovat základní veličiny systému, na kterém Monit běží, můžete použít následující šablonu:</p>
+<pre>check system muj-server.tld
+    if loadavg (1min) &gt; 4 then alert
+    if loadavg (5min) &gt; 2 then alert
+    if memory usage &gt; 75% then alert
+    if cpu usage (user) &gt; 70% then alert
+    if cpu usage (system) &gt; 30% then alert
+    if cpu usage (wait) &gt; 20% then alert</pre>
+<p>Název systému a hodnoty si samozřejmě upravte podle libosti. Jak je vidět, zápis pravidel pro Monit se podobá konstrukcím programovacích jazyků, je ovšem maximálně zjednodušený a dobře čitelný. Akce „alert“ zde představuje odeslání zprávy, pokud bude daná podmínka splněna.</p>
+<h3>Monitorování služeb</h3>
+<p>Asi nejjednodušší je poohlédnout se po šablonách pro konkrétní služby, které chcete monitorovat. Něco málo je k dispozici v <a href="http://mmonit.com/wiki/Monit/HowTo">návodech</a>, ale obrovská spousta příkladů se nachází v <a href="http://mmonit.com/wiki/Monit/ConfigurationExamples">příkladech</a> na webu projektu. Využijete-li některé z těchto šablon, nezapomeňte si je upravit, tedy přinejmenším se ujistit, že umístění všech souborů odpovídá vašemu systému. Zde se jedná zejména o init skripty, které jsou v Debianu a mnoha distribucích umístěny v <code>/etc/init.d</code>, ale třeba Arch Linux je má v <code>/etc/rc.d</code>. Dále se jedná o umístění případných socketů či souborů s PID příslušných démonů, kde se umístění mezi distribucemi může také lišit.</p>
+<p>Příklad monitorované služby by mohl vypadat třeba takto:</p>
+<pre>check process denyhosts with pidfile /var/run/denyhosts.pid
+      start program = "/etc/init.d/denyhosts start"
+      stop program = "/etc/init.d/denyhosts stop"
+      if cpu &gt; 60% for 2 cycles then alert
+      if cpu &gt; 80% for 5 cycles then restart
+      if totalmem &gt; 15.0 MB for 5 cycles then restart</pre>
+<p>V tomto příkladu je monitorován proces <code>Denyhosts</code> (nástroj byl v tomto seriálu již <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-prakticke-rady-pro-zabezpeceni-ssh-1">představen</a>) za pomoci souboru s PID (<code>with pidfile ...</code>). Je-li specifikován PID soubor, Monit hlídá, jestli existuje proces s příslušným číslem, které je v něm uloženo. Na druhém a třetím řádku jsou specifikovány příkazy pro pro spuštění a zastavení démona, které jsou využívány pro řízení běhu služeb. Monit může příslušné služby restartovat, nastartovat nebo i zastavit za vámi specifikovaných okolností. Na čtvrtém a pátém řádku jsou podmínky vztahující se k zatížení procesoru samotným Denyhosts. Ano, Monit může sledovat využití systémových prostředků (CPU, paměti atd.) u konkrétních procesů, a na to mohou být navázány podmínky.</p>
+<p>Pokud by Denyhosts během dvou cyklů (tedy dvou kontrol) zjistil, že Denyhosts využívá více než šedesát procent CPU, zaslal by e-mailem upozornění. Pokud by Denyhosts využíval více než osmdesát procent CPU během pěti cyklů, byl by poté proveden restart služby. Poslední řádek je pojistka proti případným memory leakům, tzn. v případě obsazení více než 15 MB operační paměti po dobu pěti cyklů bude proveden restart.</p>
+<p>Tím bych tento díl ukončil. Příště budou následovat další příklady, budou naznačeny možnosti seskupování procesů a konfigurace a práce s webovým a konzolovým rozhraním Monitu.</p>
+
+<pre id="links">http://mmonit.com/monit/documentation/monit.html Oficiální dokumentace
+http://mmonit.com/wiki/Monit/ConfigurationExamples Příklady konfigurace
+http://www.howtoforge.com/server-monitoring-with-munin-and-monit-on-debian-lenny Server Monitoring With munin And monit On Debian Lenny</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Hlídání pomocí Monitu (pokračování)</h1>
+
+<p>Minulý díl představil nástroj Monit a jeho základní konfiguraci, tento díl půjde o kus dále a ukáže vám některé další příklady konfigurace Monitu, včetně monitorování služeb běžících na jiných počítačích. Chybět nebude ani představení webového a konzolového rozhraní Monitu.</p>
+
+<h3>Další příklady konfigurace hlídání služeb</h3>
+<p>Hlídání např. webového serveru se nemusí omezit na pouhou kontrolu, zdali server odpovídá na portu 80, popřípadě 443. Je možné si vyžádat a prověřit i konkrétní URL na konkrétní doméně, jak je naznačeno níže:</p>
+<pre>check process apache with pidfile /var/run/apache2.pid
+      start "/etc/init.d/apache2 start"
+      stop  "/etc/init.d/apache2 stop"
+      if failed host www.domena.tld port 80 protocol http
+        and request "/doku.php"
+        with timeout 15 seconds
+        then restart
+      if cpu &gt; 60% for 2 cycles then alert
+      if cpu &gt; 80% for 5 cycles then restart
+      if totalmem &gt; 600.0 MB for 5 cycles then restart
+      if children &gt; 250 then restart
+      if 3 restarts within 5 cycles then timeout
+      group lamp</pre>
+<p>Jednotlivé služby je možné seskupovat do celků, se kterými se pak dá zacházet najednou, tzn. provést restart, zastavit služby, vypnout či zapnout jejich hlídání atd. Této vlastnosti využijete především při práci s konzolovým obslužným nástrojem. Službu zařadíte do skupiny pomocí direktivy <code>group</code>. V příkladu výše je hlídaný Apache členem skupiny „lamp“.</p>
+<p>Monit umožňuje sledovat i jednotlivé konfigurační soubory, umí je přiřadit ke konkrétní službě a umí dokonce reagovat na jejich změny:</p>
+<pre>check process apache with pidfile /var/run/apache2.pid
+    start "/etc/init.d/apache2 start"
+    stop  "/etc/init.d/apache2 stop"
+    [...]
+    group server
+    depends on httpd.conf
+    
+check file httpd.conf 
+    with path /etc/apache/httpd.conf
+    if changed checksum 
+       then exec "/usr/sbin/apache2ctl graceful"</pre>
+<p>Zde je na změnu <code>httpd.conf</code> navázán automatický restart Apache. Je to samozřejmě pouze příklad, v praxi bych se asi k něčemu takovému neuchyloval, abych pak náhodou při nějaké rozsáhlejší změně konfiguračních souborů uprostřed práce nezjistil, že mi Monit na pozadí restartoval Apache, který se samozřejmě kvůli chybě v syntaxi konfigurace znovu nespustil.</p>
+<p>V tomto příkladu je však patrná ještě jedna direktiva, a sice direktiva závislosti, tedy „<code>depends on</code>“. Tímto způsobem je možné vytvářet mezi jednotlivými hlídanými službami závislostní vazby, které pak Monit při všech operacích bere v úvahu.</p>
+<h3>Monitorování vzdálených systémů a služeb</h3>
+<p>Pomocí Monitu lze však hlídat nejenom lokálně běžící služby, ale také vzdálené služby a počítače v síti. Můžete tak z jednoho místa monitorovat stav všech svých serverů. Jednoduchý příklad hlídání vzdáleného serveru následuje:</p>
+<pre>check host domena.tld with address domena.tld
+      if failed icmp type echo count 3 with timeout 15 seconds for 5 cycles then alert
+      if failed port 25 proto smtp for 5 cycles then alert
+      if failed port 80 proto http for 5 cycles then alert
+      if failed port 22 proto ssh for 5 cycles then alert</pre>
+<p>Základem pro monitorování vzdálených serverů je jejich dostupnost na síti, což lze testovat prostřednictvím protokolu ICMP (viz druhý řádek příkladu). Zde, pokud na ping vzdálený server neodpoví během pěti cyklů Monitu, zašle se o tom upozornění správci. Hlídání je pak nastaveno tak, že se v každém cyklu zasílají celkem tři ICMP pakety a na odpověď se čeká po dobu patnácti sekund.</p>
+<p>Hlídání dalších služeb pak následuje (řádky 3-5). V tomto případě se jedná o testování fungování příslušného protokolu, nikoliv tedy o pouhý test TCP spojení. Monit podporuje   celou řadu protokolů, viz <a href="http://mmonit.com/monit/documentation/monit.html#connection_testing">tato</a> část oficiální dokumentace.</p>
+<h3>Webové rozhraní Monitu</h3>
+<p>Stav služeb a jejich správu je možné realizovat nejenom prostřednictvím konzolového nástroje (viz dále), ale také pohodlně pomocí webového rozhraní. V případě Monitu není třeba používat webový server k jeho zobrazení, ten si Monit zajišťuje sám, stačí tedy toto rozhraní pouze nakonfigurovat. Nastavení webového rozhraní může vypadat například takto:</p>
+<pre>set httpd port 2812 and
+     ssl enable
+     pemfile /etc/cert/server.pem
+     use address localhost
+     allow localhost
+     allow admin:monit</pre>
+<p>Toto nastavení využívá SSL s certifikátem umístěným v <code>/etc/cert/server.pem</code>. Webový server bude v tomto případě Monitu naslouchat pouze na localhostu (viz čtvrtý řádek), bude také povolovat spojení pouze z localhostu (pátý řádek) a bude vyžadovat HTTP autentzaci s uživatelským jménem „admin“ a heslem „monit“ (doporučuji změnit na něco složitějšího a ujistit se, že soubor s konfigurací Monitu nepřečte obyčejný uživatel na serveru).</p>
+<p>Abyste získali představu, jak toto rozhraní vypadá, podívejte se na následující snímky obrazovek. Předem se omlouvám za nutnou cenzuru některých položek. Základní obrazovka webového rozhraní Monitu vypadá následovně:</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4282.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4282.jpg','Základní obrazovka webového rozhraní Monitu','1348','882'); return false;"><img alt="Základní obrazovka webového rozhraní Monitu" class="ph_detail" height="292" src="http://www.linuxexpres.cz/uploads/gallery/detail/4282.jpg" width="446" /></a> <span class="ph_title">Základní obrazovka webového rozhraní Monitu</span></p>
+<p>Pokud byste se podívali na detail některé hlídané služby, vypadalo by to takto:</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4283.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4283.jpg','Detail hlídané služby','1348','906'); return false;"><img alt="Detail hlídané služby" class="ph_detail" height="300" src="http://www.linuxexpres.cz/uploads/gallery/detail/4283.jpg" width="446" /></a> <span class="ph_title">Detail hlídané služby</span></p>
+<p>Jak je z obrázku patrné, službu je možné ovládat pomocí tlačítek ve spodní části obrazovky. Snadno tak zajistíte vzdálený restart bez nutnosti použít příkazovou řádku. Detail hlídání vzdáleného serveru může vypadat kupříkladu takto:</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4284.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4284.jpg','Detail hlídaného vzdáleného serveru','1364','676'); return false;"><img alt="Detail hlídaného vzdáleného serveru" class="ph_detail" height="221" src="http://www.linuxexpres.cz/uploads/gallery/detail/4284.jpg" width="446" /></a> <span class="ph_title">Detail hlídaného vzdáleného serveru</span></p>
+<p>Otázkou zůstává, jak co nejbezpečněji zpřístupnit rozhraní Monitu zvenčí. Jednou z možností je použít SSH tunel, např. takto:</p>
+<pre>ssh -N -f uzivatel@server -L 3000:127.0.0.1:2812</pre>
+<p>Tento příkaz naváže SSH spojení se serverem „server“ jako uživatel „uzivatel“ a nabídne vám na místním portu 3000 vašeho počítače vzdálený port Monitu běžící na portu 2812 na IP adrese <code>127.0.0.1</code> (tedy na localhostu serveru), tzn. do prohlížeče pak stačí zapsat: <code>https://localhost:3000/</code> a máte k dispozici webové rozhraní Monitu, se kterým komunikujete bezpečně přes SSH tunel.</p>
+<p>Pokud vám na serveru běží webový server s PHP, můžete se podívat do <code>/usr/share/doc/monit/contrib</code> (platí pro Debian a z něj odvozené distribuce), kde se nachází soubor <code>monit.php</code>, který umožňuje zpřístupnit webové rozhraní Monitu prostřednictvím PHP kdekoliv na serveru. Pokud se rozhodnete pro tuto cestu, přístup k tomuto souboru určitě dobře zabezpečte.</p>
+<h3>Konzolové rozhraní Monitu</h3>
+<p>Funguje-li Monit jako démon, můžete využít řádkového nástroje <code>monit</code> ke zjišťování stavu služeb a servisním zásahům. Můžete si, kupříkladu, vypsat stav všech hlídaných služeb:</p>
+<pre>debian:~# monit summary
+The Monit daemon 5.1.1 uptime: 19d 4h 31m 
+
+System 'domena.tld'                 running
+Process 'apache'                    running
+Process 'postgresql'                running
+Process 'sshd'                      running
+Process 'postfix'                   running
+Process 'denyhosts'                 running
+Process 'dkim-filter'               not monitored
+Remote Host 'domena1.tld'           online with all services
+Remote Host 'domena2.tld'           ICMP failed
+Remote Host 'domena3.tld'           online with all services</pre>
+<p>Z výpisu je patrná jedna nemonitorovaná služba a nedostupnost jednoho vzdáleného serveru (<code>domena2.tld</code>). Základních operací s jednotlivými službami je pět, a sice jejich nastartování (<code>start</code>), zastavení (<code>stop</code>), restart (<code>restart</code>), zahájení hlídání (<code>monitor</code>) a přerušení hlídání (<code>unmonitor</code>). Jako parametr kterékoliv z těchto akcí můžete specifikovat jméno konkrétní služby, nebo zvolit všechny služby pomocí parametru „<code>all</code>“. Zastavení Apache by vypadalo takto:</p>
+<pre>monit stop apache</pre>
+<p>Zajímavější je možnost využívání skupin (viz výše), tedy možnost provést konkrétní akci pro všechny služby z dané skupiny. Pokud byste měli skupinu „lamp“ a chtěli všechny její služby restartovat, provedli byste to takto:</p>
+<pre>monit -g lamp restart all</pre>
+<p>Ostatní volby a možnosti tohoto nástroje si můžete prohlédnout zadáním:</p>
+<pre>monit -h</pre>
+<h3>Velmi flexibilní nástroj na hlídání systému</h3>
+<p>Monit je velmi flexibilní nástroj na hlídání systému, služeb i vzdálených počítačů. Nabízí velmi široké možnosti konfigurace, z nichž tu byl ukázán spíše jen nutný základ. Pokud se chcete dozvědět více, určitě nahlédněte do odkazů pod článkem, kde naleznete nejen oficiální dokumentaci, ale také wiki s řadou příkladů konfigurace služeb.</p>
+
+<pre id="links">http://mmonit.com/monit/documentation/monit.html Oficiální dokumentace
+http://mmonit.com/wiki/Monit/ConfigurationExamples Configuration Examples
+http://www.howtoforge.com/server-monitoring-with-munin-and-monit-on-debian-lenny Server Monitoring With munin And monit On Debian Lenny</pre>
