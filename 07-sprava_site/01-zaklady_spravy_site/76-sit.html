@@ -1,0 +1,778 @@
+<h1>Nastavení sítě pomocí nástroje ip</h1>
+
+<h3>Úvod a ifconfig</h3>
+
+<p>V knihách, článcích, návodech a dokumentaci se často setkáte s nástrojem <code>ifconfig</code> (a dále nástroji <code>arp</code> a <code>route</code>, které jeho funkčnost doplňují). Možná jste si jej díky tomu osvojili a aktivně jej používáte. Tyto nástroje jsou však již dlouhou dobu považovány za zastaralé, jelikož nerespektují změny v síťovém subsystému linuxového jádra, a to už od řady 2.2. Jejich použití může být kvůli tomu za určitých okolností problematické až potenciálně nebezpečné, pokud si nejste případných úskalí dobře vědomi.</p>
+
+<p>Jistě tušíte, jak nahodit síťové rozhraní a IP adresu. Pomocí nástroje <code>ifconfig</code> byste to provedli takto:</p>
+
+<pre>ifconfig eth0 down # shození rozhraní eth0
+ifconfig eth0 up # nahození rozhraní eth0
+ifconfig eth0 192.168.12.12 netmask 255.255.255.0 # nastavení IP adresy a masky</pre>
+
+<p>Co když ale chcete přiřadit jednomu rozhraní více IP adres? Na serveru je to celkem častý požadavek (např. více IP adres pro SSL virtuální weby). Linux to samozřejmě umí, avšak <code>ifconfig</code> nikoliv. V jeho případě si musíte pomoci jistou obezličkou:</p>
+
+<pre>ifconfig eth0 192.168.12.12 netmask 255.255.255.0
+ifconfig eth0:0 192.168.13.13 netmask 255.255.255.0
+ifconfig eth0:1 192.168.14.14 netmask 255.255.255.0</pre>
+
+<p>V tomto případě je třeba zdůraznit, že rozhraní <code>eth0:0</code> a <code>eth0:1</code> jsou sice někde označovaná jako „virtuální“, ale ve skutečnosti se jedná o aliasy daných IP adres, tedy aliasy původního rozhraní.</p>
+
+<p>V případě nástroje <code>ip</code> je možné přidávat IP adresy bez jakýchkoliv obezliček:</p>
+
+<pre>ip addr add 192.168.12.12/24 brd + dev eth0
+ip addr add 192.168.13.13/24 brd + dev eth0</pre>
+
+<p>Problém nastane tehdy, pokud vy (nebo nějaký skript) použije některé z pokročilejších (nebo se starými nástroji nekompatibilních) funkcí nástroje <code>ip</code>. <code>ifconfig</code> vám pak může lhát nebo nasekat neplechu, když přepíše vaše nastavení. Příkladem může být i výše uvedené nastavení více IP adres jednomu rozhraní pomocí nástroje <code>ip</code>. Jelikož nástroj <code>ip</code> běžně k IP adresám aliasy nedefinuje, pak, pokud pomocí něj přiřadíte nějakému rozhraní více IP adres, <code>ifconfig</code> vám je u daného rozhraní nezobrazí:</p>
+
+<pre>root@debian ~# ip addr add 192.168.12.12/24 brd + dev eth1
+root@debian ~# ip addr add 192.168.13.13/24 brd + dev eth1
+root@debian ~# ifconfig eth1
+
+eth1: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500  metric 1
+        inet <strong>192.168.12.12</strong>  netmask 255.255.255.0  broadcast 192.168.12.255
+        inet6 fe80::20a:aff:febc:1c20  prefixlen 64  scopeid 0x20&lt;link&gt;
+        ether 00:0a:0a:bc:1c:20  txqueuelen 1000  (Ethernet)
+        RX packets 629  bytes 42106 (41.1 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 11  bytes 678 (678.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+root@debian ~# ip addr show eth1
+3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UNKNOWN qlen 1000
+    link/ether 00:0a:0a:bc:1c:20 brd ff:ff:ff:ff:ff:ff
+    inet <strong>192.168.12.12/24</strong> brd 192.168.12.255 scope global eth1
+    inet <strong>192.168.13.13/24</strong> brd 192.168.13.255 scope global eth1
+    inet6 fe80::20a:aff:febc:1c20/64 scope link 
+       valid_lft forever preferred_lft forever</pre>
+
+<p>Jak je vidět (IP adresy ve výpisech jsou zvýrazněny tučně), <code>ifconfig</code> v tomto příkladu zobrazuje pouze první nastavenou IP adresu, druhou úspěšně ignoruje. Nástroj <code>ip</code> zobrazuje obě.</p>
+
+<p>V zásadě, pokud budete používat výhradně starší nástroje <code>ifconfig</code>, <code>arp</code> a <code>route</code>, a zároveň budete využívat pouze tu funkcionalitu, kterou tyto nástroje umí, neměli byste narazit na problém. Pokud však budete používat nástroj <code>ip</code>, načež si usmyslíte, že použijete <code>ifconfig</code>, můžete v určitých situacích narazit na problém.</p>
+
+<p>Nástroj <code>ip</code> umí nejenom to, co umí nástroje <code>ifconfig</code>, <code>arp</code> a <code>route</code> dohromady, ale také řadu dalších věcí. Kromě toho nástroj <code>ip</code> respektuje současný návrh síťového subsystému jádra Linuxu a jeho možnosti.</p>
+
+<h3>Instalace</h3>
+
+<p>Nástroj <code>ip</code> bývá součástí moderních distribucí. Pokud ho ve své instalaci nenajdete, pak vám stačí nainstalovat balíček <code>iproute2</code>, což v Debianu provedete takto:</p>
+
+<pre>aptitude install iproute2</pre>
+
+<p>Dlužno dodat, že ve standardní instalaci Debianu Wheezy {TODO urcite?} je již tento balíček obsažen.</p>
+
+<h3>Úvod do nástroje ip</h3>
+
+<p>Syntaxe nástroje <code>ip</code> je poměrně odlišná od nástroje <code>ifconfig</code> (a jeho dvou bratrů), avšak umí toho hodně a podporuje krátké zápisy, které vám šetří ruce, pokud je zadáváte ručně.</p>
+
+<p>Prvním parametrem příkazu <code>ip</code> je vždy „modul“, se kterým chcete pracovat. To může být síťové rozhraní, IP adresa, směrovací tabulka, ARP tabulka apod.:</p>
+
+<pre>ip link       # operace se síťovými rozhraními
+ip addr       # operace s IP adresami
+ip route      # operace se směrovací tabulkou
+ip neigh      # operace s ARP tabulkou
+ip rule       # operace se směrovacími pravidly</pre>
+
+<p>Těchto „modulů“ je o několik více, nicméně tyto je možné považovat za nejběžnější. Jednotlivé parametry mají samozřejmě svoje zkrácené varianty:</p>
+
+<pre>ip li         # operace se síťovými rozhraními
+ip a          # operace s IP adresami
+ip r          # operace se směrovací tabulkou
+ip n          # operace s ARP tabulkou
+ip ru         # operace se směrovacími pravidly</pre>
+
+<p>Každý z těchto modulů má svou specifickou syntax. V rychlosti si ji můžete nechat vypsat, pokud budete tápat:</p>
+
+<pre>ip help
+ip addr help</pre>
+
+<p>Pokud vám nápověda nestačí, můžete použít manuálové stránky:</p>
+
+<pre>man ip</pre>
+
+<p>Pro rychlý výpis např. IP adres nemusíte zadávat kromě modulu žádné další parametry:</p>
+
+<pre>root@debian ~# ip a
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 16436 qdisc noqueue state UNKNOWN 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc pfifo_fast state UP qlen 1000
+    link/ether 64:31:50:74:1e:c6 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::6631:50ff:fe74:1ec6/64 scope link 
+       valid_lft forever preferred_lft forever</pre>
+
+<h3>Práce se síťovými rozhraními</h3>
+
+<p>Základní operace se síťovými rozhraními jsou určitě jejich nahození a shození:</p>
+
+<pre>ip link set dev eth0 up     # nahození rozhraní
+ip link set dev eth0 down   # shození rozhraní</pre>
+
+<p>To je trošku nešťastný začátek, jelikož zrovna v tomto případě je syntaxe nástroje <code>ifconfig</code> úspornější:</p>
+
+<pre>ifconfig eth0 up
+ifconfig eth0 down</pre>
+
+<p class="box">Při této práci s rozhraními si dejte pozor, abyste nebyli na server připojeni přes SSH, protože pokud shodíte rozhraní, přes které jste připojeni, pak ho už nenahodíte.</p>
+
+<p>Ale zpět k nástroji <code>ip</code>. Ten umí měnit nejenom stav rozhraní, ale také řadu jejich parametrů. Mnoho z nich se dočtete v manuálu, já zmíním dva nejběžnější. Prvním je MAC adresa, kterou můžete změnit i bez nástroje <code>ethtool</code>, takto:</p>
+
+<pre>ip link set dev eth0 address 11:22:33:44:55:66</pre>
+
+<p>Dalším parametrem, který můžete chtít někdy změnit, je <a href="http://cs.wikipedia.org/wiki/Maximum_transmission_unit">MTU</a>, tedy maximální velikost IP datagramu, kterou dané rozhraní zpracuje. V případě ethernetu je to nejčastěji 1500 bytů:</p>
+
+<pre>ip link set dev eth0 mtu 1500</pre>
+
+<p>Jednotlivá rozhraní si samozřejmě můžete nechat vypsat:</p>
+
+<pre>root@debian ~# ip link show
+1: lo:  mtu 16436 qdisc noqueue state UNKNOWN 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0:  mtu 1400 qdisc pfifo_fast state UP qlen 1000
+    link/ether 64:31:50:74:1f:c7 brd ff:ff:ff:ff:ff:ff
+3: eth1:  mtu 1500 qdisc pfifo_fast state UNKNOWN qlen 1000
+    link/ether 00:0a:0a:bc:1c:20 brd ff:ff:ff:ff:ff:ff
+4: wlan0:  mtu 1500 qdisc mq state UP qlen 1000
+    link/ether e0:2a:82:45:f4:56 brd ff:ff:ff:ff:ff:ff</pre>
+
+<p>Můžete si nechat vypsat konkrétní rozhraní:</p>
+
+<pre>root@debian ~# ip link show dev eth0
+2: eth0:  mtu 1400 qdisc pfifo_fast state UP qlen 1000
+    link/ether 64:31:50:74:1f:c7 brd ff:ff:ff:ff:ff:ff</pre>
+
+<p>Nebo si můžete nechat vypsat pouze aktivní rozhraní:</p>
+
+<pre>ip link show up</pre>
+
+<h3>Práce s IP adresami</h3>
+
+<p>Jak víte, na síti je každý počítač identifikován IP adresou. Abyste tedy mohli komunikovat po síti, musíte nastavit nějakému dostupnému síťovému rozhraní IP adresu. Přidání IP adresy konkrétnímu rozhraní se tu již objevilo:</p>
+
+<pre>ip addr add 10.0.4.16/24 dev eth1</pre>
+
+<p>Tato syntaxe přidá danou IP adresu s maskou v CIDR notaci (tzn. <code>/24</code> je ekvivalentem masky <code>255.255.255.0</code>). Není potřeba nějaký zvláštní parametr pro přidání další IP adresy. Jednomu rozhraní můžete přiřadit tolik IP adres, kolik chcete. Na serverech bývá obvyklé mít více IP adres, ať již IPv4, nebo IPv6.</p>
+
+<p>Připomínám, že můžete použít kratší zápis:</p>
+
+<pre>ip a a 10.0.4.16/24 dev eth1</pre>
+
+<p>Chcete-li specifikovat konkrétní broadcast adresu, můžete použít tuto syntaxi:</p>
+
+<pre>ip addr add 10.0.4.16/24 brd 10.0.4.255 dev eth1</pre>
+
+<p>Adresu pro broadcast můžete specifikovat v kratší podobě, nejspíše pomocí <code>+</code>, kde se jako broadcast nastaví adresa s jedničkami v těch bitech, které odpovídají síťovému rozhraní v dané síťové masce:</p>
+
+<pre>ip addr add 10.0.4.16/24 brd + dev eth1</pre>
+
+<p>IP adresu samozřejmě můžete i zrušit:</p>
+
+<pre>ip addr del 10.0.4.16/24 dev eth1</pre>
+
+<p>Máte-li přiřazeno více IP adres jednomu rozhraní a chcete-li je smazat všechny, můžete použít parametr <code>flush</code>:</p>
+
+<pre>ip a flush dev eth1</pre>
+
+<h4>Příklad: vytvoření jednoduché místní sítě mezi dvěma počítači</h4>
+
+<p>Pro ilustraci, pokud byste měli dva počítače, propojili je kříženým síťovým kabelem a chtěli si vytvořit jednoduchou síť, postupovali byste tak, že byste nejprve nahodili příslušná rozhraní (obvykle <code>eth0</code>), a poté byste jednotlivým rozhraním na každém počítači přiřadili IP adresu, samozřejmě u každého počítače jinou, ale se stejnou síťovou maskou. Tudíž byste na jednom počítači zadali tyto dva příkazy:</p>
+
+<pre>ip link set dev eth0 up
+ip addr add 10.0.1.1/24 dev eth0</pre>
+
+<p>A na druhém pak tyto:</p>
+
+<pre>ip link set dev eth0 up
+ip addr add 10.0.1.2/24 dev eth0</pre>
+
+<p>Poté byste měli být schopni komunikovat:</p>
+
+<pre>ping 10.0.1.1</pre>
+
+<h1>Pokročilé nastavení sítě pomocí nástroje ip</h1>
+
+<h3>Úvod</h3>
+
+<p>Na úvod bych rád předeslal, že celý tento popis konfigurace předpokládá absenci DHCP serveru na síti. Ten vám obvykle jak přiřadí IP adresu, tak sdělí vašemu počítači, kde najde výchozí bránu i DNS servery. V oblasti nastavení serverů není DHCP příliš obvyklé (resp. ještě jsem se s ním nesetkal), a (nejen) proto je vhodné vědět, jak vše potřebné nastavit ručně.</p>
+
+<h3>Práce s ARP tabulkou</h3>
+
+<p><a href="http://cs.wikipedia.org/wiki/Address_Resolution_Protocol">ARP protokol</a> je určen k překladu síťové (IP) adresy na linkovou (MAC) adresu. Pokaždé, když s někým komunikujete po místní síti, se váš počítač nejprve dotáže pomocí ARP protokolu na to, které linkové adrese přísluší daná IP adresa, a té pak odešle příslušný IP datagram. Řada typů útoků v místní síti (zejména pak MITM:man-in-the-middle) jsou vedeny podvržením ARP záznamů.</p>
+
+<p>Vypsat si ARP tabulku je jednoduché:</p>
+
+<pre>ip neigh show</pre>
+
+<p>Nebo zkráceně:</p>
+
+<pre>ip n</pre>
+
+<p>Do ARP tabulky můžete přidávat záznamy:</p>
+
+<pre>ip neigh add 192.168.5.50 dev eth0 lladdr 11:22:33:44:55:66</pre>
+
+<p>Záznamy můžete samozřejmě odebírat:</p>
+
+<pre>ip neigh del 192.168.5.50 dev eth0</pre>
+
+<p>Můžete také úplně všechny záznamy vymazat:</p>
+
+<pre>ip neigh flush dev eth0</pre>
+
+<p>Přidáním statických záznamů do ARP tabulky se můžete bránit místním MITM útokům. Zde lze také doporučit příslušné nástroje typu <em>arpwatch</em> k monitorování ARP provozu na síti a detekování podezřelých aktivit, popřípadě je možné použít nástroj <code>arptables</code> k vytvoření „ARP firewallu“, tedy sady filtrovacích pravidel pro protokol ARP. Přidávání statických záznamů do ARP tabulky narazí na problém tehdy, když se MAC adresa daného počítače změní (např. výměnou síťové karty nebo výměnou počítače).</p>
+
+<h3>Nastavení směrování</h3>
+
+<p>Základní operací je nepochybně vypsání momentálního obsahu směrovací tabulky:</p>
+
+<pre>ip route show</pre>
+
+<p>Nebo zkráceně:</p>
+
+<pre>ip r</pre>
+
+<p>Směrovací tabulka se naplňuje určitými typy záznamů automaticky. Kupříkladu, pokud byste nastavili na nějakém rozhraní IP adresu a masku:</p>
+
+<pre>ip addr add 10.0.5.1/24 dev eth1</pre>
+
+<p>Pak byste ve směrovací tabulce zjistili záznam odpovídající této nové síti:</p>
+
+<pre>10.0.5.0/24 dev eth1  proto kernel  scope link  src 10.0.5.1</pre>
+
+<p>Zásadní informací pro práci v síti (zejména pak v internetu) je mít k dispozici nějaký počítač, kterému můžete poslat všechny pakety, které nenáleží žádné vám známé síti. Takový počítač (přesněji směrovač – router) se obvykle označuje jako brána (gateway). Nastavení brány, konkrétně pak výchozí brány (default gateway), můžete provést takto:</p>
+
+<pre>ip route add default via 10.0.5.254 dev eth0</pre>
+
+<p>Rozhraní je zde nepovinné, takže ho můžete vypustit:</p>
+
+<pre>ip route add default via 10.0.5.254</pre>
+
+<p>Směrovací tabulku však můžete zaplnit dalšími záznamy. Máte-li bran více (např. pokud jste současně připojeni ke svému ISP a současně ještě k VPN), můžete směrovat určitou komunikaci přes konkrétní bránu. Nebo můžete směrovat určitou komunikaci z jedné sítě do jiné a učinit ze svého linuxového systému směrovač. Ale o tom až za chvíli.</p>
+
+<h3>Nastavení resolveru</h3>
+
+<p>Pro plně funkční připojení k internetu vám v tuto chvíli chybí ještě jedna věc. Přiřazení IP adres vašim rozhraním bylo probráno v minulém díle, nastavení výchozí brány bylo probráno kousek výše, zbývá tedy už jen nastavení DNS resolveru. Bez toho byste pro kontaktování jiných počítačů museli místo jmen (např. <code>linuxexpres.cz</code>) použít IP adresy. Resolver je DNS klient, vestavěný v operačních systémech, který se dotazuje resolvujících DNS serverů, jež vám obvykle přiřadí ISP. Ty mají tu charakteristiku, že pro vás realizují vyhledávání, pokud příslušné DNS záznamy nenajdou ve své cache nebo místní databázi.</p>
+
+<p>Nastavení resolveru v Linuxu je velmi jednoduché, stačí upravit soubor <code>/etc/resolv.conf</code> a přidat do něj alespoň jeden záznam pro DNS server:</p>
+
+<pre>nameserver 1.2.3.4</pre>
+
+<p>Obvykle vám ISP nabídne alespoň dva, aby vás případný výpadek jednoho nepřipravil o možnost překládat názvy na IP adresy.</p>
+
+<h3>Funkce směrovače</h3>
+
+<p>Libovolný linuxový systém může zastat funkci směrovače. To je také jedním z důvodů, proč mnoho „krabiček“, kterým se říká směrovače, v sobě Linux obsahuje. Tato funkčnost je však z celkem rozumných bezpečnostních důvodů ve výchozím stavu vypnutá – je tedy třeba ji zapnout. To lze učinit úpravou patřičného parametru v <code>/proc</code>:</p>
+
+<pre>echo "1" &gt; /proc/sys/net/ipv4/ip_forward</pre>
+
+<p>Výše uvedená syntaxe se často používá v různých návodech, avšak doporučuje se spíše tato, oficiální varianta:</p>
+
+<pre>sysctl -w net.ipv4.ip_forward=1</pre>
+
+<p>Pokud byste chtěli, aby měl váš linuxový systém funkci směrovače po každém startu a ne jen do té doby, dokud nerestartujete, přidejte do souboru <code>/etc/sysctl.conf</code> následující řádek:</p>
+
+<pre>net.ipv4.ip_forward=1</pre>
+
+TODO link na kapitolu o firewallu
+
+<p>Průchozí komunikaci můžete filtrovat pomocí linuxového firewallu, a to v dedikovaném řetězu <code>FORWARD</code>. Nastavení firewallu se zde věnovat nebudu, neboť toto téma zde již bylo <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-linuxovy-firewall-zaklady-iptables">probráno</a>.</p>
+
+<h3>Směrovací tabulka</h3>
+
+<p>Nástroj IP umožňuje nejen nastavení výchozí brány, ale i přidávání záznamů do směrovací tabulky, které poslouží k přidání statických cest. To se může hodit, pokud máte takovou konfiguraci sítě, ve které na sebe počítače přímo „nevidí“, např. tři počítače propojené (kříženým) síťovým kabelem:</p>
+
+<pre>počítač 1 ---- směrovač ---- počítač 2</pre>
+
+<p>Takové nastavení sice není příliš vhodné (je podstatně lepší použít switch nebo bridge), ale ilustruje to úpravu směrovací tabulky. Pro názornost dodám nastavení IP adres:</p>
+
+<pre>(10.0.0.1) ---- (10.0.0.2) router (10.0.1.1) ---- (10.0.1.2)</pre>
+
+<p>Aby mohl počítač vlevo komunikovat s počítačem vpravo, musí prostřední počítač propouštět pakety (a fungovat jako router). To je nutná, nikoli však postačující podmínka. Počítač 1 totiž netuší, kde má hledat síť 10.0.1.0/24, a počítač 2 zase netuší, kde má hledat síť 10.0.0.0/24. Proto je oběma počítačům třeba říci, kde se nachází druhá síť a jak se k ní dostat:</p>
+
+<pre>počítač1 ~# ip route add 10.0.1.0/24 via 10.0.0.2
+počítač2 ~# ip route add 10.0.0.0/24 via 10.0.1.1</pre>
+
+<p>Poté by spolu počítače 1 a 2 měly být schopny komunikovat. Přirozeně, je také možné dané záznamy ze směrovací tabulky vymazat:</p>
+
+<pre>počítač1 ~# ip route del 10.0.1.0/24 via 10.0.0.2
+počítač2 ~# ip route del 10.0.0.0/24 via 10.0.1.1</pre>
+
+<p>Tolik k jednoduchému statickému routování. Nástroj <code>ip</code> také umožňuje specifikovat pravidla, která mohou provoz směrovat různými způsoby, např. mezi dvě brány (např. ISP a VPN) či do ztracena (ekvivalent akce <code>DROP</code> v linuxovém firewallu). O tom (a nejenom o tom) se dozvíte více dále.</p>
+
+<h3>Směrovací pravidla</h3>
+
+<p>Nástroj <code>ip</code> (a potažmo linuxové jádro) toho umí mnohem více. Řekněme, že máte k dispozici dvě brány a chcete nějakou komunikaci směrovat přes jednu a jinou komunikaci přes druhou bránu. Něco takového je také možné, a to pomocí směrovacích pravidel (<code>ip rule</code>).</p>
+
+<p>V minulém díle jste viděli příklady směrování. To, co jsem vám zamlčel, je skutečnost, že směrovacích tabulek může být více. Nemusíte tedy mít všechna směrovací pravidla pohromadě, ale můžete je rozdělit. Pomocí <code>ip rule</code> pak můžete definovat, kdy se použije jaká tabulka.</p>
+
+<p>Příkladem může být následující situace. Máte směrovač, který má čtyři síťová rozhraní, přičemž dvě vedou do dvou místních sítí (192.168.0.0/24 a 192.168.1.0/24) a druhá dvě vedou ke dvěma poskytovatelům připojení. Vy chcete pakety z jedné sítě směrovat přes jednoho ISP a pakety z druhé sítě přes druhého ISP. Pro představu doplňuji malý ASCII „obrázek“:</p>
+
+<pre>síť 192.168.0.0/24 \      / brána 10.0.0.1 --- ISP1
+                    router 
+síť 192.168.1.0/24 /      \ brána 10.0.2.1 --- ISP2</pre>
+
+<p>Specifikace IP adres na routeru by vypadala takto:</p>
+
+<pre>ip addr add 10.0.0.254/24 dev eth0
+ip addr add 10.0.2.254/24 dev eth1
+ip addr add 192.168.0.254/24 dev eth2
+ip addr add 192.168.1.254/24 dev eth3</pre>
+
+<p>Následuje specifikace výchozích bran do dvou oddělených tabulek, tabulky 101 a tabulky 102:</p>
+
+<pre>ip route add default via 10.0.0.1 dev eth0 table 101
+ip route add default via 10.0.2.1 dev eth1 table 102</pre>
+
+<p>Na závěr je potřeba specifikovat pravidla, která budou posílat pakety do jednotlivých tabulek na základě příslušnosti k určité síti:</p>
+
+<pre>ip rule add from 192.168.0.0/24 table 101
+ip rule add from 192.168.1.0/24 table 102</pre>
+
+<p>Přirozeně může nastat mnoho jiných situací. Kupříkladu, místo druhého ISP můžete mít VPN (to by se konfigurovalo velmi podobně), nebo místo dvou sítí budete chtít přes jedno připojení směrovat komunikaci, která směřuje na konkrétní počítač, např.:</p>
+
+<pre>ip rule add to 1.2.3.4 table 101</pre>
+
+<p>Ve spolupráci s příkladem výše by tento řádek směroval spojení s počítačem <code>1.2.3.4</code> přes tabulku 101, tedy ISP1.</p>
+
+<p>Pokud chcete zobrazit obsah konkrétní směrovací tabulky, můžete použít <code>ip route</code> v následující syntaxi:</p>
+
+<pre>ip route show table 101
+ip route show table 102</pre>
+
+<p>Mohu vám jen doporučit podívat se na kompletní syntax <code>ip rule</code> do manuálových stránek, nebo si alespoň rychle zobrazit nápovědu:</p>
+
+<pre>ip rule help</pre>
+
+<p>Zjistíte, že můžete směrovat pakety i podle značek firewallu, dle TOS apod. Zjistíte také, že určité pakety můžete odmítat, a to jak na úrovni směrovacích tabulek (<code>ip route</code>), tak na úrovni směrovacích pravidel (<code>ip route</code>).</p>
+
+<h4>Maškaráda</h4>
+
+<p>V příkladu se dvěma ISP výše by nastal jeden „drobný“ problém – žádný z počítačů ve vnitřních sítích by se nedostal na internet. Důvodem je použití privátních rozsahů. Počítače ve vnitřní síti totiž nejsou díky nim přímo adresovatelné. V této situaci by bylo třeba zařídit, aby router prováděl SNAT, tedy překlad zdrojové adresy (opakem je DNAT, což je překlad cílové adresy). Konkrétně vám ukážu jeho variantu zvanou maškarádu. Ta spočívá v tom, že jádro nastaví zdrojovou adresu automaticky podle toho, jakou adresu počítač na daném rozhraní má. To má tu výhodu, že pro vytvoření tohoto pravidla nemusíte předem znát IP adresu, kterou bude mít router k dispozici (např. v situaci, kdy ISP přiděluje adresu routeru z DHCP serveru).</p>
+
+<p>Maškaráda (stejně jako SNAT a DNAT) se dají nastavit přes Netfilter, tedy pomocí nástroje <code>iptables</code>:</p>
+
+<pre>iptables -t POSTROUTING -o eth0 -j MASQUERADE
+iptables -t POSTROUTING -o eth1 -j MASQUERADE</pre>
+
+<p>Snad nemusím dodávat, že všechno výše uvedené bude fungovat, pouze pokud bude v jádře povoleno předávání paketů (pokud nevíte, jak na to, mrkněte na poslední dva díly, kde je to popsáno). Pokud povoleno nebude, router nebude fungovat jako router a nebude pakety předávat.</p>
+
+<h3>Protokol IPv6 a nástroj ip</h3>
+
+<p>Víceméně všechny operace s nástrojem <code>ip</code>, které jste zde viděli, můžete provádět i v rámci IPv6 protokolu. Nástroj <code>ip</code> IPv6 adresy pozná a přizpůsobí se. Někdy se však hodí vědět, jak nástroji <code>ip</code> explicitně říci, že má brát v úvahu konkrétní protokol, buď IPv4 nebo IPv6. K tomuto účelu slouží přepínače <code>-4</code> a <code>-6</code>:</p>
+
+<pre>ip -6 addr  # IPv6 adresy všech rozhraní
+ip -6 route # IPv6 směrovací tabulka
+ip -4 addr  # IPv4 adresy všech rozhraní
+ip -4 route # IPv4 směrovací tabulka</pre>
+
+<h3>IPv6 přes IPv4</h3>
+
+<p>V datacentrech byste se neměli setkat s tím, že IPv6 připojení není k dispozici, i když raději onen podmiňovací způsob zdůrazňuji, jelikož do nedávna to ještě stále někde problém byl. Většinou se ale s absencí IPv6 konektivity setkáte spíše v domácích podmínkách než v datacentrech. Ideální je samozřejmě tlačit na ISP, aby vám poskytl nativní IPv6 konektivitu, to v každém případě. Ale do té doby, než se tak stane, můžete využít tunelování IPv6 protokolu přes IPv4 protokol.</p>
+
+<p>K tomu samozřejmě potřebujete někoho, kdo IPv6 konektivitu poskytuje a kdo vám poskytne druhý konec tunelu, vaše IPv6 pakety vybalí z IPv4 paketů a pošle je přes IPv6 síť tam, kam mají odejít. Těchto subjektů je k dispozici celá řada, ideální je samozřejmě vybírat ten subjekt, který je vám fyzicky co nejblíže. Odkážu vás v této souvislosti na <a href="https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers">seznam</a> na Wikipedii.</p>
+
+<p>Pokud naleznete schopného „brokera“, dá vám k dispozici nejenom potřebné údaje k nastavení sítě, ale i sadu příkazů podle operačního systému a vy můžete použít oblíbenou metodu copy &amp; paste do terminálu či do editoru. Konfigurace pomocí nástroje <code>ip</code> může vypadat nějak takto:</p>
+
+<pre>ip tunnel add sestkovy-tunel mode sit remote 1.2.3.4 local 4.3.2.1 ttl 255
+ip link set sestkovy-tunel up
+ip addr add 2001:db8::/32 dev sestkovy-tunel
+ip route add ::/0 dev sestkovy-tunel</pre>
+
+<p>První příkaz vytvoří tunel s názvem <code>sestkovy-tunel</code> v módu <code>sit</code> (což je IPv6-přes-IPv4 tunel). Zde je třeba zmínit dvě IP adresy, a sice adresu <code>remote</code>, tedy adresu koncového bodu tunelu (to je IP adresa vašeho brokera), a adresu <code>local</code>, tedy místní adresu vašeho počítače (tam tunel začíná). Druhý příkaz pak tunel „nahodí“, třetí tunel přidá vámi poskytnutý IPv6 rozsah a následuje nastavení cesty (routy).</p>
+
+<h4>Zpřístupnění IPv6 konektivity místní síti</h4>
+
+<p>Pokud chcete celé své domácí síti zpřístupnit IPv6 konektivitu, mělo by vám stačit nastavit router avdertisement démona, který bude ohlašovat potřebné údaje počítačům v síti, aby mohli provést autokonfiguraci.</p>
+
+<p>Takovým démonem je například <code>radvd</code>, jehož název může některé mírně zmást. Ne, ono DVD v názvu nemá s dévédéčky nic společného. Je to jen zkrácenina od <strong>r</strong>outer <strong>adv</strong>ertisement <strong>d</strong>aemon.</p>
+
+<p>Ale zpět k <code>radvd</code>. Konfiguruje se v souboru <code>/etc/radvd.conf</code> a příklad konfigurace může vypadat nějak takto:</p>
+
+<pre>interface eth1 {
+    AdvSendAdvert on;
+    prefix 2001:db8::/32 {
+        AdvOnLink on;
+    };
+};</pre>
+
+<p>Je to skutečně velmi jednoduchý příklad, nejprve se specifikuje síťové rozhraní, na kterém se mají oznámení posílat, v tomto případě <code>eth1</code>. Následuje blok s nastavením pro dané rozhraní. První volba v něm zapíná posílání samotných oznámení (tudíž musí být „on“), následuje specifikace prefixu pro danou síť a daný prefix je pak třeba také „povolit“ volbou <code>AdvOnLink</code>. Následně démona nastartujte:</p>
+
+<pre>/etc/init.d/radvd start</pre>
+
+<p>Pokud se vše povedlo, měly by počítače v místní síti automaticky získat IPv6 adresu i routy.</p>
+
+<p>Více informací o nastavení <code>radvd</code> naleznete v manuálových stránkách:</p>
+
+<pre>man radvd.conf</pre>
+
+<h3>Uložení nastavení pro přežití restartu</h3>
+
+<p>Pokud budete provádět nastavení sítě pomocí nástroje <code>ip</code>, asi je vám jasné, že tato nastavení nepřečkají restart, jelikož se nikam neukládají. Totéž platí pro nastavení <code>iptables</code>. Aby vaše nastavení přečkalo restart, je třeba ho někam uložit.</p>
+
+<p>Jedním z míst pro ukládání různých procedur a nastavení, jež se mají vykonat po spuštění počítače, je skript <code>/etc/rc.local</code>, který bude spuštěn na konci bootování. Pro nastavení sítě to ale není nejvhodnější umístění, jelikož konec bootování obvykle nastává dávno po aktivaci sítě a síťových rozhraní. Ideální by tedy bylo navázat nastavení sítě na „nahození“ příslušného síťového rozhraní. Toho je možné docílit pomocí direktivy <code>up</code> v konfiguračním souboru <code>/etc/network/interfaces</code>:</p>
+
+TODO still relevant in wheezy, huh?
+
+<pre>iface eth0 inet static
+    address 1.2.3.4
+    netmask 255.255.255.0
+    gateway 4.3.2.1
+    up ip addr add 1.2.3.5/24 dev eth0
+    up ip addr add 1.2.3.6/24 dev eth0
+    up ip route add 5.6.7.8 via 8.7.6.5
+    up iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</pre>
+
+<p>Můžete své nastavení vložit do skriptu a na něj se potom odkázat, nebo všechno napsat do <code>/etc/network/interfaces</code>. Toto řešení je lepší, ale není úplně čisté – ideální by bylo přidat direktivy <code>down</code>, které toto nastavení odčiní, aby se při shození a opětovném nahození rozhraní zbytečně nemnožily záznamy v tabulkách.</p>
+
+http://linux-ip.net/html/index.html Guide to IP Layer Network Administration with Linux
+http://jazstudios.blogspot.com/2007/04/iproute-commands.html Iproute commands
+http://www.linuxfoundation.org/collaborate/workgroups/networking/ Kernel networking
+http://www.policyrouting.org/iproute2.doc.html IPROUTE2 Utility Suite Howto
+http://lartc.org/howto/index.html Linux Advanced Routing & Traffic Control HOWTO
+http://web.archive.org/web/20090309011121/http://www.m4r3k.org/czech/proc-nepouzivat-ifconfig/ Marek Stopka, Proč nepoužívat ifconfig?
+http://www.faqs.org/docs/Linux-mini/IP-Alias.html Setting up IP Aliasing on A Linux Machine Mini-HOWTO
+http://linux-ip.net/html/routing-rpdb.html Routing Policy Database (RPDB)
+http://linux-ip.net/html/tools-ip-rule.html ip rule
+http://www.wiggy.net/texts/ipv6-howto/ Simple IPv6 HOWTO
+https://en.wikipedia.org/wiki/IPv6 IPv6
+http://ipv6.com/articles/general/IPv6-Addressing.htm IPv6 Addressing
+http://lartc.org/howto/lartc.rpdb.multiple-links.html Routing for multiple uplinks/providers
+http://linux-ip.net/html/index.html Guide to IP Layer Network Administration with Linux
+http://jazstudios.blogspot.com/2007/04/iproute-commands.html Iproute commands
+http://www.linuxfoundation.org/collaborate/workgroups/networking/ Kernel networking
+http://www.policyrouting.org/iproute2.doc.html IPROUTE2 Utility Suite Howto
+http://lartc.org/howto/index.html Linux Advanced Routing & Traffic Control HOWTO
+http://web.archive.org/web/20090309011121/http://www.m4r3k.org/czech/proc-nepouzivat-ifconfig/ Marek Stopka, Proč nepoužívat ifconfig?
+
+TODO rozdelit na dalsi kapitolu
+
+<h1>Úvod do skenování sítí pomocí Nmap</h1>
+
+<p>Nmap je jeden z nejpopulárnějších nástrojů pro skenování portů. Umí toho poměrně dost a výborně se hodí k základním prověrkám bezpečnosti, zejména pak po různých úpravách firewallu nebo konfigurace sítě. V tomto dílu vás s tímto nástrojem seznámím.</p>
+
+<h3>Úvod</h3>
+
+<p>Jako správci jste se určitě setkali s potřebou ověřit si, zda vámi nastavený firewall funguje podle vašich představ, zda jste na něco nezapomněli nebo zda jste se v něčem nespletli. Stejně tak jste možná chtěli zjistit, jaké informace mohou o vašich serverech (a službách na nich dostupných) získat případní útočníci.</p>
+
+<p>Nmap je, jak už bylo v úvodu řečeno, jeden z nejpopulárnějších nástrojů pro skenování sítí, alespoň v oblasti GNU/Linuxu. Je to velmi pokročilý nástroj, který má mnoho možností. Umí samozřejmě skenovat porty, ale také zvládne skenovat sítě (a hledat běžící počítače), dokáže detekovat nejenom běžící služby, ale i verze příslušných démonů a také verzi použitého operačního systému.</p>
+
+<p>Na závěr úvodu musím bezpodmínečně upozornit na to, že byste měli skenovat pouze ty počítače nebo sítě, které máte pod svou správou. V ostatních případech byste Nmap měli používat pouze se souhlasem všech dotčených subjektů (majitelé a správci příslušných počítačů nebo sítí). Skenování portů bez svolení může být detekováno a považováno za formu útoku.</p>
+
+<p>Dejte si také pozor na skenování sítí v organizaci, pro kterou pracujete (pracujete-li pro nějakou). Zejména, pokud máte na starosti správu serverů a sítě spravuje někdo jiný. Skenování portů bývá často monitorováno pomocí různých IDS a bylo by nemilé, kdyby se na vás po použití Nmapu vyřítil rozezlený správce sítě.</p>
+
+<h3>Instalace a GUI pro Nmap</h3>
+
+<p>Před samotným použitím Nmapu by bylo vhodné jej nainstalovat. Jelikož Nmap je masivně rozšířený v linuxových distribucích, s největší pravděpodobností naleznete stejnojmenný balíček, který můžete nainstalovat pomocí správce balíčků. V Debianu byste to provedli třeba takto:</p>
+
+<pre>aptitude install nmap</pre>
+
+<p>V Arch Linuxu a možná i v jiných distribucích je součástí balíčku <code>nmap</code> i jeho GUI, <code>zenmap</code>. V Debianu a Fedoře tomu tak není, tam je balíček s GUI osamostatněn:</p>
+
+TODO wheezy verify
+
+<pre>aptitude install zenmap</pre>
+
+<p>GUI Nmapu může být poměrně užitečné, jelikož umí značně zpřehlednit výsledky skenování. Umí také kombinovat informace získané z různých skenů, dokonce zvládne i skenované sítě vizualizovat. Určitě tedy doporučuji se na něj podívat, i když v tomto článku se jím zabývat nebudu. Jeho ovládání není nijak komplikované, a pochopíte-li základy práce s Nmapem, měli byste být schopni bez problémů zvládnout práci s jeho GUI.</p>
+
+<h3>Základní použití</h3>
+
+<p>Oficiální syntax pro Nmap vypadá takto:</p>
+
+<pre>nmap [volby] [cíle]</pre>
+
+<p>V zásadě ale na pořadí nezáleží, Nmap je v tomhle poměrně tolerantní. Na úvod si můžete zkusit oskenovat vlastní počítač:</p>
+
+<pre>nmap localhost</pre>
+
+<p>Přirozeně, sken zevnitř a sken zvenčí budou dávat odlišné výsledky, jelikož skenování sebe sama jde přes místní smyčku (local loopback, localhost), kde obvykle běží řada služeb, které ze sítě nemusí být vůbec dostupné. Pokud si vzpomenete na díly o bezpečnosti, zdůrazňoval jsem v nich možnost nakonfigurovat démony tak, aby naslouchaly pouze na místní smyčce a nikde jinde. Např. MySQL je tak (přinejmenším v Debianu) po čerstvé instalaci již nastaven. Dodám, že pro skenování sebe sama nemusí být Nmap vhodným nástrojem, osobně bych doporučil použít <code>netstat</code>:</p>
+
+<pre>netstat -tulpn</pre>
+
+<p>Pro úplnost dodám, že volby <code>-t</code> a <code>-u</code> zobrazují služby běžící na TCP a UDP, dále <code>-l</code> je zodpovědná za vypisování pouze naslouchajících služeb (chcete-li zobrazit všechna spojení, použijte <code>-a</code>), <code>-n</code> vypíná překlad adres na jména (výstup tedy bude vyjádřen v číslech) a konečně <code>-p</code> zobrazí PID i název démona, který je zodpovědný za obsazení daného portu. Toto je velmi užitečný nástroj a také velmi užitečná kolona parametrů.</p>
+
+<p>Ale zpět k Nmapu. Většinou jej budete používat na konkrétní počítač na síti:</p>
+
+<pre>nmap 10.0.1.13</pre>
+
+<p>Výstup takového příkazu by mohl vypadat takto:</p>
+
+<pre>Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-26 16:48 CET
+Nmap scan report for 10.0.1.13
+Host is up (0.019s latency).
+Not shown: 999 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+Nmap done: 1 IP address (1 host up) scanned in 0.39 seconds</pre>
+
+<p>Na tomto konkrétním počítači je patrný pouze jediný otevřený port, a sice SSH (port 22). Ostatní porty jsou zavřené.</p>
+
+<p>Pokud nenastavíte žádné volby, využije Nmap pro všechny parametry výchozí hodnoty. Ty zahrnují mj. typ skenu, rozsah portů, rychlost skenování apod. Nmap také volí různé hodnoty v závislosti na tom, jaká máte privilegia. Kupříkladu, pouštíte-li jej pod rootem, provádí TCP SYN scan (<code>-sS</code>), zatímco pokud byste jej pustili pod neprivilegovaným uživatelem, kde není k dispozici přímý přístup k síťovému rozhraní, zvolí Nmap náhradní variantu, TCP connect scan (<code>-sT</code>). Skutečnost, že různé funkce Nmapu vyžadují různá privilegia, byste měli mít na paměti, jelikož Nmap ne vždy varuje, že mu privilegia chybí. Pak se můžete dlouho divit, proč vrací prázdný výsledek, i když jste parametry specifikovali dobře.</p>
+
+<p>Ve výchozím stavu provádí Nmap před samotným skenováním portů test, zda je příslušný počítač online (host discovery). Pokud v této fázi nezjistí, že je počítač online, nebude provádět skenování portů:</p>
+
+<pre>nmap 10.0.1.254  
+
+Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 17:28 CET
+Note: Host seems down. If it is really up, but blocking our ping probes, try -PN
+Nmap done: 1 IP address (0 hosts up) scanned in 3.00 seconds</pre>
+
+<p>Zde naštěstí Nmap rovnou radí, že zjištění stavu lze přeskočit pomocí volby <code>-PN</code>:</p>
+
+<pre>nmap -PN 10.0.1.254 
+
+Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 17:28 CET
+Nmap scan report for orion (10.0.1.254)
+Host is up (0.00035s latency).
+Not shown: 998 filtered ports
+PORT    STATE  SERVICE
+22/tcp  open   ssh
+53/tcp  open   domain
+
+Nmap done: 1 IP address (1 host up) scanned in 4.56 seconds</pre>
+
+<p>Ke zjištění stavu cílového počítače využívá Nmap různé nástroje – kromě klasického ICMP echo (ping) využívá také protokol ARP, ovšem pouze v privilegovaném režimu (viz varování výše).</p>
+
+<h3>Skenování sítí</h3>
+
+<p>Nmap umí skenovat nejenom konkrétní počítače, ale také celé sítě. Realizuje se to velmi snadno, prostě specifikujete konkrétní subnet místo jednoho počítače:</p>
+
+<pre>nmap 10.0.1.0/24</pre>
+
+<p>Pokud nechcete provádět skenování portů jednotlivých počítačů, ale pouze zjištění, které počítače jsou v dané síti dostupné, můžete skenování portů vypnout (volbou <code>-sP</code>):</p>
+
+<pre>nmap -sP 10.0.1.0/24
+
+Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 16:54 CET
+Nmap scan report for 10.0.1.12
+Host is up (0.00013s latency).
+Nmap scan report for 10.0.1.13
+Host is up (0.014s latency).
+Nmap scan report for 10.0.1.15
+Host is up (0.0018s latency).
+Nmap scan report for 10.0.1.16
+Host is up (0.00059s latency).
+Nmap scan report for 10.0.1.17
+Host is up (0.0017s latency).
+Nmap scan report for 10.0.1.51
+Host is up (0.00097s latency).
+Nmap scan report for 10.0.1.252
+Host is up (0.015s latency).
+Nmap done: 256 IP addresses (7 hosts up) scanned in 3.01 seconds</pre>
+
+<h3>Interpretace výsledků</h3>
+
+<p>Jednotlivé porty se mohou jevit buď otevřené (open), zavřené (closed), nebo filtrované (filtered). Otevřený port znamená dostupnou službu a potenciální prostor pro průnik útočníka do systému. Služba, která je zvenčí dostupná, může být (a bývá) vystavena nejrůznějším útokům, a měla by tedy být velmi dobře zabezpečena. Pokud nemusí být přístupná světu (např. SSH), bývá dobré ji na firewallu omezit pouze pro ty počítače a sítě, ze kterých se na ni potřebujete hlásit.</p>
+
+<p>Zavřený port je takový, který odmítá pokus o spojení (v <code>iptables</code> je to typicky <code>-j REJECT</code>). Tím se liší od filtrovaného portu, který neodpovídá vůbec (ekvivalent <code>-j DROP</code>). Pokud chcete být hodní a chovat se podle norem, měli byste na pokus o spojení reagovat odmítnutím. To však podstatně urychluje skenování portů. Mimo jiné i proto řada správců využívá možnosti zahazovat neoprávněné žádosti o spojení bez jakéhokoliv oznamování. Skenování portů pak trvá déle, jelikož nelze s jistotou říci, zda paket k cíli dorazil nebo ne, tudíž se déle čeká. Skenování portů ovšem zahazování žádostí o spojení nijak nezabrání.</p>
+
+<h3>Pokračování příště</h3>
+
+<h1>Typy skenů a volby Nmapu</h1>
+
+TODO wheezy - asi uz to jde novym zpusobem, ne?
+TODO nepouzivam -sP a -PN dale?
+
+<p>Na úvod bych rád zmínil skutečnost, že volby Nmapu se mezi jednotlivými verzemi mohou měnit. To bohužel poznamenalo <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-skenovani-siti-pomoci-nmap">minulý díl</a> (který doporučuji si přečíst, pokud jste tak ještě neučinili), kde jsem zmiňoval volby <code>-sn</code> a <code>-Pn</code>, které starší Nmap dostupný v Debianu Squeeze nezná. Jejich ekvivalentem jsou volby <code>-sP</code> a <code>-PN</code>, které vám v Debianu Squeeze budou fungovat. Za tento šotek se omlouvám, v dotyčném článku už je to opraveno. V případě problémů s nevyhovující syntaxí doporučuji nahlédnout do manuálu, který bude zmiňovat specifika té verze, kterou na svém stroji používáte.</p>
+
+<h3>Rychlost skenování</h3>
+
+<p>Jednou z podstatných voleb je rychlost skenování. Příliš velká rychlost zatíží síť i server, naopak velmi nízká slouží především k obcházení IDS (Intrusion Detection System). Nmap má k dispozici několik šablon dostupných pod volbou <code>-T</code>. Tyto šablony jsou <code>paranoid</code>, <code>sneaky</code> <code>polite</code>, <code>normal</code> (výchozí), <code>aggressive</code> a <code>insane</code>. Jsou seřazeny od nejpomalejší k nejrychlejší. První dvě jsou určené k obcházení IDS, <code>polite</code> šetří síť i cílový počítač, <code>normal</code> je výchozí volba, <code>aggressive</code> předpokládá, že mezi vámi a cílem je rychlá síť, a <code>insane</code> obětuje přesnost skenu ve snaze dosáhnout co nejvyšší rychlosti. Pokud máte tedy např. cíl v LAN, můžete použít volbu <code>aggressive</code>:</p>
+
+<pre>nmap -T aggressive 10.11.12.13
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:02 CET
+Interesting ports on 10.11.12.13:
+Not shown: 997 closed ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+139/tcp open  netbios-ssn
+445/tcp open  microsoft-ds
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds</pre>
+
+<p>Dodám, že místo těchto šablon je možné parametry skenování nastavovat přímo. Více o tom se dozvíte v sekci <em>TIMING AND PERFORMANCE</em> manuálu k Nmapu.</p>
+
+<h3>Specifikace portů ke skenování</h3>
+
+<p>Ve výchozím stavu skenuje Nmap celkem 1000 nejpoužívanějších portů. Jak jistě víte, čísla portů se pohybují v rozmezí 0–65535. Pokud tedy někdo např. přesunul SSH port z 22 na 65022, tak se o tom nedozvíte, dokud nenastavíte rozsah ručně.</p>
+
+<p>Nmap nabízí celkem tři varianty specifikace portů. Pokud se vám 1000 nejpoužívanějších portů zdá moc, můžete Nmapu nařídit, aby skenoval pouze 100 nejpoužívanějších portů, a to parametrem <code>-F</code>:</p>
+
+<pre>nmap -F -v 10.11.12.13
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:02 CET
+Interesting ports on 10.11.12.13:
+Not shown: 97 closed ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+139/tcp open  netbios-ssn
+445/tcp open  microsoft-ds
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.08 seconds</pre>
+
+<p>Třetí variantou je ruční specifikace portů, která se provádí volbou <code>-p</code>, takto:</p>
+
+<pre>nmap 10.11.12.13 -p 22,136-139,440-450
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:04 CET
+Interesting ports on 10.11.12.13:
+PORT    STATE  SERVICE
+22/tcp  open   ssh
+136/tcp closed profile
+137/tcp closed netbios-ns
+138/tcp closed netbios-dgm
+139/tcp open   netbios-ssn
+440/tcp closed sgcp
+441/tcp closed decvms-sysmgt
+442/tcp closed cvc_hostd
+443/tcp closed https
+444/tcp closed snpp
+445/tcp open   microsoft-ds
+446/tcp closed ddm-rdb
+447/tcp closed ddm-dfm
+448/tcp closed ddm-ssl
+449/tcp closed as-servermap
+450/tcp closed tserver
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.08 seconds</pre>
+
+<p>Na závěr dodám, že Nmap provádí implicitně tzv. randomizaci portů, což znamená, že místo toho, aby skenoval postupně jeden po druhém od prvního k poslednímu, vybírá porty náhodně. Pokud byste z nějakého důvodu toto chování nepreferovali, můžete ho vypnout volbou <code>-r</code>.</p>
+
+<h3>Typy skenů</h3>
+
+<p>TCP SYN sken, <code>-sS</code>, je výchozím typem skenu a funguje tak, že posílá pakety s příznakem SYN, tedy pakety, které zahajují tzv. 3-way handshake (vytvoření TCP spojení). Je-li port otevřen, měl by server odpovědět paketem s příznakem SYN/ACK (popř. SYN), což Nmap zaznamená. Jelikož k dokončení spojení je potřeba finální odpovědi ze strany klienta, která při tomto typu skenu samozřejmě posílána není, nedochází tak k vytváření TCP spojení. Proto se tento typ skenu označuje jako „stealth“. Jednotlivé běžící služby by tento typ skenu neměly zachytit a zalogovat. Naopak IDS bývají schopné tento typ skenu detekovat.</p>
+
+<p>TCP connect sken, <code>-sT</code>, je výchozím typem skenu, pokud nemáte práva k přímému přístupu k síťovému rozhraní. Zde dochází k vytváření TCP spojení, což se může projevit v logu jednotlivých služeb.</p>
+
+<p>UDP sken, <code>-sU</code>, jak už jeho název naznačuje, skenuje UDP protokol. Lze jej kombinovat s TCP skeny a dosáhnout tak oskenování obou protokolů naráz. UDP sken je trošku sofistikovanější (a také podstatně pomalejší). V případě některých typických UDP portů (jako např. DNS) se posílají pakety s ohledem na daný protokol, jinak se pošle UDP paket a čeká se na odpověď. Pokud odpověď přijde, je port považován za otevřený, jinak získá statut <code>open|filtered</code> – tento poněkud matoucí statut se vám pokouší sdělit, že daný port otevřený být může (jen nedošla odpověď) i nemusí (může být filtrovaný firewallem). Zde může pomoci detekce verzí (<code>-sV</code>, více o detekci verzí viz dále):</p>
+
+<pre>nmap -sU 10.11.12.13 -p 136-139
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:34 CET
+Interesting ports on 10.11.12.13:
+PORT    STATE         SERVICE
+136/udp closed        profile
+137/udp open|filtered netbios-ns
+138/udp open|filtered netbios-dgm
+139/udp open|filtered netbios-ssn
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 2.59 seconds
+
+debian:~# nmap -sU 10.11.12.13 -p 136-139 -sV
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 14:34 CET
+Interesting ports on 10.11.12.13:
+PORT    STATE         SERVICE     VERSION
+136/udp closed        profile
+137/udp open          netbios-ns  Microsoft Windows XP netbios-ssn
+138/udp open|filtered netbios-dgm
+139/udp closed        netbios-ssn
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+Service Info: Host: LOCALHOST; OS: Windows
+
+Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 57.58 seconds</pre>
+
+<p>Jak je z příkladu výše patrné, detekce verzí mírně vylepšila výsledky skenu a nalezla otevřený UDP port 137.</p>
+
+<p>Toto jsou základní typy skenů, přičemž Nmap jich umí pochopitelně více. Tyto pokročilejší až pokročilé skenovací techniky využívají obvykle různé skuliny specifikace protokolu TCP k rozlišení otevřeného portu od zavřeného (např. TCP NULL, FIN a Xmas skeny). Bývají ještě obtížněji detekovatelné než TCP SYN sken, avšak nelze vyloučit detekci vhodně nakonfigurovaným IDS. Stejně tak nebývají jednoduché na interpretaci výsledků a nezaručují použitelné výsledky u některých síťových prvků a operačních systémů. Tyto typy skenů jsou dobře popsány v manuálu Nmapu a vzhledem k tomu, že se jedná o skutečně pokročilé techniky, pouze vás na ně odkážu.</p>
+
+<h3>Detekce verzí služeb</h3>
+
+<p>Nmap je vám schopen zjistit nejenom otevřené porty pomocí nejrůznějších technik (viz výše), ale také to, o jaké služby se jedná a které verze démonů tam běží. Tato vlastnost je nedocenitelná, i když je třeba si uvědomit, že v případě jejího použití se zbavujete výhod „stealth“ typů skenu (jelikož detekce verzí je mírně invazivní a jistě bude zaznamenána v logu daných služeb). Detekce verzí služeb funguje tak, že po zjištění všech otevřených portů Nmap pomocí databáze služeb zjišťuje, co na oněch portech běží. Představu si můžete udělat na následujícím příkladu:</p>
+
+<pre>nmap -sS 10.11.12.13
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 15:02 CET
+Interesting ports on 10.11.12.23:
+Not shown: 997 closed ports
+PORT     STATE SERVICE
+139/tcp  open  netbios-ssn
+445/tcp  open  microsoft-ds
+1025/tcp open  NFS-or-IIS
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds
+
+debian:~# nmap -sS 10.11.12.13 -sV
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 15:02 CET
+Interesting ports on 10.11.12.13:
+Not shown: 997 closed ports
+PORT     STATE SERVICE     VERSION
+139/tcp  open  netbios-ssn Samba smbd 3.X (workgroup: MYGROUP)
+445/tcp  open  netbios-ssn Samba smbd 3.X (workgroup: MYGROUP)
+1025/tcp open  ssh         OpenSSH 5.3 (protocol 2.0)
+MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
+
+Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 11.14 seconds</pre>
+
+<p>Jak je vidět, bez použití detekce verzí vám Nmap vrátí typ služby z <code>/etc/services</code>, tedy typ služby, která se obvykle na daném portu provozuje, což nemusí vždy odpovídat. To je demonstrováno v druhém skenu, kde se díky detekci verzí služeb podařilo odhalit, že na portu 1025 běží ve skutečnosti OpenSSH, a to verze 5.3.</p>
+
+<h3>Detekce operačního systému</h3>
+
+<p>Poslední zajímavou funkcí Nmapu, kterou zmíním, je schopnost detekovat verzi použitého operačního systému. Tato funkce nefunguje vždy zcela spolehlivě a ne vždy se jí povede operační systém detekovat, popřípadě detekovat korektně. Pro rozumnou šanci úspěšné detekce je třeba, aby cíl měl alespoň jeden otevřený port.</p>
+
+<pre>nmap -O -sS 10.11.12.254 
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 15:08 CET
+Interesting ports on orion (10.11.12.254):
+Not shown: 997 filtered ports
+PORT    STATE  SERVICE
+22/tcp  open   ssh
+53/tcp  open   domain
+667/tcp closed unknown
+MAC Address: 00:0D:B9:17:ED:DD (PC Engines GmbH)
+Device type: general purpose
+Running: Linux 2.6.X
+OS details: Linux 2.6.15 - 2.6.26, Linux 2.6.18-8.el5 (Red Hat Enterprise Linux 5), Linux 2.6.21 (Arch Linux 0.8, x86)
+Network Distance: 1 hop
+
+OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.00 seconds</pre>
+
+<p>V příkladu výše je detekce úspěšná – operační systém je skutečně Linux, konkrétně jádro 2.6.26, což bez chyby odpovídá dané specifikaci. Jednalo se ovšem o zcela ideální podmínky (počítač byl připojen přímo na síti, mezi ním a Nmapem nebyl jediný router).</p>
+
+<h3>Nmap a -A</h3>
+
+<p>Poměrně zajímavou volbu tvoří <code>-A</code>, což je „šablona“ zapínající mnoho typických funkcí (detekci verzí služeb i operačního systému, traceroute a použití skriptů z kategorie „default“). Skripty jsou psané v jazyce LUA a představují možnosti rozšíření funkcionality Nmapu. Některé přibalené skripty mohou být poměrně invazivní (v kategorii „default“ by měly být zejména bezpečné skripty). Skripty umí provádět ledacos, v příkladu níže je u SSH patrné vypsání fingerprintů serverových klíčů. Více o skriptech se dozvíte <a href="http://nmap.org/book/nse-usage.html#nse-categories">zde</a>.</p>
+
+<p>Výstup Nmapu s použitím volby <code>-A</code> může vypadat takto:</p>
+
+<pre>nmap -A 10.11.12.254
+
+Starting Nmap 5.00 ( http://nmap.org ) at 2012-03-11 15:16 CET
+Interesting ports on orion (10.11.12.254):
+Not shown: 997 filtered ports
+PORT    STATE  SERVICE VERSION
+22/tcp  open   ssh     OpenSSH 5.1p1 Debian 5 (protocol 2.0)
+|  ssh-hostkey: 1024 38:9f:28:de:40:c0:19:fa:2c:b8:57:c2:c9:61:6e:c8 (DSA)
+|_ 2048 00:7d:67:3d:ab:d9:14:e5:af:09:72:91:14:ff:9f:f3 (RSA)
+53/tcp  open   domain  ISC BIND unbound 1.4.6
+667/tcp closed unknown
+MAC Address: 00:0D:B9:17:ED:DD (PC Engines GmbH)
+Device type: general purpose
+Running: Linux 2.6.X
+OS details: Linux 2.6.15 - 2.6.26, Linux 2.6.18-8.el5 (Red Hat Enterprise Linux 5)
+Network Distance: 1 hop
+Service Info: OS: Linux
+
+OS and Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 16.05 seconds</pre>
+
+<h3>Hlavně opatrně</h3>
+
+<p>Nmap je velmi schopný síťový skener, který můžete použít nejenom v GNU/Linuxu a unixových operačních systémech, ale také třeba na Windows. Můžete jej používat v příkazové řádce i pomocí grafického rozhraní, které umí např. kompletovat výsledky z více skenů, popřípadě vizualizovat skenovanou síť. Alespoň základní zacházení s Nmapem patří k základům schopností správců serverů i sítí.</p>
+
+<p>Při používání Nmapu je vhodná opatrnost a dobrá představa o tom, čemu vlastně svůj cíl vystavíte. Nmap umožňuje provádět celkem invazivní operace, které mohou za určitých okolností způsobit problémy. Dobrá představa o tom, co Nmap vlastně provádí, je také nutná ke správné interpretaci výsledků. Rozhodně není vhodné spoléhat na to, že to, co Nmap napíše, vždy na sto procent platí. Je třeba vědět, odkud se ta informace vzala a jak byla získána. Kupříkladu, bez detekce verzí se služba na portu identifikuje dle záznamu v <code>/etc/services</code>, což samozřejmě nemusí odpovídat, jak bylo výše demonstrováno. Určitě tedy doporučuji experimentování (ve vlastní síti) a studium dokumentace k Nmapu.</p>
+
+<p>Tím bych problematiku Nmapu ukončil.</p>
+
+

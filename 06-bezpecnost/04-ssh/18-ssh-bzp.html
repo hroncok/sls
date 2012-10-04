@@ -1,82 +1,130 @@
-<h1>Správa linuxového serveru: Praktické rady pro zabezpečení SSH</h1>
+<h1>Praktické rady pro zabezpečení SSH</h1>
 
 <p>SSH je mocný nástroj a SSH server je obvykle také první věc, kterou správce na server instaluje. Jak jej ale zabezpečit proti častým útokům nebo proti případnému zneužití ze strany uživatelů serveru?</p>
 
 <h3>Proti čemu se bránit</h3>
 
 <p>Útoky na SSH můžeme rozdělit do dvou kategorií - útoky <em>vnější</em> a útoky <em>vnitřní</em>. Vnějším útokem je útok neoprávněného uživatele, někoho, kdo na serveru SSH účet nemá. Vnitřním útokem je útok oprávněného uživatele, který přístup k SSH má. Cílem obrany proti vnějšímu útoku je, aby útočník nebyl schopen získat přístup na server, ať již zkoušením často používaných slovníkových hesel nebo využitím nějaké zranitelnosti v SSH.</p>
+
 <p>Cílem obrany proti vnitřnímu útočníkovi je nastavit oprávnění tak, aby byl daný uživatelský účet schopen provádět vše, co uživatel požaduje, ale současně aby minimalizoval dopad případného útoku (ten útok samozřejmě nemusí být iniciován daným uživatelem, ale i útočníkem, který zcizí jeho přihlašovací údaje nebo se mu je podaří uhádnout). V tomto dílu "nakousnu" převážně zabezpečení SSH serveru proti vnějšímu útočníkovi.</p>
 
 <h3>Útoky na SSH</h3>
 
 <p>Nejčastější útoky na SSH provádí automatizované nástroje, které prohledávají určitý rozsah IP adres, hledají SSH server (většinou pouze na standardním portu) a pokud ho najdou, zkouší nejtypičtější kombinace uživatelských jmen a hesel ve snaze získat přístup přes nezabezpečený účet. Pokud SSH server nenajdou, tak jdou o dům dál. Tuto aktivitu poznáte velice snadno nahlédnutím do logu:</p>
 
-<pre>auth.log:May 10 14:14:22 hyperion sshd[8182]: Invalid user test from 218.56.61.114
-auth.log:May 10 14:14:27 hyperion sshd[8216]: Invalid user guest from 218.56.61.114
-auth.log:May 10 14:14:31 hyperion sshd[8254]: Invalid user admin from 218.56.61.114
-auth.log:May 10 14:14:40 hyperion sshd[8328]: Invalid user admin from 218.56.61.114
-auth.log:May 10 14:14:44 hyperion sshd[8362]: Invalid user user from 218.56.61.114
-auth.log:May 10 14:15:04 hyperion sshd[8530]: Invalid user test from 218.56.61.114
+<pre>auth.log:May 10 14:14:22 hyperion sshd[8182]: Invalid user test from xxx.56.61.xxx
+auth.log:May 10 14:14:27 hyperion sshd[8216]: Invalid user guest from xxx.56.61.xxx
+auth.log:May 10 14:14:31 hyperion sshd[8254]: Invalid user admin from xxx.56.61.xxx
+auth.log:May 10 14:14:40 hyperion sshd[8328]: Invalid user admin from xxx.56.61.xxx
+auth.log:May 10 14:14:44 hyperion sshd[8362]: Invalid user user from xxx.56.61.xxx
+auth.log:May 10 14:15:04 hyperion sshd[8530]: Invalid user test from xxx.56.61.xxx
 </pre>
 
 <p>Tento typ útoků je na provedení velice triviální a je momentálně typem, se kterým se zcela jistě setkáte, pokud neomezíte přístup na svůj SSH port. Obrana bývá triviální - jedna útočící IP adresa a mnoho neúspěšných pokusů za jednotku času, to lze odfiltrovat velmi dobře (nástroje pro tento účel představím níže).</p>
+
 <p>Někteří útočníci jsou ale chytřejší - útoky jsou pak vleklejší (doba mezi pokusy je podstatně delší), popřípadě ještě navíc pocházejí z mnoha různých IP adres (nejčastěji z nějakého botnetu). Sofistikovanější útočníci pak nezkoušejí kombinace jmen a hesel, ale hledají starší, neaktualizované SSH servery, u kterých mohou využít dostupných exploitů objevených zranitelností.</p>
+
 <p class="box">Nejhorším typem útoku je útočník, který si opatří velký seznam serverů se SSH a čeká na 0-day SSH exploit, který až se objeví, celý seznam rychle projede. Proti tomu se brání těžko (leda citelně omezit přístup k SSH). Mimochodem, zálohujete, že?</p>
+
 <h3>Elementární zabezpečení</h3>
+
 <p>Zkontrolujte si, že v konfiguračním souboru SSH serveru (pro OpenSSH je to nejspíše <code>/etc/ssh/sshd_config</code>) je povolen pouze protokol verze 2, verzi 1, která má řadu bezpečnostních zranitelností, byste měli mít zakázanou:</p>
+
 <pre>Protocol 2</pre>
+
 <p>Z bezpečnostních důvodů je vhodné využívat tzv. striktní režim, který zkontroluje práva v domovském adresáři uživatele, zdali do kritických míst není umožněn přístup jiným uživatelům (a pokud ano, přihlášení odmítne):</p>
+
 <pre>StrictModes yes</pre>
+
 <p>Pokud nepotřebujete spouštět na serveru Xkové aplikace, rozhodně zakažte <code>X11Forwarding</code>:</p>
+
 <pre>X11Forwarding no</pre>
+
 <p>Pokud nechcete, nehodláte nebo nepotřebujete využívat tunelování v rámci SSH, raději jej zakažte:</p>
+
 <pre>PermitTunnel no</pre>
+
 <p>To platí dvojnásob pro servery, kde se k SSH přihlašují běžní uživatelé a ne pouze administrátoři - příslušní uživatelé by pak mohli server využít jako proxy, třeba k anonymnímu surfování, stahování torrentů, apod.</p>
+
 <h3>Elementární řízení přístupu uživatelů k SSH serveru</h3>
+
 <p>Předně je třeba zvážit, kdo skutečně potřebuje SSH účet. Je skutečně potřeba, aby každý uživatel, který má třeba na serveru poštovní schránku, měl současně i SSH účet s možností přístupu k shellu? Potřebuje zákazník webhostingu SSH konto? Je nutné, aby správce serveru měl možnost k němu přistupovat z libovolné IP adresy? Zabezpečení SSH serveru by určitě mělo začít analýzou, kdo skutečně potřebuje přístup k SSH a odkud.</p>
+
 <h4>AllowUsers, AllowGroups</h4>
+
 <p>Já osobně řeším na svých serverech tento problém tak, že vytvořím skupinu, třeba <code>sshusers</code>, kterou přiřadím jako parametr volby <code>AllowGroups</code> v konfiguračním souboru SSH serveru a do které zařadím všechny uživatele, kteří mají mít přístup k SSH. Pokud je těchto uživatelů velmi málo, není třeba to řešit přes skupiny, postačí jednotlivé uživatele vypsat, oddělené mezerou, jako parametr volby <code>AllowUsers</code>. Jakmile v konfiguraci SSH serveru použijete některou z těchto voleb, nikdo jiný než specifikovaní uživatelé či skupiny se k SSH již nepřihlásí. Pro názornost ilustruji obě varianty pro dva uživatele:</p>
+
 <pre>/etc/ssh/sshd_config:
 AllowGroups sshusers
 
 bash ~# useradd -G sshusers michal
 bash ~# useradd -G sshusers honza
 </pre>
+
 <p>A druhá varianta:</p>
+
 <pre>/etc/ssh/sshd_config:
 AllowUsers michal honza
 </pre>
+
 <p>OpenSSH má k dispozici adekvátní protějšky k oběma volbám - <code>DenyUsers</code> a <code>DenyGroups</code>, které fungují přesně opačně (zabrání daným uživatelům a skupinám přihlásit se k SSH). OpenSSH prochází tyto volby v rámci řízení přístupu v následujícím pořadí:</p>
+
 <ul>
 <li><code>DenyUsers</code></li>
 <li><code>AllowUsers</code></li>
 <li><code>DenyGroups</code></li>
 <li><code>AllowGroups</code></li>
 </ul>
+
 <h4>PermitRootLogin</h4>
+
 <p>Další zajímavou volbou je <code>PermitRootLogin</code>, která určuje, zdali se k SSH smí přihlásit uživatel <code>root</code>. Obvykle se doporučuje vytvořit jiného, neprivilegovaného uživatele, a administrátorské úkony řešit přes <code>sudo</code>, popřípadě <code>su</code>. Je to dáno jednak všemocností uživatele root, a jednak tím, že v případě uživatelského účtu se musí případný útočník strefit jak do hesla, tak do uživatelského jména. V případě uživatele <code>root</code> potřebuje útočník pouze jediný údaj - heslo.</p>
+
 <p>Volba <code>PermitRootLogin</code> má tři možné hodnoty, <code>yes</code>, <code>no</code> a <code>without-password</code>. Nejzajímavější je právě ona třetí hodnota, <code>without-password</code>, která způsobí, že se uživatel root nebude moci přihlásit heslem, ale pouze některou z jiných metod (tj. třeba SSH klíčem).</p>
+
 <h4>PermitEmptyPasswords</h4>
+
 <p>Pokud používáte ověřování heslem, rozhodně se vyplatí vypnutí přihlašování u účtů bez hesla, aby případnému útočníkovi nestačilo pouze uhádnout heslo:</p>
+
 <pre>PermitEmptyPasswords no</pre>
+
 <h4>Vypnutí ověřování přístupu heslem</h4>
+
 <p>Pokud všichni administrátoři, popřípadě uživatelé, využívají k přístupu na server SSH klíče, pak není důvod, proč povolovat autentikaci heslem. Tu je pak možné z bezpečnostních důvodů vypnout úplně:</p>
+
 <pre>PasswordAuthentication no</pre>
+
 <p>To je vůbec jeden z nejideálnějších způsobů zabezpečení SSH, protože pak veškeré pokusy o uhádnutí hesla skončí podobně jako tento:</p>
+
 <pre># ssh uzivatel@magnetar
 Permission denied (publickey).</pre>
+
 <p>Útočník ani nedostane příležitost zadat heslo, natož jej uhádnout. Samozřejmě byste měli příslušné SSH klíče střežit jako oko v hlavě a mít na paměti, že pokud příslušné SSH klíč(e) ztratíte, ztratíte i možnost přihlášení na server, protože heslem se tam už pak nedostanete.</p>
+
 <h3>Elementární řízení přístupu k SSH serveru</h3>
+
 <h4>ListenAddress</h4>
+
 <p>Nechte SSH server naslouchat jen tam, kde je to třeba. Máte-li někde kupříkladu firewall, a nechcete se k jeho SSH serveru připojovat zvenčí, pak upravte volbu <code>ListenAddress</code> tak, aby SSH server poslouchal jen tam, kde potřebujete, třeba na nějaké adrese místní sítě (tato IP adresa musí být přidělena konkrétnímu síťovému rozhraní firewallu):</p>
+
 <pre>ListenAddress 10.0.1.15</pre>
+
 <h4>Přesun SSH portu</h4>
+
 <p>Toto je mezi správci velmi kontroverzní záležitost. Vždy, když uvedete přesměrování SSH portu jako bezpečnostní opatření, rozdělí se přítomní správci do dvou nesmiřitelných táborů, kde jeden tuto metodu za zabezpečení považuje, zatímco druhý nikoliv. Já patřím k těm, kteří neuznávají vliv tohoto opatření na zabezpečení serveru a myslím si, že ani vy byste se na toto opatření neměli dívat jako na opatření jakkoliv zvyšující bezpečnost (získali byste jen falešný pocit bezpečí, který je tím nejhorším, co se vám při zabezpečování serveru může stát).</p>
+
 <p>Jediný přínos tohoto opatření spočívá v tom, že se vám vyhne většina automatizovaných útoků, které testují pouze port 22 na přítomnost SSH serveru. Problémem je, že automatizované útoky tohoto rázu jsou ty nejméně nebezpečné, a vaše konfigurace by měla SSH server před těmito útoky spolehlivě zabezpečit, a to zcela bez ohledu na toto opatření. Navíc inteligentní útočník může váš server proskenovat a port objevit, popřípadě může daný port objevit nasloucháním na nějakém uzlu mezi vaším serverem a klientem. Nicméně, pokud máte dobrý důvod toto opatření nasadit, pomůže vám volba <code>Port</code>:</p>
+
 <pre>Port 61582</pre>
+
 <h4>hosts.allow a hosts.deny</h4>
+
+TODO still relevant in Debian???
+
 <p>Kromě firewallu je možné omezit přístup k SSH prostřednictvím souborů <code>/etc/hosts.allow</code> a <code>/etc/hosts.deny</code>. Tyto dva soubory řídí přístup k řadě služeb využívajících <a href="http://en.wikipedia.org/wiki/TCP_Wrapper">TCP Wrapper</a> metodu řízení síťového přístupu. Tato metoda spočívá v tom, že daný démon využívá jisté knihovny (<code>libwrap</code>), která pak samotné řízení přístupu provádí. Pokud provozujete síťové služby, které tuto knihovnu nevyužívají, pak je touto metodou přirozeně neochráníte, a nezbyde vám než je chránit jinak (třeba firewallem).</p>
+
 <p>Více informací naleznete v manuálových stránkách příslušných souborů. Základy práce s nimi jsou následující. V souboru <code>hosts.allow</code> se nastavuje povolení přístupu k jednotlivým službám, zatímco v souboru <code>hosts.deny</code> se nastavuje zamezení přístupu ke službám. Při řízení přístupu se upřednostňuje <code>hosts.allow</code>, tj. pokud v tomto souboru nějaký počítač nebo síť povolíte, pak se přístup povolí bez ohledu na obsah <code>hosts.deny</code>. Jako příklad uvedu následující situaci:</p>
+
 <pre>/etc/hosts.allow:
 ALL: localhost
 ALL: 10.0.5.15
@@ -86,10 +134,15 @@ sshd: 12.34.56.78
 ALL: 1.2.3.4
 sshd: 5.6.7.8
 </pre>
+
 <p>V tomto příkladu bude jednoznačně povolen přístup ke všem službám z localhostu a <code>10.0.5.15</code> a k SSH z IP adresy <code>12.34.56.78</code>. Zakázán bude přístup ke všem službám adrese <code>1.2.3.4</code> a jen k SSH adrese <code>5.6.7.8</code>. Je samozřejmě možné specifikovat rozsahy i různé zástupné výrazy (jako třeba <code>ALL</code>. Více informací se dozvíte v manuálových stránkách.</p>
+
 <h3>Pokročilé řízení přístupu uživatelů k SSH serveru</h3>
+
 <h4>access.conf</h4>
+
 <p>V tuto chvíli víte, jak omezit přístup k SSH, ale co když budete potřebovat omezit přístup k SSH třeba jen pro některé uživatele s tím, že u jiných uživatelů vám třeba nevadí, odkud se hlásí? V takovém případě byste se měli podívat blíže do souboru <code>/etc/security/access.conf</code>, kde je možné specifikovat, kteří uživatelé se smí přihlašovat z jakých IP adres nebo sítí. Ukažme si to na příkladu:</p>
+
 <pre>+ : root : 127.0.0.1
 + : root : 10.0.0.0/8
 + : root : 12.34.56.78
@@ -99,51 +152,117 @@ sshd: 5.6.7.8
 + : @admini : 5.6.7.8
 - : ALL : ALL
 </pre>
+
 <p>Plus nebo mínus na začátku udává, zdali se má přístup povolit nebo zakázat. Oddělovačem je dvojtečka, následuje uživatel či skupina (skupina je uvozena zavináčem) a posledním parametrem je síť, doména nebo IP adresa, která je předmětem řízení přístupu. V prvních třech řádkách je povolen přístup uživateli root z localhostu, místního rozsahu <code>10.0.0.0/8</code> a vnější IP adresy <code>12.34.56.78</code>. Na čtvrtém řádku je pravidlo, které zamezí přístup k SSH uživateli root z jakéhokoliv jiného umístění. Následuje povolení přístupu uživateli <code>michal</code> z domény <code>example.com</code> a IP adresy <code>1.2.3.4</code>. Předposlední řádek povoluje přístup skupině <code>admini</code> z IP adresy <code>5.6.7.8</code>. Úplně poslední řádek pak funguje jako "vykopávač", zamezí jakýmkoliv jiným přístupům odjinud. Více informací viz manuálová stránka souboru <code>access.conf</code></p>
 
 <h3>Pravidelná aktualizace</h3>
+
 <p>Budu pokračovat něčím, co se sice obvykle považuje za naprostou samozřejmost, a sice pravidelnou aktualizací a sledováním hlášení o bezpečnostních problémech. Bohužel se i na takovou samozřejmost v některých případech zapomíná, což mívá za následek úspěšný průnik útočníka, který se dříve či později skoro jistě dostaví. V případě distribuce Debian naleznete základní informace o bezpečnosti <a href="http://www.debian.org/security/">na stránkách distribuce</a>. Hodit se vám může také <a href="http://lists.debian.org/debian-security-announce/">e-mailová konference</a>, do které se můžete přihlásit, abyste dostávali informace o bezpečnostních aktualizacích a problémech.</p>
+
 <p>S aktualizacemi souvisí i vývojový cyklus distribuce, kterou používáte na serveru. Pokud se jedná o distribuci s pravidelným vývojovým cyklem, jako třeba Debian (resp. jeho stable větev), pak vás během používání určitého vydání čeká řada drobných aktualizací, v rámci kterých se obvykle nemění verze aktualizovaných komponent. Takové aktualizace by neměly narušit fungování vašich služeb (snad s výjimkou restartu při aktualizaci), i když výjimky potvrzující pravidlo samozřejmě existují. Jednou za nějaké období vás pak čeká velká aktualizace, kde se poměrně dramaticky mění verze komponent, díky čemuž může dojít k narušení fungování některých komponent či démonů (došlo ke změnám v konfiguračních souborech či ve funkcionalitě).</p>
+
 <p>Některé aktualizace během života konkrétního vydání mohou vyžadovat nějaký zásah správce (namátkou <a href="http://digitaloffense.net/tools/debian-openssl/">průšvih Debianu s OpenSSL knihovnou</a>), takže i když je teoreticky možné provádět aktualizace automaticky cronem, nelze tento postup doporučit, alespoň ne na produkčních serverech. Abyste věděli, kdy máte na serveru k dispozici nové aktualizace, můžete použít v případě Debianu nástroj Apticron, o kterém se dočtete více <a href="http://www.debian-administration.org/articles/491">v článku na debian-administration.org</a>. Funguje tak, že jednou denně zjistí dostupné aktualizace a pošle vám o nich e-mail, pokud nějaké k dispozici jsou. Vy se pak můžete rozhodnout, zdali aktualizaci provedete nebo ne.</p>
+
 <p>Upgrade na novější verzi distribuce je vhodné dělat opatrně a s rozmyslem, ideálně až nějakou dobu po vypuštění nové verze, po pečlivém prostudování poznámek k vydání (release notes), kde se obvykle nachází většina známých problémů, na které můžete při upgradu narazit. Bývá dobré si připravit půdu pro případný rollback provedením kompletní zálohy dat i konfigurace, a nebo ještě lépe, provést zkušební upgrade na jiném počítači se stejnou konfigurací (konfiguraci i data z produkčního serveru můžete na zkušební server zkopírovat).</p>
+
 <h3>Elementární zabezpečení SSH firewallem</h3>
+
 <p>Provozu firewallu v Linuxu se budu blíže věnovat v některém z příštích dílů. V tuto chvíli pro potřeby zabezpečení SSH postačí následující jednoduchá sada pravidel. V tomto příkladu nevyužívám možnosti stavového firewallu, což příklad trošku zjednoduší, a hlavně to bude fungovat i na virtuálních serverech, kde není k dispozici příslušný modul pro stavový firewall:</p>
-<pre># povolení přístupu k SSH z IP adresy 1.2.3.4<br />iptables -A INPUT -s 1.2.3.4 -p tcp --dport 22 -j ACCEPT<br /># zamezení přístupu k SSH z IP adresy 5.4.3.2<br />iptables -A INPUT -s 5.4.3.2 -p tcp --dport 22 -j DROP<br /># zamezení přístupu k SSH z rozsahu adres 10.0.0.0/8<br />iptables -A INPUT -s 10.0.0.0/8 -p tcp --dport 22 -j DROP</pre>
+
+<pre># povolení přístupu k SSH z IP adresy 1.2.3.4
+iptables -A INPUT -s 1.2.3.4 -p tcp --dport 22 -j ACCEPT
+# zamezení přístupu k SSH z IP adresy 5.4.3.2
+iptables -A INPUT -s 5.4.3.2 -p tcp --dport 22 -j DROP
+# zamezení přístupu k SSH z rozsahu adres 10.0.0.0/8
+iptables -A INPUT -s 10.0.0.0/8 -p tcp --dport 22 -j DROP</pre>
+
+
 <p>Akci <code>DROP</code> můžete pochopitelně vyměnit za <code>REJECT</code> s příslušnou ICMP zprávou, pokud chcete. V případě, že potřebujete řídit přístup k SSH třeba na routeru, kde je více síťových rozhraní, můžete být specifičtější a vzít dané rozhraní v úvahu:</p>
-<pre># zákaz přístupu na SSH z rozhraní eth0<br />iptables -A INPUT -i eth0 -p tcp --dport 22 -j DROP<br /># zákaz přístupu na SSH z rozhraní eth1<br />iptables -A INPUT -i eth1 -p tcp --dport 22 -j DROP<br /># povolení přístupu k SSH na rozhraní eth2 z IP adresy 10.0.1.5<br />iptables -A INPUT -i eth2 -s 10.0.1.5 -p tcp --dport 22 -j ACCEPT<br /># zamezení přístupu k SSH ze všech ostatních adres na rozhraní eth2<br />iptables -A INPUT -i eth2 -p tcp --dport 22 -j DROP<br /></pre>
+
+<pre># zákaz přístupu na SSH z rozhraní eth0
+iptables -A INPUT -i eth0 -p tcp --dport 22 -j DROP
+# zákaz přístupu na SSH z rozhraní eth1
+iptables -A INPUT -i eth1 -p tcp --dport 22 -j DROP
+# povolení přístupu k SSH na rozhraní eth2 z IP adresy 10.0.1.5
+iptables -A INPUT -i eth2 -s 10.0.1.5 -p tcp --dport 22 -j ACCEPT
+# zamezení přístupu k SSH ze všech ostatních adres na rozhraní eth2
+iptables -A INPUT -i eth2 -p tcp --dport 22 -j DROP</pre>
+
 <p>Pro úplnost uvádím trošku elegantnější řešení s použitím stavového firewallu a vlastního řetězce, kde pak můžete zpracovávat pouze žádosti o nové spojení se standardním SSH portem:</p>
-<pre># vytvoření řetězce pro ssh<br />iptables -N ssh<br /># přesměrování paketů s žádostí o vytvoření spojení na SSH port do řetězce ssh<br />iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ssh<br /># v rámci řetězce SSH povolení paketů z IP adresy 1.2.3.4<br />iptables -A ssh -s 1.2.3.4 -j ACCEPT<br /># v rámci řetězce SSH povolení paketů z rozsahu 10.0.0.0/8<br />iptables -A ssh -s 10.0.0.0/8 -j ACCEPT<br /># zahození ostatních paketů<br />iptables -A ssh -j DROP<br /><br /># někde jinde pak musí být řádka propouštějící pakety náležející již vytvořeným spojením:<br />iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT<br /></pre>
-<p>Dodám ještě, že nemusíte využívat Netfilter (a nástroj <code>iptables</code>) přímo, nýbrž můžete použít některou z nadstaveb jako třeba Shorewall, o kterém zde vyšel dvoudílný seriál (<a href="http://www.linuxexpres.cz/praxe/shorewall-1-dil-1">první díl</a>, <a href="http://www.linuxexpres.cz/praxe/shorewall-2-dil">druhý díl</a>).</p>
+
+<pre># vytvoření řetězce pro ssh
+iptables -N ssh
+# přesměrování paketů s žádostí o vytvoření spojení na SSH port do řetězce ssh
+iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ssh
+# v rámci řetězce SSH povolení paketů z IP adresy 1.2.3.4
+iptables -A ssh -s 1.2.3.4 -j ACCEPT
+# v rámci řetězce SSH povolení paketů z rozsahu 10.0.0.0/8
+iptables -A ssh -s 10.0.0.0/8 -j ACCEPT
+# zahození ostatních paketů
+iptables -A ssh -j DROP
+
+# někde jinde pak musí být řádka propouštějící pakety náležející již vytvořeným spojením:
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT</pre>
+
+<p>Dodám ještě, že nemusíte využívat Netfilter (a nástroj <code>iptables</code>) přímo, nýbrž můžete použít některou z nadstaveb jako třeba Shorewall, o kterém na LinuxEXPRESu (a nejen tam) vyšel dvoudílný seriál (<a href="http://www.linuxexpres.cz/praxe/shorewall-1-dil-1">první díl</a>, <a href="http://www.linuxexpres.cz/praxe/shorewall-2-dil">druhý díl</a>).</p>
+
 <h3>Pasivní obrana vs. aktivní obrana</h3>
+
 <p>Do této chvíle byly probrány především prvky pasivní ochrany SSH serveru. To jsou bez zásahu správce neměnná opatření, např. přístup k SSH pouze z IP určité adresy nebo naopak zamezení přístupu k SSH z určité IP adresy nebo rozsahu IP adres. Aktivní opatření jsou naopak taková, která reagují na vzniklou situaci, kupříkladu na sadu neúspěšných pokusů o přihlášení zablokováním dané IP adresy.</p>
+
 <p>Výhodou takových opatření je právě možnost rychlé reakce na nějakou vzniklou situaci (zejména pak neúspěšný pokus o přihlášení). Nevýhody těchto opatření vyplývají především z faktu, že tato reakce na vzniklou situaci je sice předem definovaná, ale automatizovaná a nepodléhá schválení správcem. Mezi potenciální problémy aktivních opatření patří možnost zablokování sebe sama, popřípadě jejich využití útočníkem, ať již k DoS útokům nebo, v horším případě, k průniku do systému.</p>
+
 <h4>Parsery logů a jejich zranitelnosti</h4>
+
 <p>Nejtypičtější nástroje aktivní obrany jsou parsery logů (např. Denyhosts a Fail2ban). Ty monitorují záznamy v příslušném logu a vyhledávají záznamy jistého typu. Jakmile se takové záznamy objeví, jsou prohnány parserem (nebo spíše nějakým regulárním výrazem) a jsou z nich získány požadované informace. Na jejich základě je pak vyprodukována nějaká reakce (obvykle shellový příkaz nebo přidání záznamu do souboru). Princip je to relativně jednoduchý, avšak skýtá jistou potenciální zranitelnost - <em>log injection</em>. Stejně jako je možné využít nekorektně ošetřený SQL vstup ke změně prováděného SQL příkazu, je možné podobným způsobem upravit akci prováděnou daným nástrojem prostřednictvím vhodně "upraveného" záznamu v logu. Dodám, že známé zranitelnosti tohoto typu byly již z oněch dvou zmíněných nástrojů odstraněny a příslušné regulární výrazy byly podstatně zpřesněny. Více informací o těchto zranitelnostech naleznete <a href="http://www.ossec.net/main/attacking-log-analysis-tools">na ossec.net</a>.</p>
+
 <p>Pokud budete nasazovat vlastní parser, popřípadě budete upravovat funkci stávajícího vlastním regulárním výrazem, určitě mějte na paměti tuto možnost útoku spolu s faktem, že záznamy v logu může v Linuxu běžně generovat jakýkoliv program, včetně interpretru PHP (pokud to samozřejmě správce nezakáže).</p>
+
 <h4>Pozor na DoS</h4>
+
 <p>Ať už budete nasazovat jakýkoliv nástroj aktivní obrany, vždy zůstane ten nejjednodušší možný vektor útoku - <em>Denial of Service</em>. Útočník se možná k SSH nedostane, ale může za určitých okolností znemožnit vzdálený přístup i správci či například zákazníkům (kteří využívají SSH/SCP ke kopírování souborů na server apod.). Ze způsobů provedení přichází v úvahu jak možné falšování zdrojové IP adresy, tak <em>log injection</em> či prosté sdílení IP adresy nebo jejího rozsahu s útočníkem nebo počítačem pod jeho kontrolou (viz <a href="http://cs.wikipedia.org/wiki/Botnet">botnety</a>). Vzhledem k tomu, že dostupných IPv4 adres ubývá a řada poskytovatelů používá NAT, jsou možné následky tohoto typu útoku citelnější.</p>
+
 <h3>Denyhosts</h3>
+
 <p>Denyhosts je parser logů, který hlídá neúspěšné pokusy o přihlášení k SSH a dle nastavení po určitém počtu neúspěšných pokusů zařadí příslušnou IP adresu do <code>/etc/hosts.deny</code>. Využívá TCP Wrapper, tedy jednu z metod probraných <span class="mw_field">### link article=3158 text=v minulém díle title=Správa linuxového serveru: Praktické rady pro zabezpečení SSH mode=inline ###</span>. Abyste zabránili možnému odstřihnutí sebe sama při neúspěšných pokusech o přihlášení, zapište příslušné IP adresy nebo rozsahy, ze kterých se na server chcete hlásit, do souboru <code>/etc/hosts.allow</code>. Pokud bude IP adresa současně v obou souborech, přístup z ní se povolí, neboť se při kontrole přístupu postupuje v pořadí <code>hosts.allow</code> a <code>hosts.deny</code>. Tato metoda umožňuje blokovat přístup jak na SSH, tak na všechny služby využívající knihovnu <code>libwrap</code> (u síťových démonů si to můžete ověřit nástrojem <code>ldd</code>).</p>
+
 <p>Výhodou, respektive možná spíše vlastností Denyhosts, je nezávislost na firewallu, který v tomto případě není vůbec využíván. Při práci tohoto nástroje nedochází ke spouštění shellových příkazů s právy roota a parametry získanými regulárním výrazem z logu. Hlavní konfigurační soubor Denyhosts se nachází v <code>/etc/denyhosts.conf</code>. Mezi podstatné volby konfigurace patří následující:</p>
+
 <pre>BLOCK_SERVICE = ALL</pre>
+
 <p>Tato část řídí typ záznamu, který se vytvoří v <code>hosts.allow</code>. Hodnota "<code>ALL</code>" způsobí, že se přístup z dané IP adresy zamezí na všechny služby využívající TCP Wrapper na daném serveru. Pokud chcete útočníkům zamezit pouze přístup k SSH, použijte hodnotu "<code>sshd</code>". Primární nastavení chování Denyhosts řídí následující volby:</p>
+
 <pre>DENY_THRESHOLD_INVALID = 5<br />DENY_THRESHOLD_VALID = 10<br />DENY_THRESHOLD_ROOT = 1</pre>
+
 <p>Toto jsou počty neúspěšných pokusů, které jsou třeba k zablokování dané IP adresy. <code>DENY_THRESHOLD_INVALID</code> udává počet pokusů pro neplatného uživatele, <code>DENY_THRESHOLD_VALID</code> udává počet pokusů u platného uživatele a <code>DENY_THRESHOLD_ROOT</code> udává počet pokusů pro uživatele <code>root</code>. Máte-li podobně "citlivé" účty jako <code>root</code>, u kterých byste chtěli specifikovat jiný počet pokusů než pro ostatní uživatele, podívejte se na dokumentaci k volbě <code>DENY_THRESHOLD_RESTRICTED</code>. Počítadla neúspěšných pokusů se po určité době vynulují. Tuto dobu je možné nastavit následujícími volbami:</p>
+
 <pre>AGE_RESET_VALID=5d<br />AGE_RESET_ROOT=25d<br />AGE_RESET_INVALID=10d</pre>
+
 <p>Zde uvedené hodnoty by znamenaly, že se počet neúspěšných pokusů pro platného uživatele vynuluje za pět dní, u neplatného uživatele za 10 dní a v případě uživatele <code>root</code> bude muset uběhnout 25 dní. Velmi podstatnou volbou je pak <code>RESET_ON_SUCCESS</code>, který příslušné počítadlo vynuluje při úspěšném přihlášení, je-li nastaven na "<code>yes</code>".</p>
+
 <p>Chcete-li dostávat zprávy o zablokovaných IP adresách e-mailem, zapište svůj e-mail jako hodnotu volby <code>ADMIN_EMAIL</code>. Nezapomeňte zkontrolovat nastavení SMTP (implicitní nastavení využívá místní SMTP server). Upozorňuji, že na jediném serveru dochází obvykle k zablokování několika IP adres denně. Můžete tedy spíše preferovat shrnutí za každý den, o což se vám postará třeba nástroj Logwatch (o tom se v tomto seriálu určitě ještě podrobněji zmíním).</p>
+
 <p>Denyhosts umožňuje výměnu dat o útočnících s centrálním serverem, který spravuje projekt Denyhosts. Chcete-li využívat této možnosti, musíte nejprve odkomentovat řádek s volbou <code>SYNC_SERVER</code>. Můžete specifikovat i jednosměrnou komunikaci (pouze zasílání dat o útočnících či pouze stahování dat o útočnících) pomocí parametrů <code>SYNC_UPLOAD</code> a <code>SYNC_DOWNLOAD</code>. Délku periody pro synchronizaci řídí volba <code>SYNC_INTERVAL</code>. Je logické předpokládat, že počet záznamů všech uživatelů této služby bude obrovský. Z tohoto důvodu se běžně nestahují všechny IP adresy, ale pouze takové, které útočily na několik serverů (výchozí hodnota je 3). Toto nastavení můžete ovlivnit volbou <code>SYNC_DOWNLOAD_THRESHOLD</code>. Spolu s touto volbou vystupuje ještě jedna volba omezující počet stažených záznamů, a sice <code>SYNC_DOWNLOAD_RESILIENCY</code>. Ta specifikuje, jak "čerstvé" příslušné útoky z daných IP adres jsou - výchozím nastavením je "<code>5h</code>", tedy 5 hodin. Tato volba funguje tak, že se propustí pouze takové IP adresy, kde útočník zaútočil vícekrát během této doby. Tzn. pokud mezi posledními dvěma útoky uběhlo 5 a více hodin, daná IP adresa se stahovat nebude, pokud uběhlo méně, daná IP adresa se stáhne.</p>
+
 <p>Pokud vás v tuto chvíli napadlo, že byste mohli této funkcionality využít centrálně pro své spravované servery, na některém ze svých serverů si zřídit úložiště a to pak využívat k synchronizaci pouze mezi vašimi servery, není to možné - Denyhosts toto v tuto chvíli bohužel neumí.</p>
+
 <p>Tím bych tento díl ukončil. Příště se podívám na konkurenci Denyhosts, projekt Fail2ban, a na některé další zajímavé metody zabezpečení SSH.</p>
 
 <h3>Fail2ban</h3>
+
 <p>Fail2ban je kolegou nástroje Denyhosts. Zatímco Denyhosts je zaměřen výhradně na ochranu SSH prostřednictvím <code>hosts.deny</code>, Fail2ban je zaměřen obecněji a dokáže ochránit nejenom SSH, ale i řadu dalších služeb. Umožňuje dokonce plné přizpůsobení své činnosti čili není problém si přidat novou hlídanou událost a případnou reakci na ni. Stejně tak je možné přizpůsobit výchozí nastavení.</p>
+
 <p>V Debianu naleznete konfiguraci nástroje Fail2ban v adresáři <code>/etc/fail2ban</code>. Základní nastavení naleznete v konfiguračním souboru <code>jail.conf</code>, nicméně není doporučováno jej modifikovat přímo, ale změny zapsat do souboru <code>/etc/fail2ban/jail.local</code>. Asi to nejdůležitější bude whitelist IP adres, u kterých nechcete přístup omezovat (abyste si server omylem na dálku "nezamkli", nebo to místo vás neprovedl útočník):</p>
+
 <pre>ignoreip = 127.0.0.1 10.0.0.0/8</pre>
+
 <p>Jednotlivé IP adresy a rozsahy jsou odděleny mezerou. Zbylé dvě z klíčových voleb jsou <code>bantime</code>, tj. doba, po kterou bude útočící IP adresa zablokována (v sekundách), a <code>maxentry</code>, tj. počet povolených pokusů, po jejichž překročení bude daná IP adresa zablokována:</p>
+
 <pre>bantime  = 600
 maxretry = 3</pre>
+
 <p>Toto jsou výchozí nastavení, která budou použita, není-li pro danou chráněnou službu specifikována jiná hodnota. Níže v konfiguračním souboru pak naleznete jednotlivé chráněné služby, u kterých jsou tyto parametry obvykle přizpůsobeny (u SSH je ve výchozím nastavení povoleno 6 pokusů o přihlášení). Anatomii nastavení jednotlivých chráněných služeb demonstruji na příkladu:</p>
+
 <pre>[ssh]
 
 enabled = true
@@ -151,15 +270,22 @@ port    = ssh
 filter  = sshd
 logpath  = /var/log/auth.log
 maxretry = 6</pre>
+
 <p>SSH je u Fail2ban jediná aktivní chráněná služba, ostatní musíte aktivovat úpravou volby <code>enabled</code>, která musí být nastavena na <code>true</code>, má-li služba být aktivní. Dále následuje port, který bude pro danou IP adresu zablokován - <code>ssh</code> označuje port 22, <code>all</code> pak všechny porty. Výchozí akce pro zablokování dané IP adresy zde není specifikována, tudíž je použita výchozí akce <code>iptables-multiport</code>. Pokud se podíváte do adresáře <code>/etc/fail2ban/action.d</code>, naleznete soubor <code>iptables-multiport.conf</code>, který tuto akci řídí. Tato akce zablokuje danou IP adresu pomocí nástroje <code>iptables</code>, vytvořením příslušného pravidla. Za dobu specifikovanou ve volbě <code>bantime</code> toto pravidlo vymaže a z dané IP adresy se může na SSH opět přistupovat.</p>
+
 <p>Fail2ban je parser logů úplně stejně jako nástroj Denyhosts. Volba <code>filter</code> označuje filtr, který se má u dané služby použít, a volba <code>logpath</code> pak specifikuje umístění souboru s příslušným logem. Samotný filtr pak naleznete v adresáři <code>/etc/fail2ban/filter.d</code> ve stejnojmenném souboru s příponou <code>.conf</code>. Filtr je tvořen sadou regulárních výrazů. Pokud budete používat nástroj Fail2ban a budete specifikovat vlastní filtr, buďte opatrní a nezapomeňte na dříve zmiňovanou hrozbu v podobě log injection.</p>
+
 <p>Fail2ban má přednastavená pravidla pro ochranu řady dalších služeb - namátkou Apache, tři nejpoužívanější FTP servery, Postfix a Courier autentikační démon. Ty můžete použít bez nutnosti si příslušná řešení a pravidla nastavit ručně.</p>
+
 <p>Fail2ban démona můžete řídit ručně z příkazové řádky, pomocí nástroje <code>fail2ban-client</code>. Takto si můžete nechat vypsat stav chráněných služeb:</p>
+
 <pre>debian:~# fail2ban-client status
 Status
 |- Number of jail:      1
 `- Jail list:           ssh</pre>
+
 <p>Zde vidíte pouze jediný "jail", tedy chráněnou službu, a sice <code>ssh</code>. Stav jednotlivých služeb si můžete nechat vypsat podrobněji:</p>
+
 <pre>debian:~# fail2ban-client status ssh
 Status for the jail: ssh
 |- filter
@@ -170,31 +296,50 @@ Status for the jail: ssh
    |- Currently banned: 2
    |  `- IP list:       77.93.17.145 141.152.17.15 
    `- Total banned:     5</pre>
+
 <p>Zde můžete vidět celkový počet selhaných pokusů o přihlášení (94), počet momentálně blokovaných IP adres (2) i jejich seznam (podotýkám, že IP adresy ve výpisu jsou smyšlené, nejedná se o skutečné útočníky) a celkový počet zablokovaných adres (5).</p>
+
 <p>Pomocí tohoto nástroje je možné činnost Fail2ban precizně řídit z příkazové řádky, jednotlivé chráněné služby je možné odebírat, přidávat či konfigurovat nové. Více se dozvíte v dokumentaci.</p>
+
 <h3>Omezení propustnosti firewallu pro SSH</h3>
+
 <p>Jisté zabezpečení SSH může poskytnout modul Netfiltru <code>limit</code>. Tento modul umožňuje omezit počet spojení směřujících na SSH port. Jeho použití je lehce spekulativní, protože neumí brát v úvahu počet spojení z konkrétních IP adres. Přesto může v některých případech pomoci, pokud není k dispozici nic jiného:</p>
+
 <pre>iptables -N ssh
 iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ssh
 iptables -A ssh -s 1.2.3.4 -j ACCEPT
 iptables -A ssh -s 10.0.1.0/24 -m limit --limit 2/sec --limit-burst 20 -j ACCEPT
 iptables -A ssh -m limit --limit 5/min --limit-burst 10 -j ACCEPT
 iptables -A ssh -j DROP</pre>
+
 <p>Tato ukázka využívá stavový firewall, tzn. filtrují se pouze žádosti o nová spojení, existující spojení nebudou omezena. Veškerá nová spojení v tomto případě půjdou do řetězce ssh, ve kterém je nejprve povolena IP adresa <code>1.2.3.4</code>, na kterou se žádná omezení vztahovat nebudou. Dále je specifikován rozsah vnitřní sítě <code>10.0.1.0/24</code>, který je omezen volněji, ostatní pokusy o připojení k SSH jsou pak omezeny přísněji. Poslední pravidlo zahodí jakýkoliv paket, který omezením nevyhoví.</p>
+
 <p>Samotné omezení pomocí modulu <code>limit</code> funguje tak trochu jako revolver, kde <code>--limit-burst</code> představuje počet komor a <code>--limit</code> představuje dobu, za kterou se obnoví jeden náboj. Každý paket, který projde tímto pravidlem, pak "vystřelí" jeden náboj. Pokud dojdou náboje, paket příslušnému pravidlu nevyhoví a pokračuje v řetězu dál. V prvním uvedeném příkladě je počet komor 20 a doba obnovy jednoho náboje 0.5 sekundy (obnoví se dvakrát za sekundu), ve druhém je počet komor 10 a doba obnovy je 12 sekund (obnoví se 5krát za minutu).</p>
+
 <p>Zásadní nevýhody tohoto přístupu jsou dvě. V první řadě, jakýkoliv útok na SSH vyvolá Denial of Service dané služby. Můžete specifikovat whitelist (jako v příkladu výše), takže se pořád budete moci připojit z jistých IP adres, ale pro případné klienty, kteří nejsou ve výjimkách, to znamená nemožnost se připojit. Tento přístup se tedy hodí spíše tam, kde mají k SSH přístup pouze administrátoři.</p>
+
 <p>Druhou nevýhodou je absence přehledu o úspěšnosti pokusu o přihlášení - tato pravidla počítají pouze průchozí pakety bez ohledu na to, zdali patří spojením, která se úspěšně autentikují vůči SSH serveru, nebo spojením, která nepředloží platné autentikační údaje.</p>
+
 <h3>Port knocking</h3>
+
 <p>Port knocking je další z lehce kontroverzních záležitostí, alespoň ve své čisté podobě. V zásadě funguje tak, že jistý démon naslouchá přímo na síti (tzn. nezávisle na firewallu), přičemž hledá předem jisté definované sekvence paketů přicházející z nějaké IP adresy. Pokud některou ze sekvencí uvidí, provede nějakou akci, tzn. pustí pod rootem nějaký příkaz a jako parametr mu předá zdrojovu IP adresu daných paketů. Největší problém port knockingu v této podobě spočívá v tom, že útočník naslouchající na síti (ať už blízko na straně serveru nebo blízko na straně klienta) může danou sekvenci odposlechnout a zreprodukovat. Toto se samozřejmě dá vyřešit, a to jedním ze dvou způsobů, které uvedu níže.</p>
+
 <h4>Knockd a fwknop</h4>
+
+TODO wheezy verify
+
 <p>Démon <code>knockd</code> je tím nejobvyklejším port knocking démonem. K dispozici spolu s ním je i klient, který umožňuje na porty "klepat". V Debianu je <code>knockd</code> po instalaci neaktivní a čeká na úpravu hlavního konfiguračního souboru <code>/etc/knockd.conf</code>, po kterém můžete démon povolit úpravou <code>/etc/default/knockd</code> a spustit. Samotná konfigurace akce vypadá takto:</p>
+
 <pre>[fwDown]
    sequence    = 7001:tcp,8205:tcp,9050:udp
    seq_timeout = 5
    command     = /etc/init.d/iptables stop
    tcpflags    = syn</pre>
+
 <p>Sekvence portů je poměrně jasně definovaná v položce <code>sequence</code> - očekávají se tři pakety. TCP paket na port 7001 následovaný TCP paketem na port 8205 následovaný UDP paketem na port 9050. TCP pakety pak musí mít příznak SYN (specifikováno v položce <code>tcpflags</code>. Příslušná sekvence musí proběhnout během 5 vteřin (viz položka <code>seq_timeout</code>). Pokud knockd tedy takovou sekvenci paketů objeví, provede příkaz specifikovaný v položce <code>command</code>. Tento naznačený příkaz slouží k zastavení firewallu (třeba pokud byste se omylem "zamkli" při ruční manipulaci s firewallem) - v Debianu ale nebude fungovat, protože Debian nemá ve výchozí instalaci k dispozici skript pro <code>iptables</code>.</p>
+
 <p>Samotná ochrana SSH může vypadat třeba takto:</p>
+
 <pre>[opencloseSSH]
    sequence      = 2022:udp,3303:tcp,4440:udp,5225:udp
    seq_timeout   = 2
@@ -202,13 +347,19 @@ iptables -A ssh -j DROP</pre>
    start_command = /usr/sbin/iptables -A INPUT -s %IP% -p tcp --syn --dport 22 -j ACCEPT
    cmd_timeout   = 5
    stop_command  = /usr/sbin/iptables -D INPUT -s %IP% -p tcp --syn --dport 22 -j ACCEPT</pre>
+
 <p>Tato ukázka je již poněkud šťavnatější. Je zde definována sekvence čtyřech portů, jejíž timeout je nastaven na dvě vteřiny, a jsou specifikovány dva příkazy - <code>start_command</code> a <code>stop_command</code>. První z příkazů otevře SSH port pro danou IP adresu, druhý dané pravidlo z firewallu vymaže. Doba mezi provedením obou příkazů se řídí položkou <code>cmd_timeout</code>, která je v tomto případě nastavena na 5 sekund. Předpokladem fungování této ukázky je kompletní ochrana SSH firewallem - kromě explicitních výjimek musí být port SSH firewallem uzavřený.</p>
+
 <p>Problémem těchto sekvencí je, že se dají poměrně snadno odposlechnout. Když ne někde blízko serveru, tak určitě v rámci sítě, ze které se správce na server hlásí (nezabezpečené bezdrátové sítě tomuto problému v dnešní době dávají mnohem větší rozměr). Je jasné, že k obecnému zvýšení bezpečnosti povede i tento postup - spektrum subjektů, které mohou danou sekvenci odposlechnout, bude podstatně menší než celý Internet klepající na váš otevřený SSH port. Na stranu druhou, dokud je sekvence předem daná a opakuje se, nelze předpokládat, že se k SSH přeci jen nedostane někdo nepovolaný (i když, pak máte samozřejmě stále k dispozici standardní zabezpečovací mechanismy v rámci SSH - včetně nutnosti se na server přihlásit platným jménem a heslem nebo klíčem).</p>
+
 <p>Jedno z řešení tohoto problému umí i <code>knockd</code>, a sice tzv. sekvence na jedno použití (položka <code>One_Time_Sequences</code>, jejímž parametrem je soubor s řadou sekvencí). To znamená, že se nedefinuje jedna sekvence, ale celá řada sekvencí, přičemž po použití aktuální sekvence dojde k ukončení její platnosti a server bude očekávat následující sekvenci. Problémem této metody je nutnost synchronizace sekvencí na všech klientech a čas od času nutnost znovu vygenerovat nové sekvence. Bohužel mi není znám jiný způsob, jak si nechat sekvence pro <code>knockd</code> vygenerovat, než si k tomu napsat vlastnískript.</p>
+
 <p>Jinou možností řešit výše uvedený problém je prostřednictvím SPA, tj. single packet authorization, kde se ověření provádí jediným paketem za asistence asymetrického šifrování a GnuPG. Součástí SPA paketů jsou náhodná data, která zajišťují unikátnost každého paketu a neopakovatelnost. Tuto techniku bohužel <code>knockd</code> neumí, umí ji nástroj <code>fwknop</code>, který není k dispozici v repositářích momentální stabilní verze Debianu, nicméně bude k dispozici v příštím stabilním vydání. Tato technika spolu s tímto nástrojem byly popsány podrobněji v jednom z odkazů pod článkem.</p>
 
 <h3>Aktivní zabezpečení SSH na úrovni firewallu</h3>
+
 <p>Pokročilejší techniku zabezpečení SSH na úrovni firewallu představuje následující řešení, které tvoří jistou obdobu Denyhosts a Fail2ban, i když stále zde platí, že firewall nemůže zjistit, bylo-li dané přihlášení úspěšné, či nikoliv. Nutností je v tomto případě dostupnost jaderného modulu <a href="http://www.snowman.net/projects/ipt_recent/">ipt_recent</a> (v distribučním jádře Debianu tento modul k dispozici je). Příslušná pravidla vypadají zhruba takto:</p>
+
 <pre>1. iptables -N ssh
 2. iptables -A ssh -s 1.2.3.4 -j ACCEPT
 3. iptables -A ssh -m recent --update --seconds 15 --hitcount 5 --name SSH -j DROP
@@ -216,8 +367,11 @@ iptables -A ssh -j DROP</pre>
 5. iptables -A ssh -j ACCEPT
 
 6. iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ssh</pre>
+
 <p>Pochopit tento příklad je asi trošku obtížnější. Pokusy o připojení k SSH jsou směřovány do řetězce s názvem "ssh" (řádek 6). V tomto řetězci je nejprve povolen přístup z IP adresy <code>1.2.3.4</code> (řádek 2). Na řádku 4 je každý procházející paket zařazen do mechanismu modulu recent, a sice do jeho vlastního řetězce s názvem SSH, a propuštěn (tj. povolen). Třetí řádek je pak jádro celého mechanismu. Byla-li daná zdrojová IP adresa procházejícího paketu viděna vícekrát než 5krát za 15 sekund, je zařazena na blacklist a paket je zahozen. Pokud z dané IP adresy nepřijde žádná další žádost o pokus o připojení k SSH během 15 sekund, je daná IP adresa vyjmuta z blacklistu a může se znovu pokusit o přihlášení. Pokud z této IP adresy přijde další žádost, zatímco je v blacklistu, paket je zahozen a počítá se znovu od nuly.</p>
+
 <p>Trošku komplexnější příklad může vypadat takto:</p>
+
 <pre>iptables -N ssh-blacklist
 iptables -A ssh-blacklist -m recent --name blacklist --set
 iptables -A ssh-blacklist -m limit --limit 1/minute --limit-burst 100 -j LOG --log-prefix "iptables ssh-blacklist: "
@@ -237,28 +391,45 @@ iptables -A ssh -m recent --update --name long --seconds  3600 --hitcount 30 -j 
 iptables -A ssh -j ACCEPT
 
 iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ssh</pre>
+
 <p>Zde vidíte tři řetězce, řetězec <code>ssh</code>, kam směřují nová spojení s portem 22, dále řetězec <code>ssh-whitelist</code>, kde jsou specifikovány IP adresy a rozsahy, které mají být povoleny bez filtrování (v tomto případě je to jediná adresa - <code>1.2.3.4</code>). Řetězec <code>ssh-blacklist</code> provádí dvě podstatné úlohy. Jednak zařazuje danou IP adresu na blacklist a příslušný paket zahazuje, ale ještě před tím, než paket zahodí, jej zaloguje. Zde vidíte modul <code>limit</code>, který jsem představil výše. V tomto případě omezuje počet hlášek v logu na průměrně jednu za minutu (s možností najednou pojmout až 100 hlášek). Podstatné je, že do tohoto řetězce se příslušný paket dostane pouze jednou, a sice když je na blacklist zařazen - jinak ho zahazuje první "recent" pravidlo v řetězci <code>ssh</code>. Pro blacklist jsou stanovena dvě různá časová pásma, a sice 5 spojení za 15 sekund a 30 spojení za hodinu (3600 sekund). Pokud se nějaká IP adresa pokusí o více spojení za daný časový úsek, bude zařazena na blacklist. Doba, po kterou pak v blacklistu zůstane, je minimálně 1 den (43200 sekund). Daná IP adresa bude vyjmuta, pokud se během 1 dne od zařazení do blacklistu už nepokusí o přístup k SSH. Pokud to zkusí znovu během této doby, počítadlo se vynuluje a začíná se znovu.</p>
+
 <p>Jak už bylo řečeno, modul recent nebere v úvahu úspěch či neúspěch pokusu o přihlášení, pouze počet průchozích paketů za jednotku času. Oproti modulu <code>limit</code> má však podstanou výhodu v tom, že počítadla paketů jsou specifická pro každou zdrojovou IP adresu průchozího paketu. To znamená, že pokud bude útočník útočit z jedné IP adresy, ta bude brzy zablokována, ale přístup odjinud bude fungovat normálně.</p>
+
 <p>Uznávám, že modul <code>recent</code> je trošku "vyšší dívčí", čemuž bohužel napomáhá i lehký nedostatek podrobnější dokumentace. Popis jednotlivých voleb a základní princip však lze pochopit jednak z výše odkazované dokumentace, a pak z manuálové stránky nástroje <code>iptables</code>.</p>
+
 <h3>scponly</h3>
+
+TODO wheezy verify
+
 <p>Posledním nástrojem, který v rámci tohoto miniseriálu představím, je <code>scponly</code>. Jelikož SSH a SCP jdou ruku v ruce, může se stát, že v některých případech budete chtít, aby měl některý váš uživatel možnost přes SSH/SCP kopírovat soubory, ale současně aby se nemohl dostat k shellu a pouštět příkazy. A právě k tomu je určen nástroj <code>scponly</code>.</p>
+
 <p>Po instalaci stejnojmenného balíčku stačí jediný jednoduchý krok - vyměnit výchozí shell uživatele za <code>scponly</code>, takto:</p>
+
 <pre>usermod -s /usr/bin/scponly uzivatel</pre>
+
 <p>Z bezpečnostních důvodů je nutné, aby daný uživatel neměl právo zápisu do svého domovského adresáře (aby nemohl upravovat konfigurační soubory v <code>.ssh</code> a potenciálně si tak otevřít vrátka k shellu):</p>
+
 <pre>chown root:root /home/uzivatel
 chmod 755 /home/uzivatel</pre>
+
 <p>V rámci tohoto nastavení přesto vyvstává minimálně jeden další potenciální problém - uživatel může v tomto případě stále cestovat v adresářové struktuře mimo svůj domovský adresář. Pokud chcete zabránit i tomuto, je třeba využít <code>chroot</code> variantu <code>scponly</code>. Za tímto účelem je nejprve potřeba tuto verzi povolit:</p>
+
 <pre>dpkg-reconfigure scponly</pre>
+
 <p>Zde musím upozornit na to, že v takovém případě <code>scponly</code> získá <code>setuid</code> bit a bude spouštěn s právy uživatele <code>root</code>. Případná zranitelnost v <code>scponly</code> pak může mít katastrofální dopad (útočník získá rootovská oprávnění). Dalším krokem je užití pomocného skriptu v adresáři <code>/usr/share/doc/scponly/setup_chroot</code> s názvem <code>setup_chroot.sh</code>. Tento skript je před použitím třeba rozbalit:</p>
+
 <pre>cd /usr/share/doc/scponly/setup_chroot
 gzip -d setup_chroot.sh.gz
 chmod u+x setup_chroot.sh
 ./setup_chroot.sh</pre>
+
 <p>Skript za vás vytvoří uživatele, zkopíruje všechny nutné nástroje a knihovny do chrootu, zajistí úpravu práv domovského adresáře uživatele a vytvoří adresář, kam bude mít daný uživatel právo k zápisu. Naneštěstí, v Debianu Lenny tento skript neprovede jednu velmi důležitou operaci, a sice vytvoření <code>/dev/null</code> v chrootu, což je třeba provést ručně:</p>
+
 <pre>mkdir /home/uzivatel/dev
 cp -a /dev/null /home/uzivatel/dev/</pre>
 
-<pre id="links">http://www.fail2ban.org/ Fail2ban - projektový web
+http://www.fail2ban.org/ Fail2ban - projektový web
 http://www.zeroflux.org/projects/knock Knockd - projektový web
 http://www.cipherdyne.org/fwknop/ Fwknop - projektový web
 http://www.root.cz/clanky/single-packet-authorization-aneb-jeden-paket-vladne-vsem/ Root.cz, Single packet authorization aneb jeden paket vládne všem</pre>
@@ -267,4 +438,4 @@ http://www.debian-administration.org/articles/187 Using iptables to rate-limit i
 http://www.snowman.net/projects/ipt_recent/ Dokumentace modulu ipt_recent
 http://www.fail2ban.org/ Fail2ban - projektový web
 http://tadek.pietraszek.org/blog/2006/10/18/restricted-shell-account-ssh-and-subversion/ Restricted shell account (SSH and Subversion)
-http://sublimation.org/scponly/ sponly - projektový web</pre>
+http://sublimation.org/scponly/ sponly - projektový web
