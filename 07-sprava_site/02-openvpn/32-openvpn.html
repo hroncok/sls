@@ -1,4 +1,4 @@
-<h1>Správa linuxového serveru: OpenVPN server</h1>
+<h1>OpenVPN server</h1>
 
 <h3>Úvod do OpenVPN</h3>
 
@@ -116,8 +116,6 @@ persist-key</pre>
 <h4>Vytvoření certifikační autority</h4>
 
 <p>Prvním krokem je vytvoření vlastní certifikační autority. Můžete tak učinit buď ručně pomocí nástroje <code>openssl</code>, nebo si značně usnadnit práci pomocí pomocných skriptů. V Debianu naleznete příslušné skripty v adresáři <code>/usr/share/doc/openvpn/examples/easy-rsa</code>, takže si je odtud zkopírujte někam jinam, třeba do <code>/etc/openvpn</code>, takto:</p>
-
-TODO wheezy?
 
 <pre>cd /etc/openvpn
 cp -r /usr/share/doc/openvpn/examples/easy-rsa .
@@ -304,11 +302,9 @@ verb 3</pre>
 
 <pre>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</pre>
 
-TODO wheezy?
+<p>Toto nastavení bude fungovat pouze do příštího restartu serveru. Permanentní nastavení je v Debianu možné zařídit pomocí balíčku <code>iptables-persistent</code> a funkce "save":</p>
 
-<p>Toto nastavení bude fungovat pouze do příštího restartu serveru. Permanentní nastavení je v Debianu možné zařídit pomocí balíčku <code>iptables-persistent</code> a nástroje <code>iptables-save</code>:</p>
-
-<pre>iptables-save &gt; /etc/iptables/rules</pre>
+<pre>service iptables-persistent save</pre>
 
 <p>Tento příkaz uloží aktuální konfiguraci pravidel Netfiltru a při příštím spuštění systému bude zajištěno jejich opětovné načtení.</p>
 

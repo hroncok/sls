@@ -1,13 +1,10 @@
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-
-<h1>Správa linuxového serveru: Přístupová práva a ACL</h1>
-
-<p>Toto je poslední díl seriálu o správě linuxového serveru. Zatímco klasická unixová přístupová práva zná každý správce, o ACL a speciálních atributech už to tak obecně neplatí. Chcete vědět více? Čtěte dál.</p>
+<h1>Přístupová práva a ACL</h1>
 
 <h3>Unixová přístupová práva</h3>
+
 <p>Standardní unixová přístupová práva asi velmi dobře znáte. <strong>Uživatel</strong>, <strong>skupina</strong> a <strong>ostatní</strong> představují tři stěžejní subjekty, kterým se přidělují tři základní práva – právo <strong>číst</strong> (read), <strong>psát</strong> (write) a <strong>spouštět</strong> (execute). Chcete-li v unixových systémech spustit soubor obsahující spustitelný kód (binárka, shellový skript apod.), potřebujete souboru přidělit právo na spuštění.</p>
 <p>V případě souborů je jasné, co jednotlivá práva povolují. V případě adresářů to už tak jasné být nemusí, nicméně v unixových systémech byste o adresáři měli uvažovat jako o speciálním typu souboru (v Unixech platí známé pravidlo <em>vše je soubor</em>). Pak už není těžké odvodit, co jednotlivá práva realizují:</p>
+
 <ul>
 <li>
 <p><strong>read</strong> – právo vypsat obsah adresáře (<code>ls</code>)</p>
@@ -19,17 +16,25 @@
 <p><strong>execute</strong> – právo se přepnout do daného adresáře (<code>cd</code>)</p>
 </li>
 </ul>
+
 <p>Aby to nebylo zase úplně jednoduché, existují u souborů i adresářů ještě tři speciální práva, Set UID, Set GID a sticky bit. SUID se užívá hlavně u binárek. Ty běží za normálních okolností s právy uživatele, který je spustil. Některé nástroje ale potřebují rootovská práva pro provedení určitých operací, a k tomu slouží SUID a SGID práva. SUID právo spustí daný program s právy jeho <strong>vlastníka</strong>, což je obvykle root. SGID právo spustí daný program s právy jeho <strong>skupiny</strong>. Co je velmi důležité zmínit – chyba v programech s těmito právy může vést k získání práv roota útočníkem, proto je třeba SUID/SGID binárky pečlivě hlídat a aktualizovat.</p>
+
 <p>U adresářů má SGID bit specifický význam – nastavuje skupinu u všech souborů a adresářů vytvořených v tomto adresáři.</p>
+
 <p>Sticky bit se dříve používal u binárek, kde signalizoval operačnímu systému, aby binárku po jejím ukončení neodstraňoval z operační paměti tak rychle. V dnešní době slouží u adresářů typu <code>/tmp</code>, kde zajišťuje, že soubory vytvořené jedním uživatelem nemůže smazat jiný uživatel, i když má k danému adresáři právo zápisu.</p>
+
 <p>K nastavení vlastnictví slouží nástroj <code>chown</code>, na změnu práv pak <code>chmod</code>. Nástroj <code>chmod</code> můžete používat s více než jedním způsobem zápisu práv. Často se používá číselná reprezentace v osmičkové soustavě, kde právo číst má hodnotu <strong>4</strong>, právo zápisu hodnotu <strong>2</strong> a právo ke spuštění hodnotu <strong>1</strong>. Sečtením těchto čísel dostanete příslušnou hodnotu dané kombinace práv:</p>
+
 <pre>debian:/tmp# touch test
 debian:/tmp# chown nobody:nogroup test
 debian:/tmp# chmod 640 test
 debian:/tmp# ls -l test
 -rw-r----- 1 nobody nogroup 0 16.&nbsp;zář 15.15 test</pre>
+
 <p>Hodnota <code>640</code> dává vlastníkovi (6) právo číst a zapisovat (ale už ne spouštět), skupině (4) dává právo číst (ale už ne zapisovat a spouštět) a ostatním (0) nedává žádné právo.</p>
+
 <p>Nástroj <code>chmod</code> také podporuje symbolický zápis, kde <strong>u</strong> představuje uživatele, <strong>g</strong> skupinu, <strong>o</strong> ostatní a <strong>a</strong> všechny tři skupiny. Následuje operátor, který přidává (<strong>+</strong>), odebírá (<strong>-</strong>) nebo nastavuje (<strong>=</strong>) práva. A konečně přicházejí na řadu práva:</p>
+
 <ul>
 <li>
 <p><strong>r</strong> – číst</p>
@@ -47,29 +52,51 @@ debian:/tmp# ls -l test
 <p><strong>t</strong> – sticky bit</p>
 </li>
 </ul>
+
 <p>Například:</p>
+
 <pre>chmod u=rw,g+s,o-r soubor</pre>
+
 <p>Tento příkaz nastavuje pro uživatele práva číst a zapisovat, ale ne spouštět, pro skupinu přidává Set GID bit (ostatní práva pro skupinu zachovává) a ostatním uživatelům bere právo číst.</p>
+
 <h3>Atributy</h3>
+
 <p>Zajímavější jsou atributy, které lze vypisovat pomocí nástroje <code>lsattr</code> a nastavovat pomocí nástroje <code>chattr</code>. Těchto atributů je celá řada, ovšem musí je podporovat daný souborový systém. Nejzajímavější jsou dva, a sice <code>append only</code> (<strong>a</strong>) a <code>immutable</code> (<strong>i</strong>). První z nich povolí pouze zvětšení souboru, ale už ne modifikaci existujícího obsahu. Druhý pak zajistí, že soubor není možné jakkoliv měnit, upravovat nebo mazat, a to i když se jedná o uživatele root, pro kterého standardní práva nehrají roli. Přirozeně, máte-li roota, tak si příznak <code>immutable</code> můžete zrušit a soubor smazat. Přesto je dobré minimálně o těchto dvou atributech tušit. Nastavují se takto:</p>
+
 <pre>chattr +i immutable_file
 chattr +a append_only_file</pre>
+
 <p>A ruší se takto:</p>
+
 <pre>chattr -i immutable_file
 chattr -a append_only_file</pre>
+
 <p>Ostatní atributy najdete popsané v manuálové stránce nástroje <code>chattr</code>.</p>
+
 <h3>ACL v Linuxu</h3>
+
 <p>Časem můžete zjistit, že klasická unixová přístupová práva nejsou dost jemná pro váš způsob použití. Chcete-li třeba dát konkrétnímu uživateli možnost číst nebo zapisovat do souboru, který vlastní někdo jiný a který je zařazen ve skupině, jejímž členem daný konkrétní uživatel není a nemá být, nedává vám unixový model přístupových práv žádný nástroj, jak toho dosáhnout. Zde jasně narážíte na jeho omezení.</p>
+
 <p>V Linuxu však existují již poměrně dlouho ACL (Access Control List), které nabízejí jemnější model specifikace přístupových práv. Tuto vlastnost musí podporovat souborový systém a musíte explicitně stanovit příslušný atribut (<strong>acl</strong>) v <code>/etc/fstab</code>:</p>
+
 <pre>/dev/sda1 / ext3 defaults,errors=remount-ro,<strong>acl</strong> 0 0</pre>
+
 <p>Tím zajistíte připojení daného souborového systému s <strong>acl</strong>, ale až po restartu počítače. Za běhu systému souborový systém přenastavit můžete, a to i bez nutnosti jej odpojit a následně připojit, takto:</p>
+
 <pre>mount -o remount,acl /</pre>
+
 <p>ACL je třeba nějakým způsobem nastavit. Nástroje k tomuto účelu naleznete v případě Debianu v balíčku <code>acl</code>:</p>
+
 <pre>aptitude install acl</pre>
+
 <p>Nástroj pro nastavení přístupových práv u souborů a adresářů se nazývá <code>setfacl</code>, nástroj pro vypsání stavu přístupových práv se jmenuje <code>getfacl</code>.</p>
+
 <p>Základní syntaxe ACL vypadá takto: <strong>objekt</strong>:<strong>jméno</strong>:<strong>práva</strong>, kde objekt je <code>user</code> pro uživatele (nebo zkráceně <code>u</code>), <code>group</code> pro skupinu (nebo zkráceně <code>g</code>) a <code>other</code> pro ostatní (nebo zkráceně <code>o</code>). Jméno je jméno daného objektu (tedy daného uživatele nebo skupiny), v případě ostatních se (přirozeně) neuvádí. Práva představují klasickou trojici: číst (r), psát (w), spouštět (x).</p>
+
 <p>Pro úpravu ACL se používá přepínač <code>-m</code>, pro mazání přepínač <code>-x</code> a pro vymazání všech ACL slouží přepínač <code>-b</code>.</p>
+
 <p>Nejjednodušší použití představuje přidání sady práv nějakému uživateli nebo nějaké skupině:</p>
+
 <pre>debian:/home/staff# ls -l dokument.txt
 -rw-r----- 1 michal staff 0 16.&nbsp;zář 15.12 dokument.txt
 debian:/home/staff# <strong>setfacl -m u:honza:rw- dokument.txt</strong>
@@ -82,9 +109,13 @@ user:honza:rw-
 group::r--
 mask::rw-
 other::---</pre>
+
 <p>Není-li to z výpisu výše patrné, vězte, že ACL představuje rozšíření unixových práv. Unixová práva stále platí, ACL je pouze rozšiřuje. V příkladu výše tedy unixová práva stále umožňují členům skupiny <code>staff</code> číst daný soubor, vlastník (<code>michal</code>) má pak práva pro čtení a zápis, zatímco ostatní nemají žádná práva. V tomto příkladě byla pomocí ACL nastavena navíc práva uživateli <code>honza</code>, a to právo pro čtení a zápis do souboru <code>dokument.txt</code>.</p>
+
 <p>Práva se dají samozřejmě nastavit i skupině:</p>
+
 <pre>debian:/home/staff# <strong>setfacl -m g:www-data:r-- dokument.txt</strong>
+
 debian:/home/staff# getfacl dokument.txt
 # file: dokument.txt
 # owner: michal
@@ -94,8 +125,11 @@ group::r--
 group:www-data:r--
 mask::rw-
 other::---</pre>
+
 <p>V tomto příkladu bylo nastaveno právo pro čtení skupině <code>www-data</code> k souboru <code>dokument.txt</code>.</p>
+
 <p>Pokud budete chtít sdílet nějaké materiály v nějaké skupině, bývá vhodné k tomu vyhradit celý adresář. Pokud však nastavíte pouze práva k danému adresáři a někdo v něm vytvoří soubor nebo další adresář, jak se v rámci ACL zajistí, aby i tyto nově vytvořené soubory a adresáře byly přístupné dané skupině nebo uživateli s danými ACL právy? Pomocí výchozích práv, pro jejichž nastavení slouží prefix <strong>d:</strong>, takto:</p>
+
 <pre>debian:/home# mkdir projekt
 debian:/home# setfacl -m d:g:vyvojari:r-- projekt
 debian:/home# cd projekt
@@ -108,19 +142,15 @@ user::rw-
 group::r-x                      #effective:r--
 group:vyvojari:r--
 other::---</pre>
-<p>Zde je patrné, že nově vytvořený soubor <code>dokument.txt</code> v adresáři s patřičně nastavenými výchozími ACL zahrnuje přidané právo pro čtení skupině <code>vyvojari</code>.</p>
-<p>ACL toho samozřejmě umí ještě o něco více, nicméně toto jsou základy, které je vhodné ovládat. Na zbytek se podívejte do manuálových stránek nástroje <code>setfacl</code>.</p>
-<h3>Konec</h3>
-<p>Tímto dílem bych se s vámi rád rozloučil, jelikož další díl již nevyjde. Včetně tohoto vyšlo celkem 98 dílů seriálu o správě linuxového serveru během téměř tří let. Když jsem začal psát první díly, neměl jsem sebemenší představu, že dosáhnu takového čísla nebo že vydržím psát tak dlouho. Dovolte mi vám poděkovat za přízeň, dále za všechny přívětivé a pochvalné komentáře, které mi dodávaly energii a chuť, a také za všechna doplnění a upřesnění.</p>
-<p>Povedlo se mi pokrýt řadu témat a doufám, že jsem základy správy linuxových serverů dostatečně osvětlil. Určitě přijdete na řadu témat, kterou jsem nepokryl, ale to k věci patří. Správa linuxového serveru je velice široké téma, o kterém se toho dá napsat mnoho.</p>
-<p>V zásadě, vlastní studium dokumentace a provádění rešerší je něco, co ke správě systémů patří. Žádný správce neví všechno. Stejně tak k tomu patří experimentování, testování a ladění, tedy praxe. To jsou má doporučení, kam jít dál.</p>
-<p>Někteří z vás se ptali a ptají na to, jestli by bylo možné získat celý seriál v nějakém rozumném celku k vytištění nebo k prohlížení na cestách. V tomto ohledu mám pro vás dobrou zprávu – připravujeme vydání seriálu v knižní podobě v <a href="http://knihy.nic.cz/">edici CZ.NIC</a>.</p>
-<p>Tímto se s vámi loučím a přeji vám hodně štěstí a úspěchů (nejen) v oblasti správy linuxových serverů.</p>
 
-<pre id="links">http://www.perlfect.com/articles/chmod.shtml Understanding UNIX permissions and chmod
+<p>Zde je patrné, že nově vytvořený soubor <code>dokument.txt</code> v adresáři s patřičně nastavenými výchozími ACL zahrnuje přidané právo pro čtení skupině <code>vyvojari</code>.</p>
+
+<p>ACL toho samozřejmě umí ještě o něco více, nicméně toto jsou základy, které je vhodné ovládat. Na zbytek se podívejte do manuálových stránek nástroje <code>setfacl</code>.</p>
+
+http://www.perlfect.com/articles/chmod.shtml Understanding UNIX permissions and chmod
 http://www.bga.org/~lessem/psyc5112/usail/concepts/filesystems/everything-is-a-file.html Everything is a File
 http://www.zzee.com/solutions/unix-permissions.shtml UNIX permissions help
 http://linuxcommando.blogspot.ca/2007/12/basic-linux-permission-model-lets-you.html How to work with access control lists (part 1)
 http://linuxcommando.blogspot.ca/2008/01/part-2-how-to-work-with-access-control.html How to work with access control lists (part 2)
 https://en.wikipedia.org/wiki/Chattr Wikipedia, chattr
-https://www.centos.org/docs/5/html/Deployment_Guide-en-US/ch-acls.html Red Hat, Deployment guide, ACL</pre>
+https://www.centos.org/docs/5/html/Deployment_Guide-en-US/ch-acls.html Red Hat, Deployment guide, ACL

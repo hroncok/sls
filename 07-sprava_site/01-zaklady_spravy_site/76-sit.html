@@ -54,11 +54,11 @@ root@debian ~# ip addr show eth1
 
 <h3>Instalace</h3>
 
-<p>Nástroj <code>ip</code> bývá součástí moderních distribucí. Pokud ho ve své instalaci nenajdete, pak vám stačí nainstalovat balíček <code>iproute2</code>, což v Debianu provedete takto:</p>
+<p>Nástroj <code>ip</code> bývá součástí moderních distribucí. Pokud ho ve své instalaci nenajdete, pak vám stačí nainstalovat balíček <code>iproute</code> nebo <code>iproute2</code>, což v Debianu provedete takto:</p>
 
-<pre>aptitude install iproute2</pre>
+<pre>aptitude install iproute</pre>
 
-<p>Dlužno dodat, že ve standardní instalaci Debianu Wheezy {TODO urcite?} je již tento balíček obsažen.</p>
+<p>Starší vydání Debianu používala balíček <code>iproute2</code>. Wheezy obsahuje balíček <code>iproute</code> ve standardní instalaci.</p>
 
 <h3>Úvod do nástroje ip</h3>
 
@@ -412,8 +412,6 @@ ip route add ::/0 dev sestkovy-tunel</pre>
 
 <p>Jedním z míst pro ukládání různých procedur a nastavení, jež se mají vykonat po spuštění počítače, je skript <code>/etc/rc.local</code>, který bude spuštěn na konci bootování. Pro nastavení sítě to ale není nejvhodnější umístění, jelikož konec bootování obvykle nastává dávno po aktivaci sítě a síťových rozhraní. Ideální by tedy bylo navázat nastavení sítě na „nahození“ příslušného síťového rozhraní. Toho je možné docílit pomocí direktivy <code>up</code> v konfiguračním souboru <code>/etc/network/interfaces</code>:</p>
 
-TODO still relevant in wheezy, huh?
-
 <pre>iface eth0 inet static
     address 1.2.3.4
     netmask 255.255.255.0
@@ -469,8 +467,6 @@ TODO rozdelit na dalsi kapitolu
 
 <p>V Arch Linuxu a možná i v jiných distribucích je součástí balíčku <code>nmap</code> i jeho GUI, <code>zenmap</code>. V Debianu a Fedoře tomu tak není, tam je balíček s GUI osamostatněn:</p>
 
-TODO wheezy verify
-
 <pre>aptitude install zenmap</pre>
 
 <p>GUI Nmapu může být poměrně užitečné, jelikož umí značně zpřehlednit výsledky skenování. Umí také kombinovat informace získané z různých skenů, dokonce zvládne i skenované sítě vizualizovat. Určitě tedy doporučuji se na něj podívat, i když v tomto článku se jím zabývat nebudu. Jeho ovládání není nijak komplikované, a pochopíte-li základy práce s Nmapem, měli byste být schopni bez problémů zvládnout práci s jeho GUI.</p>
@@ -515,12 +511,12 @@ Nmap done: 1 IP address (1 host up) scanned in 0.39 seconds</pre>
 <pre>nmap 10.0.1.254  
 
 Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 17:28 CET
-Note: Host seems down. If it is really up, but blocking our ping probes, try -PN
+Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
 Nmap done: 1 IP address (0 hosts up) scanned in 3.00 seconds</pre>
 
-<p>Zde naštěstí Nmap rovnou radí, že zjištění stavu lze přeskočit pomocí volby <code>-PN</code>:</p>
+<p>Zde naštěstí Nmap rovnou radí, že zjištění stavu lze přeskočit pomocí volby <code>-Pn</code>:</p>
 
-<pre>nmap -PN 10.0.1.254 
+<pre>nmap -Pn 10.0.1.254 
 
 Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 17:28 CET
 Nmap scan report for orion (10.0.1.254)
@@ -540,9 +536,9 @@ Nmap done: 1 IP address (1 host up) scanned in 4.56 seconds</pre>
 
 <pre>nmap 10.0.1.0/24</pre>
 
-<p>Pokud nechcete provádět skenování portů jednotlivých počítačů, ale pouze zjištění, které počítače jsou v dané síti dostupné, můžete skenování portů vypnout (volbou <code>-sP</code>):</p>
+<p>Pokud nechcete provádět skenování portů jednotlivých počítačů, ale pouze zjištění, které počítače jsou v dané síti dostupné, můžete skenování portů vypnout (volbou <code>-sn</code>):</p>
 
-<pre>nmap -sP 10.0.1.0/24
+<pre>nmap -sn 10.0.1.0/24
 
 Starting Nmap 5.51 ( http://nmap.org ) at 2012-02-28 16:54 CET
 Nmap scan report for 10.0.1.12
@@ -567,14 +563,9 @@ Nmap done: 256 IP addresses (7 hosts up) scanned in 3.01 seconds</pre>
 
 <p>Zavřený port je takový, který odmítá pokus o spojení (v <code>iptables</code> je to typicky <code>-j REJECT</code>). Tím se liší od filtrovaného portu, který neodpovídá vůbec (ekvivalent <code>-j DROP</code>). Pokud chcete být hodní a chovat se podle norem, měli byste na pokus o spojení reagovat odmítnutím. To však podstatně urychluje skenování portů. Mimo jiné i proto řada správců využívá možnosti zahazovat neoprávněné žádosti o spojení bez jakéhokoliv oznamování. Skenování portů pak trvá déle, jelikož nelze s jistotou říci, zda paket k cíli dorazil nebo ne, tudíž se déle čeká. Skenování portů ovšem zahazování žádostí o spojení nijak nezabrání.</p>
 
-<h3>Pokračování příště</h3>
-
 <h1>Typy skenů a volby Nmapu</h1>
 
-TODO wheezy - asi uz to jde novym zpusobem, ne?
-TODO nepouzivam -sP a -PN dale?
-
-<p>Na úvod bych rád zmínil skutečnost, že volby Nmapu se mezi jednotlivými verzemi mohou měnit. To bohužel poznamenalo <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-skenovani-siti-pomoci-nmap">minulý díl</a> (který doporučuji si přečíst, pokud jste tak ještě neučinili), kde jsem zmiňoval volby <code>-sn</code> a <code>-Pn</code>, které starší Nmap dostupný v Debianu Squeeze nezná. Jejich ekvivalentem jsou volby <code>-sP</code> a <code>-PN</code>, které vám v Debianu Squeeze budou fungovat. Za tento šotek se omlouvám, v dotyčném článku už je to opraveno. V případě problémů s nevyhovující syntaxí doporučuji nahlédnout do manuálu, který bude zmiňovat specifika té verze, kterou na svém stroji používáte.</p>
+<p>Na úvod bych rád zmínil skutečnost, že volby Nmapu se mezi jednotlivými verzemi mohou měnit. Pokud používáte starší verzi Nmapu (např. dostupnou v Debianu Squeeze), pak asi budete mít problémy s volbami <code>-sn</code> a <code>-Pn</code>, které tento starší Nmap nezná. Jejich ekvivalentem jsou volby <code>-sP</code> a <code>-PN</code>, které vám v něm budou fungovat. V případě problémů s nevyhovující syntaxí doporučuji nahlédnout do manuálu, který bude zmiňovat specifika té verze, kterou na svém stroji používáte.</p>
 
 <h3>Rychlost skenování</h3>
 

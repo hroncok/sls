@@ -1,41 +1,67 @@
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-
 <h1>Správa linuxového serveru: Thttpd a benchmark webového serveru</h1>
 
-<p>Webový server thttpd je minimalistický, hodí se pro maličké osobní, domácí či embedded servery, popřípadě pro VPS s málo RAM. Jelikož nastavení tohoto serveru je relativně jednoduché, bude se druhá část článku zabývat nástrojem ab pro benchmark webového serveru.</p>
 
 <h3>Úvod</h3>
+
 <p>Pro tentokrát začnu nevýhodami. <code>Thttpd</code> je momentálně nevyvíjený, a to již poměrně dlouhou dobu (poslední verze vyšla koncem roku 2003). Mailing list projektu je sice ještě stále aktivní, ale netroufnu si odpovědět na otázku, zdali vývoj tohoto projektu bude ještě někdy pokračovat. Lze však předpokládat, že případné fatální či bezpečnostní problémy budou řešeny jako doposud, tedy na úrovni správců balíčků v distribucích, které <code>thttpd</code> obsahují. Mezi další nevýhody <code>thttpd</code> patří také absence podpory IPv6, HTTPS a FastCGI (podporuje pouze CGI).</p>
+
 <p>Jeho výhody naopak zahrnují paměťovou nenáročnost (sám zabírá pod 1 MB RAM, při zátěži spotřebovává minimum paměti navíc), rychlost (u statických stránek stíhá víc a rychleji než Apache) a vestavěná podpora pro škrcení síťového provozu (throttling).</p>
+
 <p>Jak už bylo zmíněno, <code>thttpd</code> se hodí především tam, kde je citelný nedostatek paměti a kde nevadí absence pokročilejších funkcí typických pro servery typu Apache. Bude vynikat zejména tam, kde je potřeba servírovat statické stránky. Pokud máte produkční server, popřípadě chcete dynamické stránky, budete spíše uvažovat o lighttpd či Nginx.</p>
+
+<p>Upozornění: Thttpd byl odstraněn z Debianu Wheezy, tudíž v oficiálních repositářích jej již nenajdete. Návod můžete použít jak na Debian Squeeze, tak pokud budete thttpd kompilovat ze zdrojových souborů.</p>
+
 <h3>Instalace</h3>
-<p>Je velká pravděpodobnost, že <code>thttpd</code> máte v repozitářích své distribuce, takže by mělo stačit nainstalovat stejnojmenný balíček. V Debianu byste instalaci <code>thttpd</code> provedli takto:</p>
+
+<p>Je velká pravděpodobnost, že <code>thttpd</code> máte v repozitářích své distribuce, takže by mělo stačit nainstalovat stejnojmenný balíček. V Debianu Squeeze byste instalaci <code>thttpd</code> provedli takto:</p>
+
 <pre>aptitude install thttpd</pre>
+
 <h3>Základní konfigurace</h3>
+
 <p>Primární konfigurační soubor pro <code>thttpd</code> je <code>/etc/thttpd/thttpd.conf</code>. Výchozí nastavení je v Debianu postačující pro provoz na portu 80, přičemž obsah, který <code>thttpd</code> servíruje, má výchozí umístění shodné s Apache, tedy <code>/var/www</code>. Pokud vám toto nastavení vyhovuje, můžete přejít rovnou ke spuštění serveru. V opačném případě můžete tyto hodnoty upravit, třeba takto:</p>
+
 <pre>port=8000
 dir=/srv/http</pre>
+
 <p><code>Thttpd</code> se na rozdíl od jiných webových serverů v Debianu po instalaci automaticky nespustí, jeho použití je potřeba nejprve povolit v <code>/etc/default/thttpd</code>, kde musíte volbu <code>ENABLED</code> nastavit na <code>yes</code>:</p>
+
 <pre>ENABLED=yes</pre>
+
 <p>Teprve poté nastartujte <code>thttpd</code>:</p>
+
 <pre>/etc/init.d/thttpd start</pre>
+
 <h4>chroot a bezpečnost</h4>
+
 <p>Z bezpečnostních důvodů je doporučeno používat chroot, tj. uzavřít běh serveru v adresáři s obsahem, který má <code>thttpd</code> servírovat. Tak je také <code>thttpd</code> v Debianu ve výchozím stavu nastaven. Pokud vám toto nastavení nevyhovuje, zaměňte volbu <code>chroot</code> za <code>nochroot</code>.</p>
+
 <p>Podobně jako Apache nebo jiné webové servery i <code>thttpd</code> po spuštění změní uživatele z roota na neprivilegovaného uživatele, v Debianu je to uživatel <code>www-data</code> (toto upravuje volba <code>user</code>).</p>
+
 <h3>Nastavení throttlingu</h3>
+
 <p>Pro domácí servery má <code>thttpd</code> jednu velkou výhodu - má vestavěný throttling, tedy „škrcení“ síťového provozu, což se velmi hodí tam, kde máte škrcený upload (mj. prakticky veškeré domácí ADSL). Throttling se nastavuje ve zvláštním konfiguračním souboru, a sice v <code>/etc/thttpd/throttling.conf</code>. Samotné nastavení může vypadat třeba takto:</p>
+
 <pre>**              5000-10000
 **.jpg|**.png   5000
 files/**        5000</pre>
+
 <p>První řádka udává globální nastavení pro všechny soubory, přičemž maximum je stanovené na <code>10000</code> bytů za vteřinu. První číslo, tedy <code>5000</code>, udává minimum. Druhý řádek dává všem <code>jpg</code> a <code>png</code> souborům maximum <code>5000</code> bytů za sekundu. Poslední řádka naznačuje, jak by se postupovalo pro všechny soubory v určitém adresáři, v tomto případě se jedná o adresář <code>files</code>, kterému je rovněž nastaveno maximum přenosů na <code>5000</code> bytů za sekundu.</p>
+
 <h3>Benchmark webového serveru pomocí nástroje ab</h3>
+
 <p>Přemýšlíte-li nad tím, jakým způsobem změřit výkon webového serveru při zátěži, můžete zkusit nástroj <code>ab</code> z balíčku <code>apache2-utils</code>. K instalaci vám v Debianu postačí následující příkaz:</p>
+
 <pre>aptitude install apache2-utils</pre>
+
 <p>Oddělení balíčků je zde velmi prospěšné, neboť nemusíte kvůli tomuto nástroji tahat celou distribuci Apache, postačí vám pouze tento balíček.</p>
+
 <p>Nástroj <code>ab</code> má dva klíčové parametry, a sice celkový počet HTTP žádostí (<code>-n</code>) a počet současně posílaných žádostí (<code>-c</code>). Výchozí hodnotou je u obojího jednička. Pokud tedy chcete otestovat místní server zasláním dvou tisíc žádostí, přičemž současně by se posílalo třicet žádostí, vykonali byste následující příkaz:</p>
+
 <pre>ab -n 2000 -c 30 http://127.0.0.1/</pre>
+
 <p>Pro ukázku uvádím výstup tohoto příkazu právě v případě <code>thttpd</code>:</p>
+
 <pre>Server Software:        thttpd/2.25b
 Server Hostname:        127.0.0.1
 Server Port:            80
@@ -72,9 +98,13 @@ Percentage of the requests served within a certain time (ms)
   98%      3
   99%      3
  100%      4 (longest request)</pre>
+
 <p>Ve výpisu jsou patrné podstatné statistické údaje, tedy nejdelší požadavek, během jaké doby byla obsloužena většina požadavků, přenosová rychlost, počet přenesených bytů apod. Pokud to s bechmarkováním budete myslet vážně, určitě se podívejte do manuálové stránky nástroje kvůli ostatním volbám.</p>
+
 <h4>Pár slov o benchmarkování</h4>
+
 <p>Aby měl jakýkoliv benchmark smysl, je potřeba zadat správné parametry a výsledky správně interpretovat. Už samotná volba testovací stránky skýtá mnoho úskalí. Pokud testujete na statické stránce, ale hodláte nasadit dynamické stránky (resp. webovou aplikaci), nemusí mít test vůbec žádnou vypovídací schopnost. Podobně, testujete-li jednu konkrétní dynamickou stránku, je třeba mít na paměti, že u jiných stránek může být výkon řádově jiný (provádí se jiné SQL dotazy, jiné zpracování dat apod.). Jinými slovy, před započetím testování byste měli mít jasnou představu, co chcete testovat, a měli byste si být jisti, že jste zvolili správnou metodu, jak to otestovat. Určitě nebývá od věci kromě výsledků sledovat i zatížení systému, obsazení paměti a další parametry během samotného benchmarku.</p>
+
 <p>V příkladu výše vás mělo zarazit to, že test byl prováděn z localhostu, tj. přímo na serveru. Takový test může být vhodný, pokud testujete „surový“ výkon webového serveru, kde by mohla síťová vrstva výsledek ovlivnit. Naopak pro testování z pohledu uživatelů webu není dobré síť ignorovat, jelikož její režie si vždy něco vezme. V souvislosti s tím byste si také měli dávat pozor, odkud server testujete, aby vám nízký upload vašeho ISP nezkreslil výsledky.</p>
 
 <pre id="links">http://www.acme.com/software/thttpd/ thttpd (web projektu)

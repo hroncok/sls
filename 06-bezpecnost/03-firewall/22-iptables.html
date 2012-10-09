@@ -209,9 +209,11 @@ iptables -P FORWARD DROP</pre>
 
 <h3>Jak integrovat firewall do systému</h3>
 
-TODO revize - debian má lepší systém
+<p>Debian má k dispozici balíček <code>iptables-persistent</code>, který zahrnuje stejnojmenný startovací skript, a ten se stará o načtení pravidel během startu systému. Pravidla můžete upravovat buď ručně, a to editací souboru <code>/etc/iptables/rules.v4</code> pro IPv4 provoz a souboru <code>/etc/iptables/rules.v6</code> pro IPv6 provoz, nebo můžete využít funkce "save" v příslušném skriptu, která aktuální stav firewallu do těchto souborů uloží:</p>
 
-<p>Na rozdíl od mnoha jiných distribucí nemá Debian ve startovacích skriptech zohledněno nastavování firewallu, takže vám nezbyde než si případný firewall napsat jako shellový skript a začlenit ho do bootovacího procesu. Možností, jak toto provést je mnoho, včetně možnosti napsat si vlastní init skript a startovat firewall jako kteroukoliv jinou systémovou službu. Já zde předvedu tu úplně nejjednodušší - příslušný skript lze umístit jako <code>pre-up</code> skript v konfiguračním souboru pro síťová rozhraní, kterým je <code>/etc/network/interfaces</code>, takto:</p>
+<pre>service iptables-persistent save</pre>
+   
+<p>Můžete si samozřejmě firewall začlenit i sami, bez použití tohoto balíčku. Možností, jak toto provést je mnoho.Já zde jen tak pro zajímavost předvedu tu úplně nejjednodušší - příslušný skript, který nastavuje pravidla firewallu, lze umístit jako <code>pre-up</code> skript v konfiguračním souboru pro síťová rozhraní, kterým je <code>/etc/network/interfaces</code>, takto:</p>
 
 <pre>iface eth0 inet static
         address 10.0.0.254
@@ -320,8 +322,6 @@ TODO ref link
 <p>GNU/Linux může fungovat jako router, tedy předávat pakety z jednoho rozhraní na jiné, z jedné sítě do druhé. Pakety, které nejsou určeny pro daný počítač, nýbrž jím jen prochází, putují v rámci paketového filtru řetězcem <code>FORWARD</code>. To je důvodem, proč v dřívějších příkladech byla politika pro řetězec <code>FORWARD</code> nastavena na <code>DROP</code>.</p>
 
 <p>K samotnému zprovoznění routingu je však zapotřebí routing povolit v konfiguraci jádra, tedy v <code>sysctl.conf</code>:</p>
-
-TODO i v novejsich jadrech?
 
 <pre>net.ipv4.ip_forward=1
 net.ipv6.conf.all.forwarding=1

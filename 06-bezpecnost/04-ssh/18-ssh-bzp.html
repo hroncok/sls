@@ -119,8 +119,6 @@ Permission denied (publickey).</pre>
 
 <h4>hosts.allow a hosts.deny</h4>
 
-TODO still relevant in Debian???
-
 <p>Kromě firewallu je možné omezit přístup k SSH prostřednictvím souborů <code>/etc/hosts.allow</code> a <code>/etc/hosts.deny</code>. Tyto dva soubory řídí přístup k řadě služeb využívajících <a href="http://en.wikipedia.org/wiki/TCP_Wrapper">TCP Wrapper</a> metodu řízení síťového přístupu. Tato metoda spočívá v tom, že daný démon využívá jisté knihovny (<code>libwrap</code>), která pak samotné řízení přístupu provádí. Pokud provozujete síťové služby, které tuto knihovnu nevyužívají, pak je touto metodou přirozeně neochráníte, a nezbyde vám než je chránit jinak (třeba firewallem).</p>
 
 <p>Více informací naleznete v manuálových stránkách příslušných souborů. Základy práce s nimi jsou následující. V souboru <code>hosts.allow</code> se nastavuje povolení přístupu k jednotlivým službám, zatímco v souboru <code>hosts.deny</code> se nastavuje zamezení přístupu ke službám. Při řízení přístupu se upřednostňuje <code>hosts.allow</code>, tj. pokud v tomto souboru nějaký počítač nebo síť povolíte, pak se přístup povolí bez ohledu na obsah <code>hosts.deny</code>. Jako příklad uvedu následující situaci:</p>
@@ -326,8 +324,6 @@ iptables -A ssh -j DROP</pre>
 
 <h4>Knockd a fwknop</h4>
 
-TODO wheezy verify
-
 <p>Démon <code>knockd</code> je tím nejobvyklejším port knocking démonem. K dispozici spolu s ním je i klient, který umožňuje na porty "klepat". V Debianu je <code>knockd</code> po instalaci neaktivní a čeká na úpravu hlavního konfiguračního souboru <code>/etc/knockd.conf</code>, po kterém můžete démon povolit úpravou <code>/etc/default/knockd</code> a spustit. Samotná konfigurace akce vypadá takto:</p>
 
 <pre>[fwDown]
@@ -354,7 +350,7 @@ TODO wheezy verify
 
 <p>Jedno z řešení tohoto problému umí i <code>knockd</code>, a sice tzv. sekvence na jedno použití (položka <code>One_Time_Sequences</code>, jejímž parametrem je soubor s řadou sekvencí). To znamená, že se nedefinuje jedna sekvence, ale celá řada sekvencí, přičemž po použití aktuální sekvence dojde k ukončení její platnosti a server bude očekávat následující sekvenci. Problémem této metody je nutnost synchronizace sekvencí na všech klientech a čas od času nutnost znovu vygenerovat nové sekvence. Bohužel mi není znám jiný způsob, jak si nechat sekvence pro <code>knockd</code> vygenerovat, než si k tomu napsat vlastnískript.</p>
 
-<p>Jinou možností řešit výše uvedený problém je prostřednictvím SPA, tj. single packet authorization, kde se ověření provádí jediným paketem za asistence asymetrického šifrování a GnuPG. Součástí SPA paketů jsou náhodná data, která zajišťují unikátnost každého paketu a neopakovatelnost. Tuto techniku bohužel <code>knockd</code> neumí, umí ji nástroj <code>fwknop</code>, který není k dispozici v repositářích momentální stabilní verze Debianu, nicméně bude k dispozici v příštím stabilním vydání. Tato technika spolu s tímto nástrojem byly popsány podrobněji v jednom z odkazů pod článkem.</p>
+<p>Jinou možností řešit výše uvedený problém je prostřednictvím SPA, tj. single packet authorization, kde se ověření provádí jediným paketem za asistence asymetrického šifrování a GnuPG. Součástí SPA paketů jsou náhodná data, která zajišťují unikátnost každého paketu a neopakovatelnost. Tuto techniku bohužel <code>knockd</code> neumí, umí ji nástroj <code>fwknop</code>, který je k dispozici v Debianu Wheezy v balíčcích <code>fwknop-server</code> a <code>fwknop-client</code>. Tato technika spolu s tímto nástrojem byly popsány podrobněji v jednom z odkazů pod kapitolou.</p>
 
 <h3>Aktivní zabezpečení SSH na úrovni firewallu</h3>
 
@@ -398,37 +394,6 @@ iptables -A INPUT -p tcp --dport 22 -m state --state NEW -j ssh</pre>
 
 <p>Uznávám, že modul <code>recent</code> je trošku "vyšší dívčí", čemuž bohužel napomáhá i lehký nedostatek podrobnější dokumentace. Popis jednotlivých voleb a základní princip však lze pochopit jednak z výše odkazované dokumentace, a pak z manuálové stránky nástroje <code>iptables</code>.</p>
 
-<h3>scponly</h3>
-
-TODO wheezy verify
-
-<p>Posledním nástrojem, který v rámci tohoto miniseriálu představím, je <code>scponly</code>. Jelikož SSH a SCP jdou ruku v ruce, může se stát, že v některých případech budete chtít, aby měl některý váš uživatel možnost přes SSH/SCP kopírovat soubory, ale současně aby se nemohl dostat k shellu a pouštět příkazy. A právě k tomu je určen nástroj <code>scponly</code>.</p>
-
-<p>Po instalaci stejnojmenného balíčku stačí jediný jednoduchý krok - vyměnit výchozí shell uživatele za <code>scponly</code>, takto:</p>
-
-<pre>usermod -s /usr/bin/scponly uzivatel</pre>
-
-<p>Z bezpečnostních důvodů je nutné, aby daný uživatel neměl právo zápisu do svého domovského adresáře (aby nemohl upravovat konfigurační soubory v <code>.ssh</code> a potenciálně si tak otevřít vrátka k shellu):</p>
-
-<pre>chown root:root /home/uzivatel
-chmod 755 /home/uzivatel</pre>
-
-<p>V rámci tohoto nastavení přesto vyvstává minimálně jeden další potenciální problém - uživatel může v tomto případě stále cestovat v adresářové struktuře mimo svůj domovský adresář. Pokud chcete zabránit i tomuto, je třeba využít <code>chroot</code> variantu <code>scponly</code>. Za tímto účelem je nejprve potřeba tuto verzi povolit:</p>
-
-<pre>dpkg-reconfigure scponly</pre>
-
-<p>Zde musím upozornit na to, že v takovém případě <code>scponly</code> získá <code>setuid</code> bit a bude spouštěn s právy uživatele <code>root</code>. Případná zranitelnost v <code>scponly</code> pak může mít katastrofální dopad (útočník získá rootovská oprávnění). Dalším krokem je užití pomocného skriptu v adresáři <code>/usr/share/doc/scponly/setup_chroot</code> s názvem <code>setup_chroot.sh</code>. Tento skript je před použitím třeba rozbalit:</p>
-
-<pre>cd /usr/share/doc/scponly/setup_chroot
-gzip -d setup_chroot.sh.gz
-chmod u+x setup_chroot.sh
-./setup_chroot.sh</pre>
-
-<p>Skript za vás vytvoří uživatele, zkopíruje všechny nutné nástroje a knihovny do chrootu, zajistí úpravu práv domovského adresáře uživatele a vytvoří adresář, kam bude mít daný uživatel právo k zápisu. Naneštěstí, v Debianu Lenny tento skript neprovede jednu velmi důležitou operaci, a sice vytvoření <code>/dev/null</code> v chrootu, což je třeba provést ručně:</p>
-
-<pre>mkdir /home/uzivatel/dev
-cp -a /dev/null /home/uzivatel/dev/</pre>
-
 http://www.fail2ban.org/ Fail2ban - projektový web
 http://www.zeroflux.org/projects/knock Knockd - projektový web
 http://www.cipherdyne.org/fwknop/ Fwknop - projektový web
@@ -438,4 +403,3 @@ http://www.debian-administration.org/articles/187 Using iptables to rate-limit i
 http://www.snowman.net/projects/ipt_recent/ Dokumentace modulu ipt_recent
 http://www.fail2ban.org/ Fail2ban - projektový web
 http://tadek.pietraszek.org/blog/2006/10/18/restricted-shell-account-ssh-and-subversion/ Restricted shell account (SSH and Subversion)
-http://sublimation.org/scponly/ sponly - projektový web

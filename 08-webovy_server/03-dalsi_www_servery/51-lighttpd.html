@@ -1,21 +1,29 @@
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-
 <h1>Správa linuxového serveru: Lighttpd a PHP přes FastCGI</h1>
 
-<p>Dalším z webových serverů, který se pyšní menší režií a vyšším výkonem, je lighttpd. Tento díl seriálu se bude věnovat představení lighttpd a zprovoznění PHP v tomto serveru prostřednictvím FastCGI.</p>
-
 <h3>Úvod</h3>
+
 <p>Lighttpd má sice na poli webových serverů relativně nízký podíl (zhruba 0,6 % <a href="http://www.linuxexpres.cz/co-je-noveho-na-scene-webserveru">dle Netcraftu</a>), avšak je používán některými velmi známými webovými službami jako např. Wikipedie nebo YouTube. Lighttpd nabízí vysoký výkon, minimální spotřebu paměti a architekturu vhodnou pro AJAXové (resp. Web 2.0) aplikace. Hodí se však nejenom do prostředí náročných webových aplikací s vysokou návštěvností, ale také třeba na osobní, domácí servery či VPS s málo RAM.</p>
+
 <h3>PHP aplikace a webové servery</h3>
+
 <p>Řada webových aplikací napsaných (nejen) v PHP je stavěna s ohledem na Apache, což může působit mírné komplikace při nasazení na jiný webový server. Člověk by řekl, že pro aplikaci napsanou v PHP nebo jiném jazyce bude podstatný příslušný interpret a na webovém serveru nebude záležet, ale bohužel tomu tak není. Problém tkví zejména v mechanismech jako <code>rewrite</code> nebo v souborech <code>.htaccess</code>. Řada „alternativních“ webových serverů sice rewrite mechanismy podporuje (včetně <code>lighttpd</code> a <code>Nginx</code>), nicméně jejich syntaxe je odlišná a konvertory bývají vzácné (resp. spíše neexistují). To představuje nutnost pravidla ručně přepsat.</p>
+
 <p>Samotné <code>.htaccess</code> soubory, tedy soubory s lokální konfigurací webového serveru specifickou pro daný adresář (a podadresáře) jsou také specifikem Apache a jinde obvykle nejsou podporovány (to je samozřejmě případ i <code>lighttpd</code>). Příslušná pravidla a úpravy konfigurace je tedy třeba zohlednit v samotné konfiguraci webového serveru.</p>
+
 <p>Webové aplikace využívají těchto dvou mechanismů zpravidla ke dvěma účelům. Prvním jsou „čistá“ nebo „pěkná“ URL (<code>http://www.example.org/index.php?modul=clanky&amp;uzel=354</code> versus <code>http://www.example.org/clanky/354</code>) a druhým je ochrana citlivých souborů, u kterých by přímý přístup přes web představoval bezpečnostní riziko. Při nasazení webových aplikací na některé z „alternativních“ webových serverů byste měli přinejmenším tuto oblast prozkoumat. U známých a často používaných webových aplikací bývá možné dohledat specifika pro nasazení třeba na <code>lighttpd</code> nebo na jiný webový server, stačí se podívat na web projektu či použít vyhledávač.</p>
+
 <h3>Instalace</h3>
+
 <p>Instalace samotného webového serveru je velmi jednoduchá, v Debianu postačí již tradičně použít správce balíčků k nainstalování stejnojmenného balíčku:</p>
+
 <pre>aptitude install lighttpd</pre>
+
 <h3>Konfigurace lighttpd</h3>
+
+TODO ref link
+
 <p>Pokud si ještě vzpomínáte na <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache">Úvod do konfigurace Apache</a>, Debian si konfiguraci webových serverů, zejména tedy Apache, přizpůsobuje a strukturuje, aby bylo nastavení a jeho změny co nejjednodušší. V případě <code>lighttpd</code> se to promítá pouze do správy modulů, které je možné „zapínat“ a „vypínat“ prostřednictvím nástrojů <code>lighttpd-enable-mod</code> a <code>lighttpd-disable-mod</code>. Ty pak vytvářejí a ruší symlinky z <code>/etc/lighttpd/conf-available</code>, kde se nacházejí dostupné konfigurační soubory jednotlivých modulů, do <code>/etc/lighttpd/conf-enabled</code>, kde se nacházejí konfigurační soubory, které bude <code>lighttpd</code> brát v úvahu a načte z nich příslušné nastavení.</p>
+
 <p>Hlavním konfiguračním souborem je zde <code>/etc/lighttpd/lighttpd.conf</code>, který je poměrně strohý a obsahuje jen základní nastavení. Určitě si zde přizpůsobte některé z následujících voleb:</p>
 <ul>
 <li>
@@ -31,27 +39,51 @@
 <p><code>server.port</code> - port, na kterém 	má <code>lighttpd</code> naslouchat</p>
 </li>
 </ul>
+
 <h4>PHP</h4>
+
 <p>Na rozdíl od Apache nemá <code>lighttpd</code> vlastní „konektor“ pro obsluhu PHP aplikací, nicméně to není problém – můžete použít FastCGI. Za tímto účelem je ovšem potřeba do systému dostat CGI interpret PHP z balíčku <code>php5-cgi</code>, pokud jej ještě nemáte:</p>
+
 <pre>aptitude install php5-cgi</pre>
+
 <p>Poté je potřeba upravit konfiguraci PHP pro CGI interpret tak, aby byla povolena volba <code>cgi.fix_pathinfo</code>. Upravte tedy soubor <code>/etc/php5/cgi/php.ini</code> a odstraňte středník (uvozující komentář) z řádky s touto volbou. Všimněte si, že konfigurace PHP pro CGI interpret je oddělena od konfigurace PHP pro Apache nebo pro jiná užití, třeba pro PHP interpret pro příkazovou řádku.</p>
+
 <p>Poté je třeba povolit příslušné moduly, konkrétně modul <code>fastcgi</code> a <code>fastcgi-php</code>. Můžete ručně vytvořit příslušné symbolické odkazy, nebo použít nástroje pro obsluhu modulů zmíněné výše:</p>
+
 <pre>lighttpd-enable-mod fastcgi
 lighttpd-enable-mod fastcgi-php</pre>
+
 <p>Nyní už zbývá jen donutit <code>lighttpd</code> znovu načíst konfiguraci:</p>
+
 <pre>/etc/init.d/lighttpd force-reload</pre>
+
 <p>Otestovat funkci PHP interpretu můžete vytvořením a pokusem o zobrazení libovolného souboru s příponou <code>.php</code> s obsahem (zobrazit by se měl výpis konfigurace PHP interpretu):</p>
+
 <pre>&lt;?php phpinfo(); ?&gt;</pre>
+
+TODO ref links
+
 <p>Pokud chcete nasadit nějakou webovou aplikaci, budete nejspíše potřebovat ještě nějaký databázový server. Instalace databázového serveru byla již probrána v článcích <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-instalace-lamp">Instalace LAMP</a> (MySQL) a <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-postgresql-instalace-a-zprovozneni">PostgreSQL: Instalace a zprovoznění</a>. Jediné, co je potřeba zajistit kromě instalace databázového serveru, je propojení databáze s PHP interpretem, tedy dostupnost PHP knihoven pro práci s příslušnou databází (balíčky <code>php5-mysql</code> či <code>php5-pgsql</code>).</p>
+
 <h4>SSL</h4>
-<p>Chcete-li zprovoznit přístup k webovému serveru přes HTTPS, čtěte dále. Samotná problematika HTTPS a SSL včetně generování self-signed certifikátů či získání certifikátu zdarma od některé z volných certifikačních autorit byla v tomto seriálu již <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">probrána</a>. Budu tedy předpokládat, že máte k dispozici certifikát s klíčem.</p>
+
+TODO ref link
+
+<p>Chcete-li zprovoznit přístup k webovému serveru přes HTTPS, čtěte dále. Samotná problematika HTTPS a SSL včetně generování self-signed certifikátů či získání certifikátu zdarma od některé z volných certifikačních autorit byla v této knize již <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">probrána</a>. Budu tedy předpokládat, že máte k dispozici certifikát s klíčem.</p>
+
 <p>Pokud máte certifikát a klíč ve dvou souborech, spojte je do jediného <code>.pem</code> souboru (určitě nastavte jeho práva tak, aby jej nemohl číst nikdo jiný než webový server!):</p>
+
 <pre>cat certifikat.crt klic.key &gt; certifikat.pem</pre>
+
 <p>Nyní povolte <code>ssl</code> modul <code>lighttpd</code>:</p>
+
 <pre>lighttpd-enable-mod ssl</pre>
+
 <p>Ještě před tím, než donutíte webový server znovu načíst konfiguraci, upravte cestu k <code>.pem</code> souboru v <code>/etc/lighttpd/conf-enabled/10-ssl.conf</code> tak, aby odpovídala skutečnému umístění souboru s certifikátem a klíčem. Teprve poté proveďte znovunačtení konfigurace a pokus o připojení přes HTTPS:</p>
 <pre>/etc/init.d/lighttpd force-reload</pre>
+
 <h4>Rewrite</h4>
+
 <p>Jak už bylo řečeno výše, rewrite pravidla pro Apache nebo jiné servery mají jinou syntax než pravidla pro <code>lighttpd</code>, tudíž je třeba je přizpůsobit. Samotnou dokumentaci k modulu pro rewrite <code>lighttpd</code> naleznete na <a href="http://redmine.lighttpd.net/wiki/1/Docs:ModRewrite">wiki projektu</a>. Dodám jen, že modul pro rewrite není ve výchozí konfiguraci aktivní, musíte jej povolit v <code>/etc/lighttpd/lighttpd.conf</code>, konkrétně ve volbě <code>server.modules</code> odkomentováním řádky obsahující <code>"mod_rewrite"</code>.</p>
 
 <pre id="links">http://www.lighttpd.net/ Web projektu lighttpd
