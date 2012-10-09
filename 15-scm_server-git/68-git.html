@@ -1,0 +1,581 @@
+<h1>Git na vlastním serveru</h1>
+
+<h3>Úvod</h3>
+
+<p>Systém pro správu verzí (známý pod zkratkami SCM nebo VCS) je software, který spravuje změny ve vašich (zejména textových) datech. Můžete tak snadno zjistit, ve kterých souborech se co změnilo, kdy se to změnilo a kdo to změnil. Pomocí SCM se organizují práce vývojářů na softwarových projektech. Ale SCM poslouží na jakákoliv textová data, nejen na zdrojový kód. V unixových systémech to často bývají konfigurační soubory, které mají v těchto systémech textový charakter. Mohou to ale také být třeba zdrojové kódy rozsáhlejšího dokumentu tvořeného v LaTeXu či za pomoci konverzních nástrojů typu Asciidoc, Pandoc, txt2tags apod.</p>
+
+<p>Git byl vyvinut pro potřeby vývoje linuxového jádra (kde nahradil komerční a nesvobodný Bitkeeper) a postupem času se stal jedním z nejpopulárnějších SCM nástrojů, alespoň ve světě svobodného softwaru.</p>
+
+<p>Existuje řada služeb, které vám umožní vytvořit si svoje vlastní Git repozitáře, hostované na serveru příslušného poskytovatele. GitHub je zde nejznámějším, ale nikoliv jediným příkladem. Tyto služby však mohou být za určitých okolností zpoplatněné (např. když nechcete svůj repozitář vystavit světu) a samozřejmě podléhají určitým podmínkám, které se vám mohou, ale také nemusí líbit. Máte-li vlastní server, můžete si centrální úložiště pro Git repozitář(e) vytvořit na něm.</p>
+
+TODO ref link
+
+<p>Nástroj Redmine, k němuž byl k dispozici návod v jedné z předchozích kapitol, podporuje řadu SCM nástrojů a podpora Gitu samozřejmě nechybí.</p>
+
+<h3>Distribuovaný SCM a centrální úložiště</h3>
+
+<p>Git je distribuovaný SCM, což znamená, že nepotřebuje centrální bod, se kterým by musel udržovat spojení, aby byl schopen realizovat základní úkony (tím se liší od centralizovaných SCM jako CVS či SVN). Všechny základní operace prováděné Gitem jsou realizovány lokálně, v rámci vašeho souborového systému (konkrétně pak v podadresáři <code>.git</code>). Proto jsou také pekelně rychlé. Centrální server tedy v zásadě není nutný, ale má-li na projektu pracovat více lidí, nebo chcete-li online zálohu či centrální bod, abyste mohli snadno synchronizovat své změny napříč několika počítači, centrální server se vám může hodit.</p>
+
+<p>Je třeba zmínit, že Git není jediným pod Linuxem dostupným distribuovaným SCM. Můžete použít např. Mercurial nebo Bazaar.</p>
+
+<h3>Základy práce s Gitem</h3>
+
+<p>Na Git jako takový se zde podrobněji zaměřovat nebudu, ale jakousi základní kuchařku vám přesto poskytnu.</p>
+
+<p>Je-li to poprvé, co vůbec používáte Git, bylo by dobré se mu představit (ideálně ještě před prováděním commitů):</p>
+
+<pre>git config --global user.name 'Jméno Příjmení'
+git config --global user.email mail@example.cz</pre>
+
+<p>Vytvoření Git repozitáře představuje jeden jediný příkaz, a to v adresáři, který chcete Gitem spravovat (samozřejmě včetně podadresářů):</p>
+
+<pre>git init</pre>
+
+<p>Tento příkaz vytvoří výše zmíněný <code>.git</code> podadresář s příslušnými výchozími konfiguračními soubory. Poté je třeba přidat příslušné soubory:</p>
+
+<pre>git add .</pre>
+
+<p>Výše uvedený příkaz přidá celý aktuální adresář včetně podadresářů. Můžete samozřejmě specifikovat konkrétní soubor nebo soubory:</p>
+
+<pre>git add soubor1.txt soubor2.txt</pre>
+
+<p>Následně můžete vytvořit první commit, tedy uložit aktuální stav sledovaných souborů do repozitáře:</p>
+
+<pre>git commit -m 'Popis commitu'</pre>
+
+<p>V tuto chvíli by měl být aktuální stav všech sledovaných souborů uložen. Jakmile provedete změny, můžete je uložit, tedy „commitnout“ buď automaticky (commitnou se všechny změněné soubory):</p>
+
+<pre>git commit -a -m 'Popis commitu'</pre>
+
+<p>Nebo můžete selektivně „commitnout“ jen něco:</p>
+
+<pre>git add soubor.txt
+git commit -m 'Popis změny souboru soubor.txt'</pre>
+
+<p>Aktuální změny oproti poslednímu commitu je možné zjistit pomocí:</p>
+
+<pre>git status</pre>
+
+<p>Podrobnější přehled o změnách můžete zjistit pomocí:</p>
+
+<pre>git diff --stat</pre>
+
+<p>A konkrétní diff pak obdržíte pomocí:</p>
+
+<pre>git diff</pre>
+
+<p>Samotný <code>git add</code> ukládá daný soubor do tzv. staging area, tudíž pokud mezi tím příslušný soubor změníte a pak provedete commit, tak uložíte změny, které byly aktuální v době zadání <code>git add</code>. Soubory uložené ve „staging area“ můžete vyjmout pomocí <code>git reset HEAD</code>.</p>
+
+<p>Existují také grafické nadstavby Gitu, které vám usnadní získání informací o změnách, popřípadě samotnou správu repozitáře, například gitk (měl by být součástí distribuce Gitu).</p>
+
+<p>Chcete-li se o používání Gitu dozvědět více, podívejte se do závěru článku, kde je řada odkazů na zdroje o Gitu, a to i v češtině. Nechybí ani jedna velice užitečná kniha přeložená do češtiny.</p>
+
+<h3>Git přes SSH</h3>
+
+<p>V tomto dílu vám představím to nejjednodušší řešení centralizovaného Git repozitáře, které existuje. Na serveru vám k tomu stačí pouze běžící SSH server. Toto řešení je vhodné pro soukromé repozitáře, které nechcete nikde vystavovat a kde nepotřebujete přístup více osob. Na komplikovanější řešení se zaměřím v dalších dílech.</p>
+
+<p>Nacházíte-li se v adresáři s Git repozitářem, jako první krok exportujte repozitář do správného „formátu“ a překopírujte jej na server. Předpokladem je, že v domovském adresáři vzdáleného uživatele <code>uzivatel</code> existuje adresář <code>git</code>.</p>
+
+<pre>git clone --bare .git /tmp/muj_repositar.git
+scp -r /tmp/muj_repositar.git uzivatel@server.example.cz:/home/uzivatel/git/muj_repositar.git</pre>
+
+<p>Nyní je repozitář na serveru vytvořen. Stačí tedy Gitu říci, že tento vzdálený repozitář existuje:</p>
+
+<pre>git remote add origin ssh://uzivatel@server.example.cz/home/uzivatel/git/muj_repositar.git</pre>
+
+<p>V tuto chvíli máte možnost commitnuté změny poslat na server, popřípadě si změny z centrálního repozitáře stáhnout, a samozřejmě máte možnost vzdálený repozitář naklonovat třeba na nový počítač. Samotné publikování změn na server provedete takto:</p>
+
+<pre>git push</pre>
+
+<p>Máte-li na serveru dostupné změny, které nemáte k dispozici v lokálním repozitáři, můžete si je stáhnout a začlenit:</p>
+
+<pre>git pull</pre>
+
+<p>No a konečně, pokud se ocitnete na novém počítači, kde daný repozitář není k dispozici, můžete jeho aktuální stav naklonovat pomocí <code>git clone,</code> tímto způsobem:</p>
+
+<pre>git clone ssh://root@lucifer.krkavec.net/root/git/muj_repositar.git</pre>
+
+<p>Toto řešení je velmi jednoduché, ale v zásadě pokrývá pouze ty nejprostší potřeby. Máte-li více lidí a potřebujete-li definovat k repozitáři třeba read-only přístup, potřebujete mírně sofistikovanější řešení, kterým se budu zabývat v příštím dílu seriálu.</p>
+
+<h3>Základy práce s Gitem: Ignorování souborů</h3>
+
+<p>Git není navržen k verzování jednoho jediného souboru. Verzuje se vždy celý adresář a o veškerých souborech, které v něm existují, ale nejsou verzovány, dostanete hlášení po každém „git status“:</p>
+
+<pre># On branch master
+# Changed but not updated:
+#   (use "git add ..." to update what will be committed)
+#   (use "git checkout -- ..." to discard changes in working directory)
+#
+#       modified:   prace.txt
+#
+# Untracked files:
+#   (use "git add ..." to include in what will be committed)
+#
+#       prace.txt~
+no changes added to commit (use "git add" and/or "git commit -a")</pre>
+
+<p>Tyto soubory mohou představovat dočasné soubory, záložní kopie editoru (jako <code>prace.txt~</code> v příkladu výše), logy, zkrátka vše, co sice v adresáři zůstane, ale v repozitáři to nechcete. Abyste udržovali výpis čistý a přehledný, je vhodné Gitu říci, které typy souborů má ignorovat. Ty se pak ve výpisu změn nebudou zobrazovat</p>
+
+<p>Řešení jsou dvě. Obě zahrnují soubor s definicí vzorů jmen souborů, které se mají ignorovat, např.:</p>
+
+<pre>*~
+*.pdf
+!zachovat.pdf
+*.aux
+*.[ab]</pre>
+
+<p>Příklad obsahu souboru by měl být samovysvětlující. Nebudou se brát v úvahu soubory se jmény končící na <code>~</code>, dále všechny PDF soubory s výjimkou souboru <code>zachovat.pdf</code>, který ignorován nebude, dále všechny soubory <code>.aux</code> a všechny soubory s příponami <code>.a</code> nebo <code>.b</code>.</p>
+
+<p>Tento soubor je třeba vhodně pojmenovat a umístit. Pokud chcete, aby byl součástí repozitáře (a verzoval se taky), vytvořte v příslušném adresáři soubor <code>.gitignore</code>. Chcete-li tyto vzory držet mimo repozitář, využijte soubor <code>.git/info/exclude</code> (cesta je relativní ke kořenovému adresáři repozitáře).</p>
+
+<h3>Veřejný read-only přístup k repozitáři pomocí Git démona</h3>
+
+<p>Jednou z možností, jak zpřístupnit veřejnosti Git repozitář pro read-only přístup (tedy pro klonování repozitáře a běžnou synchronizaci, nikoliv však pro zápis), je využít samotného Git démona a přistupovat k repozitáři prostřednictvím Git protokolu. V Debianu je třeba za tímto účelem nainstalovat balíček <code>git-daemon</code>:</p>
+
+<pre>aptitude install git-daemon-run</pre>
+
+<p>Git démon v Debianu pracuje s repozitáři umístěnými ve <code>/var/cache/git</code>, kde je samozřejmě nejspíše nemáte. Je tedy třeba si dopomoci symbolickými odkazy. Dávám zde k dispozici dva příklady podle typu umístění repozitáře, vyberte si ten, který odpovídá vašemu repozitáři:</p>
+
+<pre>ln -s /cesta/k/repositar/.git /var/cache/git/repositar.git
+ln -s /cesta/k/repositar.git /var/cache/git/repositar.git</pre>
+
+<p>Pokud se v tuto chvíli pokusíte repozitář naklonovat, obdržíte suchou chybovou hlášku:</p>
+
+<pre>fatal: The remote end hung up unexpectedly</pre>
+
+<p>Kdybyste někdy řešili problém, proč se toto děje, podívejte se na server do <code>/var/log/git-daemon/current</code>, dozvíte se konkrétní příčinu. V tomto případě ohlásí Git chybu „repository not exported“, což znamená, že danému repozitáři nebyl povolen export Git démonem. Proto je třeba ještě vytvořit následující soubor, kterým export povolíte:</p>
+
+<pre>touch /var/cache/git/repositar.git/git-daemon-export-ok</pre>
+
+<p>Repozitář pak můžete naklonovat tímto způsobem:</p>
+
+<pre>git clone git://server.example.org/repo.git</pre>
+
+<h3>Prohlížení Git repozitáře online pomocí nástroje Gitweb</h3>
+
+<p>Gitweb je nástroj pro prohlížení Git repozitářů prostřednictvím webového prohlížeče. Můžete si procházet historii, stahovat snapshoty, prohlížet změny atd., a samozřejmě to také umožnit návštěvníkům vašeho webu. Nástroj si můžete prohlédnout v akci na <a href="http://git.kernel.org/?p=linux/kernel/git/next/linux-next.git;a=summary">git.kernel.org</a>, na některém z repozitářů obsahujícím linuxové jádro.</p>
+
+<p>Instalace Gitwebu je poměrně jednoduchá, stačí nainstalovat příslušný balíček:</p>
+
+<pre>aptitude install gitweb</pre>
+
+TODO debianize
+
+<p>Máte-li nainstalovaný webový server Apache, Gitweb by měl začít fungovat okamžitě – vytvoří se alias <code>/gitweb</code>, tudíž zadejte URL následujícího typu: <code>http://server.example.org/gitweb</code>. Konfiguraci Gitwebu naleznete v <code>/etc/apache2/conf.d/gitweb</code>. Pokud tedy chcete změnit daný alias nebo si Gitweb zpřístupnit jen na určitém virtuálním serveru (virtual host), soubor upravte nebo přesuňte jinam a jeho obsah vložte tam, kde ho mít chcete. Připomínám, že webovému serveru Apache jsem se v tomto seriálu již věnoval, a sice ve třech dílech (v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache">prvním</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">druhém</a> a <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-moduly">třetím</a>).</p>
+<p>Používáte-li jiný webový server, budete muset upravit jeho nastavení pro Gitweb. Aplikaci Gitweb naleznete v <code>/usr/share/gitweb</code>, je napsaná v Perlu a patrně budete využívat CGI nebo FastCGI. Návod pro zprovoznění Gitwebu pomocí webového serveru Nginx naleznete v odkazech pod článkem.</p>
+<p>Gitweb má konfigurační soubor umístěný v <code>/etc/gitweb.conf</code>, je poměrně strohý, ale přesto obsahuje pár věcí, které můžete chtít změnit, jako logo, odkaz na každé stránce (vedoucí třeba zpět na váš web) atd.</p>
+<p>Pokud jste svoje repozitáře nepojmenovali, asi vás příliš neuspokojí pohled na popisek „<em>Unnamed repository; edit this file 'description' to name the repository.“</em>, zde stačí udělat přesně to, co popisek říká, upravit soubor <code>.git/description</code> v daném repozitáři.</p>
+<p>Musím vás upozornit ještě na jednu věc. Zatímco Git démon vyžaduje výše zmíněný <code>git-daemon-export-ok</code>, Gitweb zpřístupní vše, co se nachází v nastaveném adresáři (výchozí je <code>/var/cache/git</code>), bez ohledu na tuto značku. Chcete-li upravit, které repozitáře bude Gitweb zpřístupňovat a které ne, máte dvě možnosti. Buď v <code>/etc/gitweb.conf</code> změníte proměnnou <code>$projectroot</code> na nějaký jiný adresář, a do něj vložíte příslušné symbolické odkazy těch repozitářů, které zveřejnit chcete. Nebo vytvoříte seznam projektů, což je soubor obsahující položky ve formátu <code>cesta_k_projektu <span class="eaddress">vlastnik@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />com</span></code> a cestu k tomuto souboru vložíte jako hodnotu proměnné <code>$projects_list</code> v <code>/etc/gitweb.conf</code>, takto:</p>
+<pre>$projects_list = "/var/cache/git/projekty.txt";</pre>
+<p>Soubor s projekty (repozitáři) může mít následující obsah:</p>
+<pre>repositar1.git <span class="eaddress">vlastnik1@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>
+repositar2.git <span class="eaddress">vlastnik2@example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span></pre>
+<p>Cesta k repozitářům může být relativní nebo absolutní, v příkladu výše je cesta relativní (resp. cesta vypadá neuvedená, jelikož soubor se seznamem projektů je ve stejném adresáři jako repozitáře).</p>
+<p>Tím bych tento díl ukončil. Příště vám představím řešení centrálního repozitáře s jemnějším systémem oprávnění než „plný přístup nebo žádný přístup“, které bylo prezentováno v minulém díle.</p>
+
+<pre id="links">http://gitready.com/beginner/2009/01/19/ignoring-files.html Ignoring files
+http://www.frlinux.eu/?p=135 gitweb and nginx on Debian
+http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
+http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
+http://book.git-scm.com/ The Git Community Book</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Víceuživatelský Git server s Gitosis</h1>
+
+<p>Minulý díl byl věnován zpřístupnění Git repozitářů přes webové rozhraní pomocí webové aplikace Gitweb a také přes Git démona pro read-only přístup. V tomto dílu se dozvíte, jak zpřístupnit Git repozitáře více lidem a definovat pravidla přístupu pomocí nástroje Gitosis.</p>
+
+<h3>Úvod</h3>
+<p>Pokud jste nečetli poslední dva díly, které se věnovaly SCM nástroji Git, základům jeho používání a jeho jednoduchému nasazení na vlastní server, projděte si <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-git-na-vlastnim-serveru">první</a> díl a <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-pokrocilejsi-nasazeni-gitu">druhý</a> díl, abyste byli v obraze.</p>
+<p>Představili jsme zde jednoduché techniky zprovoznění centrálního Git repozitáře. Probrali jsme v zásadě dvě možnosti – veřejný read-only přístup k repozitáři prostřednictvím Git démona a kompletní (read-write) přístup přes SSH. Obojí je velmi jednoduché na zprovoznění (je-li vůbec třeba něco zprovozňovat), avšak pro některá použití nemusí takto jednoduché techniky představovat optimální řešení, jelikož jim chybí možnost jemněji definovat pravidla přístupu a hlavně neumožňují bezpečný přístup více uživatelů k jednomu repozitáři. Gitosis je jedním z nástrojů, který umožňuje přístup k repozitářům definovat detailněji a pro více uživatelů. Lze jej integrovat s webovou aplikací Gitweb a Git démonem, i když to v Debianu nefunguje out-of-the-box (postup, jak toho docílit, bude naznačen).</p>
+<p>Dodám, že Gitosis neumožňuje úplně nejjemnější dělení přístupových práv. V zásadě umožňuje víceuživatelský přístup k jednotlivým repozitářům a pro každého uživatele (nebo skupinu) umožňuje definovat oprávnění buď k read-only nebo read-write přístupu. Ačkoliv je to oproti dříve představeným metodám podstatné zlepšení, existují ještě sofistikovanější nástroje, jako např. Gitolite.</p>
+<p>Gitosis používá ke svému nastavení Git. Při instalaci dojde k vytvoření správcovského repozitáře, prostřednictvím kterého je pak možné měnit nastavení a připravovat půdu pro nové repozitáře. Pro přístup je používán SSH server a veřejné klíče. Pokud vám není jasná problematika použití SSH klíčů, přečtěte si můj <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-ssh-pro-spravce">Úvod do SSH pro správce</a>. Ve zbytku článku předpokládám, že tuto problematiku ovládáte.</p>
+<p>Gitosis je vázán na jednoho konkrétního uživatele, v Debianu je to stejnojmenný uživatel, tedy <code>gitosis</code>. Gitosis řídí přístup jednotlivých uživatelů prostřednictvím konfigurace a SSH klíčů. Žádné uživatelské účty se při práci s ním nezakládají. Z pohledu systému vše probíhá pod jedním uživatelem.</p>
+<h3>Instalace a zprovoznění Gitosis</h3>
+<p>Prvním krokem nemůže být nic jiného než nainstalování příslušného balíčku. V repozitářích Debianu je k dispozici stejnojmenný balíček <code>gitosis</code>, který nainstalujte takto:</p>
+<pre>aptitude install gitosis</pre>
+<p>Pokud se vás během instalace Debconf nezeptá na SSH klíč, který má být použit pro přístup k repozitáři správce, nedojde k vytvoření tohoto repozitáře, a bude tedy nutné jej vytvořit ručně (obvyklý trik s <code>dpkg-reconfigure gitosis</code> zde nejspíše nezabere, alespoň dle mých pokusů). Ruční vytvoření repozitáře je však velmi jednoduché:</p>
+<pre>sudo -H -u gitosis gitosis-init &lt; id_rsa.pub</pre>
+<p>Předpokladem je dostupnost souboru <code>id_rsa.pub</code> s veřejným SSH klíčem, který budete používat pro přístup ke správcovskému repozitáři <code>gitosis-admin</code>.</p>
+<h4>Nastavení Gitosis</h4>
+<p>V tuto chvíli byste měli mít možnost naklonovat správcovský repozitář na svém počítači.</p>
+<pre>git clone <span class="eaddress">gitosis@server<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>:gitosis-admin.git</pre>
+<p>Pokud se podíváte do obsahu repozitáře, naleznete soubor <code>gitosis.conf</code> (hlavní konfigurační soubor Gitosis) a adresář <code>keydir</code>. Ten slouží jako úložiště SSH klíčů jednotlivých uživatelů.</p>
+<p>Výchozí konfigurační soubor je velmi strohý. Příklad komentovaného konfiguračního souboru pro inspiraci naleznete např. v <code>/usr/share/doc/gitosis/examples/example.conf</code> (platí pro Debian).</p>
+<p>Obecné nastavení Gitosis naleznete v bloku <code>[gitosis]</code>:</p>
+<pre>[gitosis]
+gitweb = no
+daemon = no</pre>
+<p>Zde se nastavuje globální zpřístupnění repozitářů Gitwebu a Git démona (aby toto nastavení mělo kýžený účinek, je třeba provést integraci těchto dvou nástrojů s Gitosis, což je naznačeno níže). Zpřístupnění repozitářů těmto nástrojům lze nastavit jak na globální úrovni zde, tak na úrovni jednotlivých repozitářů (viz níže).</p>
+<h4>Nastavení repozitáře</h4>
+<p>Nastavení repozitáře není nutné, stačí jméno repozitáře přiřadit konkrétní skupině uživatelů (viz níže). Pokud však chcete nastavit některé parametry repozitáře, vytvořte nový blok s jeho definicí, takto:</p>
+<pre>[repo mujprojekt]
+gitweb = yes
+description = Popis mého projektu
+owner = Michal Dočekal
+daemon = yes</pre>
+<p>V definici je naznačená integrace s Gitwebem a Git démonem (viz výše). Přístupnost repozitáře přes Gitweb řídí proměnná <code>gitweb</code>, přičemž pokud ji nastavíte na <code>yes</code>, doporučuji vyplnit i proměnné <code>description</code> (popis) a <code>owner</code> (jméno vlastníka). Tyto dvě proměnné slouží primárně pro integraci s Gitwebem. Poslední proměnná, <code>daemon</code>, řídí integraci s Git démonem.</p>
+<h4>Integrace s Gitwebem</h4>
+<p>Za účelem integrace Gitosis s Gitwebem upravte hodnoty v konfiguračním souboru <code>/etc/gitweb.conf</code>, takto:</p>
+<pre>$projectroot = "/srv/gitosis/git";
+$projects_list = "/srv/gitosis/gitosis/projects.list";
+$strict_export = "true";</pre>
+<h4>Integrace s Git démonem</h4>
+<p>Integrace s Git démonem je trošku složitější. V první řadě je potřeba upravit parametry startovacího skriptu Git démona v souboru <code>/etc/service/git-daemon/run</code>. Zde nalezněte řádku se specifikací <code>--base-path</code>:</p>
+<pre>--base-path=/var/cache /var/cache/git</pre>
+<p>Jak je vidět, tato cesta neukazuje do úložiště Gitosis, tudíž v tomto stavu Git démon jednotlivé repozitáře „neuvidí“. Nastavte tedy správnou cestu, takto:</p>
+<pre>--base-path=/srv/gitosis/git /srv/gitosis/git</pre>
+<p>Soubor uložte a následně restartujte Git démona:</p>
+<pre>sv restart git-daemon</pre>
+<p>Poté by povolené repozitáře mělo být možné klonovat, takto:</p>
+<pre>git clone git://server.example.org/mujprojekt1.git</pre>
+<h4>Nastavení uživatelů a přístupových práv</h4>
+<p>Výchozí nastavení Gitosis zahrnuje skupinu <code>gitosis-admin</code>, jejíž členové mají práva k repozitáři správce:</p>
+<pre>[group gitosis-admin]
+writable = gitosis-admin
+members = docekal</pre>
+<p>Pokud byste chtěli vytvořit skupinu <code>skupina</code> obsahující uživatele <code>milan</code> a <code>jan</code> s přístupem k repozitářům <code>mujprojekt1</code>, <code>mujprojekt2</code> a <code>mujprojekt3</code> tak, aby uživatelé skupiny měli přístup k repozitářům <code>mujprojekt1</code> a <code>mujprojekt2</code> pouze pro čtení a k repozitáři <code>mujprojekt3</code> i se zápisem, vypadala by konfigurace takto:</p>
+<pre>[group skupina]
+writable = mujprojekt3
+readonly = mujprojekt1 mujprojekt2
+members = milan jan</pre>
+<p>Mezi členy (<code>members</code>) může patřit i jiná skupina – tu je ovšem třeba označit zavináčem na začátku:</p>
+<pre>members = @nejaka_skupina</pre>
+<p>U uživatelů se předpokládá existence souborů s jejich SSH klíči. Uživatel <code>milan</code> by měl mít klíč v <code>keydir/milan.pub</code>. Po nastavení a přidání klíčů změny commitněte a nahrajte na server:</p>
+<pre>git add gitosis.conf keydir
+git commit -m 'nastaveni repositaru'
+git push</pre>
+<h3>Workflow pro jednotlivé repozitáře</h3>
+<p>Ve chvíli, kdy máte hotové nastavení oprávnění a repozitářů, je konečně můžete začít tvořit a nahrávat na server. Sada příkazů od vytvoření repozitáře až k jeho prvotnímu nahrání na server by mohla vypadat takto:</p>
+<pre>mkdir projekt
+cd projekt
+git init
+git remote add origin <span class="eaddress">gitosis@server<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>:projekt.git
+# vytvoření souborů a adresářů s obsahem repozitáře
+git add *
+git commit -m "initial commit"
+git push origin master:refs/heads/master</pre>
+<p>Význam většiny příkazů by měl být patrný. Jádro postupu tvoří dva příkazy. První slouží k přidání serveru s Gitosis jako vzdáleného repozitáře:</p>
+<pre>git remote add origin <span class="eaddress">gitosis@server<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>:projekt.git</pre>
+<p>Druhý pak v prázdném repozitáři na serveru vytvoří „master“ větev z místní „master“ větve. Příkaz nemusíte opakovat, podruhé stačí <code>git push</code>.</p>
+<pre>git push origin master:refs/heads/master</pre>
+<p>Tím bych tento díl ukončil.</p>
+
+<pre id="links">https://pubmem.wordpress.com/2010/07/24/how-to-setup-git-gitosis-and-gitweb/ How to setup git, gitosis and gitweb
+http://stackoverflow.com/questions/7506832/git-push-origin-masterrefs-heads-master-what-does-this-do git push origin master:refs/heads/master what does this do
+http://www.frlinux.eu/?p=135 gitweb and nginx on Debian
+http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
+http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
+http://book.git-scm.com/ The Git Community Book</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Víceuživatelský Git server s Gitolite</h1>
+
+<p>Minulý díl představil nástroj Gitosis, který umí zprostředkovat víceuživatelský přístup k centralizovanému Git repozitáři. Gitolite pracuje podobně jako Gitosis, avšak umožňuje ještě jemnější pravidla přístupu. Více se dozvíte v článku.</p>
+
+<h3>Úvod</h3>
+<p>Na úvod vás musím upozornit na poslední tři díly tohoto seriálu, které se věnovaly SCM nástroji Git, základům jeho používání a jeho nasazení na vlastní server, počínaje těmi nejjednoduššími způsoby (OpenSSH) až po víceuživatelské řešení s Gitosis v minulém díle. Projděte si <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-git-na-vlastnim-serveru">první</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-pokrocilejsi-nasazeni-gitu">druhý</a> a <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-viceuzivatelsky-git-server-s">třetí</a> díl, abyste byli v obraze.</p>
+<p>Gitolite představuje z řešení zde probíraných nejsofistikovanější nástroj pro víceuživatelský přístup k centralizovanému Git repozitáři. Oproti Gitosis umí omezit právo zápisu na konkrétní větve (branches), respektive reference (refs). Můžete kontrolovat i to, zda má uživatel právo provést „rewind“, tedy „odčinění“ commitů nebo jiné změny historie.</p>
+<p>Je třeba si dát pozor na jednu věc. Gitolite neumí omezit read-only přístup na úroveň jednotlivých větví. Konkrétnímu uživateli tedy můžete zakázat read-only přístup k celému repozitáři, ale nikoliv ke konkrétním větvím. Je to dáno tím, že Git neumí rozlišit mezi jednotlivými větvemi, pokud provádí čtení. Tento problém spolu s alternativami řešení je podrobně <a href="http://sitaramc.github.com/gitolite/rpr_.html">popsán v dokumentaci</a>.</p>
+<h3>Instalace</h3>
+<p>Instalace Gitolite v Debianu je jako už tradičně velmi jednoduchá, neboť stačí nainstalovat příslušný balíček z oficiálních repozitářů:</p>
+<pre>aptitude install gitolite</pre>
+<p>Pokud při instalaci nedojde k vytvoření správcovského repozitáře, což se alespoň v mém případě nestalo, je třeba jej inicializovat ručně. Naštěstí je k tomu připraven nástroj <code>gl-setup</code>. Ten musíte spustit s právy uživatele <code>gitolite</code>, pod kterým bude Gitolite pracovat. Tento nástroj vyžaduje jeden parametr, a tím je cesta k souboru s veřejným SSH klíčem, který bude využíván pro přístup ke správcovskému repozitáři.</p>
+<p>Tady pozor – jelikož tento nástroj musí běžet s právy uživatele <code>gitolite</code>, je třeba, aby k umístění souboru s klíčem měl tento uživatel přístup, čehož lze docílit např. zkopírováním souboru s veřejným SSH klíčem do <code>/tmp</code>. Následně stačí provést:</p>
+<pre>su gitolite -c 'gl-setup /tmp/uzivatel.pub'</pre>
+<p>Uživatelé Gitosis mají uživatelská jména shodná se jménem souboru s veřejným SSH klíčem. Proto je vhodné při provádění příkazu výše jméno souboru přizpůsobit, abyste pak neskončili s uživatelem "<code>id_rsa</code>". Vše jde však samozřejmě později upravit.</p>
+<h3>Základní konfigurace</h3>
+<p>V tuto chvíli byste měli být schopní naklonovat konfigurační repozitář:</p>
+<pre>git clone <span class="eaddress">gitolite@server<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>:gitolite-admin</pre>
+<p>Repozitář by měl obsahovat dva adresáře: adresář <code>conf</code> s konfiguračním souborem (<code>gitolite.conf</code>) a adresář <code>keydir</code> obsahující soubory s SSH klíči. Přidání nového uživatele tedy vyžaduje přidání jeho SSH klíče do adresáře <code>keydir</code> v podobě souboru se jménem ve tvaru <code>uzivatel.pub</code> a následné přidání příslušných práv v <code>conf/gitolite.conf</code>.</p>
+<h3>Uživatelé a skupiny</h3>
+<p>Skupiny se od uživatelů liší v tom, že jsou uvozeny zavináčem. Výchozí skupinou je skupina <code>@all</code>, zahrnující všechny uživatele. Ostatní skupiny můžete snadno nadefinovat:</p>
+<pre>@vyvojari = michal ludek jana
+@spravci = root admin
+@personal = @vyvojari @spravci</pre>
+<p>Skupina se samozřejmě může skládat z více skupin (viz definice skupiny <code>@personal</code>) a uživatelé mohou patřit do různých skupin. V systému oprávnění je možné konkrétní právo přiřadit uživateli, skupině, nebo obojímu.</p>
+<h3>Systém oprávnění</h3>
+<p>Základní práva, která můžete přiřadit jednotlivým uživatelům a skupinám, mají následující podobu:</p>
+<table>
+<tbody>
+<tr><th>
+<p>Oprávnění</p>
+</th><th>
+<p>Význam</p>
+</th></tr>
+<tr>
+<td>
+<p><code>R</code></p>
+</td>
+<td>
+<p>read-only přístup</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>RW</code></p>
+</td>
+<td>
+<p>právo provést <code>push</code> do existující větve a vytvořit novou větev</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>RW+</code></p>
+</td>
+<td>
+<p>totéž co <code>RW</code>, avšak navíc právo přepisovat, resp. ničit (<code>push -f</code>)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>-</code></p>
+</td>
+<td>
+<p>odepřít přístup</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Příklad definice nového repozitáře tedy může vypadat takto:</p>
+<pre>repo  projekt
+    RW+  =   michal @spravci
+    RW   =   ludek jana
+    R    =   pepa</pre>
+<p>Podstatnou změnou oproti Gitosisu není však pouze zjemnění práv, ale také možnost příslušná práva aplikovat na konkrétní větve, resp. na konkrétní reference (refs). Názorněji to bude vypadat na příkladu:</p>
+<pre>repo  projekt
+    RW  master$             =  michal @spravci
+    RW  refs/heads/master$  =  michal @spravci</pre>
+<p>Mezi oprávněním a rovnítkem může být regulární výraz, který definuje konkrétní referenci, k níž má dotyčný daný přístup. Neuvedete-li na začátku výrazu <code>refs/</code>, doplní si Gitolite interně na začátek <code>refs/heads/</code> – oba zápisy oprávnění v příkladu výše jsou tedy ekvivalentní. Znalci regulárních výrazů určitě tuší, že dolar na konci značí konec řádku, tj. výše uvedený zápis povolí uživateli <code>michal</code> zápis do větve <code>master</code>, ale už ne do větve nazvané např. <code>mastermind</code>. Pokud by tam dolar na konci nebyl, měl by právo zápisu i k větvi <code>mastermind</code>. Pokud vám regulární výrazy nic neříkají, bylo by dobré se na ně podívat. Pod článkem naleznete několik odkazů, které by vám měly tuto problematiku osvětlit.</p>
+<p>Pokud mezi oprávněním a rovnítkem nic neuvedete, bude se příslušné oprávnění vztahovat na celý repozitář se všemi větvemi.</p>
+<p>Podobně lze zacházet i s tagy – je možné uživatelům povolit nebo nepovolit přiřazovat tagy jako takové nebo tagy v určitém tvaru.</p>
+<pre>repo projekt
+    RW  refs/tags/rc[0-9] = michal
+    -   refs/tags/rc[0-9] = ludek
+    RW  refs/tags         = ludek</pre>
+<p>Zde je uživateli <code>michal</code> uděleno právo vytvářet tagy ve tvaru <code>rc[číslo]</code>, je tedy možné vytvořit tag <code>rc1</code>, <code>rc10</code>, ale také <code>rc1a</code>. Uživatel <code>ludek</code> má oprávnění vytvářet libovolně pojmenované tagy, ovšem s výjimkou tagů začínajících na <code>rc[číslo]</code>. Budete-li zacházet s oprávněním pro odepření přístupu (mínusem), mějte na paměti, že záleží na pořadí prováděných pravidel. Kdybyste příklad výše otočili a dali prostřední řádek na konec, uživatel <code>ludek</code> by mohl vytvářet jakékoliv tagy a přístup by mu nikdy odepřen nebyl.</p>
+<p>Tolik k základům konfigurace Gitolite. Mnohé pokročilé vlastnosti Gitolite zde nezazněly, a (nejen) proto vám doporučuji podívat se na oficiální <a href="http://sitaramc.github.com/gitolite/master-toc.html">dokumentaci ke Gitolite</a>, která je velmi podrobná a přívětivá, čtivě psaná a plná užitečných příkladů. Uživatelům Gitolite důrazně doporučuji si ji projít.</p>
+<h3>Workflow</h3>
+<p>Styl práce s Gitolite je velice podobný práci s Gitosis. Jakmile vytvoříte vhodnou půdu pro nový repozitář úpravou konfiguračních souborů, jejich commitem a nahráním (push) na server, stačí u místního repozitáře přidat vzdálený server:</p>
+<pre>git remote add origin <span class="eaddress">gitolite@server<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>:repositar.git</pre>
+<p>A následně provést push na server:</p>
+<pre>git push origin master:refs/heads/master</pre>
+<p>Tím by mělo dojít k vytvoření „master“ větve v repozitáři na serveru.</p>
+<p>Na závěr zmíním ještě jeden tip – pokud se na server přihlásíte přes SSH, oznámí vám Gitolite, k čemu máte jaký přístup (Gitosis toto neumí):</p>
+<pre>ssh <span class="eaddress">gitolite@server<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />example<img src="http://www.linuxexpres.cz/modules/marwel/images/tecka.gif" alt="_" />org</span>
+
+hello admin, the gitolite version here is 1.5.4-2+squeeze1 (Debian)
+the gitolite config gives you the following access:
+     R  W       gitolite-admin
+     R  W       projekt
+    @R @W       testing</pre>
+<p>Tím bych tento díl ukončil.</p>
+
+<pre id="links">http://blogs.gentoo.org/tampakrap/gitolite-installation-with-gitweb-and-anongit-in-gentoo-and-debian/ Gitolite installation with gitweb and anongit in Gentoo and Debian
+http://progit.org/book/ch4-8.html Pro Git: Gitolite
+http://sitaramc.github.com/gitolite/master-toc.html Hlavní rozcestník dokumentace projektu Gitolite
+http://sitaramc.github.com/gitolite/conf_examples.html Příklady konfigurace Gitolite
+http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
+http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
+http://book.git-scm.com/ The Git Community Book
+http://www.regularnivyrazy.info/regularni-vyrazy-zaklady.html Miroslav Pecka, Základy regulárních výrazů
+http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí syntaxe regulárních výrazů</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Git hooky a alternativy ke Githubu</h1>
+
+<p>V tomto dílu bude problematika Gitu uzavřena. Budou představeny Git hooky, tedy možnost skriptování navázaného na události v Git repozitáři a alternativy ke Githubu, které můžete nasadit na svůj server.</p>
+
+<h3>Git hooky</h3>
+<p>Git obsahuje jednu velmi podstatnou vlastnost, která se dá velmi dobře využít na serveru. Pokud jste třeba někdy zabrousili do vod frameworku Ruby on Rails, určitě jste slyšeli o hostingu Heroku, kde se nasazení (deployment) aplikací řeší právě přes Git. Je jistě velmi pohodlné provést aktualizaci webové aplikace na serveru prostřednictvím obyčejného <code>git push</code>. Takovou funkcionalitu je možné realizovat právě pomocí Git „háčků“.</p>
+<p>Git hook je obyčejný shellový skript, který je umístěn v podadresáři <code>hooks</code> v adresáři obsahujícím Git repozitář (obvykle <code>.git/hooks</code>). Git tyto hooky spouští v reakci na jisté události, resp. v konkrétním okamžiku (před či po nějaké operaci). To, zda bude skript spuštěn, nebo ne, je dáno jeho oprávněním (je-li spustitelný, bude spuštěn). Ke tvorbě skriptu můžete využít jakéhokoliv skriptovacího jazyka, nebo zůstat u Bashe (popř. jiného oblíbeného shellového interpretu).</p>
+<p>Seznam jednotlivých hooků i s jejich případnými parametry a činností, na kterou je příslušný hook, naleznete v tabulce níže:</p>
+<table>
+<tbody>
+<tr><th>
+<p>Název skriptu</p>
+</th><th>
+<p>Vázáno na</p>
+</th><th>
+<p>Parametry</p>
+</th></tr>
+<tr>
+<td>
+<p><code>applypatch-msg</code></p>
+</td>
+<td>
+<p>běh <code>git-am</code> skriptu</p>
+</td>
+<td>
+<p>název souboru s popisem commitu</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>pre-applypatch</code></p>
+</td>
+<td>
+<p>běh <code>git-am</code>, po aplikování patche a commitu</p>
+</td>
+<td>
+<p>-</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>pre-commit</code></p>
+</td>
+<td>
+<p>běh <code>git-commit</code> před commitem</p>
+</td>
+<td>
+<p>-</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>prepare-commit-msg</code></p>
+</td>
+<td>
+<p>běh <code>git-commit</code> ihned po připravení výchozího popisu commitu</p>
+</td>
+<td>
+<p>1-3 parametry: jméno souboru s popisem commitu, zdroj zprávy (viz dokumentace), SHA1 commitu</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>commit-msg</code></p>
+</td>
+<td>
+<p>běh <code>git-commit</code></p>
+</td>
+<td>
+<p>název souboru s popisem commitu</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>post-commit</code></p>
+</td>
+<td>
+<p>běh <code>git-commit</code> po provedení commitu</p>
+</td>
+<td>
+<p>-</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>pre-rebase</code></p>
+</td>
+<td>
+<p>běh <code>git-rebase</code> před prováděním rebase</p>
+</td>
+<td>
+<p>-</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>post-checkout</code></p>
+</td>
+<td>
+<p>běh <code>git-checkout</code> po aktualizaci pracovního stromu</p>
+</td>
+<td>
+<p>3 parametry: ref předchozí HEAD, ref následující HEAD, druh checkoutu (viz dokumentace)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>post-merge</code></p>
+</td>
+<td>
+<p>běh <code>git-merge</code> po úspěšném provedení merge</p>
+</td>
+<td>
+<p>typ merge (viz dokumentace)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>pre-receive</code></p>
+</td>
+<td>
+<p>běh <code>git-receive-pack</code> na serveru před prováděním aktualizace</p>
+</td>
+<td>
+<p>žádné, ale přijímá vstup na STDIN (viz dokumentace)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>update</code></p>
+</td>
+<td>
+<p>běh <code>git-receive-pack</code> na serveru po aktualizaci dat, ale před aktualizací referencí</p>
+</td>
+<td>
+<p>název reference, starý SHA1, nový SHA1</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>post-receive</code></p>
+</td>
+<td>
+<p>běh <code>git-receive-pack</code> na serveru po aktualizaci referencí</p>
+</td>
+<td>
+<p>žádné, ale přijímá vstup na STDIN (viz dokumentace)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>post-update</code></p>
+</td>
+<td>
+<p>běh <code>git-receive-pack</code> na serveru po aktualizaci referencí</p>
+</td>
+<td>
+<p>proměnlivý počet, seznam aktualizovaných referencí</p>
+</td>
+</tr>
+<tr>
+<td>
+<p><code>pre-auto-gc</code></p>
+</td>
+<td>
+<p>běh <code>git-gc --auto</code>, před provedením operace</p>
+</td>
+<td>
+<p>-</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Přehledovou tabulku doporučuji doplnit <a href="http://book.git-scm.com/5_git_hooks.html">dokumentací</a>. Stejně tak doporučuji si projít příklady skriptů, které by měly být součástí libovolného Git repozitáře. Naleznete tam nejenom příklady použití, ale také užitečné komentáře o použití daných háčků.</p>
+<p>Stejně jako existují místní a vzdálené Git repozitáře, můžete specifikovat různé místní a vzdálené háčky. Můžete tedy používat jednu sadu funkcionality lokálně a jinou vzdáleně.</p>
+<p>Jak je z přehledové tabulky asi patrné, jednotlivé háčky je možné použít pro ledacos. K výše zmíněné aktualizaci webové aplikace po provedení „push“ operace z místního repozitáře může posloužit háček <code>post-update</code>. K samotnému rozbalení obsahu repozitáře můžete použít třeba tento postup:</p>
+<pre>git archive --format=tar HEAD | (cd /var/www/prezentace &amp;&amp; tar xf -)</pre>
+<p>Na Git háčky je ale možné „pověsit“ i samotnou správu repozitářů, různé kontroly a pojistky. Ukončení skriptu jiným chybovým stavem než nulou (např. <code>exit 1</code>) má v některých případech za následek selhání dané operace. Můžete tak odmítat <code>push</code> na základě specifických kritérií.</p>
+<h3>Alternativy ke Githubu</h3>
+<p>Github je nepochybně velmi zdařilý projektový hosting. Není však jediným hostingem podporujícím Git. Ten podporuje i řada jiných, jako např. Sourceforge, Google code apod. To vše jsou však webové služby. Nejsou open source a není možné je nasadit na vlastní server. Máte možnost buď akceptovat jejich podmínky, nebo se poohlédnout po nějaké alternativě. K těmto projektům existuje několik alternativ.</p>
+<h4>Girocco</h4>
+<p><a href="http://repo.or.cz/w/girocco.git">Girocco</a> je Git hosting, který lze označit jako GitWeb na steroidech. Girocco je na Gitwebu založeno a ovládá se stejně. Obsahuje samozřejmě potřebné vlastnosti pro Git hosting, jako registraci uživatelů/projektů apod., a některé vlastnosti navíc. Autorem je Petr Baudiš a software je provozován na známém repozitáři <a href="http://repo.or.cz/">repo.or.cz</a>. Pro svou funkci potřebuje webový server, Git a GitWeb. Lze ho propojit s Git démonem. Podporuje zrcadlení repozitářů (můžete jej tedy používat jako záložní úložiště pro některé své repozitáře hostované jinde) a forkování projektů.</p>
+<h4>Gitorious</h4>
+<p><a href="https://gitorious.org/gitorious/">Gitorious</a> je založený na Ruby on Rails a šířený pod licencí GNU Affero GPL verze 3. Ta se liší od klasické GNU/GPL tím, že zdrojový kód je třeba zpřístupnit nejen příjemcům při distribuci softwaru, ale také při jeho zpřístupnění uživatelům přes síť. Gitorious je Web 2.0 aplikace ve stylu Githubu, je mu tedy o něco blíže než Girocco. Oproti GitWebu obsahuje navíc vestavěnou wiki, kterou je možné použít pro dokumentaci projektu.</p>
+<p>Žádný z těchto projektů neobsahuje všechny funkce Githubu, jako např. komentování, bug tracker apod. Pokud takové funkce potřebujete, je možné zkombinovat některé z těchto řešení s jiným open-source projektem – kupříkladu, open-source bug trackerů existuje celá řada (Flyspray, Bugzilla, Mantis apod.). Jediné, co budete muset oželet, je integrace těchto nástrojů s Git hostingem.</p>
+<h4>Redmine, Trac a ostatní</h4>
+<p>Kromě Git hostingů existují také systémy pro správu (softwarových) projektů, které mohou mít rovněž podporu Gitu. Ta může zahrnovat jak prohlížení repozitářů, tak třeba integraci s bug trackerem. Vytvoření repozitáře a přístup (se zápisem) je obvykle nutné řešit jinak, nicméně tyto nástroje mohou obsahovat řadu užitečných komponent jako integrované wiki, bug trackery apod. Mezi tyto nástroje patří v tomto seriálu již zmiňovaný Redmine nebo např. Trac.</p>
+<h3>Závěr</h3>
+<p>Tím bych tento díl, stejně jako téma Git uzavřel. Na závěr nemohu nezmínit, že existuje řada jiných SCM nástrojů, kterým jsem se zde nevěnoval (např. Mercurial, Bazaar, SVN apod.). Řada z nich je open source a je možné (v případě centralizovaných SCM i nutné) je nasadit na server. Jsou opatřeny různými vlastnostmi a rozhodně bych doporučoval se na ně podívat.</p>
+
+<pre id="links">http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
+http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny, e-book zdarma)
+http://book.git-scm.com/ The Git Community Book</pre>
+
+
