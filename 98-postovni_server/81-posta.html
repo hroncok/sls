@@ -1011,7 +1011,14 @@ service postfix restart</pre>
 
 <p>Nyní můžete vyzkoušet nakonfigurovat poštovního klienta k odesílání pošty přes váš server. Nezapomeňte v jeho nastavení povolit TLS a SMTP autentifikaci.</p>
 
-<pre>testsaslauthd -u testuser -p test -f /var/spool/postfix/var/run/saslauthd/mux</pre>
+<p>Pokud se něco nepodaří, můžete zkusit otestovat funkčnost <code>saslauthd</code>:</p>
+
+<pre>testsaslauthd -u uzivatel -p heslo -f /var/spool/postfix/var/run/saslauthd/mux</pre>
+
+<p>Stejně tak můžete podstatě zpodrobnit logování Postfixu, a to dokonce selektivně, podle klienta. Počítač, ze kterého budete testovat, vložte do proměnné <code>debug_peer_list</code> a podrobnost logování specifikujte v <code>debug_peer_level</code>, takto:</p>
+
+<pre>debug_peer_level = 5
+debug_peer_list = 10.0.1.42</pre>
 
 <h3>Čtení pošty, POP3, IMAP4 a Dovecot</h3>
 
