@@ -1,0 +1,598 @@
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Úvod do DNS</h1>
+
+<p>DNS je po TCP/IP jedna z nejdůležitějších služeb na internetu. Ať chcete nebo nechcete provozovat vlastní DNS server, základy DNS potřebuje znát každý správce serverů. Tento díl seriálu osvětlí tuto problematiku.</p>
+
+<h3>Rychlokurz DNS</h3>
+<p>K čemu slouží DNS? Většina z vás to asi bude vědět, ale přesto si neodpustím malé opakování. Komunikace mezi jednotlivými dvěma uzly na internetu (např. mezi klientem a serverem) je řešena protokolem IP – každý z uzlů má přidělenou IP adresu, která jej jednoznačně identifikuje (pokud není z privátního rozsahu, ale to je úplně jiný problém pro samostatný traktát) a umožní pomocí směrovačů mezi oběma uzly doručovat data z jednoho uzlu na druhý a naopak.</p>
+<p>IP adresa je vhodný strojový identifikátor, ale nikoliv vhodný identifikátor pro použití člověkem. Čtyři čísla oddělená tečkou (IPv4) nebo osm skupin čtyř hexadecimálních číslic (IPv6) není snadné k zapamatování – člověk si mnohem lépe zapamatuje jméno (linuxexpres.cz) než hromadu číslic (91.214.192.101). Služba DNS zajišťuje převod jmen na IP adresy (a do jisté míry „naopak“).</p>
+<h4>Stromový charakter</h4>
+<p>Jmenný systém DNS má charakter stromu. Kořenem tohoto stromu je tzv. kořenová doména, která se vyjadřuje tečkou. Pod kořenovou doménou jsou tzv. TLD, top-level domény, které se dělí na generické (com, org, net atd.), státní (cz, pl, co.uk, us atd.) a infrastrukturní (arpa). Přidělování TLD jednotlivým správcům má na starosti <a href="http://www.icann.org/">ICANN</a>. Správci TLD pak, zpravidla za poplatek, umožňují registraci domén druhého (někdy i dalšího) řádu. Domény druhého řádu pak patří pod danou TLD. Zápis jednotlivých úrovní DNS jmen se provádí zprava doleva, tzn. máte-li doménu druhého řádu "linuxexpres" a TLD "cz", zápis bude vypadat takto:</p>
+<pre>linuxexpres.cz.</pre>
+<p>Tečka na konci (tedy kořenová doména) se běžně neuvádí, ale je součástí protokolu DNS, a pokud budete spravovat vlastní DNS server, v jeho konfiguraci ji uvádět budete. Pro lepší ilustraci se můžete podívat na obrázek znázorňující stromový charakter jmenného systému DNS:</p>
+<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/6571.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/6571.jpg','Ilustrace stromového charakteru jmenných prostorů DNS','426','204'); return false;"><img alt="Ilustrace stromového charakteru jmenných prostorů DNS" class="ph_detail" height="204" src="http://www.linuxexpres.cz/uploads/gallery/detail/6571.jpg" width="426" /></a> <span class="ph_title">Ilustrace stromového charakteru jmenných prostorů DNS</span></p>
+<p>Pokud si zaregistrujete doménu druhého řádu, budete si moci vytvářet další subdomény, tj. domény třetího řádu, domény čtvrtého řádu atd., např.:</p>
+<pre>www.linuxexpres.cz
+server.example.org
+my.server.example.org</pre>
+<p>Registrace domén probíhá přes tzv. registrátory. Ti za vás vyřídí nejenom registraci dané domény, ale také zpravidla umožňují vytvořit a spravovat vaši doménu na jejich DNS serverech. Děje se tak obvykle přes webové rozhraní. Můžete si samozřejmě vytvořit vlastní DNS server a svoje domény spravovat na něm (jak, to se dozvíte v dalších dílech seriálu).</p>
+<h4>Protokol DNS</h4>
+<p>Z technického hlediska běží DNS nejčastěji na UDP, ale může používat i TCP. UDP je používáno kvůli rychlosti – jak možná víte, než mohou přes TCP proudit nějaká data, musí dojít k vytvoření spojení, k čemuž jsou potřeba tři pakety, a pak je teprve možné vznést DNS dotaz. UDP je v tomto případě rychlejší, na DNS dotaz stačí jediný paket.</p>
+<p>Pro diagnostiku a studium DNS doporučuji nástroj <em>dig</em>, který se ukrývá v balíčku <code>dnsutils</code>. Na Debianu jej nainstalujete takto:</p>
+<pre>aptitude install dnsutils</pre>
+<p>Základní DNS dotaz můžete provést takto:</p>
+<pre>dig example.org
+
+; &lt;&lt;&gt;&gt; DiG 9.9.1-P1 &lt;&lt;&gt;&gt; example.org
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 10873
+;; flags: qr rd ra ad; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;example.org.                   IN      A
+
+;; ANSWER SECTION:
+example.org.            172800  IN      A       192.0.43.10
+
+;; AUTHORITY SECTION:
+example.org.            172800  IN      NS      b.iana-servers.net.
+example.org.            172800  IN      NS      a.iana-servers.net.
+
+;; Query time: 879 msec
+;; SERVER: 10.0.1.254#53(10.0.1.254)
+;; WHEN: Tue Jul 24 17:08:10 2012
+;; MSG SIZE  rcvd: 104</pre>
+<p>V tomto výpisu vidíte dotaz (question section), odpověď (answer section) a autoritativní servery pro daný dotaz. Všimněte si tečky za každým doménovým jménem (kořenová doména).</p>
+<p>DNS dotazy mají charakter otázka-odpověď, nicméně je třeba tušit, koho se musíte zeptat, jakou odpověď vám poskytne a co s ní budete dále dělat. Více viz dále.</p>
+<h4>Hierarchie DNS serverů</h4>
+<p>Zadali jste jednoduchý DNS dotaz a přišla vám odpověď. Jakým způsobem ale byla získána? DNS je hierarchický systém, tzn. neexistuje jeden server, kterého byste se na cokoliv zeptali, a on by znal odpověď. DNS serverů je řada a každý z nich obsahuje jiné informace. Na počátku hierarchie DNS stojí tzv. root servery. Ty obsahují informaci o kořenové doméně a tuší, kde jsou autoritativní servery jednotlivých TLD. Nic víc netuší. Autoritativní servery jednotlivých TLD obsahují informace o autoritativních serverech jednotlivých domén druhého řádu.</p>
+<p>Uvažte doménové jméno <code>wikipedia.org</code>. Abyste toto jméno přeložili na IP adresu, musíte se nejprve zeptat některého z kořenových serverů. Jak zjistíte jeho IP adresu? Nijak – seznam kořenových serverů v podobě jednotlivých IP adres musíte mít někde uložený.</p>
+<p>Kořenový server sice netuší, jakou IP adresu má <code>wikipedia.org</code>, ale poskytne vám seznam autoritativních serverů pro danou TLD, tedy <code>org</code>. Tyto servery spravuje majitel dané TLD. Vy si některý z nich vyberete a dotážete se ho na <code>wikipedia.org</code>. Konkrétní IP adresu sice zpravidla vědět nebude, ale dá vám opět seznam autoritativních serverů, tentokrát ale autoritativních pro doménu <code>wikipedia.org</code>. Vy si opět vyberete některého z nich, a ten vám konečně řekne, že pod jménem <code>wikipedia.org</code> se skrývá počítač <em>208.80.152.201</em>.</p>
+<p>Kdybyste si to chtěli vyzkoušet, vyberte si nějaký kořenový server (seznam najdete třeba na Wikipedii) a nějakou doménu, kterou chcete přeložit (např. <code>wikipedia.org</code>) a proveďte:</p>
+<pre>dig wikipedia.org @korenovy_server
+
+;; AUTHORITY SECTION:
+org.                    172800  IN      NS      a0.org.afilias-nst.info.
+;; ADDITIONAL SECTION:
+a0.org.afilias-nst.info. 172800 IN      AAAA    2001:500:e::1
+a0.org.afilias-nst.info. 172800 IN      A       199.19.56.1
+</pre>
+<p>Výpis je zkrácený, nicméně vidíte, že kořenový server na daný dotaz odpověděl seznamem autoritativních serverů pro top-level doménu <code>org</code>. Přiložil také A a AAAA záznamy daných DNS serverů. Jeden z nich si vyberte a dotaz opakujte:</p>
+<pre>dig wikipedia.org @199.19.56.1
+
+;; AUTHORITY SECTION:
+wikipedia.org.          86400   IN      NS      ns1.wikimedia.org.
+
+;; ADDITIONAL SECTION:
+ns0.wikimedia.org.      86400   IN      A       208.80.152.130</pre>
+<p>Ani zde se nedočkáte přímé odpovědi, nicméně nyní už víte, které DNS servery spravují doménu <code>wikipedia.org</code>. Některý z nich si vyberte a dotaz opakujte:</p>
+<pre>dig wikipedia.org @208.80.152.130
+
+;; ANSWER SECTION:
+wikipedia.org.          3600    IN      A       208.80.152.201</pre>
+<p>A je hotovo, vrátil se vám A záznam pro <code>wikipedia.org</code> ukazující na IP adresu <em>208.80.152.201</em>.</p>
+<h4>Typy DNS záznamů a zóny</h4>
+<p>Zóna je část doménového jména, jehož správa byla někomu svěřena. Vy se asi nejčastěji setkáte s doménou druhého řádu, např. <code>example.org</code>. Zóna obsahuje jednotlivé DNS záznamy (resource records). Tyto záznamy mohou být různého typu. Nejčastější je A záznam, který mapuje jméno (např. <code>example.org</code>) na konkrétní IPv4 adresu. Pro mapování jména na IPv6 adresu slouží AAAA záznam. Ptáte-li se tedy na IP adresu jména <code>example.org</code>, ptáte se vlastně na A záznam. Doména může také obsahovat záznam typu MX (mail exchange), který označuje jednotlivé poštovní servery pro danou doménu a jejich priority. Častý je také záznam typu CNAME, což je v podstatě alias mapující jméno na jméno tzn. např. <code>core.example.org</code> může být aliasem pro <code>www.example.org</code>. Důležitý je také záznam typu NS, kterým můžete delegovat subdoménu na jiný DNS server. Kořenové servery obsahují výhradně záznamy typu NS pro jednotlivé TLD.</p>
+<h4>DNS resolver a kešování</h4>
+<p>Pokud chcete vyřešit DNS dotaz, sami víte, že se přímo nemusíte ptát kořenových DNS serverů a řešit, koho se máte ptát dál. Prostě zadáte jméno třeba do prohlížeče a váš počítač DNS dotaz vyřeší a spojí se s daným serverem. Jak jej ale vyřeší? Operační systémy mají jednu vestavěnou funkčnost pro řešení DNS dotazů, říká se jí resolver. Resolver se v GNU/Linuxu nastavuje v konfiguračním souboru <code>/etc/resolv.conf</code>. Tento soubor obsahuje seznam DNS serverů, kterých se bude resolver ptát. Tyto servery vám obvykle přidělí ISP, ale můžete využít i některé veřejně dostupné DNS servery (nebo si zřídit vlastní, ale o tom až někdy příště). Tento soubor obvykle vypadá nějak takto:</p>
+<pre>nameserver 1.2.3.4
+nameserver 4.3.2.1</pre>
+<p>Dobrá. Takže zadáte do prohlížeče nějaké jméno. Prohlížeč se zeptá resolveru. Resolver se nejprve podívá do své vlastní keše, jestli tam to jméno už nemá. Pokud ano, vrátí ho prohlížeči a proces je ukončen. Pokud ne, zeptá se některého z DNS serverů specifikovaných v <code>/etc/resolv.conf</code>. Ten se také nejprve podívá do vlastní keše a vyhledává pouze informace, které v keši nemá. Resolveru nakonec přijde odpověď, kterou předá procesu, jenž se ptal, a záznam si uloží do své keše pro případnou budoucí potřebu.</p>
+<p>Všechny DNS záznamy mají časově omezenou platnost, která řídí, jak dlouho si mají kešovací DNS servery a resolver informace ponechat. Po uplynutí této doby se záznam z keše vymaže.</p>
+<h4>Typy DNS serverů</h4>
+<p>DNS servery se dají členit dle různých kritérií. Výše jsem několikrát použil pojem „autoritativní DNS server“. Tímto pojmem je označován server, který obsahuje původní informace o dané zóně (informace z první ruky). Pokud se zeptáte kešovacího DNS serveru, jsou to informace z druhé ruky. Autoritativní servery spravuje majitel dané zóny.</p>
+<p>V redukovaných výpisech výše to asi nebylo patrné, ale pokud si nějaké dotazy budete zkoušet, zjistíte, že autoritativních DNS serverů je vždy více. Je to redundance pro případ, že by některý selhal. Jeden z nich je vždy primární a ostatní sekundární. Sekundární přebírají informace z primárních.</p>
+<p>Tím bych tento díl ukončil. V dalších se budeme problematikou DNS zabývat hlouběji.</p>
+
+<pre id="links">http://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie: DNS
+http://en.wikipedia.org/wiki/Domain_Name_System Anglická Wikipedie: DNS
+http://www.madboa.com/geek/dig/ DiG HOWTO
+http://en.wikipedia.org/wiki/Internet_Corporation_for_Assigned_Names_and_Numbers Anglická Wikipedie: ICANN
+http://cs.wikipedia.org/wiki/TCP/IP Česká Wikipedie: TCP/IP
+http://en.wikipedia.org/wiki/Root_name_server Anglická Wikipedie: Root name server</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: DNS a DHCP server dnsmasq</h1>
+
+<p>Tento díl pokračuje v problematice DNS, věnuje se rekurzivním dotazům, PTR záznamům a DNSSEC. Představuje také server dnsmasq, který poslouží jako na zdroje nenáročný a snadno konfigurovatelný kešovací DNS a DHCP server.</p>
+
+<h3>Rekurzivní dotazy</h3>
+<p>Většina z vás bude jistě tušit (zejména po přečtení <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-dns">předchozího dílu</a>), že pomocí DNS můžete získat ke jménu (např. <code>wikipedia.org</code>) konkrétní IP adresu (např. <code>208.80.152.201</code>). DNS ale také podporuje „obrácené“, rekurzivní dotazy, tedy takové dotazy, které vám vrátí jméno ke konkrétní IP adrese. Využívají se k tomu záznamy typu PTR a speciální doména <code>in-addr.arpa</code> pro IPv4, <code>ip6.arpa</code> pro IPv6.</p>
+<p>Zkuste si to na nějakém příkladu. Můžete využít nástroj <code>dig</code>, který byl představen v minulém díle. Nejprve získejte IP adresu k nějakému jménu (tedy A záznam), třeba <code>wikipedia.org</code>:</p>
+<pre>dig wikipedia.org
+
+;; QUESTION SECTION:
+;wikipedia.org.                 IN      A
+
+;; ANSWER SECTION:
+wikipedia.org.          3516    IN      A       208.80.152.201</pre>
+<p>Chcete-li provést rekurzivní DNS dotaz pomocí nástroje <code>dig</code>, použijte volbu <code>-x</code>, takto:</p>
+<pre>dig -x 208.80.152.201
+
+;; QUESTION SECTION:
+;201.152.80.208.in-addr.arpa.   IN      PTR
+
+;; ANSWER SECTION:
+201.152.80.208.in-addr.arpa. 3361 IN    PTR     wikipedia-lb.pmtpa.wikimedia.org.</pre>
+<p>Z odpovědi na tento dotaz by mělo být jasné, jak je vlastně rekurzivní dotaz realizován. Hledá se záznam typu <code>PTR</code> ke jménu <code>201.152.80.208.in-addr.arpa</code>, přičemž toto jméno obsahuje číselnou reprezentaci IP adresy, ovšem jednotlivé oktety jsou uvedeny v opačném pořadí. Jak víte, systém DNS je tvořen stromovou strukturou, která má počátek na konci (top-level doména), a pak se dále větví do domén druhého, třetího a dalších řádů. Každá větev nebo „podvětev“ tohoto stromu pak může být delegována jinému subjektu.</p>
+<p>Jak je patrné z příkladu výše, <code>PTR</code> záznamy nemusí mít stejnou hodnotu jako <code>A</code> záznamy. Dlužno dodat, že PTR záznamů pro jednu IP adresu může být více, nicméně není to obvyklé, často z obav, že nebude správně fungovat software očekávající pouze jedno jméno na rekurzivní dotaz.</p>
+<p>PTR záznamy jsou důležité zejména v oblasti pošty, jelikož některé poštovní servery předpokládají a očekávají shodu A záznamu s PTR záznamem. Pokud se záznamy shodovat nebudou, pošta může být odmítnuta, klasifikována jako spam nebo se zvýší skóre nástrojů typu spamassassin.</p>
+<p>PTR záznamy obvykle nastavujete u svého ISP, který vám buď deleguje danou DNS větev na váš vlastní DNS server, nebo vám nastaví PTR záznamy na svém.</p>
+<h3>Dnsmasq: Jednoduchý DNS server</h3>
+<p><code>Dnsmasq</code> je vynikající nástroj, pokud potřebujete rychle nasadit kešující DNS (anebo také DHCP) server pro malou síť (dle webu projektu zvládá i tisíc klientů). <code>Dnsmasq</code> není resolver, tzn. neprovádí vyhledávání neznámých domén sám, nýbrž jen předává dotazy místním DNS resolverům (viz <code>/etc/resolv.conf</code>). Vyřešené dotazy kešuje, což snižuje zátěž hlavních DNS resolverů a také mírně zvyšuje výkon. Můžete samozřejmě přidávat vlastní DNS záznamy pro místní nebo speciální domény.</p>
+<p><code>Dnsmasq</code> umí fungovat také jako jednoduchý DHCP server, IP adresy můžete přidělovat staticky nebo dynamicky. Jeho předností je nenáročnost na paměť a na konfiguraci.</p>
+<p>Instalaci nástroje <code>dnsmasq </code>provedete v Debianu klasickým způsobem, instalací příslušného balíčku z oficiálních repozitářů:</p>
+<pre>aptitude install dnsmasq</pre>
+<h4>Konfigurace</h4>
+<p>Hlavním konfiguračním souborem je <code>/etc/dnsmasq.conf</code>. Tento konfigurační soubor je bohatě komentovaný, takže není problém <code>dnsmasq</code> rychle nastavit podle vašich představ. První věc, kterou byste měli upravit, je specifikace rozhraní, kde má <code>dnsmasq</code> naslouchat. Z bezpečnostních důvodů se nehodí, aby byl dostupný z internetu (ve výchozím stavu naslouchá na všech rozhraních):</p>
+<pre>interface=eth1</pre>
+<p>Rozhraní můžete specifikovat více:</p>
+<pre>interface=eth2
+interface=eth3</pre>
+<h4>DNS</h4>
+<p>Kešování DNS a forwarding fungují automaticky, k tomu není třeba nic nastavovat. Můžete se sami přesvědčit tím, že se zeptáte na nějakou doménu :</p>
+<pre>dig www.wikipedia.org @127.0.0.1</pre>
+<p><code>Dnsmasq</code> využívá vaše resolvery (viz <code>/etc/resolv.conf</code>) a odpovědi kešuje. Integruje také informace z <code>/etc/hosts</code>, což velmi usnadňuje pojmenování místních počítačů – odpadá nutnost tvořit zónový soubor. Například, pokud do <code>/etc/hosts</code> vložíte záznam:</p>
+<pre>10.0.1.15 kremilek.local</pre>
+<p>...můžete se po restartu programu <code>dnsmasq</code> rovnou přesvědčit, že od něj dostanete správnou odpověď (tedy, správnou dle <code>/etc/hosts</code>):</p>
+<pre>dig @127.0.0.1 kremilek.local
+
+;; ANSWER SECTION:
+kremilek.local.         10800   IN      A       10.0.1.15</pre>
+<p>Výchozí hodnota pro velikost keše je sto padesát záznamů, což není mnoho. Chcete-li kešovat více záznamů, specifikujte příslušnou hodnotu v direktivě <code>cache-size</code>:</p>
+<pre>cache-size=500</pre>
+<p>Vlastní DNS záznamy můžete vkládat nejenom do <code>/etc/hosts</code>, ale také do konfigurace samotné:</p>
+<pre>host-record=laptop,laptop.local,10.0.1.60,1234::100</pre>
+<p>Výše uvedená řádka vytvoří A záznam pro jména <code>laptop</code> a <code>laptop.local</code> s IP adresou <code>10.0.1.60</code> a AAAA (IPv6) záznam s IPv6 adresou <code>1234::100</code>.</p>
+<p>Potřebujete-li vložit vlastní MX záznam, můžete použít <code>mx-host</code>:</p>
+<pre>mx-host=example.org,postovniserver.local,10</pre>
+<p>Výše uvedený řádek nastaví MX záznam pro doménu <code>example.org</code> o váze <code>10</code> s poštovním serverem <code>postovniserver.local</code>.</p>
+<p>Podobným způsobem můžete vytvářet i PTR nebo SRV záznamy. Více viz manuálová stránka a komentáře v konfiguračním souboru. Po úpravě konfigurace je třeba <code>dnsmasq</code> restartovat:</p>
+<pre>service dnsmasq restart</pre>
+<h4>DHCP</h4>
+<p>Funkci DHCP serveru má <code>dnsmasq</code> ve výchozím stavu vypnutou. Pro její zprovoznění postačí specifikovat rozsah adres pro DHCP:</p>
+<pre>dhcp-range=10.0.1.50,10.0.1.150,12h</pre>
+<p>Tato řádka nastaví dynamické přidělování adres v rozsahu 10.0.1.50 až 10.0.1.150, přičemž přidělená IP adresa bude „pronajatá“ dvanáct hodin. Podobně jako v případě direktivy <code>interface</code> můžete <code>dhcp-range</code> specifikovat vícekrát, pokaždé pro jiný rozsah:</p>
+<pre>dhcp-range=10.0.1.50,10.0.1.150,12h
+dhcp-range=10.0.5.10,10.0.5.50,12h</pre>
+<p>IP adresy můžete specifikovat i staticky, pro konkrétní MAC síťové karty:</p>
+<pre>dhcp-host=11:22:33:44:55:66,10.10.10.10</pre>
+<p>Tato řádka přidělí MAC adrese <code>11:22:33:44:55:66</code> IP adresu <code>10.10.10.10</code>.</p>
+<p>Konkrétní rozsahy můžete přidělovat i konkrétním síťovým rozhraním:</p>
+<pre>dhcp-range=eth1,10.0.1.50,10.0.1.150,12h
+dhcp-range=eth2,10.0.5.10,10.0.5.50,12h</pre>
+<p>Potřebujete-li specifikovat některé další volby jako router apod., můžete použít <code>dhcp-option</code>:</p>
+<pre>dhcp-option=option:router,10.10.10.10
+dhcp-option=option:ntp-server,10.10.10.20,10.10.10.30</pre>
+<p>Výše uvedená řádka sdělí DHCP klientům, že router je na adrese <code>10.10.10.10</code> a NTP servery jsou na <code>10.10.10.20</code> a <code>10.10.10.30</code>. Další příklady naleznete v konfiguračním souboru a v manuálu.</p>
+<h3>DNSSEC</h3>
+<p>DNS je velmi starý protokol, který nebyl navržen s ohledem na bezpečnost (což samozřejmě neplatí jen o DNS). Existuje možnost podvržení DNS záznamů, které není možné spolehlivě zabránit, což otevírá prostor pro známý man-in-the-middle útok. Podaří-li se útočníkovi podvrhnout odpověď na váš DNS dotaz, dojde k „otrávení“ vaší DNS keše podvrženým záznamem (proto se tyto útoky označují jako <a href="http://en.wikipedia.org/wiki/DNS_cache_poisoning">DNS cache poisoning</a>). Snad nemusím zdůrazňovat, jaké důsledky může mít podvržení DNS záznamů – místo komunikace se svou bankou můžete komunikovat s útočníkem, který pak může zaútočit přímo na vaše bankovní konto.</p>
+<p>Obranou vůči těmto útokům je DNSSEC, což je systém, který DNS záznamy digitálně podepisuje (používá se asymetrické šifrování), a DNS resolvery podpisy kontrolují. Digitální podpisy mají svou hierarchii (tzv. <a href="http://en.wikipedia.org/wiki/Chain_of_trust">chain of trust</a> model), která začíná u kořenové zóny (počáteční bod hierarchie se označuje jako „trust anchor“, kotva důvěry – její podpis byste měli pečlivě ověřit, jelikož s jeho důvěryhodností stojí a padá důvěryhodnost celého ověřování). Tento systém je poměrně komplexní a komplikovaný – více o principech fungování DNSSEC se dozvíte v odkazech pod článkem.</p>
+<p>DNSSEC je třeba implementovat na straně resolvujících DNS serverů, které využíváte. Nepodporuje-li tedy váš ISP DNSSEC, můžete si postavit vlastní resolver se zprovozněným DNSSECem. Zda váš ISP používá DNSSEC (resp. zda vámi použité resolvující DNS servery používají DNSSEC), zjistíte dotazem na špatně podepsanou doménu, kterou je např. <code>rhybar.cz</code>:</p>
+<pre>dig www.rhybar.cz
+
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, <strong>status: NOERROR</strong>, id: 56068
+
+;; QUESTION SECTION:
+;www.rhybar.cz.                 IN      A
+
+;; ANSWER SECTION:
+www.rhybar.cz.          504     IN      A       217.31.205.51</pre>
+<p>Pokud vám na tento dotaz vrátí server bezchybnou odpověď (<code>status: NOERROR</code>), pak DNSSEC implementovaný nemá a vy jste zranitelní. Dostane-li se vám odpovědi se statusem <code>SERVFAIL</code>:</p>
+<pre>dig www.rhybar.cz
+
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, <strong>status: SERVFAIL</strong>, id: 18561
+;; flags: qr rd ra; QUERY: 1, ANSWER: 0, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;www.rhybar.cz.                 IN      A</pre>
+<p>...pak je všechno v pořádku a DNSSEC je aktivní. Jednoduchý test přímo z webového prohlížeče můžete realizovat třeba na stránce <a href="http://www.dnssec.cz/">www.dnssec.cz</a>. Jak si postavit vlastní resolvující a DNSSEC validující server, se dozvíte v příštím díle.</p>
+
+<pre id="links">http://www.thekelleys.org.uk/dnsmasq/doc.html dnsmasq: web projektu
+http://wiki.debian.org/HowTo/dnsmasq dnsmasq: Debian HOWTO
+http://en.wikipedia.org/wiki/Reverse_DNS_lookup Anglická Wikipedie: Rekurzivní dotazy
+http://www.dnssec.cz/ Český web o DNSSEC
+http://www.root.cz/clanky/jak-funguje-dnssec/ Root.cz: Jak funguje DNSSEC?
+http://en.wikipedia.org/wiki/DNSSEC Anglická Wikipedie: DNSSEC
+http://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie: DNS
+http://en.wikipedia.org/wiki/Domain_Name_System Anglická Wikipedie: DNS
+http://www.madboa.com/geek/dig/ DiG HOWTO
+http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Unbound a Bind</h1>
+
+<p>Tento díl se věnuje stavbě vlastního DNS serveru, konkrétně pak rekurzivního a DNSSEC validujícího serveru Unbound, a také víceúčelového serveru Bind.</p>
+
+<p>Jak už bylo řečeno dříve, různé DNS servery realizují různou funkčnost. V zásadě existují dva základní typy, rekurzivní a autoritativní. <strong>Rekurzivní DNS servery</strong> realizují pro své klienty vyhledávání v DNS stromu a poskytují jim odpovědi na jejich dotazy. Servery tohoto typu vám bývají poskytovány vaším ISP. Rekurzivní DNS servery provádějí také kešování odpovědí na dotazy.</p>
+<p>Kromě rekurzivních serverů existují také tzv. <strong>autoritativní DNS servery</strong>, což jsou servery, které publikují DNS záznamy určité části DNS stromu, jejíž správa jim byla přidělena. Kupříkladu, pokud byste si zaregistrovali doménu <em>example.org</em>, měli byste kontrolu nad tím, které DNS servery budou obsahovat její autoritativní informace. Na tyto DNS servery by se pak obracely rekurzivní DNS servery, které od nich získají odpověď na DNS dotazy týkající se domény <em>example.org</em> a jejích subdomén.</p>
+<p>Různé DNS servery realizují různou funkčnost. Server <em>dnsmasq</em>, probraný v minulém díle, je ve své podstatě pouze kešující DNS server, který nevyřizuje dotazy, pouze je přeposílá (forwarduje) definovaným rekurzivním DNS serverům. Unbound je primárně rekurzivní a kešující DNS server, i když do jisté míry se dá použít i jako autoritativní server. Bind je univerzální DNS server schopný fungovat jako rekurzor i jako autoritativní server. Jedná se o nejznámější DNS server vůbec. Jsou i čistě autoritativní servery, které neumí pracovat jako rekurzory a zaměřují se pouze na publikování autoritativních DNS informací. Příkladem může být KnotDNS, server z dílen CZ.NIC.</p>
+<p>Připomínám, že výchozí port pro službu DNS je 53 a komunikace může probíhat jak přes UDP, tak přes TCP.</p>
+<h3>Unbound</h3>
+<p>Unbound je především rekurzivní a kešující DNS server. Je schopen provádět DNSSEC validaci, ale neprovádí ji ve výchozím stavu (alespoň v Debianu). Problematikou DNSSEC se zabýval minulý díl seriálu.</p>
+<p>Instalaci serveru Unbound realizujete velmi jednoduše:</p>
+<pre>aptitude install unbound</pre>
+<p>Po instalaci se server rovnou rozběhne a začne fungovat. Jeho funkčnost si můžete snadno ověřit:</p>
+<pre>dig @localhost example.org</pre>
+<h4>DNSSEC</h4>
+<p>Jako první by bylo dobré zapnout DNSSEC validaci. K tomu potřebujete do hlavního konfiguračního souboru <code>/etc/unbound/unbound.conf</code> přidat informace o souboru obsahujícím klíč kořenové zóny (fungující jako „trust anchor“, tedy „kotva důvěry“):</p>
+<pre>auto-trust-anchor-file: "/etc/unbound/root.key"</pre>
+<p>Tento soubor však ve výchozí instalaci neexistuje a je třeba jej vytvořit. Za tímto účelem je nutné si příslušný klíč opatřit a ověřit. Opatřit si jej můžete stažením následujícího souboru:</p>
+<pre>https://data.iana.org/root-anchors/root-anchors.xml</pre>
+<p>Jedná se o XML soubor s potřebnými hodnotami. Tyto hodnoty vložte do souboru <code>/etc/unbound/root.key</code> do jediné řádky, a to dle následujícího klíče:</p>
+<pre>. IN DS &lt;KeyTag&gt; &lt;Algorithm&gt; &lt;DigestType&gt; &lt;Digest&gt;</pre>
+<p>Výsledek může vypadat nějak takto:</p>
+<pre>.IN DS 19036 8 2 49AAC11D7B6F6446702E54A1607371607A1A41855200FD2CE1CDDE32F24E8FB5</pre>
+<p>Po uložení souboru Unbound restartujte:</p>
+<pre>service unbound restart</pre>
+<p>Následně zkontrolujte, že DNSSEC validace funguje, např. takto:</p>
+<pre>dig +dnssec org @localhost</pre>
+<p>Je-li DNSSEC aktivní, měli byste vidět příznak „AD“ v odpovědi:</p>
+<pre>;; flags: qr rd ra <strong>ad</strong>; QUERY: 1, ANSWER: 0, AUTHORITY: 4, ADDITIONAL: 1</pre>
+<h4>Přizpůsobení nastavení Unboundu</h4>
+<p>Jak je z postupu výše patrné, soubor s konfigurací Unboundu je <code>/etc/unbound/unbound.conf</code>. Tento soubor je bohatě komentovaný, doporučuji si jej tedy projít a upravit podle vašich potřeb. Základní dvě věci pro úpravu jsou v první řadě rozhraní a IP adresy, na kterých Unbound poslouchá (ve výchozím stavu naslouchá pouze na lokální smyčce, tedy nikoliv na síti), a ve druhé řadě je to řízení přístupu, tj. kdo má právo na vyřizování DNS dotazů.</p>
+<p>Specifikace rozhraní, popřípadě IP adres, na kterých Unbound naslouchá, se realizuje takto:</p>
+<pre>interface: 1.2.3.4
+interface: 1.2.3.4@5000
+interface: 0.0.0.0
+interface: ::0</pre>
+<p>První řádka zajistí, že Unbound bude naslouchat na IP adrese <code>1.2.3.4</code> na standardním portu. Druhá řádka ukazuje, jak byste Unboundu sdělili, aby naslouchal na nestandardním portu (v tomto případě portu 5000). Třetí řádka zajistí, že Unbound bude naslouchat na všech IPv4 rozhraních a adresách. Čtvrtá pak provede totéž, ale v rámci protokolu IPv6.</p>
+<p>Druhou podstatnou oblastí je řízení přístupu. Ve výchozím stavu je totiž veškerý přístup zakázán, kromě místní smyčky (localhostu).</p>
+<pre>access-control: 10.0.1.15 refuse
+access-control: 10.0.1.0/24 allow</pre>
+<p>Syntaxe je zde na první pohled jasně patrná – v první řádce se zamítá přístup počítači <code>10.0.1.15</code>, druhá řádka pak povoluje přístup ze sítě <code>10.0.1.0/24</code>.</p>
+<p>Unbound umožňuje i tvorbu místních zón, popřípadě úpravu odpovědí na specifické dotazy. Místní zónu můžete snadno a rychle vytvořit takto:</p>
+<pre>local-zone: "local." static
+local-data: "typhoon.local. IN A 10.0.1.27"</pre>
+<p>První řádek definuje doménu „local“, druhý pak vytváří A záznam pro počítač <code>10.0.1.27</code> se jménem <em>typhoon.local</em>.</p>
+<h4>Nastavení Unboundu jako výchozího rekurzoru pro server</h4>
+<p>Máte-li funkční rekurzivní DNS server, můžete pro příslušný počítač zajistit, aby DNS dotazy vyřizoval přímo místní rekurzor (na místo DNS serverů poskytovatele). To zajistíte úpravou <code>/etc/resolv.conf</code> a vložením následujícího záznamu na první řádek:</p>
+<pre>nameserver 127.0.0.1</pre>
+<p>Tato úprava zajistí, že se běžící aplikace budou ptát nejprve místního DNS serveru, který bude odpovídat rychleji než servery vašeho ISP. Nevyřadíte-li ostatní záznamy v <code>resolv.conf</code>, zajistíte tak „fallback“ na některý z dalších serverů, pokud bude váš místní DNS server mimo provoz.</p>
+<h3>Bind</h3>
+<p>Bind je univerzální DNS server, umí pracovat jako rekurzor a vyřizovat DNS dotazy (podpora DNSSEC je samozřejmostí), ale umí pracovat také jako autoritativní server.</p>
+<p>Jeho instalaci provedete opět velmi jednoduše:</p>
+<pre>aptitude install bind9</pre>
+<p>Po instalaci se Bind rozběhne a začne fungovat jako rekurzivní DNS server, což si opět můžete snadno ověřit:</p>
+<pre>dig @localhost example.org</pre>
+<h4>DNSSEC</h4>
+<p>Základem je opět opatřit si klíč ke kořenové zóně. Tento klíč můžete získat DNS dotazem:</p>
+<pre>dig . dnskey
+
+.                       172758  IN      DNSKEY  256 3 8 AwEA
+AbW4qUZUxSRqUntM9u0pvmkqRB9Z+WRPghllsekdgp8ksT5bwRBE3xwVWJJp
+JgVYGvFGgLIutrGyZDJVLQX+tu+qe6HJbA8XRZsL2aA6e4MZeD4TOUlIH/c
+Vlof3y4gFibjwzuuondVku9ia2MSRYnrBl+LMSRftBkVa4OvS+dij
+.                       172758  IN      DNSKEY  257 3 8 AwEA
+AagAIKlVZrpC6Ia7gEzahOR+9W29euxhJhVVLOyQbSEW0O8gcCjFFVQUTf6v
+58fLjwBd0YI0EzrAcQqBGCzh/RStIoO8g0NfnfL2MTJRkxoXbfDaUeVPQuYE
+hg37NZWAJQ9VnMVDxP/VHL496M/QZxkjf5/Efucp2gaDX6RS6CXpoY68LsvP
+VjR0ZSwzz1apAzvN9dlzEheX7ICJBBtuA6G3LQpzW5hOA2hzCTMjJPJ8LbqF
+6dsV6DoBQzgul0sGIcGOYl7OyQdXfZ57relSQageu+ipAdTTJ25AsRTAoub8
+ONGcLmqrAmRLKBP1dfwhYB4N7knNnulq QxA+Uk1ihz0=</pre>
+<p>Ve výpisu budou patrné dva klíče, vy chcete ten delší (257). Klíč a hodnoty převeďte do následující podoby:</p>
+<pre>managed-keys {
+  "." initial-key 257 3 8
+    "AwEAAagAIKlVZrpC6Ia7gEzahOR+9W29euxhJhVVLOyQbSEW0O8gcCjF
+     FVQUTf6v58fLjwBd0YI0EzrAcQqBGCzh/RStIoO8g0NfnfL2MTJRkxoX
+     bfDaUeVPQuYEhg37NZWAJQ9VnMVDxP/VHL496M/QZxkjf5/Efucp2gaD
+     X6RS6CXpoY68LsvPVjR0ZSwzz1apAzvN9dlzEheX7ICJBBtuA6G3LQpz
+     W5hOA2hzCTMjJPJ8LbqF6dsV6DoBQzgul0sGIcGOYl7OyQdXfZ57relS
+     Qageu+ipAdTTJ25AsRTAoub8ONGcLmqrAmRLKBP1dfwhYB4N7knNnulq
+     QxA+Uk1ihz0=";
+};</pre>
+<p>A tu vložte třeba do souboru <code>/etc/bind/named.conf.managed</code>. Následně vložte potřebnou <em>include</em> direktivu do <code>/etc/bind/named.conf</code>:</p>
+<pre>include "/etc/bind/named.conf.managed";</pre>
+<p>Toto samo o sobě by mělo stačit (DNSSEC validace je povolená, ale fungovat začne teprve po výše uvedené operaci). Bind tedy restartujte:</p>
+<pre>service bind9 restart</pre>
+<p>A následně použijte stejný postup uvedený výše pro ověření, že DNSSEC validace funguje.</p>
+<p>Pozor! Opět zde platí, že výše uvedený klíč si musíte v každém případě nějakým způsobem ověřit, protože na něm stojí celá bezpečnost ověřování DNSSEC.</p>
+<h4>Přizpůsobení nastavení Bindu</h4>
+<p>Bind se umí chovat úplně stejně jako <em>dnsmasq</em>, tedy jako forwardující (přeposílá dotazy na jiný server) a kešující DNS server. Chcete-li ho takto nastavit, vložte do <code>/etc/bind/named.conf.options</code>, mezi složené závorky direktivy <em>options</em>, následující řádky (servery, které se mají dotazovat, se specifikují v proměnné <em>forwarders</em>):</p>
+<pre>forward only;
+forwarders { 1.2.3.4; 4.3.2.1;};</pre>
+<p>Nastavení síťových rozhraní, kde má Bind naslouchat, se realizuje následovně (stejný soubor, stejné umístění jako v příkladu výše):</p>
+<pre>listen-on-v6 { any; };
+listen-on { 127.0.0.1; 10.0.1.254; };</pre>
+<p>První řádka specifikuje naslouchání na IPv6 adresách. Klíčové slovo <em>any</em> zajistí, že se bude naslouchat na všech. Druhá řádka řídí naslouchání na IPv4, kde jsou specifikovány v tomto případě dvě adresy, adresa místní smyčky (localhostu) a privátní adresa <em>10.0.1.254</em>.</p>
+<pre>allow-query { 10.0.1.0/24; };</pre>
+<p>Proměnná <em>allow-query</em> definuje, kdo se smí serveru dotazovat. V tomto příkladu se serveru smí dotazovat síť <em>10.0.1.0/24</em>.</p>
+<pre>allow-recursion { 10.0.1.0/24; };</pre>
+<p>Tato proměnná definuje, kdo smí pokládat rekurzivní dotazy. Syntax je totožná jako u <em>allow-querry</em>.</p>
+<p>Pokud nechcete provozovat rekurzivní DNS server, rekurzi jako takovou je možné vypnout:</p>
+<pre>recursion no;</pre>
+<p>Tím bych pro tentokrát skončil. Příště bude osvětlena problematika tvorby zón a zónových souborů.</p>
+
+<pre id="links">http://wiki.debian.org/DNSSEC Debian Wiki, DNSSEC
+http://www.zytrax.com/books/dns/ch7/queries.html DNS BIND Query Statements
+http://www.zytrax.com/books/dns/ch4/ DNS Configuration Types
+http://www.dns-info.cz/dns/autoritativni-servery-delegace.html Autoritativní DNS servery a delegace správy domén – DNS
+http://en.wikipedia.org/wiki/Reverse_DNS_lookup Anglická Wikipedie: Rekurzivní dotazy
+http://www.dnssec.cz/ Český web o DNSSEC
+http://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie: DNS
+http://en.wikipedia.org/wiki/Domain_Name_System Anglická Wikipedie: DNS
+http://www.madboa.com/geek/dig/ DiG HOWTO
+http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Bind v roli autoritativního serveru</h1>
+
+<p>Dnešní díl popisuje správu domén na vlastním DNS serveru, tedy tvorbu autoritativního DNS serveru a tvorbu zónových souborů.</p>
+
+<p>Na úvod předpokládám, že máte nainstalovaný DNS server Bind (balíček <code>bind9</code> v Debianu). Stejně tak předpokládám, že jste si prošli <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-dns" title="Úvod do DNS">posledních</a> <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-dns-a-dhcp-server-dnsmasq" title="DNS a DHCP server dnsmasq">pár</a> <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-unbound-a-bind" title="Unbound a Bind">dílů</a>, které se věnují problematice DNS serverů.</p>
+<p>Jak bylo řečeno minule, Bind umí zastat jak roli resolvujícího DNS serveru, který za klienty vyřizuje libovolné DNS žádosti, tak roli autoritativního serveru, který vrací autoritativní údaje o částech DNS stromu, jež jsou mu delegovány.</p>
+<p>Pokud si zaregistrujete doménu, můžete registrátorovi sdělit, jaké jsou vaše autoritativní servery, a mít DNS informace spojené s příslušnou doménou (nebo se všemi vašimi doménami) na vlastních DNS serverech. Servery jsou potřeba alespoň dva, jeden primární a jeden sekundární. Primární poskytuje vždy aktuální autoritativní informace, sekundární přebírá ve specifikovaných intervalech data z primárního serveru a kešuje je. Pokud primární server vypadne, budou se klienti dotazovat sekundárního, dokud platnost jeho dat nevyprší.</p>
+<p>DNS servery představují součást klíčové infrastruktury, a jako takové by měly být maximálně spolehlivé. Výpadek obou DNS serverů povede k nemožnosti klientů převádět vaše domény na IP adresy. I když budou v takové situaci vaše servery běžet, klienti se na ně nedostanou. Pokud budete provozovat vlastní DNS servery, měli byste je provozovat na spolehlivých strojích u spolehlivých poskytovatelů. Ideálně by to měly být servery ve dvou různých datacentrech (jinak hrozí, že výpadek konektivity datacentra zruší oba vaše DNS servery naráz).</p>
+<h3>Příklad zónového souboru</h3>
+<p>Vytvořte soubor někde v úložišti konfigurace pro Bind, tedy např. <code>/etc/bind/db.example.cz</code>, který poslouží k uložení záznamů o dané zóně. Příklad může vypadat třeba takto:</p>
+<pre>$TTL    3h      ; default expiration time
+@       IN      SOA     ns1.example.cz. spravce.example.cz. (
+                          20120820 ; serial
+                          4h       ; slave refresh
+                          2h       ; slave retry interval
+                          2w       ; slave data expiration
+                          1h )     ; maximum caching time when lookups fail
+;
+@       IN      NS      ns1.example.cz.
+@       IN      NS      ns2.example.cz.
+
+
+example.cz.    IN      MX      10      mujmailserver1.cz.
+example.cz.    IN      MX      20      mujmailserver2.cz.
+example.cz.    IN      A       1.2.3.5
+ns1                     IN      A       1.2.3.4
+ns2                     IN      A       1.2.3.3
+www                     IN      CNAME   example.cz.
+subdomena1              IN      A       1.2.3.4
+subdomena2              IN      CNAME   example.cz.</pre>
+<p>Jak je patrno, není to úplně procházka růžovým sadem, ale není to zase příliš složité. Vezměme to jedno po druhém:</p>
+<ul>
+<li>
+<p><code><strong>$TTL 3h</strong></code> – nastaví dobu existence (time-to-live, TTL) všech záznamů, které nemají definovanou TTL někde jinde v zónovém souboru</p>
+</li>
+<li>
+<p><code><strong>IN SOA</strong></code> – definuje SOA záznam (Start of Authority), který obsahuje základní informace o doméně (viz dále) – tento záznam musí zónový soubor bezpodmínečně obsahovat</p>
+</li>
+<li>
+<p><code><strong>ns1.example.cz. spravce.example.cz.</strong></code> – první údaj ve specifikaci SOA záznamu náleží DNS serveru obsahujícímu autoritativní informace o dané zóně, druhý pak e-mailu správce zóny (všimněte si tečky místo zavináče)</p>
+</li>
+<li>
+<p><code><strong>20120820</strong></code> – první číslo u SOA záznamu udává sériové číslo zónového souboru – <strong>při jakékoliv změně zónového souboru musí být povýšeno</strong>; často se bere (jak je naznačeno v tomto případě) numerická reprezentace aktuálního data, ale můžete používat jakékoliv číslo – jen jej nezapomeňte při úpravách povyšovat</p>
+</li>
+<li>
+<p><code><strong>4h</strong></code> – druhý údaj u SOA záznamu udává dobu, za kterou si sekundární (slave) server stáhne data z primárního (master) serveru – v tomto případě to jsou 4 hodiny (tzn. sekundární server si stáhne data každé čtyři hodiny)</p>
+</li>
+<li>
+<p><code><strong>2h</strong></code> – třetí údaj u SOA záznamu udává dobu, za kterou se má sekundární server znovu pokusit stáhnout data z primárního, pokud mu nevyšel první pokus (bude-li tedy primární server nedostupný, sekundární bude pokusy o získání dat opakovat po dvou hodinách</p>
+</li>
+<li>
+<p><code><strong>2w</strong></code> – čtvrtý údaj u SOA záznamu udává dobu, za kterou data na sekundárním serveru definitivně vyprší, pokud se mu nepodaří spojit s primárním DNS serverem; v tomto případě jsou to dva týdny</p>
+</li>
+<li>
+<p><code><strong>1h</strong></code> – pátý údaj u SOA záznamu udává dobu, jak dlouho si mají kešovací DNS servery pamatovat, že nějaký záznam neexistuje</p>
+</li>
+<li>
+<p><code><strong>IN NS</strong></code> – záznamy udávající autoritativní DNS servery pro danou zónu, primární a sekundární (může jich být samozřejmě i více); všimněte si, že k těmto serverům jsou doplněny jejich A záznamy; NS záznamy se uvádí na dvou místech, jednak v dané zóně, a jednak v zóně vyšší úrovně (tyto záznamy obvykle definujete u registrátora domény) – pokud DNS servery patří do stejné domény, kterou spravují (jako v tomto případě), musí být bezpodmínečně v zóně vyšší úrovně definováno jak jméno, tak IP adresa (A záznam) daného DNS serveru (tato dvojice tvoří tzv. GLUE záznam), jinak vám doména nebude fungovat (vznikne kruhová závislost)</p>
+</li>
+<li>
+<p><code><strong>IN A</strong></code> – na šestém řádku zespodu je uveden hlavní A záznam pro doménu, překládající doménu na IP adresu</p>
+</li>
+<li>
+<p><code><strong>CNAME</strong></code> – záznam typu CNAME je alias, tzn. <em>www.example.cz</em> bude ukazovat na A záznam <em>example.cz</em></p>
+</li>
+<li>
+<p><code><strong>MX</strong></code> – zóna obsahuje specifikaci dvou poštovních (MX, Mail eXchange) serverů, a to <em>mujmailserver1.cz</em> s prioritou 10 (vyšší) a <em>mujmailserver2.cz</em> s prioritou 20 (nižší)</p>
+</li>
+</ul>
+<p>Všimněte si také teček za doménovými jmény. Ty označují kořenovou zónu a musí být uváděny. Aby váš DNS server začal distribuovat záznamy z tohoto zónového souboru, musíte jej zařadit do nastavení Bindu, tzn. vložit do souboru <code>/etc/bind/named.conf.local</code> následující:</p>
+<pre>zone "example.cz" {
+       type master;
+       file "/etc/bind/db.example.cz";
+};</pre>
+<p>Je zde specifikován nejen soubor, ale také typ „master“, který určuje váš DNS server jako primární vzhledem k tomuto zónovému souboru.</p>
+<p>Před samotným restartem Bindu je vhodné konfiguraci prověřit automatizovaným nástrojem, a vyhnout se tak situaci, kdy server znovu nenastartuje kvůli chybě v definici zóny, čímž nastane výpadek. Bind obsahuje nástroj <code>named-checkconf</code>, který stačí bez parametrů spustit:</p>
+<pre>named-checkconf</pre>
+<p>Dle unixové tradice, pokud tento příkaz nevrátí žádný text, znamená to, že nastavení Bindu je v pořádku, a vy jej můžete v klidu restartovat:</p>
+<pre>service bind9 restart</pre>
+<p>Nyní můžete server otestovat:</p>
+<pre>dig example.cz @1.2.3.4
+
+;; QUESTION SECTION:
+;example.cz.                     IN      A
+
+;; ANSWER SECTION:
+example.cz.             10800   IN      A       1.2.3.4
+
+;; AUTHORITY SECTION:
+example.cz.             10800   IN      NS      ns1.example.cz.
+example.cz.             10800   IN      NS      ns2.example.cz
+
+;; ADDITIONAL SECTION:
+ns1.example.cz.          10800   IN      A       1.2.3.4
+ns2.example.cz.          10800   IN      A       1.2.3.3</pre>
+<p>Všimněte si TTL u jednotlivých záznamů, které udává 10 800 sekund, tedy 3 hodiny, což je přesně hodnota, kterou jste specifikovali v proměnné <code>$TTL</code>.</p>
+<p>Otestovat můžete i další záznamy (<code>dig -t mx</code>, <code>dig -t soa</code>) atd.</p>
+<h3>Sekundární DNS servery</h3>
+<p>Přenos dat zóny (tzv. zónový transfer, zone transfer) je třeba na <strong>primárním</strong> serveru autorizovat, což můžete provést specifikací příslušné IP adresy u direktivy <code>allow-transfer</code>, takto:</p>
+<pre>   zone "example.cz" {
+         type master;
+         file "/etc/bind/db.example.cz";
+         allow-transfer { @4.3.2.1; };
+   };</pre>
+<p>Následně je třeba na sekundárním serveru vytvořit specifikaci zóny typu <em>slave</em> se specifikací primárního (<em>master</em>) serveru, takto:</p>
+<pre>   zone "example.cz" {
+         type slave;
+         file "/var/cache/bind/db.example.cz";
+         masters { @1.2.3.4; };
+   };</pre>
+<p>Nezapomeňte oba servery restartovat, nejprve primární, pak sekundární, a následně otestovat, jestli vše funguje.</p>
+<p>Tím bych tento díl ukončil. Příště budou probrány reverzní záznamy a také český, pouze autoritativní server KnotDNS pocházející z laboratoří CZ.NIC.</p>
+
+<pre id="links">https://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie, Domain Name System
+https://en.wikipedia.org/wiki/Zone_file Anglická Wikipedie, Zone file
+http://linuxconfig.org/linux-dns-server-bind-configuration Linux DNS server BIND configuration
+http://www.wallpaperama.com/forums/how-to-manually-create-zone-files-for-domain-names-in-linux-server-t1698.html How To Manually Create Zone Files For Domain Names In Linux Server
+https://help.ubuntu.com/community/BIND9ServerHowto BIND9 Server Howto
+http://www.dns-info.cz/dns/zaznam-soa.html Záznam typu SOA – DNS</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+
+<h1>Správa linuxového serveru: Reverzní záznamy a Knot DNS</h1>
+
+<p>Tento díl popisuje problematiku reverzních záznamů a představuje autoritativní DNS server Knot z dílen CZ.NIC.</p>
+
+<p>Pokud jste tak ještě neučinili, projděte si předchozí díly, které se věnovaly základům DNS i BINDu. <a href="/praxe/sprava-linuxoveho-serveru-bind-v-roli-autoritativniho">Minulý díl</a> probral tvorbu zónových souborů, ale nedostalo se na reverzní záznamy.</p>
+<h3>Mechanismus delegace</h3>
+<p>Zdůrazňuji, že u všech zón platí mechanismus delegace. DNS servery v hierarchii výše se odkazují na DNS servery v hierarchii níže. Váš registrátor zajistí, že do kořenové zóny domény prvního řádu bude vložen záznam o vaší doméně druhého řádu spolu s odkazem na váš DNS server, kde budete mít definovanou příslušnou zónu a v ní řadu DNS záznamů.</p>
+<p>Samozřejmě můžete provozovat vlastní DNS server, kde si nadefinujete vlastní doménu prvního řádu a kvanta domén druhého řádu, ale dokud na vás nezačnou odkazovat příslušné DNS servery v příslušných částech DNS stromu, nebudou mít vaše záznamy globální platnost (resolvující DNS servery je nenajdou).</p>
+<p>U PTR záznamů platí úplně stejný princip – opět na vás musí odkazovat někdo v hierarchii výše. Podstatným rozdílem ovšem je, že PTR záznamy neobsluhují registrátoři domén, nýbrž majitelé příslušných bloků IP adres, tedy vaši ISP. Ti vám mohou (ale také nemusí) nabídnout vlastní DNS server, nebo nastavit delegaci pro určitou část PTR záznamů na váš server.</p>
+<h3>Reverzní záznamy</h3>
+<p>Jako správci jste se téměř jistě s reverzními záznamy setkali. Zatímco klasické DNS záznamy (zejména pak A pro IPv4 a AAAA pro IPv6) překládají jména na IP adresy, reverzní záznamy dělají přesný opak. Podívejte se na běžný DNS dotaz:</p>
+<pre># dig wikipedia.org
+
+;; QUESTION SECTION:
+;wikipedia.org.                 IN      A
+
+;; ANSWER SECTION:
+wikipedia.org.          3461    IN      A       208.80.152.201</pre>
+<p>Toto je klasický dotaz na A záznam. Zeptali jste se na to, jaká je IP adresa serveru <em>wikipedia.org</em>. Nyní vezměte onu IP adresu, nebo jakoukoliv jinou, a zeptejte se na její reverzní (PTR) záznam:</p>
+<pre># dig -x 208.80.152.201
+
+;; QUESTION SECTION:
+;201.152.80.208.in-addr.arpa.   IN      PTR
+
+;; ANSWER SECTION:
+201.152.80.208.in-addr.arpa. 3337 IN    PTR     wikipedia-lb.pmtpa.wikimedia.org.</pre>
+<p>V odpovědi na tento dotaz přímo vidíte, na co se vlastně nástroj dig ptá. Ptá se na PTR záznam k <em>201.152.80.208.in-addr.arpa. – </em>doména <em>in-addr.arpa</em> je speciální doména určená k uchovávání PTR záznamů. Povšimněte si, že PTR záznamy mají stejný stromový charakter jako klasické DNS, přičemž směrem doprava putujete v hierarchii výše a směrem doleva níže. Proto jsou také jednotlivé oktety této IPv4 adresy zapsány v opačném pořadí. Tento mechanismus umožňuje delegaci.</p>
+<p>Připomínám, že i když je možné uvést více PTR záznamů k jediné IP adrese, zvykem je to nedělat, zpravidla kvůli špatně napsanému softwaru, který očekává, že na dotaz na PTR záznam dostane jednu nebo žádnou odpověď.</p>
+<p>Jak je ještě patrné v příkladu výše, PTR záznamy se nemusí shodovat s A záznamy. To je v pořádku, nicméně u poštovních serverů doporučuji vytvořit PTR záznam ve shodě s příslušným A záznamem, což o něco zvýší pravděpodobnost úspěšného doručení vaší pošty (vzhledem k opatřením proti spamu, která tuto shodu v některých případech prověřují).</p>
+<h3>Reverzní záznamy v BINDu</h3>
+<p>Pokud byste chtěli vytvořit PTR zónu pro subnet 10.0.0.0/24, vytvořili byste zónový soubor (např. <code>/etc/bind/db.10.0.0</code>) s obsahem podobným tomuto:</p>
+<pre>$TTL    86400
+0.0.10.in-addr.arpa.       IN      SOA     ns1.example.cz admin.example.cz. (
+                           20120820 ; serial
+                           4h       ; slave refresh
+                           2h       ; slave retry interval
+                           2w       ; slave data expiration
+                           1h )     ; maximum caching time when lookups fail
+;
+0.0.10.in-addr.arpa.       IN      NS      ns1.example.cz.
+0.0.10.in-addr.arpa.       IN      NS      ns2.example.cz.
+
+1.0.0.10.in-addr.arpa.     IN      PTR     webserver.example.org.
+254.0.0.10.in-addr.arpa.   IN      PTR     router.example.org.</pre>
+<p>Jak vidíte, TTL i základní parametry zóny jsou shodné, dva NS záznamy pro autoritativní DNS servery také zůstávají, zóna pak obsahuje dva PTR záznamy pro počítače <em>10.0.0.1</em> (<em>webserver.example.org</em>) a <em>10.0.0.254</em> (<em>router.example.org</em>).</p>
+<p>Nezapomeňte na tento zónový soubor upozornit Bind, a to editací <code>/etc/bind/named.conf.local</code>:</p>
+<pre>zone "0.0.10.in-addr.arpa" {
+       type master;
+       file "/etc/bind/db.10.0.0";
+};</pre>
+<p>Před restartem Bindu zkontrolujte, že konfigurace je v pořádku:</p>
+<pre>named-checkconf</pre>
+<p>Můžete také zkontrolovat přímo danou zónu v daném zónovém souboru, a to pomocí nástroje <em>named-checkzone</em>:</p>
+<pre># named-checkzone 0.0.10.in-addr.arpa. /etc/bind/db.10.0.0 
+zone 0.0.10.in-addr.arpa/IN: loaded serial 20120820
+OK</pre>
+<p>Po kontrole můžete provést restart:</p>
+<pre>service bind9 restart</pre>
+<p>Nyní můžete dotaz na reverzní záznam otestovat:</p>
+<pre># dig -x 10.0.0.1 @127.0.0.1
+
+;; QUESTION SECTION:
+;1.0.0.10.in-addr.arpa.         IN      PTR
+
+;; ANSWER SECTION:
+1.0.0.10.in-addr.arpa.  86400   IN      PTR     webserver.example.org.</pre>
+<h3>Knot DNS</h3>
+<p><a href="http://www.knot-dns.cz/">Knot DNS</a> je čistě autoritativní DNS server z díly CZ.NIC. Vyniká vysokým výkonem a podporou všech klíčových vlastností DNS. Knot je svobodný software šířený pod licencí GNU GPLv3 a funguje nejenom na Linuxu, ale také na BSD systémech.</p>
+<p>Knot je pouze autoritativní server, což znamená, že umí pouze vracet data z vlastních zónových souborů, nikoliv provádět vyhledávání v DNS stromu (tj. nepracuje jako resolver).</p>
+<p>Knot je součástí oficiálních repozitářů Debianu, a to počínaje vydáním Wheezy. Máte-li Debian Squeeze, budete muset buď server zkompilovat, nebo použít oficiální repozitář CZ.NIC, což realizujete úpravou <code>/etc/apt/sources.list</code> (popřípadě vytvořením nového souboru v adresáři <code>/etc/apt/sources.list.d</code>). Přidejte řádku s definicí repozitáře:</p>
+<pre>deb http://deb.knot-dns.cz/debian/ squeeze main</pre>
+<p>A následně aktualizujte místní databázi:</p>
+<pre>aptitude update</pre>
+<p>Poté, anebo pokud máte Debian Wheezy, můžete nainstalovat Knot obvyklým způsobem pomocí správce balíčků:</p>
+<pre>aptitude install knot</pre>
+<h3>Konfigurace Knotu</h3>
+<p>Základním konfiguračním souborem Knotu je <code>/etc/knot/knot.conf</code>, jehož obsah může v té nejjednodušší variantě vypadat takto:</p>
+<pre>system {
+  storage "/var/lib/knot";
+}
+
+interfaces {
+  lo-iface { address 127.0.0.1@53; }
+#  all-ifaces { address 0.0.0.0@53; }
+}
+
+zones {
+  example.cz {
+    file "/etc/knot/example.cz.zone";
+  }
+}
+log {
+  syslog { any info, notice, warning, error; }</pre>
+<p>Proměnná <em>storage</em> ve skupině <em>system</em> udává, kam si bude Knot ukládat provozní data (více o těchto datech viz níže). V distribuci Knotu z repozitářů CZ.NIC pro Debian Squeeze tento adresář není založen, je tedy třeba jej vytvořit:</p>
+<pre>mkdir /var/lib/knot</pre>
+<p>Zpět ke konfiguračnímu souboru. Skupina <em>system</em> obsahuje některé další volby, jako například <em>workers</em>, pomocí kterých lze ručně nastavit počet vláken pro každý síťový interface.</p>
+<p>Skupina <em>interfaces</em> definuje jednotlivá síťová rozhraní, kde Knot poběží. Jednotlivá rozhraní si můžete pojmenovat libovolně (tzn. <em>lo-iface</em> a <em>all-ifaces</em> můžete zaměnit za cokoliv, co je vám bližší). V příkladu jsou vidět dvě definovaná rozhraní, jedno pro lokální smyčku, druhé pro všechna IPv4 rozhraní. To druhé je zakomentované.</p>
+<p>Následuje skupina <em>zones</em>, která obsahuje definici zón. V tomto případě je definována jediná zóna, a to <em>example.cz</em>, jejíž obsah bude uložen v souboru <code>/etc/knot/example.cz.zone</code>. Obsah tohoto souboru může vypadat třeba takto:</p>
+<pre>$TTL 2h 
+$ORIGIN example.cz.
+@  IN  SOA  ns.example.cz. admin.example.cz. (
+            20120820 ; serial
+            4h       ; slave refresh
+            2h       ; slave retry interval
+            2w       ; slave data expiration
+            1h )     ; maximum caching time when lookups fail
+)
+
+  NS    ns1.example.cz.
+  NS    ns2.example.cz. 
+  MX    10 mail.example.cz.  
+  MX    20 mail2.example.cz.
+
+ns1            A     4.3.2.1
+ns2            A     4.3.2.2
+
+@              A     1.2.3.4
+my             A     1.2.3.5
+*.my           A     1.2.3.5
+www            CNAME example.cz.</pre>
+<p>SOA záznam ani záznam ostatních snad již nemusím popisovat (minulý díl prakticky vše zmínil a vysvětlil).</p>
+<p>Nastavení Knotu uvedené výše je osekané na kost – Knot umožňuje mnohem komplexnější nastavení, zejména v oblasti zónových souborů a transferu zón z primárních na sekundární DNS servery. Tato nastavení jsou i s příklady popsány v dokumentaci, kterou doporučuji si projít.</p>
+<h3>Práce s Knotem</h3>
+<p>Samotné zónové soubory je třeba nejprve zkompilovat, a poté nastartovat Knot nebo provést jeho reload. Nejen k tomu slouží nástroj <em>knotc</em>. Důvodem kompilace je zrychlení startu, nevýhodou je pak na tuto nutnost pamatovat a po úpravách zónových souborů ji nezapomenout provést. Samotnou kompilaci můžete provést globálně pro všechny zóny:</p>
+<pre>knotc compile</pre>
+<p>Můžete být ale i selektivní (a třeba zkompilovat jen zóny <em>example.cz</em> a <em>example.org</em>):</p>
+<pre>knotc compile example.cz example.org</pre>
+<p>Knot také obsahuje nástroj pro kontrolu syntaxe konfiguračního souboru a pro kontrolu zónových souborů. Ty je vhodné provádět po úpravách ještě před kompilací, popřípadě před restartem nebo reloadem Knotu. Prověrku konfigurace provedete takto:</p>
+<pre># knotc checkconf
+2012-09-03T14:28:59.415223+02:00 Using '/etc/knot/knot.conf' as default configuration.
+2012-09-03T14:28:59.415427+02:00 OK, configuration is valid.</pre>
+<p>K prověrce zónových souborů slouží příkaz:</p>
+<pre>knotc checkzone</pre>
+<p>Je možné kontrolovat jak globálně všechny zóny, tak pouze vybrané, a to stejným způsobem, jak je naznačeno u kompilace výše.</p>
+<p>Samotný restart nebo reload Knotu je možné realizovat také pomocí nástroje <em>knotc</em>:</p>
+<pre>knotc reload</pre>
+<p>Funguje samozřejmě i restart:</p>
+<pre>knotc restart</pre>
+
+<pre id="links">http://www.knot-dns.cz/ Knot DNS – Web projektu
+http://www.menandmice.com/knowledgehub/dnsqa/56/ What are reverse (PTR) records? Why do I need them?
+https://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie, Domain Name System
+https://en.wikipedia.org/wiki/Zone_file Anglická Wikipedie, Zone file
+http://linuxconfig.org/linux-dns-server-bind-configuration Linux DNS server BIND configuration
+http://www.wallpaperama.com/forums/how-to-manually-create-zone-files-for-domain-names-in-linux-server-t1698.html How To Manually Create Zone Files For Domain Names In Linux Server
+https://help.ubuntu.com/community/BIND9ServerHowto BIND9 Server Howto
+http://www.dns-info.cz/dns/zaznam-soa.html Záznam typu SOA – DNS</pre>
