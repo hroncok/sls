@@ -381,12 +381,21 @@ local-data: "typhoon.local. IN A 10.0.1.27"</pre>
 <h3>Bind</h3>
 
 <p>Bind je univerzální DNS server, umí pracovat jako rekurzor a vyřizovat DNS dotazy (podpora DNSSEC je samozřejmostí), ale umí pracovat také jako autoritativní server.</p>
+
 <p>Jeho instalaci provedete opět velmi jednoduše:</p>
+
 <pre>aptitude install bind9</pre>
+
 <p>Po instalaci se Bind rozběhne a začne fungovat jako rekurzivní DNS server, což si opět můžete snadno ověřit:</p>
+
 <pre>dig @localhost example.org</pre>
+
 <h4>DNSSEC</h4>
-<p>Základem je opět opatřit si klíč ke kořenové zóně. Tento klíč můžete získat DNS dotazem:</p>
+
+<p>Bind v Debianu Wheezy, stejně jako Unbound, mají DNSSEC validaci rozběhanou. Není tedy třeba dělat nic pro její zprovoznění (klíč kořenové zóny naleznete v <code>/etc/bind/bind.keys</code> a volba <code>dnssec-validation</code> je nastavena na <code>auto</code>). V případě, že používáte starší Bind, bude pro vás platit tento postup:</p>
+
+<p>Základem je tedy opět opatření klíče ke kořenové zóně. Tento klíč můžete získat DNS dotazem:</p>
+
 <pre>dig . dnskey
 
 .                       172758  IN      DNSKEY  256 3 8 AwEA
@@ -400,7 +409,9 @@ hg37NZWAJQ9VnMVDxP/VHL496M/QZxkjf5/Efucp2gaDX6RS6CXpoY68LsvP
 VjR0ZSwzz1apAzvN9dlzEheX7ICJBBtuA6G3LQpzW5hOA2hzCTMjJPJ8LbqF
 6dsV6DoBQzgul0sGIcGOYl7OyQdXfZ57relSQageu+ipAdTTJ25AsRTAoub8
 ONGcLmqrAmRLKBP1dfwhYB4N7knNnulq QxA+Uk1ihz0=</pre>
+
 <p>Ve výpisu budou patrné dva klíče, vy chcete ten delší (257). Klíč a hodnoty převeďte do následující podoby:</p>
+
 <pre>managed-keys {
   "." initial-key 257 3 8
     "AwEAAagAIKlVZrpC6Ia7gEzahOR+9W29euxhJhVVLOyQbSEW0O8gcCjF
@@ -411,40 +422,47 @@ ONGcLmqrAmRLKBP1dfwhYB4N7knNnulq QxA+Uk1ihz0=</pre>
      Qageu+ipAdTTJ25AsRTAoub8ONGcLmqrAmRLKBP1dfwhYB4N7knNnulq
      QxA+Uk1ihz0=";
 };</pre>
+
 <p>A tu vložte třeba do souboru <code>/etc/bind/named.conf.managed</code>. Následně vložte potřebnou <em>include</em> direktivu do <code>/etc/bind/named.conf</code>:</p>
+
 <pre>include "/etc/bind/named.conf.managed";</pre>
+
 <p>Toto samo o sobě by mělo stačit (DNSSEC validace je povolená, ale fungovat začne teprve po výše uvedené operaci). Bind tedy restartujte:</p>
+
 <pre>service bind9 restart</pre>
+
 <p>A následně použijte stejný postup uvedený výše pro ověření, že DNSSEC validace funguje.</p>
+
 <p>Pozor! Opět zde platí, že výše uvedený klíč si musíte v každém případě nějakým způsobem ověřit, protože na něm stojí celá bezpečnost ověřování DNSSEC.</p>
+
 <h4>Přizpůsobení nastavení Bindu</h4>
+
 <p>Bind se umí chovat úplně stejně jako <em>dnsmasq</em>, tedy jako forwardující (přeposílá dotazy na jiný server) a kešující DNS server. Chcete-li ho takto nastavit, vložte do <code>/etc/bind/named.conf.options</code>, mezi složené závorky direktivy <em>options</em>, následující řádky (servery, které se mají dotazovat, se specifikují v proměnné <em>forwarders</em>):</p>
+
 <pre>forward only;
 forwarders { 1.2.3.4; 4.3.2.1;};</pre>
+
 <p>Nastavení síťových rozhraní, kde má Bind naslouchat, se realizuje následovně (stejný soubor, stejné umístění jako v příkladu výše):</p>
+
 <pre>listen-on-v6 { any; };
 listen-on { 127.0.0.1; 10.0.1.254; };</pre>
+
 <p>První řádka specifikuje naslouchání na IPv6 adresách. Klíčové slovo <em>any</em> zajistí, že se bude naslouchat na všech. Druhá řádka řídí naslouchání na IPv4, kde jsou specifikovány v tomto případě dvě adresy, adresa místní smyčky (localhostu) a privátní adresa <em>10.0.1.254</em>.</p>
+
+<p>To, kde všude Bind naslouchá, můžete zjistit příkazem:</p>
+
+<pre>netstat -tulpn | grep named</pre>
+
+TODO debianized above, pending beyond 
+
 <pre>allow-query { 10.0.1.0/24; };</pre>
+
 <p>Proměnná <em>allow-query</em> definuje, kdo se smí serveru dotazovat. V tomto příkladu se serveru smí dotazovat síť <em>10.0.1.0/24</em>.</p>
 <pre>allow-recursion { 10.0.1.0/24; };</pre>
 <p>Tato proměnná definuje, kdo smí pokládat rekurzivní dotazy. Syntax je totožná jako u <em>allow-querry</em>.</p>
 <p>Pokud nechcete provozovat rekurzivní DNS server, rekurzi jako takovou je možné vypnout:</p>
 <pre>recursion no;</pre>
 <p>Tím bych pro tentokrát skončil. Příště bude osvětlena problematika tvorby zón a zónových souborů.</p>
-
-<pre id="links">http://wiki.debian.org/DNSSEC Debian Wiki, DNSSEC
-http://www.zytrax.com/books/dns/ch7/queries.html DNS BIND Query Statements
-http://www.zytrax.com/books/dns/ch4/ DNS Configuration Types
-http://www.dns-info.cz/dns/autoritativni-servery-delegace.html Autoritativní DNS servery a delegace správy domén – DNS
-http://en.wikipedia.org/wiki/Reverse_DNS_lookup Anglická Wikipedie: Rekurzivní dotazy
-http://www.dnssec.cz/ Český web o DNSSEC
-http://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie: DNS
-http://en.wikipedia.org/wiki/Domain_Name_System Anglická Wikipedie: DNS
-http://www.madboa.com/geek/dig/ DiG HOWTO
-http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)</pre>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
 
 <h1>Správa linuxového serveru: Bind v roli autoritativního serveru</h1>
 
@@ -726,6 +744,19 @@ http://en.wikipedia.org/wiki/Domain_Name_System Anglická Wikipedie: DNS
 http://www.madboa.com/geek/dig/ DiG HOWTO
 http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)</pre>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+<pre id="links">http://wiki.debian.org/DNSSEC Debian Wiki, DNSSEC
+http://www.zytrax.com/books/dns/ch7/queries.html DNS BIND Query Statements
+http://www.zytrax.com/books/dns/ch4/ DNS Configuration Types
+http://www.dns-info.cz/dns/autoritativni-servery-delegace.html Autoritativní DNS servery a delegace správy domén – DNS
+http://en.wikipedia.org/wiki/Reverse_DNS_lookup Anglická Wikipedie: Rekurzivní dotazy
+http://www.dnssec.cz/ Český web o DNSSEC
+http://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie: DNS
+http://en.wikipedia.org/wiki/Domain_Name_System Anglická Wikipedie: DNS
+http://www.madboa.com/geek/dig/ DiG HOWTO
+http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
 
 
 
