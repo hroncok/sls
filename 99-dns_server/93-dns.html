@@ -453,27 +453,30 @@ listen-on { 127.0.0.1; 10.0.1.254; };</pre>
 
 <pre>netstat -tulpn | grep named</pre>
 
-TODO debianized above, pending beyond 
-
 <pre>allow-query { 10.0.1.0/24; };</pre>
 
 <p>Proměnná <em>allow-query</em> definuje, kdo se smí serveru dotazovat. V tomto příkladu se serveru smí dotazovat síť <em>10.0.1.0/24</em>.</p>
+
 <pre>allow-recursion { 10.0.1.0/24; };</pre>
+
 <p>Tato proměnná definuje, kdo smí pokládat rekurzivní dotazy. Syntax je totožná jako u <em>allow-querry</em>.</p>
+
 <p>Pokud nechcete provozovat rekurzivní DNS server, rekurzi jako takovou je možné vypnout:</p>
+
 <pre>recursion no;</pre>
-<p>Tím bych pro tentokrát skončil. Příště bude osvětlena problematika tvorby zón a zónových souborů.</p>
 
-<h1>Správa linuxového serveru: Bind v roli autoritativního serveru</h1>
+<h1>Bind v roli autoritativního serveru</h1>
 
-<p>Dnešní díl popisuje správu domén na vlastním DNS serveru, tedy tvorbu autoritativního DNS serveru a tvorbu zónových souborů.</p>
+<p>Jak bylo řečeno dříve, Bind umí zastat jak roli resolvujícího DNS serveru, který za klienty vyřizuje libovolné DNS žádosti, tak roli autoritativního serveru, který vrací autoritativní údaje o částech DNS stromu, jež jsou mu delegovány.</p>
 
-<p>Na úvod předpokládám, že máte nainstalovaný DNS server Bind (balíček <code>bind9</code> v Debianu). Stejně tak předpokládám, že jste si prošli <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-dns" title="Úvod do DNS">posledních</a> <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-dns-a-dhcp-server-dnsmasq" title="DNS a DHCP server dnsmasq">pár</a> <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-unbound-a-bind" title="Unbound a Bind">dílů</a>, které se věnují problematice DNS serverů.</p>
-<p>Jak bylo řečeno minule, Bind umí zastat jak roli resolvujícího DNS serveru, který za klienty vyřizuje libovolné DNS žádosti, tak roli autoritativního serveru, který vrací autoritativní údaje o částech DNS stromu, jež jsou mu delegovány.</p>
 <p>Pokud si zaregistrujete doménu, můžete registrátorovi sdělit, jaké jsou vaše autoritativní servery, a mít DNS informace spojené s příslušnou doménou (nebo se všemi vašimi doménami) na vlastních DNS serverech. Servery jsou potřeba alespoň dva, jeden primární a jeden sekundární. Primární poskytuje vždy aktuální autoritativní informace, sekundární přebírá ve specifikovaných intervalech data z primárního serveru a kešuje je. Pokud primární server vypadne, budou se klienti dotazovat sekundárního, dokud platnost jeho dat nevyprší.</p>
+
 <p>DNS servery představují součást klíčové infrastruktury, a jako takové by měly být maximálně spolehlivé. Výpadek obou DNS serverů povede k nemožnosti klientů převádět vaše domény na IP adresy. I když budou v takové situaci vaše servery běžet, klienti se na ně nedostanou. Pokud budete provozovat vlastní DNS servery, měli byste je provozovat na spolehlivých strojích u spolehlivých poskytovatelů. Ideálně by to měly být servery ve dvou různých datacentrech (jinak hrozí, že výpadek konektivity datacentra zruší oba vaše DNS servery naráz).</p>
+
 <h3>Příklad zónového souboru</h3>
+
 <p>Vytvořte soubor někde v úložišti konfigurace pro Bind, tedy např. <code>/etc/bind/db.example.cz</code>, který poslouží k uložení záznamů o dané zóně. Příklad může vypadat třeba takto:</p>
+
 <pre>$TTL    3h      ; default expiration time
 @       IN      SOA     ns1.example.cz. spravce.example.cz. (
                           20120820 ; serial
@@ -494,7 +497,9 @@ ns2                     IN      A       1.2.3.3
 www                     IN      CNAME   example.cz.
 subdomena1              IN      A       1.2.3.4
 subdomena2              IN      CNAME   example.cz.</pre>
+
 <p>Jak je patrno, není to úplně procházka růžovým sadem, ale není to zase příliš složité. Vezměme to jedno po druhém:</p>
+
 <ul>
 <li>
 <p><code><strong>$TTL 3h</strong></code> – nastaví dobu existence (time-to-live, TTL) všech záznamů, které nemají definovanou TTL někde jinde v zónovém souboru</p>
@@ -533,17 +538,26 @@ subdomena2              IN      CNAME   example.cz.</pre>
 <p><code><strong>MX</strong></code> – zóna obsahuje specifikaci dvou poštovních (MX, Mail eXchange) serverů, a to <em>mujmailserver1.cz</em> s prioritou 10 (vyšší) a <em>mujmailserver2.cz</em> s prioritou 20 (nižší)</p>
 </li>
 </ul>
+
 <p>Všimněte si také teček za doménovými jmény. Ty označují kořenovou zónu a musí být uváděny. Aby váš DNS server začal distribuovat záznamy z tohoto zónového souboru, musíte jej zařadit do nastavení Bindu, tzn. vložit do souboru <code>/etc/bind/named.conf.local</code> následující:</p>
+
 <pre>zone "example.cz" {
        type master;
        file "/etc/bind/db.example.cz";
 };</pre>
+
 <p>Je zde specifikován nejen soubor, ale také typ „master“, který určuje váš DNS server jako primární vzhledem k tomuto zónovému souboru.</p>
+
 <p>Před samotným restartem Bindu je vhodné konfiguraci prověřit automatizovaným nástrojem, a vyhnout se tak situaci, kdy server znovu nenastartuje kvůli chybě v definici zóny, čímž nastane výpadek. Bind obsahuje nástroj <code>named-checkconf</code>, který stačí bez parametrů spustit:</p>
+
 <pre>named-checkconf</pre>
+
 <p>Dle unixové tradice, pokud tento příkaz nevrátí žádný text, znamená to, že nastavení Bindu je v pořádku, a vy jej můžete v klidu restartovat:</p>
+
 <pre>service bind9 restart</pre>
+
 <p>Nyní můžete server otestovat:</p>
+
 <pre>dig example.cz @1.2.3.4
 
 ;; QUESTION SECTION:
@@ -559,44 +573,48 @@ example.cz.             10800   IN      NS      ns2.example.cz
 ;; ADDITIONAL SECTION:
 ns1.example.cz.          10800   IN      A       1.2.3.4
 ns2.example.cz.          10800   IN      A       1.2.3.3</pre>
+
 <p>Všimněte si TTL u jednotlivých záznamů, které udává 10 800 sekund, tedy 3 hodiny, což je přesně hodnota, kterou jste specifikovali v proměnné <code>$TTL</code>.</p>
+
 <p>Otestovat můžete i další záznamy (<code>dig -t mx</code>, <code>dig -t soa</code>) atd.</p>
+
 <h3>Sekundární DNS servery</h3>
+
 <p>Přenos dat zóny (tzv. zónový transfer, zone transfer) je třeba na <strong>primárním</strong> serveru autorizovat, což můžete provést specifikací příslušné IP adresy u direktivy <code>allow-transfer</code>, takto:</p>
+
 <pre>   zone "example.cz" {
          type master;
          file "/etc/bind/db.example.cz";
-         allow-transfer { @4.3.2.1; };
+         allow-transfer { 4.3.2.1; };
    };</pre>
+
 <p>Následně je třeba na sekundárním serveru vytvořit specifikaci zóny typu <em>slave</em> se specifikací primárního (<em>master</em>) serveru, takto:</p>
+
 <pre>   zone "example.cz" {
          type slave;
          file "/var/cache/bind/db.example.cz";
-         masters { @1.2.3.4; };
+         masters { 1.2.3.4; };
    };</pre>
+
 <p>Nezapomeňte oba servery restartovat, nejprve primární, pak sekundární, a následně otestovat, jestli vše funguje.</p>
+
 <p>Tím bych tento díl ukončil. Příště budou probrány reverzní záznamy a také český, pouze autoritativní server KnotDNS pocházející z laboratoří CZ.NIC.</p>
 
-<pre id="links">https://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie, Domain Name System
-https://en.wikipedia.org/wiki/Zone_file Anglická Wikipedie, Zone file
-http://linuxconfig.org/linux-dns-server-bind-configuration Linux DNS server BIND configuration
-http://www.wallpaperama.com/forums/how-to-manually-create-zone-files-for-domain-names-in-linux-server-t1698.html How To Manually Create Zone Files For Domain Names In Linux Server
-https://help.ubuntu.com/community/BIND9ServerHowto BIND9 Server Howto
-http://www.dns-info.cz/dns/zaznam-soa.html Záznam typu SOA – DNS</pre>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
+<h1>Reverzní záznamy a KnotDNS</h1>
 
-<h1>Správa linuxového serveru: Reverzní záznamy a Knot DNS</h1>
-
-<p>Tento díl popisuje problematiku reverzních záznamů a představuje autoritativní DNS server Knot z dílen CZ.NIC.</p>
-
-<p>Pokud jste tak ještě neučinili, projděte si předchozí díly, které se věnovaly základům DNS i BINDu. <a href="/praxe/sprava-linuxoveho-serveru-bind-v-roli-autoritativniho">Minulý díl</a> probral tvorbu zónových souborů, ale nedostalo se na reverzní záznamy.</p>
 <h3>Mechanismus delegace</h3>
+
 <p>Zdůrazňuji, že u všech zón platí mechanismus delegace. DNS servery v hierarchii výše se odkazují na DNS servery v hierarchii níže. Váš registrátor zajistí, že do kořenové zóny domény prvního řádu bude vložen záznam o vaší doméně druhého řádu spolu s odkazem na váš DNS server, kde budete mít definovanou příslušnou zónu a v ní řadu DNS záznamů.</p>
+
 <p>Samozřejmě můžete provozovat vlastní DNS server, kde si nadefinujete vlastní doménu prvního řádu a kvanta domén druhého řádu, ale dokud na vás nezačnou odkazovat příslušné DNS servery v příslušných částech DNS stromu, nebudou mít vaše záznamy globální platnost (resolvující DNS servery je nenajdou).</p>
+
 <p>U PTR záznamů platí úplně stejný princip – opět na vás musí odkazovat někdo v hierarchii výše. Podstatným rozdílem ovšem je, že PTR záznamy neobsluhují registrátoři domén, nýbrž majitelé příslušných bloků IP adres, tedy vaši ISP. Ti vám mohou (ale také nemusí) nabídnout vlastní DNS server, nebo nastavit delegaci pro určitou část PTR záznamů na váš server.</p>
+
 <h3>Reverzní záznamy</h3>
+
 <p>Jako správci jste se téměř jistě s reverzními záznamy setkali. Zatímco klasické DNS záznamy (zejména pak A pro IPv4 a AAAA pro IPv6) překládají jména na IP adresy, reverzní záznamy dělají přesný opak. Podívejte se na běžný DNS dotaz:</p>
+
 <pre># dig wikipedia.org
 
 ;; QUESTION SECTION:
@@ -604,7 +622,9 @@ http://www.dns-info.cz/dns/zaznam-soa.html Záznam typu SOA – DNS</pre>
 
 ;; ANSWER SECTION:
 wikipedia.org.          3461    IN      A       208.80.152.201</pre>
+
 <p>Toto je klasický dotaz na A záznam. Zeptali jste se na to, jaká je IP adresa serveru <em>wikipedia.org</em>. Nyní vezměte onu IP adresu, nebo jakoukoliv jinou, a zeptejte se na její reverzní (PTR) záznam:</p>
+
 <pre># dig -x 208.80.152.201
 
 ;; QUESTION SECTION:
@@ -612,11 +632,17 @@ wikipedia.org.          3461    IN      A       208.80.152.201</pre>
 
 ;; ANSWER SECTION:
 201.152.80.208.in-addr.arpa. 3337 IN    PTR     wikipedia-lb.pmtpa.wikimedia.org.</pre>
+
 <p>V odpovědi na tento dotaz přímo vidíte, na co se vlastně nástroj dig ptá. Ptá se na PTR záznam k <em>201.152.80.208.in-addr.arpa. – </em>doména <em>in-addr.arpa</em> je speciální doména určená k uchovávání PTR záznamů. Povšimněte si, že PTR záznamy mají stejný stromový charakter jako klasické DNS, přičemž směrem doprava putujete v hierarchii výše a směrem doleva níže. Proto jsou také jednotlivé oktety této IPv4 adresy zapsány v opačném pořadí. Tento mechanismus umožňuje delegaci.</p>
+
 <p>Připomínám, že i když je možné uvést více PTR záznamů k jediné IP adrese, zvykem je to nedělat, zpravidla kvůli špatně napsanému softwaru, který očekává, že na dotaz na PTR záznam dostane jednu nebo žádnou odpověď.</p>
+
 <p>Jak je ještě patrné v příkladu výše, PTR záznamy se nemusí shodovat s A záznamy. To je v pořádku, nicméně u poštovních serverů doporučuji vytvořit PTR záznam ve shodě s příslušným A záznamem, což o něco zvýší pravděpodobnost úspěšného doručení vaší pošty (vzhledem k opatřením proti spamu, která tuto shodu v některých případech prověřují).</p>
+
 <h3>Reverzní záznamy v BINDu</h3>
+
 <p>Pokud byste chtěli vytvořit PTR zónu pro subnet 10.0.0.0/24, vytvořili byste zónový soubor (např. <code>/etc/bind/db.10.0.0</code>) s obsahem podobným tomuto:</p>
+
 <pre>$TTL    86400
 0.0.10.in-addr.arpa.       IN      SOA     ns1.example.cz admin.example.cz. (
                            20120820 ; serial
@@ -630,21 +656,32 @@ wikipedia.org.          3461    IN      A       208.80.152.201</pre>
 
 1.0.0.10.in-addr.arpa.     IN      PTR     webserver.example.org.
 254.0.0.10.in-addr.arpa.   IN      PTR     router.example.org.</pre>
+
 <p>Jak vidíte, TTL i základní parametry zóny jsou shodné, dva NS záznamy pro autoritativní DNS servery také zůstávají, zóna pak obsahuje dva PTR záznamy pro počítače <em>10.0.0.1</em> (<em>webserver.example.org</em>) a <em>10.0.0.254</em> (<em>router.example.org</em>).</p>
+
 <p>Nezapomeňte na tento zónový soubor upozornit Bind, a to editací <code>/etc/bind/named.conf.local</code>:</p>
+
 <pre>zone "0.0.10.in-addr.arpa" {
        type master;
        file "/etc/bind/db.10.0.0";
 };</pre>
+
 <p>Před restartem Bindu zkontrolujte, že konfigurace je v pořádku:</p>
+
 <pre>named-checkconf</pre>
+
 <p>Můžete také zkontrolovat přímo danou zónu v daném zónovém souboru, a to pomocí nástroje <em>named-checkzone</em>:</p>
+
 <pre># named-checkzone 0.0.10.in-addr.arpa. /etc/bind/db.10.0.0 
 zone 0.0.10.in-addr.arpa/IN: loaded serial 20120820
 OK</pre>
+
 <p>Po kontrole můžete provést restart:</p>
+
 <pre>service bind9 restart</pre>
+
 <p>Nyní můžete dotaz na reverzní záznam otestovat:</p>
+
 <pre># dig -x 10.0.0.1 @127.0.0.1
 
 ;; QUESTION SECTION:
@@ -652,17 +689,29 @@ OK</pre>
 
 ;; ANSWER SECTION:
 1.0.0.10.in-addr.arpa.  86400   IN      PTR     webserver.example.org.</pre>
+
 <h3>Knot DNS</h3>
+
 <p><a href="http://www.knot-dns.cz/">Knot DNS</a> je čistě autoritativní DNS server z díly CZ.NIC. Vyniká vysokým výkonem a podporou všech klíčových vlastností DNS. Knot je svobodný software šířený pod licencí GNU GPLv3 a funguje nejenom na Linuxu, ale také na BSD systémech.</p>
+
 <p>Knot je pouze autoritativní server, což znamená, že umí pouze vracet data z vlastních zónových souborů, nikoliv provádět vyhledávání v DNS stromu (tj. nepracuje jako resolver).</p>
+
 <p>Knot je součástí oficiálních repozitářů Debianu, a to počínaje vydáním Wheezy. Máte-li Debian Squeeze, budete muset buď server zkompilovat, nebo použít oficiální repozitář CZ.NIC, což realizujete úpravou <code>/etc/apt/sources.list</code> (popřípadě vytvořením nového souboru v adresáři <code>/etc/apt/sources.list.d</code>). Přidejte řádku s definicí repozitáře:</p>
-<pre>deb http://deb.knot-dns.cz/debian/ squeeze main</pre>
+
+<pre>deb http://deb.knot-dns.cz/debian/ wheezy main</pre>
+
 <p>A následně aktualizujte místní databázi:</p>
+
 <pre>aptitude update</pre>
+
 <p>Poté, anebo pokud máte Debian Wheezy, můžete nainstalovat Knot obvyklým způsobem pomocí správce balíčků:</p>
+
 <pre>aptitude install knot</pre>
+
 <h3>Konfigurace Knotu</h3>
+
 <p>Základním konfiguračním souborem Knotu je <code>/etc/knot/knot.conf</code>, jehož obsah může v té nejjednodušší variantě vypadat takto:</p>
+
 <pre>system {
   storage "/var/lib/knot";
 }
@@ -679,11 +728,17 @@ zones {
 }
 log {
   syslog { any info, notice, warning, error; }</pre>
+
 <p>Proměnná <em>storage</em> ve skupině <em>system</em> udává, kam si bude Knot ukládat provozní data (více o těchto datech viz níže). V distribuci Knotu z repozitářů CZ.NIC pro Debian Squeeze tento adresář není založen, je tedy třeba jej vytvořit:</p>
+
 <pre>mkdir /var/lib/knot</pre>
+
 <p>Zpět ke konfiguračnímu souboru. Skupina <em>system</em> obsahuje některé další volby, jako například <em>workers</em>, pomocí kterých lze ručně nastavit počet vláken pro každý síťový interface.</p>
+
 <p>Skupina <em>interfaces</em> definuje jednotlivá síťová rozhraní, kde Knot poběží. Jednotlivá rozhraní si můžete pojmenovat libovolně (tzn. <em>lo-iface</em> a <em>all-ifaces</em> můžete zaměnit za cokoliv, co je vám bližší). V příkladu jsou vidět dvě definovaná rozhraní, jedno pro lokální smyčku, druhé pro všechna IPv4 rozhraní. To druhé je zakomentované.</p>
+
 <p>Následuje skupina <em>zones</em>, která obsahuje definici zón. V tomto případě je definována jediná zóna, a to <em>example.cz</em>, jejíž obsah bude uložen v souboru <code>/etc/knot/example.cz.zone</code>. Obsah tohoto souboru může vypadat třeba takto:</p>
+
 <pre>$TTL 2h 
 $ORIGIN example.cz.
 @  IN  SOA  ns.example.cz. admin.example.cz. (
@@ -706,23 +761,39 @@ ns2            A     4.3.2.2
 my             A     1.2.3.5
 *.my           A     1.2.3.5
 www            CNAME example.cz.</pre>
+
 <p>SOA záznam ani záznam ostatních snad již nemusím popisovat (minulý díl prakticky vše zmínil a vysvětlil).</p>
+
 <p>Nastavení Knotu uvedené výše je osekané na kost – Knot umožňuje mnohem komplexnější nastavení, zejména v oblasti zónových souborů a transferu zón z primárních na sekundární DNS servery. Tato nastavení jsou i s příklady popsány v dokumentaci, kterou doporučuji si projít.</p>
+
 <h3>Práce s Knotem</h3>
+
 <p>Samotné zónové soubory je třeba nejprve zkompilovat, a poté nastartovat Knot nebo provést jeho reload. Nejen k tomu slouží nástroj <em>knotc</em>. Důvodem kompilace je zrychlení startu, nevýhodou je pak na tuto nutnost pamatovat a po úpravách zónových souborů ji nezapomenout provést. Samotnou kompilaci můžete provést globálně pro všechny zóny:</p>
+
 <pre>knotc compile</pre>
+
 <p>Můžete být ale i selektivní (a třeba zkompilovat jen zóny <em>example.cz</em> a <em>example.org</em>):</p>
+
 <pre>knotc compile example.cz example.org</pre>
+
 <p>Knot také obsahuje nástroj pro kontrolu syntaxe konfiguračního souboru a pro kontrolu zónových souborů. Ty je vhodné provádět po úpravách ještě před kompilací, popřípadě před restartem nebo reloadem Knotu. Prověrku konfigurace provedete takto:</p>
+
 <pre># knotc checkconf
 2012-09-03T14:28:59.415223+02:00 Using '/etc/knot/knot.conf' as default configuration.
 2012-09-03T14:28:59.415427+02:00 OK, configuration is valid.</pre>
+
 <p>K prověrce zónových souborů slouží příkaz:</p>
+
 <pre>knotc checkzone</pre>
+
 <p>Je možné kontrolovat jak globálně všechny zóny, tak pouze vybrané, a to stejným způsobem, jak je naznačeno u kompilace výše.</p>
+
 <p>Samotný restart nebo reload Knotu je možné realizovat také pomocí nástroje <em>knotc</em>:</p>
+
 <pre>knotc reload</pre>
+
 <p>Funguje samozřejmě i restart:</p>
+
 <pre>knotc restart</pre>
 
 <pre id="links">http://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie: DNS
@@ -757,8 +828,13 @@ http://www.madboa.com/geek/dig/ DiG HOWTO
 http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)</pre>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
-
-
+<pre id="links">https://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie, Domain Name System
+https://en.wikipedia.org/wiki/Zone_file Anglická Wikipedie, Zone file
+http://linuxconfig.org/linux-dns-server-bind-configuration Linux DNS server BIND configuration
+http://www.wallpaperama.com/forums/how-to-manually-create-zone-files-for-domain-names-in-linux-server-t1698.html How To Manually Create Zone Files For Domain Names In Linux Server
+https://help.ubuntu.com/community/BIND9ServerHowto BIND9 Server Howto
+http://www.dns-info.cz/dns/zaznam-soa.html Záznam typu SOA – DNS</pre>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
 <pre id="links">http://www.knot-dns.cz/ Knot DNS – Web projektu
 http://www.menandmice.com/knowledgehub/dnsqa/56/ What are reverse (PTR) records? Why do I need them?
