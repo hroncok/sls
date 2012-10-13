@@ -1,4 +1,4 @@
-<h1>Rootkity</h1>
+<h2>Rootkity</h2>
 
 <h3>Úvod</h3>
 
@@ -8,13 +8,13 @@
 
 <p>Jiný druh rootkitů používá místo modifikace systémových nástrojů LKM, tedy modulů jádra, které lze za běhu systému zavést. Po zavedení příslušného modulu může rootkit skrýt svou přítomnost efektivněji, modifikací systémových volání (syscall). Tím si zajistí, že bez ohledu na použitý nástroj nebudou komponenty rootkitu vidět.</p>
 
-<p>Rootkity nejsou pouze doménou unixových systémů – existují i v systémech od společnosti Microsoft. Takové rootkity byly dokonce jednou využity společností Sony BMG jako „ochrana“ proti kopírování hudebních CD. Postiženo bylo dle <a href="http://en.wikipedia.org/wiki/Sony_BMG_copy_protection_rootkit_scandal">Wikipedie</a> přes sto titulů. Aby toho ještě nebylo málo, časem vyšlo najevo, že součástí „ochrany“ proti kopírování bylo i využití softwaru chráněného GNU/GPL a GNU/LGPL licencí, který byl samozřejmě využit v rozporu s licencí. Některé laptopy <a href="http://blog.jitbit.com/2011/04/rootkit-on-brand-new-toshiba-laptop.html">patrně</a> sužuje nebo sužoval rootkit v BIOSu, který uměl zpřístupnit NTFS oddíl a nainstalovat se do Windows po spuštění počítače. Oficiálním důvodem byla údajně snaha o možnost vystopování ukradených notebooků, bohužel za cenu kompromitace systému a možnosti jedné firmy vzdáleně ovládat kvanta počítačů (ano, tomu se obvykle říká botnet). Ale to jen tak na okraj. Jak je vidět, rootkity se mohou dostat do vašeho systému nejrůznějšími cestami, nikoliv nezbytně ze sítě. Mohou být součástí instalovaného proprietárního softwaru, ale mohou být klidně i součástí svobodného softwaru, který někdo poupraví.</p>
+<p>Rootkity nejsou pouze doménou unixových systémů – existují i v systémech od společnosti Microsoft. Takové rootkity byly dokonce jednou využity společností Sony BMG jako „ochrana“ proti kopírování hudebních CD. Postiženo bylo dle Wikipédie přes sto titulů. Aby toho ještě nebylo málo, časem vyšlo najevo, že součástí „ochrany“ proti kopírování bylo i využití softwaru chráněného GNU/GPL a GNU/LGPL licencí, který byl samozřejmě využit v rozporu s licencí. Některé laptopy sužuje nebo sužoval rootkit v BIOSu, který uměl zpřístupnit NTFS oddíl a nainstalovat se do Windows po spuštění počítače. Oficiálním důvodem byla údajně snaha o možnost vystopování ukradených notebooků, bohužel za cenu kompromitace systému a možnosti jedné firmy vzdáleně ovládat kvanta počítačů (ano, tomu se obvykle říká botnet). Ale to jen tak na okraj. Jak je vidět, rootkity se mohou dostat do vašeho systému nejrůznějšími cestami, nikoliv nezbytně ze sítě. Mohou být součástí instalovaného proprietárního softwaru, ale mohou být klidně i součástí svobodného softwaru, který někdo poupraví.</p>
 
 <h3>Běžná prevence</h3>
 
 <p>Do běžné prevence patří všechna základní pravidla zabezpečení serverů, tedy především znalost konfigurace daného serveru, všeho, co na něm běží, přehled o dění na něm (čtení logů). Sledování dění kolem Linuxu, zejména pak kolem vámi používané distribuce, sledování bezpečnostních hlášení. Pravidelná aktualizace, resp. alespoň brzká aplikace bezpečnostních záplat, dále izolace běžících služeb - buď pomocí oprávnění, nebo pomocí chrootu či virtualizace. Řízení přístupu k souborům a službám, použití firewallu. Silná hesla, omezený přístup k SSH (pouze z vnitřní sítě, VPN či z konkrétní IP adresy). Vhodné zacházení s uživateli, poskytování minima práv nutných k jejich činnosti. Pravidelné zálohování a testování záloh.</p>
 
-<p>Důležité je mít pod kontrolou veškerý software, který na server instalujete. Riziko obecně představuje software stažený mimo distribuční repozitáře (které, alespoň v případě Debianu, mají všechny balíčky podepsané, takže není jednoduché je podvrhnout). Nedávno podobný problém <a href="http://www.abclinuxu.cz/zpravicky/vsftpd-obsahoval-backdoor">postihl</a> FTP server <code>vsftpd</code>, kam útočník propašoval zadní vrátka. Kdo si důsledně kontroloval GPG podpisy, popřípadě kontrolní součty, přišel na to. Rozhodně tedy software mimo distribuční repozitáře podrobte dostatečné kontrole, kontrolujte podpisy i kontrolní součty.</p>
+<p>Důležité je mít pod kontrolou veškerý software, který na server instalujete. Riziko obecně představuje software stažený mimo distribuční repozitáře (které, alespoň v případě Debianu, mají všechny balíčky podepsané, takže není jednoduché je podvrhnout). Nedávno podobný problém postihl FTP server <code>vsftpd</code>, kam útočník propašoval zadní vrátka. Kdo si důsledně kontroloval GPG podpisy, popřípadě kontrolní součty, přišel na to. Rozhodně tedy software mimo distribuční repozitáře podrobte dostatečné kontrole, kontrolujte podpisy i kontrolní součty.</p>
 
 <p>Napadení distribučních repozitářů je velmi málo pravděpodobné, i když ne <em>úplně</em> nemožné. Obvykle však něco podobného nelze přehlédnout, pokud alespoň trochu sledujete aktuality kolem Linuxu či vaší distribuce, jelikož se kolem toho nepochybně strhne patřičná bouře.</p>
 
@@ -40,18 +40,6 @@
 <h3>Nástroje pro sledování změn v souborech</h3>
 
 <p>Existují nástroje, které sledují změny v kritických souborech, a umožňují tak případnou kompromitaci systému detekovat. Mezi zástupce patří např. Tripwire nebo Aide.</p>
-
-<h3>Detektory rootkitů</h3>
-
-<p>Detektory rootkitů jsou specializované nástroje, které využívají nejrůznější techniky pro zjištění přítomnosti rootkitů v systému. Umí zjistit přítomnost známých rootkitů, ale hledají kromě stop konkrétních rootkitů i obecné stopy, tudíž teoreticky dokáží odhalit i přítomnost některých neznámých rootkitů. Je vhodné je používat spolu s nástroji pro sledování změn v souborech (viz výše). Mezi zástupce patří <code>chkrootkit</code> a <code>rkhunter</code>.</p>
-
-<h3>Závěr</h3>
-
-<p>Rootkity představují jedno z možných rizik, nikoliv však jediné. I když se útočníkovi nepodaří získat roota, stále má možnost nainstalovat nástroje sloužící k pozdějšímu snadnému přístupu (pomocí uživatelské cron tabulky zajistí jejich spuštění po restartu serveru), stejně jako nástroje určené pro útoky na jiné servery. Často se k tomu využívá IRC bot, který se přihlásí do nějaké chatovací místnosti, kde pak útočník vhodným příkazem zajistí provedení příslušných akcí (DDoS útok atd.). Jediná „dobrá“ zpráva v tomto případě je, že bez práva roota jsou síťová spojení i tyto procesy viditelné minimálně všemi ostatními uživateli.</p>
-
-<h1>Detekce rootkitů a zotavení</h1>
-
-<p>V minulém díle jsem probral základní otázky týkající se rootkitů, včetně obecných pravidel zabezpečení, jak minimalizovat riziko průniku útočníka do systému. Představil jsem také vzdálené logování a ukázal, jak jej nastavit. V tomto díle představím detektory rootkitů a obecné rady, jak postupovat po případném průniku.</p>
 
 <h3>Detektory rootkitů</h3>
 
@@ -119,47 +107,69 @@ To create this file containing all output from today's run, do (as root)
 <p>Druhým detektorem, který představím, je <code>rkhunter</code>. Tento nástroj se zdá být o něco komplexnějším, obsahuje aktualizovatelnou databázi známých hrozeb a vytváří si vlastní databázi kontrolních součtů kritických souborů, se kterou porovnává aktuální stav.</p>
 
 <p>Instalaci lze vyřešit podobně jako v případě nástroje <code>chkrootkit</code>:</p>
+
 <pre>aptitude install rkhunter</pre>
+
 <p>Prověření systému provedete následujícím příkazem:</p>
+
 <pre>rkhunter -c</pre>
-<p>Objevíte-li během prověřování nějaké varování, více informací se dozvíte z logu, který se standardně ukládá do <code>/var/log/rkhunter.log</code>. Opět připomínám vhodnost prověření každého poplachu, byť některé z nich mohou být falešné. Stejně jako v případě nástroje <code>chkrootkit</code>, doporučuji si projít informace o falešných varováních v <code>/usr/share/doc/rkhunter/README.Debian.gz</code>. Momentálně existuje falešný poplach na Debianu Squeeze v podobě rootkitu „Xzibit“ z důvodu existence řetězce „hdparm“ v souboru <code>/etc/init.d/hdparm</code>. Pokud víte, že je to určitě i váš případ, můžete tomuto varování zamezit úpravou konfiguračního souboru <code>/etc/rkhunter.conf</code>, konkrétně přidáním výše zmíněného init skriptu do whitelistu (proměnná <code>RTKT_FILE_WHITELIST</code>).</p>
+
+<p>Objevíte-li během prověřování nějaké varování, více informací se dozvíte z logu, který se standardně ukládá do <code>/var/log/rkhunter.log</code>. Opět připomínám vhodnost prověření každého poplachu, byť některé z nich mohou být falešné. Stejně jako v případě nástroje <code>chkrootkit</code>, doporučuji si projít informace o falešných varováních v <code>/usr/share/doc/rkhunter/README.Debian.gz</code>. Momentálně existuje falešný poplach na Debianu Squeeze v podobě rootkitu „Xzibit“ z důvodu existence řetězce „hdparm“ v souboru <code>/etc/init.d/hdparm</code>. Pokud víte, že je to určitě i váš případ, můžete tomuto varování zamezit úpravou konfiguračního souboru <code>/etc/rkhunter.conf</code>, konkrétně přidáním výše zmíněného init skriptu do whitelistu (proměnná <code>RTKT_FILE_WHITELIST</code>). V Debianu Wheezy tento problém není, objevuje se zde nicméně varování ohledně souboru <code>/usr/bin/unhide.rb</code>, s největší pravděpodobností planý poplach.</p>
+
 <p>Nástroj <code>rkhunter</code> obsahuje široké možnosti konfigurace, doporučuji si výše zmíněný konfigurační soubor projít a upravit podle svých představ. Mezi jednu z důležitých voleb patří <code>ALLOW_SSH_ROOT_USER</code>, která by měla být nastavena stejně jako příslušná hodnota v nastavení SSH démona. Rkhunter pak varuje, pokud se hodnota změní. Některé testy jsou v případě Debianu implicitně vypnuty. Naleznete je i spolu s popisem u volby <code>DISABLE_TESTS</code>. Můžete také definovat vlastní hashovací nástroj (výchozí je <code>sha1sum)</code>, a to ve volbě <code>HASH_FUNC</code>.</p>
+
 <p>Zmínil jsem, že <code>rkhunter</code> obsahuje aktualizovatelnou databázi známých hrozeb. Aktualizaci můžete provést ručně příkazem:</p>
+
 <pre>rkhunter --update</pre>
+
 <p>V Debianu se tato databáze aktualizuje automaticky každý týden (viz <code>/etc/cron.weekly/rkhunter</code>). Databázi hashí kritických souborů lze aktualizovat pouze ručně, ideálně pouze jste-li si jisti, že všechny ohlášené změny jsou v pořádku. Aktualizaci můžete provést následujícím příkazem:</p>
+
 <pre>rkhunter --propupd</pre>
+
 <p>Stejně jako nástroj <code>chkrootkit</code> má i <code>rkhunter</code> skript pro spouštění cronem v <code>/etc/cron.daily/rkhunter</code>. Jeho nastavení naleznete v souboru <code>/etc/default/rkhunter</code>. Ve výchozím stavu je denní kontrola se zasíláním e-mailů zapnuta.</p>
+
 <p>Na závěr dodám, že <code>rkhunter</code> upozorňuje i na staré (a zranitelné) verze některých démonů a nástrojů. Zde je potřeba mít na paměti, že software v repozitářích distribuce se sice záplatuje, ale verze zůstávají stejné. V tomto případě tedy stará verze nevadí.</p>
+
 <h3>Zotavení po průniku</h3>
+
 <p>Obecnou radou, jak si počínat při zjištění průniku, je nepanikařit a nedělat unáhlená rozhodnutí. Pokud již útočník do vašeho systému pronikl, existuje velká pravděpodobnost, že již provedl, co provést chtěl, tj. škoda byla napáchána, tudíž rychlé protiopatření (např. odstavení serveru) jí už nezabrání. Pokud server odstavíte hned nebo až třeba za hodinu, tedy nehraje takovou roli. V podnikovém prostředí často existují předem dané postupy, jak si s takovou situací poradit, koho kontaktovat a jak postupovat. Nebývá na škodu mít takový scénář připraven i v případě menších či osobních serverů.</p>
+
 <p>Kritické je zjistit, kudy útočník do systému pronikl. Pokud to nezjistíte, můžete ho v systému za čas opět najít. Kompromitovanému systému a veškerému softwaru na něm je vhodné nevěřit. Nelze než doporučit kompletní reinstalaci systému, neboť nikdy nebudete mít jistotu, že jste zachytili vše. Před tím je ovšem vhodné udělat zálohu kompromitovaného systému i všech dat k pozdější analýze (či jako důkaz pro případné soudní řízení).</p>
+
 <p>Zotavení napadeného systému je třeba přizpůsobit situaci. Máte-li soukromý server, na kterém veskrze nic důležitého neběží, můžete si dovolit jej odstavit i na delší čas. Jedná-li se ovšem o server, na kterém stojí vaše podnikání nebo přežití vaší firmy, je třeba postupovat opatrně a s rozmyslem.</p>
-<p>Pěkný článek rozebírající toto téma dopodrobna naleznete v odkazech pod článkem.﻿</p>
 
-<pre id="links">http://www.jonboy60.com/2010/05/21/detecting-rootkits-using-chkrootkit-and-rkhunter/ Detecting rootkits using chkrootkit and rkhunter
-http://www.ducea.com/2006/07/17/how-to-restore-a-hacked-linux-server/ How to restore a hacked Linux server
-http://www.sans.org/reading_room/whitepapers/linux/linux-rootkits-beginners-prevention-removal_901 Linux RootKits For Beginners - From Prevention to Removal (PDF)
-http://www.sans.org/reading_room/whitepapers/honors/linux-kernel-rootkits-protecting-systems_1500 Linux kernel rootkits: protecting the system's (PDF)</pre>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<p>Pěkný článek rozebírající toto téma dopodrobna naleznete v odkazech pod článkem.</p>
 
+<h3>Závěr</h3>
 
-<h1>Správa linuxového serveru: Sledování změn v souborech pomocí AIDE</h1>
+<p>Rootkity představují jedno z možných rizik, nikoliv však jediné. I když se útočníkovi nepodaří získat roota, stále má možnost nainstalovat nástroje sloužící k pozdějšímu snadnému přístupu (pomocí uživatelské cron tabulky zajistí jejich spuštění po restartu serveru), stejně jako nástroje určené pro útoky na jiné servery. Často se k tomu využívá IRC bot, který se přihlásí do nějaké chatovací místnosti, kde pak útočník vhodným příkazem zajistí provedení příslušných akcí (DDoS útok atd.). Jediná „dobrá“ zpráva v tomto případě je, že bez práva roota jsou síťová spojení i tyto procesy viditelné minimálně všemi ostatními uživateli.</p>
 
-<p>V minulém díle jsem probral detektory rootkitů a obecné rady, jak postupovat v případě průniku útočníka do systému. Zajímavými nástroji, které mohou částečně pomoci při detekci, ale hlavně po případném průniku, jsou nástroje sledující změny v souborech. Jedním z těchto nástrojů je AIDE, kterým se bude zabývat tento díl.</p>
+<h2>Sledování změn v souborech pomocí AIDE</h2>
 
-<h3>Úvod</h3>
 <p>Nástroje pro sledování změn v souborech pracují obvykle velmi jednoduše. Vytvoří si databázi hashí jednotlivých souborů (které to jsou, to se obvykle dá nastavit) a s tou pak porovnávají současný stav. Pokud tedy útočník změní některé soubory, změní se i jejich hash, což by mělo vyvolat poplach.</p>
+
 <p>Zde je ovšem třeba jednoznačně zdůraznit, že kompromitovanému systému (tj. nástrojům a datům na něm) nelze věřit. Měl-li útočník možnost pozměnit systémové nástroje jako <code>ls</code>, <code>ps</code>, <code>netstat</code> apod., měl i příležitost pozměnit libovolné jiné nástroje a jejich data, včetně těch určených ke sledování změn v souborech.</p>
+
 <p>V ideálním případě by databáze měla být pořízena před vypuštěním serveru na síť a bezpečně uložena, přičemž kontroly by měly běžet offline, tj. např. z live CD. V praxi je to obtížně proveditelné, zejména pak vzhledem k tomu, že po aplikování nutných aktualizací dochází ke změnám v souborech, čímž databáze zastarává. Jde to samozřejmě řešit provedením kontroly před aktualizací, provedením aktualizace a následně aktualizací či vygenerováním nové databáze hashí. To je ale samozřejmě nepraktické.</p>
+
 <p>AIDE v Debianu je zkompilováno staticky, což znamená, že samotné binárky nevyužívají systémové knihovny. To sice útočníkovi zkomplikuje život, jelikož změnou příslušných knihoven nedojde k ovlivnění AIDE, ale není to nic, co by se nedalo překonat (rootkit upravující funkčnost jádra, úprava AIDE samotného). Budete-li tedy AIDE používat jiným než výše naznačeným ideálním způsobem, musíte počítat s tím, že chytrý útočník obejde i tento nástroj a vy se o změnách nedozvíte.</p>
+
 <p>Jelikož AIDE používá celou řadu hashovacích algoritmů pro jednotlivé soubory, jeho běh je náročný na procesor i čas. Budete-li jej pouštět ručně na běžícím serveru, zvažte úpravu jeho priority (nástroj <code>nice</code>, popř. ještě <code>ionice</code>).</p>
+
 <h3>Instalace</h3>
+
 <p>Instalace AIDE je jednoduchá, stačí využít správce balíčků, v Debianu je možné použít následující příkaz:</p>
+
 <pre>aptitude install aide</pre>
+
 <p>Upozorňuji, že pokud byste chtěli dynamicky sestavenou binárku AIDE místo statické, budete muset nainstalovat balíček <code>aide-dynamic</code>. To ale s největší pravděpodobností asi chtít nebudete.</p>
+
 <h3>Konfigurace</h3>
-<p>Sledujete-li tento seriál pravidelně, popřípadě znáte-li Debian, asi už tušíte, že Debian si konfiguraci AIDE upravuje po svém. V případě AIDE je konfigurace přizpůsobena poměrně značně. Jde to tak daleko, že konfigurační soubor je sestavován skriptem <code>update-aide.conf</code>, který sesbírá všechna nastavení ze souborů uložených v <code>/etc/aide/aide.conf.d</code> a zapíše je do jediného konfiguračního souboru, který pak využívá „obalovač“ (wrapper) AIDE, tedy <code>aide.wrapper</code>.</p>
+
+<p>Debian si konfiguraci AIDE upravuje po svém. V případě AIDE je konfigurace přizpůsobena poměrně značně. Jde to tak daleko, že konfigurační soubor je sestavován skriptem <code>update-aide.conf</code>, který sesbírá všechna nastavení ze souborů uložených v <code>/etc/aide/aide.conf.d</code> a zapíše je do jediného konfiguračního souboru, který pak využívá „obalovač“ (wrapper) AIDE, tedy <code>aide.wrapper</code>.</p>
+
 <p>Za základ konfigurace je třeba považovat soubor <code>/etc/default/aide</code>, který obsahuje nastavení pro příslušnou úlohu cronu, jež provádí denní kontroly. Tento soubor je dobře zdokumentovaný, takže si jej projděte a nastavte podle svých potřeb.</p>
+
 <p>Za volby hodné zvláštní pozornosti považuji následující:</p>
 <ul>
 <li>
@@ -178,38 +188,58 @@ http://www.sans.org/reading_room/whitepapers/honors/linux-kernel-rootkits-protec
 <p><code>FILTERUPDATES</code> - potlačení informování o změnách způsobených aktualizacemi (předpokládá <code>TRUNCATEDETAILS</code> nastaveno na <code>yes)</code></p>
 </li>
 </ul>
-<p>AIDE je v Debianu nastaveno tak, že prohledává poměrně velkou část souborového systému, včetně adresáře <code>/home</code>, což může působit řadu zbytečných „poplachů“, máte-li aktivní uživatele. Nechcete-li, aby AIDE prohledávalo <code>/home</code>, můžete využít ukázkového skriptu v <code>/usr/share/doc/aide-common/examples</code> a zařadit jej do konfigurace, takto:</p>
-<pre>cp /usr/share/doc/aide-common/examples/31_example_exclude-homes /etc/aide/aide.conf.d/
-chmod a+x /usr/share/doc/aide-common/examples/31_example_exclude-homes</pre>
+
+<p>AIDE je v Debianu nastaveno tak, že prohledává poměrně velkou část souborového systému, včetně adresáře <code>/home</code>, což může působit řadu zbytečných „poplachů“, máte-li aktivní uživatele. Nechcete-li, aby AIDE prohledávalo <code>/home</code>, vytvořte si soubor v <code>/etc/aide/aide.conf.d/</code> a vložte do něj cestu <code>/home</code>, před kterou vložíte vykřičník, takto:</p>
+
+<pre>echo '!/home' > /etc/aide/aide.conf.d/31_aide_skip_home</pre>
+
 <p>AIDE také prohledává cache správce balíčků Apt, což rovněž nemusí být zrovna to, co chcete. Nechcete-li, aby AIDE brala v úvahu uložené balíčky ve <code>/var/cache/apt/archives</code>, upravte soubor <code>/etc/aide/aide.settings.d/31_aide_apt_settings</code>, ve kterém nastavte proměnnou <code>IGNORE_ARCHIVES</code> na <code>"yes"</code>:</p>
+
 <h3>Inicializace databáze</h3>
+
 <p>Až budete hotovi s nastavováním (ne dříve!), můžete inicializovat databázi AIDE:</p>
+
 <pre>aideinit</pre>
+
 <p>Po případných úpravách konfigurace je vhodné znovu inicializovat databázi AIDE, takto:</p>
+
 <pre>update-aide.conf &amp;&amp; aideinit -y -f</pre>
+
 <h3>Manuální spuštění AIDE</h3>
+
 <p>Chcete-li zkontrolovat integritu databáze, nejjednodušší je pustit samotnou úlohu pro cron:</p>
+
 <pre>/etc/cron.daily/aide</pre>
+
 <p>Chcete-li použít samotný nástroj <code>aide</code>, použijte příslušný „obalovač“, který zajistí, že se použijí správně sestavené konfigurační soubory. Tento „obalovač“ je k dispozici jako <code>aide.wrapper</code>.</p>
+
 <h3>Úprava konfigurace</h3>
+
 <p>Nepochybně zjistíte, že AIDE v Debianu prohledává kdeco a budete tedy chtít některé soubory či adresáře z prohledávání vyřadit. Rovnou předešlu, že úprava nastavení není úplně triviální, jelikož Debian nabízí opravdu značné množství konfiguračních souborů i skriptů v <code>/etc/aide/aide.conf.d</code>, které se pak spouští, spojují a kompletují do jediného velkého konfiguračního souboru.</p>
-<p>Zde doporučuji prostudovat <a href="http://aide.sourceforge.net/stable/manual.html">manuál</a> k AIDE (a ještě manuál k aide.conf: <code>man aide.conf</code>), jelikož obsahuje příslušnou syntax a potřebné informace. Zásadní informace je, že jednotlivá pravidla jsou de facto regulární výrazy, čemuž byste měli přizpůsobit psaní pravidel, zejména si dejte pozor na tečky (tečka odpovídá jednomu libovolnému znaku), které raději escapujte (umístěním zpětného lomítka před tečku, takto: <code>\.</code>). Regulárními výrazy se zde zabývat nebudu, avšak pod článkem jsem vám připravil odkazy na česky psané materiály, ze kterých se příslušnou syntaxi můžete snadno a rychle naučit.</p>
-<p>Co se týká pořadí pravidel (opět odkazuji na manuál), je vhodné obecnější pravidla umisťovat níže a specifičtější pravidla výše. Asi nejčastější úpravou konfigurace bude specifikace souborů, které nechcete, aby se do databáze zařadily. V takovém případě si vytvořte vhodný soubor v <code>/etc/aide/aide.conf.d</code>, ale jelikož záleží na pořadí, zařaďte jej do struktury pomocí úvodního čísla, tzn. např. <code>50_aide_moje-pravidla</code>. Do tohoto souboru pak přidejte příslušná pravidla - pro ignorování určitého souboru zapište příslušný regulární výraz z vykřičníkem na začátku, např. takto:</p>
+
+<p>Zde doporučuji prostudovat manuál k AIDE (a ještě manuál k aide.conf: <code>man aide.conf</code>), jelikož obsahuje příslušnou syntax a potřebné informace. Zásadní informace je, že jednotlivá pravidla jsou de facto regulární výrazy, čemuž byste měli přizpůsobit psaní pravidel, zejména si dejte pozor na tečky (tečka odpovídá jednomu libovolnému znaku), které raději escapujte (umístěním zpětného lomítka před tečku, takto: <code>\.</code>). Regulárními výrazy se zde zabývat nebudu, avšak pod článkem jsem vám připravil odkazy na česky psané materiály, ze kterých se příslušnou syntaxi můžete snadno a rychle naučit.</p>
+
+<p>Co se týká pořadí pravidel (opět odkazuji na manuál), je vhodné obecnější pravidla umisťovat níže a specifičtější pravidla výše. Asi nejčastější úpravou konfigurace bude specifikace souborů, které nechcete, aby se do databáze zařadily. V takovém případě si vytvořte vhodný soubor v <code>/etc/aide/aide.conf.d</code>, ale jelikož záleží na pořadí, zařaďte jej do struktury pomocí úvodního čísla, tzn. např. <code>50_aide_moje-pravidla</code>. Do tohoto souboru pak přidejte příslušná pravidla - pro ignorování určitého souboru zapište příslušný regulární výraz z vykřičníkem na začátku, jak už bylo naznačeno výše, tj. např. takto:</p>
+
 <pre>!/var/cache/munin/www</pre>
+
 <p>AIDE pak bude takový soubor či adresář ignorovat. AIDE v zásadě podporuje tři typy pravidel, a sice regulární výrazy (začínají lomítkem), přesné specifikace konkrétního souboru či adresáře ("equal matching", začínají znakem <code>=</code>) a vylučovací regulární výrazy (začínají vykřičníkem). U pravidel, která zařazují soubory či adresáře do databáze, je třeba specifikovat parametr, který odpovídá operacím, jež se mají s daným souborem provést. Zde opět odkazuji na manuál, kde jsou všechny popsány. Můžete si ušetřit práci tím, že si sadu operací pojmenujete, a pak se na ni budete odkazovat, takto:</p>
+
 <pre>MojeAkce = p+i+MojeJineAkce</pre>
+
 <p>Jak si můžete všimnout, ve specifikaci vlastních operací se můžete odkazovat na jiné vlastní operace. Konfigurace Debianu používá řadu vlastních pojmenovaných operací, které naleznete v <code>/etc/aide/aide.conf</code>. Jedno z pravidel je např. <code>Full</code>, které kdybyste chtěli aplikovat na konkrétní soubor či adresář, zapíšete:</p>
+
 <pre>/home/secret$ Full</pre>
+
 <p>Pokud by v tomto případě byl <code>secret</code> adresář, zaznamenaly by se jen jeho parametry, ale soubory v něm obsažené by se ignorovaly. Pokud byste chtěli přidat i jeho obsah, stačí vynechat znak konce řádky v regulárním výrazu (tedy znak dolaru), takto:</p>
+
 <pre>/home/secret Full</pre>
-<p>Tolik k běžným úpravám nastavení AIDE. Nezapomeňte, že po úpravě konfigurace musíte znovu inicializovat databázi, viz sekce <em>Inicializace databáze</em> výše.﻿</p>
 
-<pre id="links">http://www.debuntu.org/how-to-remote-syslog-logging-debian-and-ubuntu How-To: Remote syslog logging on Debian and Ubuntu
-http://www.sans.org/reading_room/whitepapers/linux/linux-rootkits-beginners-prevention-removal_901 Linux RootKits For Beginners - From Prevention to Removal (PDF)
-http://www.sans.org/reading_room/whitepapers/honors/linux-kernel-rootkits-protecting-systems_1500 Linux kernel rootkits: protecting the system's (PDF)</pre>
+<p>Tolik k běžným úpravám nastavení AIDE. Nezapomeňte, že po úpravě konfigurace musíte znovu inicializovat databázi, viz výše.</p>
 
-
-<pre id="links">http://aide.sourceforge.net/stable/manual.html Manuálová stránka AIDE on-line
+http://www.jonboy60.com/2010/05/21/detecting-rootkits-using-chkrootkit-and-rkhunter/ Detecting rootkits using chkrootkit and rkhunter
+http://www.debuntu.org/how-to-remote-syslog-logging-debian-and-ubuntu How-To: Remote syslog logging on Debian and Ubuntu
+http://aide.sourceforge.net/stable/manual.html Manuálová stránka AIDE on-line
 http://www.debuntu.org/intrusion-detection-with-aide AIDE: Advanced Intrusion Detection Environment (návod pro Debian a Ubuntu)
 http://www.mail-archive.com/aide@cs.tut.fi/msg01303.html My personal guide to AIDE (e-mail z archívu)
 http://www.regularnivyrazy.info/regularni-vyrazy-zaklady.html Miroslav Pecka, Základy regulárních výrazů
@@ -217,4 +247,7 @@ http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí sy
 http://cs.wikipedia.org/wiki/Regul%C3%A1rn%C3%AD_v%C3%BDraz Wikipedie, Regulární výraz
 http://www.ducea.com/2006/07/17/how-to-restore-a-hacked-linux-server/ How to restore a hacked Linux server
 http://www.sans.org/reading_room/whitepapers/linux/linux-rootkits-beginners-prevention-removal_901 Linux RootKits For Beginners - From Prevention to Removal (PDF)
-http://www.sans.org/reading_room/whitepapers/honors/linux-kernel-rootkits-protecting-systems_1500 Linux kernel rootkits: protecting the system's (PDF)</pre>
+http://www.sans.org/reading_room/whitepapers/honors/linux-kernel-rootkits-protecting-systems_1500 Linux kernel rootkits: protecting the system's (PDF)
+http://en.wikipedia.org/wiki/Sony_BMG_copy_protection_rootkit_scandal Wikipedia, Sony BMG copy protection rootkit scandal
+http://blog.jitbit.com/2011/04/rootkit-on-brand-new-toshiba-laptop.html Článek o rootkitu v BIOSu
+http://www.abclinuxu.cz/zpravicky/vsftpd-obsahoval-backdoor ABCLinuxu, Zprávička o backdooru ve vsftpd

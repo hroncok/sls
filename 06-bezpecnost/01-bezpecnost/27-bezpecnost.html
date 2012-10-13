@@ -1,6 +1,6 @@
-<h1>Pár slov o bezpečnosti</h1>
+<h1>Bezpečnost</h1>
 
-<h3>Úvod</h3>
+<h2>Úvod do bezpečnosti</h2>
 
 <p>Každý správce serveru by určitě rád zajistil, aby jeho server zůstal co nejlépe zabezpečený, aby nad ním nezískal vládu nějaký útočník, ale také aby server korektně fungoval, byl dostupný a v případě nějaké havárie nebyl velký problém činnost serveru rychle obnovit. Já osobně řadím do oblasti bezpečnosti vše výše uvedené, nikoliv pouze bezpečnost ve smyslu ochrany či prevence proti průniku nějakým útočníkem. Je samozřejmě důležité mít server v bezpečí před nenechavci nebo dokonce před cíleným útokem, ale bezpečnostní strategie by zde neměla končit. Je důležité zabezpečit i samotný běh serveru a připravit se na případné havárie serveru nebo jeho komponenty či chyby softwaru nebo samotného správce.</p>
 
@@ -44,9 +44,7 @@
 
 <p>V případě průniku se může vyplatit věnovat nějaký čas analýze útoku nebo i chování útočníka ještě před samotným odstavením serveru a obnovou ze zálohy – pokud nepřijdete na to, kudy se vám útočník na server dostal, obnova ze zálohy a opětovné rozběhnutí serveru bude mít nejspíše za následek opětovné napadení. Pokud je útočník z České republiky, může se vyplatit sesbírat všechny možné informace kvůli případné žalobě či podání trestního oznámení. V souvislosti s tím nemusí být od věci udělat si kopii napadeného systému a analyzovat ji po vyčištění a obnovení činnosti serveru.</p>
 
-<h1>Bezpečnost linuxového serveru</h1>
-
-<h3>Úvod</h3>
+<h2>Bezpečnost linuxového serveru</h2>
 
 <p>Bezpečností serveru je myšlena fyzická bezpečnost, tedy místo, kde je server uložen, kdo má k němu přístup, jak je úložiště serveru zabezpečeno proti vniknutí nežádoucích osob atd. Jelikož v dnešní době začínají být velmi populární virtuální servery, je třeba brát ohled i na tyto typy serverů a jejich úskalí. K serveru má přístup obvykle poskytovatel dané služby, přičemž není vždy jasné, jaké poměry v rámci správy daného serveru panují - kde jsou vaše data, jsou-li zálohována, co se děje se záložními médii, jakým způsobem jsou na nich likvidována data před jejich vyřazením, pokud vůbec, atd.</p>
 
@@ -72,7 +70,9 @@
 
 <p>Bezpečnost zahrnuje jak bezpečnost dat vůči zcizení či zneužití nějakým útočníkem, tak bezpečnost dat vůči jejich ztrátě. Se zajištěním bezpečnosti dat vůči zcizení souvisí bezpečnost služeb a systému (útočník, který pronikne do systému, se dostane i k datům, které může zneužít). Stejně tak souvisí s bezpečností serveru (útočník by neměl mít možnost získat fyzický přístup k serveru a třeba si odnést pevný disk). Pokud používáte virtuální server a nemáte pod kontrolou hypervizor, musíte počítat i s únikem dat touto cestou (poskytovatel si může vaše data odnést, nebo hodí pevný disk se starými zálohami do popelnice, kde bude někým objeven atd.).</p>
 
-<p>S bezpečností dat vůči zcizení/zneužití vám může pomoci diskové šifrování. V souvislosti s tím připomínám, že tématice šifrování v GNU/Linuxu jsem se věnoval v třídílném miniseriálu Šifrování s dm-crypt/LUKS (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-sifrovani-s-dm-crypt-luks">první díl</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-praxe-sifrovani-s-dm-crypt-luks">druhý díl</a> a <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-dokonceni-praxe-sifrovani-s-dm-crypt-luks">třetí díl</a>). Připomínám také, že šifrování je vám samozřejmě k ničemu, pokud máte k dispozici virtuální server, jehož hypervizor má útočník pod kontrolou. V takovém případě má přímý přístup k paměti vašeho virtuálního stroje, může si z ní vytáhnout šifrovací klíče a data dešifrovat. Pokud máte k dispozici fyzický server, a útočník k němu získá přístup, když server běží, je vám šifrování opět k ničemu (tzv. cold boot attack, klíč lze získat díky tomu, že data se po výpadku napájení z operační paměti neztratí hned, ale až za nějakou dobu - při podchlazení modulů i za delší dobu). Pro bezpečnost dat je tedy klíčové mít zajištěnu fyzickou bezpečnost serveru, ale také bezpečnost systému a běžících služeb (pokud se útočník probourá třeba přes děravou službu a dostane se k Shellu, získá přístup k datům "zevnitř" systému, kterému jsou data samozřejmě přístupná v nešifrované podobě).</p>
+TODO ref link
+
+<p>S bezpečností dat vůči zcizení/zneužití vám může pomoci diskové šifrování (viz související kapitola). Připomínám také, že šifrování je vám samozřejmě k ničemu, pokud máte k dispozici virtuální server, jehož hypervizor má útočník pod kontrolou. V takovém případě má přímý přístup k paměti vašeho virtuálního stroje, může si z ní vytáhnout šifrovací klíče a data dešifrovat. Pokud máte k dispozici fyzický server, a útočník k němu získá přístup, když server běží, je vám šifrování opět k ničemu (tzv. cold boot attack, klíč lze získat díky tomu, že data se po výpadku napájení z operační paměti neztratí hned, ale až za nějakou dobu - při podchlazení modulů i za delší dobu). Pro bezpečnost dat je tedy klíčové mít zajištěnu fyzickou bezpečnost serveru, ale také bezpečnost systému a běžících služeb (pokud se útočník probourá třeba přes děravou službu a dostane se k Shellu, získá přístup k datům "zevnitř" systému, kterému jsou data samozřejmě přístupná v nešifrované podobě).</p>
 
 <p>Pokud data nešifrujete, musíte si dávat pozor na uniklé pevné disky, ať již funkční či porouchané - vyhazovat disky do popelnice bez jejich důkladného výmazu není dobrý nápad, dávat je do bazaru je ještě horší, ale stejně tak není úplně ideální vrátit disk výrobci a uplatnit reklamaci (nevíte, kdo dostane disk do ruky, a jak vážná závada to je, tj. v jakém stavu jsou data na porouchaném disku). Výrobci serverů obvykle umožňují za určitý poplatek, aby si majitelé serverů porouchané disky ponechali, takže se nemusí vrátit výrobci na výměnu za nové. Zvažte také, že ačkoliv není možné obnovit všechna data z jednoho disku v diskovém poli (není-li to RAID 1), stále je možné dostat se ke kouskům dat (u RAIDů s prokládáním jako RAID 0, 5 a 6 se data zapisují po blocích, které mají určitou velikost). Dodám, že k důkladnému výmazu dat z pevného disku vám poslouží nástroj <code>shred</code>. Výmaz ovšem nelze provést, pokud se disk porouchá - v takovém případě sice může dojít k částečné likvidaci dat, ale také může odejít pouze kus elektroniky, zatímco data na plotnách zůstanou (i to je třeba důvodem, proč je rozumné citlivá data šifrovat).</p>
 
@@ -86,7 +86,7 @@
 
 <p>Při zálohování musíte dbát také na konzistenci dat. Pokud nějaký proces či uživatel s daty manipuluje, a vy zrovna budete provádět zálohu, získáte nekonzistentní data, která po obnově budou v podobném (nebo ještě horším) stavu, jako kdyby uprostřed práce vypnuli proud (a váš server nebyl na UPS). To se týká zejména databází, u kterých je třeba zálohovat data prostřednictvím databázového systému, rozhodně ne tak, že necháte databázi běžet a zazálohujete její datové soubory, když do nich databázový systém zrovna zapisuje. Možnosti jsou dvě - můžete zálohovat prostřednictvím zálohované služby, umožňuje-li získat konzistentní data, tzn. u databází můžete zálohovat pomocí databázového systému (<code>mysqldump</code>, <code>pg_dump</code> či <code>pg_dumpall</code> atd.). U služeb, které neumožňují konzistentní zálohování za běhu, vám nezbude než službu pozastavit, zazálohovat a znovu spustit (nebo službu provozovat v clusteru s replikací a zálohovat sekundární uzel po jeho odstavení atd.). Určitě si u jednotlivých služeb projděte dokumentaci, zejména pak u zálohování databází. Něco málo k tomuto tématu máte k dispozici v odkazech pod článkem.</p>
 
-<h1>Pár slov o útocích na server</h1>
+<h2>Pár slov o útocích na server</h2>
 
 <p>Ještě před tím, než se pustím do bezpečnosti systému a služeb, osvětlím, před čím vlastně server chráníte, tedy jaké jsou typy útoků na server, jejich charakter, cíle a motivy útočníků, ale také kudy a jak mohou útočníci na server proniknout a jak mohou škodit.</p>
 
@@ -114,7 +114,7 @@
 
 <p>Většina útoků, se kterými se na serverech potkáte, budou automatizované. Jsou to roboti, kteří na povel útočníka skenují síť a hledají počítače s běžícími službami, přes které se pak snaží získat přístup k Shellu nebo takový přístup, který jim obvykle umožní nainstalovat program, pomocí kterého začlení daný počítač do botnetu. To se dá realizovat i bez přístupu k Shellu, třeba prostřednictvím zranitelnosti ve webové aplikaci. V rámci botnetu pak server rozesílá spam, skenuje nebo útočí na jiné počítače v síti, v horším případě skladuje nějaký ilegální materiál (popř. slouží jako prostředník pro distribuci takového materiálu).</p>
 
-<p>Automatizované útoky jsou sice časté, ale představují relativně menší hrozbu - většina z nich se pokusí najít nějakou triviální zranitelnost, a pokud ji robot nenajde, jde „o dům dál“. Pravidelně aktualizovaný software a dobrá politika volby přístupových hesel jako obrana postačí. Horší jsou cílené útoky, kde sice může, ale také nemusí docházet k proniknutí útočníka do systému - pro tuto oblast jsou pak charakteristické DoS a DDoS útoky, a to buď na úrovni služby, kterou jeden nebo více počítačů zahltí požadavky, nebo na úrovni sítě (cílová IP adresa je zahlcena pakety). Cílený útok je nebezpečnější v tom, že za ním obvykle stojí konkrétní útočník nebo útočníci, tedy lidé, a ne automatizované nástroje. V případě napadení serveru zevnitř dokáže šikovný útočník buď získat roota (využitím nějaké zranitelnosti), nebo provést DoS útok na server zevnitř, třeba <a href="http://cs.wikipedia.org/wiki/Fork_bomba">fork bombou</a>.</p>
+<p>Automatizované útoky jsou sice časté, ale představují relativně menší hrozbu - většina z nich se pokusí najít nějakou triviální zranitelnost, a pokud ji robot nenajde, jde „o dům dál“. Pravidelně aktualizovaný software a dobrá politika volby přístupových hesel jako obrana postačí. Horší jsou cílené útoky, kde sice může, ale také nemusí docházet k proniknutí útočníka do systému - pro tuto oblast jsou pak charakteristické DoS a DDoS útoky, a to buď na úrovni služby, kterou jeden nebo více počítačů zahltí požadavky, nebo na úrovni sítě (cílová IP adresa je zahlcena pakety). Cílený útok je nebezpečnější v tom, že za ním obvykle stojí konkrétní útočník nebo útočníci, tedy lidé, a ne automatizované nástroje. V případě napadení serveru zevnitř dokáže šikovný útočník buď získat roota (využitím nějaké zranitelnosti), nebo provést DoS útok na server zevnitř, třeba tzv. fork bombou.</p>
 
 <h4>Motivy a cíle útoků</h4>
 
@@ -122,7 +122,7 @@
 
 <p>Cíle útoků mohou zahrnovat kromě zahlcení serveru (DoS) a začlenění serveru do botnetu i získání cenných dat, které server obsahuje, tzn. databáze zákazníků, osobních údajů, čísel kreditních karet apod. Destruktivní cíle (zničení serveru, smazání určitých dat apod.) jsou méně časté, ale mohou být součástí třeba konkurenčního boje nebo msty. Předpokládám nicméně, že většina čtenářů tohoto seriálu se bude potýkat výhradně s automatizovanými útoky.</p>
 
-<h1>Bezpečnost a monitorování systému</h1>
+<h2>Bezpečnost a monitorování systému</h2>
 
 <h3>Optimální zabezpečení serveru</h3>
 
@@ -171,7 +171,7 @@ aptitude install</pre>
 
 <p>Nebývá na škodu ani monitorovat jednotlivé služby, zdali odpovídají, jsou přístupné a dá se s nimi navázat spojení. Toto umožňuje třeba <code>monit</code> či <code>xymon</code> (dříve Hobbit). Nástroj <code>monit</code> umí i reagovat na nedostupnost služeb, zatížení systému nebo obsazení paměti ze strany určité služby, a to upozorněním, restartem či zastavením služby. O všech událostech pak samozřejmě informuje mailem. Takto je možné sledovat nejenom služby samotné, ale i vzdálené servery.</p>
 
-<h1>Bezpečnost služeb</h1>
+<h2>Bezpečnost služeb</h2>
 
 <h3>Ochrana služeb</h3>
 
@@ -185,6 +185,8 @@ aptitude install</pre>
 
 <p>Pokud není třeba, aby daná služba poslouchala na síti (např. databáze), pak ji nastavte tak, aby naslouchala jen na místní smyčce (<code>127.0.0.1</code>). Někdy se stane, že služba otevírá kromě standardních portů i nějaký další, který třeba slouží pro synchronizaci v clusteru nebo pro správu dané služby, a vy nemůžete nastavit, aby v případě tohoto portu naslouchala jen na místní smyčce. V takovém případě můžete využít firewallu a zablokovat přístup k danému portu (tedy pokud se port při každém spuštění nemění, s čímž už jsem se také setkal - pak pomůže nastavit u firewallu výchozí politiku řetězce <code>INPUT</code> na <code>DROP</code> a naopak jen povolit, co je třeba - toto je ostatně z hlediska stavění firewallu vhodná strategie).</p>
 
+TODO ref links
+
 <p>Vůči síťovým útokům vám mohou pomoci nástroje jako <code>fail2ban</code> (či <code>denyhosts</code> v případě SSH). Ty mohou zablokovat útočníka, pokud začne páchat brute force útok s různými jmény a hesly ve snaze získat někam přístup. Něco podobného je s jistými omezeními možné vytvořit i na úrovni firewallu. V souvislosti s tím připomínám <a href="http://www.linuxexpres.cz/praxe/debian-server-prakticke-rady-pro-zabezpeceni-ssh-4">Praktické rady pro zabezpečení (nejen) SSH</a>. V některých případech lze použít aplikační proxy, ve které můžete precizněji filtrovat typy požadavků na samotnou aplikaci (pokud to jde, je lepší to dělat spíše na úrovni dané služby). Extrémnějším řešením může být skrývání služeb prostřednictvím <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-prakticke-rady-pro-zabezpeceni">port knockingu</a>, ale to lze uplatnit spíše u služeb jako SSH, kde není třeba, aby byla daná služba viditelná pro veřejnost.</p>
 
 <p>V neposlední řadě může pomoci i výběr samotných aplikací - některé aplikace mají nepříjemnou historii mnoha bezpečnostních problémů, zatímco jiné byly postaveny s ohledem na bezpečnost, a bezpečnostní problémy u nich nejsou hlášeny tak často. Ze stejných důvodů bývá dobré volit zralé služby, které vyvíjí aktivní komunita, spíše než experimentální služby v rané vývojové fázi, které vyvíjí třeba jediný člověk.</p>
@@ -195,15 +197,18 @@ aptitude install</pre>
 
 <h3>Ochrana sítě</h3>
 
-<p>Pokud provozujete třeba domácí server, nebo naopak server v podnikové síti, pak se vás týká nejenom zabezpečení serveru, ale také sítě, ve které se server nachází, a to pokud možno tak, aby případná kompromitace serveru neohrozila jiné počítače v síti. S tím vám může pomoci samotná síťová architektura, respektive tzv. demilitarizovaná zóna. To je koncept, kde figuruje router/firewall se třemi síťovými rozhraními - k jednomu je připojen Internet, ke druhému místní síť a ke třetímu samotný server. Firewall pak řídí přístup tak, aby server mohl přistupovat na Internet (a Internet naopak k němu), ale aby nemohl přistupovat do místní sítě, zatímco místní síť k serveru přistupovat může (viz stavový firewall). Toto řešení je podrobně popsáno třeba v <a href="http://www.abclinuxu.cz/clanky/bezpecnost/linuxove-dmz-i">tomto článku</a>. Další mechanismy pro ochranu sítě zahrnují dříve zmíněné IDS, které mohou síť sledovat a upozornit na případné útoky.</p>
+<p>Pokud provozujete třeba domácí server, nebo naopak server v podnikové síti, pak se vás týká nejenom zabezpečení serveru, ale také sítě, ve které se server nachází, a to pokud možno tak, aby případná kompromitace serveru neohrozila jiné počítače v síti. S tím vám může pomoci samotná síťová architektura, respektive tzv. demilitarizovaná zóna. To je koncept, kde figuruje router/firewall se třemi síťovými rozhraními - k jednomu je připojen Internet, ke druhému místní síť a ke třetímu samotný server. Firewall pak řídí přístup tak, aby server mohl přistupovat na Internet (a Internet naopak k němu), ale aby nemohl přistupovat do místní sítě, zatímco místní síť k serveru přistupovat může (viz stavový firewall). Viz článek o linuxových DMZ v odkazech pod kapitolou. Další mechanismy pro ochranu sítě zahrnují dříve zmíněné IDS, které mohou síť sledovat a upozornit na případné útoky.</p>
 
 <h3>Příliš mnoho bezpečnostních opatření může škodit</h3>
 
+TODO ref link
+
 <p>Možností pro zvýšení bezpečnosti je mnoho. Já jsem nicméně zastáncem teorie, že příliš mnoho bezpečnostních opatření může ve výsledku buď narušit funkcionalitu či dostupnost, nebo vést paradoxně ke snížení bezpečnosti. Typický příklad snížení bezpečnosti je agresivní politika hesel, která u uživatelů vede k tomu, že si heslo napíší na papírek a nalepí na monitor. Jinou možností může být skutečnost, že každá další služba, kterou na server nasadíte, byť je určena k zajištění bezpečnosti, je místem, kde se může objevit zranitelnost. Pokud tato služba naslouchá přímo na síti nebo monitoruje jakýkoliv uživatelský vstup (viz parsery logů v článku o <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-prakticke-rady-pro-zabezpeceni-ssh-1">zabezpečení SSH</a>), je to potenciální problémové místo. Řada aktivních bezpečnostních opatření pak může vést k zablokování přístupu nebo omezení dostupnosti služby. Stejně tak vede příliš mnoho bezpečnostních opatření k tomu, že je lidé (nebo hůř - samotní správci) začnou obcházet či ignorovat a dané bezpečnostní opatření pak ztratí účinnost. Proto je třeba navrhovat bezpečnost rozumně.</p>
 
-<pre id="links">http://www.root.cz/clanky/zaloha-dat-pomoci-rdiff-backup/ Záloha dat pomocí rdiff-backup
+http://www.root.cz/clanky/zaloha-dat-pomoci-rdiff-backup/ Záloha dat pomocí rdiff-backup
 http://www.junauza.com/2009/01/7-best-freeopen-source-backup-software.html 7 Best Free/Open-source Backup Software for Linux
 http://dev.mysql.com/doc/refman/5.1/en/backup-methods.html MySQL database backup methods
 http://www.howtoforge.com/back_up_mysql_dbs_without_interruptions How To Back Up MySQL Databases Without Interrupting MySQL
-http://www.postgresql.org/docs/8.1/static/backup.html PostgreSQL Backup and Restore</pre>
-
+http://www.postgresql.org/docs/8.1/static/backup.html PostgreSQL Backup and Restore
+http://cs.wikipedia.org/wiki/Fork_bomba Wikipédie (česká), Fork bomba
+http://www.abclinuxu.cz/clanky/bezpecnost/linuxove-dmz-i ABCLinuxu, Linuxové DMZ

@@ -1,4 +1,4 @@
-<h1>Linuxový firewall, základy iptables</h1>
+<h2>Linuxový firewall</h2>
 
 <p>Firewall v Linuxu je tvořen projektem Netfilter, který pracuje na úrovni jádra a umožňuje filtrovat pakety na základě mnoha kritérií. Základním nástrojem pro nastavení paketového filtru je známý řádkový nástroj iptables. Předesílám, že existuje řada projektů, která se snaží práci s iptables usnadnit, popřípadě generovat vlastní pravidla a uživatele od tohoto nástroje co nejvíce odstínit. Některé z těchto nástrojů časem představím, nicméně v tomto článku se budu zabývat samotným nástrojem iptables a principy, na jakých jeho funkce stojí.</p>
 
@@ -350,11 +350,11 @@ sysctl -w net.ipv6.conf.all.forwarding=1
 
 <h4>Alternativy k iptables</h4>
 
-<p>Nastavovat firewall je komplikovaná záležitost, což je patrně z dosavadních dílů o základech <code>iptables</code> více než jasné. Proto existuje řada projektů, které si kladou za cíl stavbu firewallu zjednodušit. Existují dokonce i jisté ekvivalenty "osobních" firewallů, které se snaží být uživatelsky přívětivé a zaměřují se na běžné uživatele. Tím je třeba nástroj <a href="http://www.fs-security.com/">Firestarter</a>.</p>
+<p>Nastavovat firewall je komplikovaná záležitost, což je patrně z dosavadních dílů o základech <code>iptables</code> více než jasné. Proto existuje řada projektů, které si kladou za cíl stavbu firewallu zjednodušit. Existují dokonce i jisté ekvivalenty "osobních" firewallů, které se snaží být uživatelsky přívětivé a zaměřují se na běžné uživatele. Tím je třeba nástroj Firestarter.</p>
 
-<p>Jiné typy nástrojů se pokouší usnadnit vytváření pravidel, ať již snahou o usnadnění návrhu komplikovaného firewallu (<a href="http://www.fwbuilder.org/">fwbuilder</a>), nebo značným zjednodušením syntaxe (<a href="https://launchpad.net/ufw">ufw</a>, <a href="http://firehol.sourceforge.net/">FireHOL</a>, atd.).</p>
+<p>Jiné typy nástrojů se pokouší usnadnit vytváření pravidel, ať již snahou o usnadnění návrhu komplikovaného firewallu (fwbuilder), nebo značným zjednodušením syntaxe (ufw, FireHOL, atd.).</p>
 
-<p>Na závěr jsem si nechal projekt Shorewall, což je de facto nadstavba nad    <code>iptables</code>, která z několika přehledných konfiguračních souborů    vygeneruje příslušná pravidla pro nástroj <code>iptables</code> a nastaví    linuxový paketový filtr.  Pokud se chcete o Shorewallu dozvědět více, můžete    se podívat na článek <a href="http://www.linuxexpres.cz/software/shorewall-2-rychla-obrana-na-stanici">Shorewall 2 - rychlá obrana na stanici</a> a dvoudílný miniseriál o Shorewallu (<a href="http://www.linuxexpres.cz/praxe/shorewall-1-dil-1">1. díl</a>, <a href="http://www.linuxexpres.cz/praxe/shorewall-2-dil">2. díl</a>).</p>
+<p>Na závěr jsem si nechal projekt Shorewall, což je de facto nadstavba nad    <code>iptables</code>, která z několika přehledných konfiguračních souborů    vygeneruje příslušná pravidla pro nástroj <code>iptables</code> a nastaví    linuxový paketový filtr.  Pokud se chcete o Shorewallu dozvědět více, můžete    se podívat na odkazy pod kapitolou.</p>
 
 <h3>Tabulky v Netfilteru</h3>
 
@@ -370,7 +370,7 @@ TODO find image
 
 <p>Na tomto obrázku jsou vidět dva další výchozí řetězce, které patří tabulce  <code>nat</code> (vyznačené zeleně). Jsou jimi řetězy <code>PREROUTING</code> a  <code>POSTROUTING</code>. Řetěz <code>PREROUTING</code> v tabulce  <code>nat</code> zachytává pakety ještě před směrovacím rozhodnutím, a řetěz  <code>POSTROUTING</code> zachytává pakety těsně před tím, než opustí  daný počítač. Tyto dva řetězy využijete, pokud si chcete postavit nějakou formu NATu (viz níže).</p>
 
-<p class="box">Raději ještě doplním varování, abyste filtrování paketů neprováděli v  tabulce NAT místo v řetězech <code>INPUT</code> a <code>OUTPUT</code> v tabulce <code>filter</code>, jelikož některé pakety tabulku <code>nat</code> "obchází".</p>
+<p>Raději ještě doplním varování, abyste filtrování paketů neprováděli v  tabulce NAT místo v řetězech <code>INPUT</code> a <code>OUTPUT</code> v tabulce <code>filter</code>, jelikož některé pakety tabulku <code>nat</code> "obchází".</p>
 
 <h3>Netfiltr a NAT</h3>
 
@@ -378,7 +378,7 @@ TODO find image
 
 <p>Je jasné, že jednotlivé formy NATu se uplatní pouze v jednom z řetězců  tabulky <code>nat</code>. Cílový NAT, tedy DNAT, uplatníte pouze v řetězci  <code>PREROUTING</code>, zatímco zdrojový NAT v řetězci <code>POSTROUTING</code>.  V těchto řetězcích pak můžete pro zpřesnění využít specifikaci vstupních nebo výstupních síťových rozhraní (parametry <code>-o</code> a <code>-i</code>). S tím ale pozor, v řetězci <code>PREROUTING</code> není možné se odkazovat na výstupní rozhraní (parametr <code>-o</code>), neboť ještě nebylo rozhodnuto, kam bude paket směřován. Stejně tak vstupní rozhraní (parametr <code>-i</code>) nelze použít v řetězci <code>POSTROUTING</code>.</p>
 
-<p class="box">Překlad adres využijete asi nejčastěji ve dvou podobách - přesměrování portů a maškaráda (za kterou "schováte" třeba domácí síť před svým poskytovatelem).</p>
+<p>Překlad adres využijete asi nejčastěji ve dvou podobách - přesměrování portů a maškaráda (za kterou "schováte" třeba domácí síť před svým poskytovatelem).</p>
 
 <h4>Přesměrování portů a DNAT</h4>
 
@@ -390,7 +390,7 @@ TODO find image
 iptables -A FORWARD -i eth1 -o eth2 -d 10.0.2.200 -p tcp --dport 8080 -j ACCEPT
 </pre>
 
-<p>Na prvním řádku je specifikováno pravidlo pro přesměrování portu. Toto  pravidlo změní cílovou adresu a cílový port paketů směřujících na port 80  rozhraní <code>eth1</code> na IP adresu <code>10.0.2.200</code> a port <code>8080</code>. Všímněte si  specifikace tabulky nat (<code>-t nat</code>). Výše  zmíněné pravidlo změní pouze cílovou adresu paketu, který pravidlu vyhovuje, nic  jiného s paketem nedělá. Takový paket pak projde směrovacím rozhodnutím a  putuje do řetězce <code>FORWARD</code>, kde je třeba zajistit jeho průchod (viz  druhé pravidlo, které umožní takovému paketu odcestovat rozhraním  <code>eth2</code>). Nezapomeňte také na to, že je třeba povolit směrování paketů jako takové, viz <span class="mw_field">### link article=3255 text=minulý díl seriálu title=Správa linuxového serveru: Linuxový firewall, základy iptables III mode=inline ###</span>.</p>
+<p>Na prvním řádku je specifikováno pravidlo pro přesměrování portu. Toto  pravidlo změní cílovou adresu a cílový port paketů směřujících na port 80  rozhraní <code>eth1</code> na IP adresu <code>10.0.2.200</code> a port <code>8080</code>. Všímněte si  specifikace tabulky nat (<code>-t nat</code>). Výše  zmíněné pravidlo změní pouze cílovou adresu paketu, který pravidlu vyhovuje, nic  jiného s paketem nedělá. Takový paket pak projde směrovacím rozhodnutím a  putuje do řetězce <code>FORWARD</code>, kde je třeba zajistit jeho průchod (viz  druhé pravidlo, které umožní takovému paketu odcestovat rozhraním  <code>eth2</code>). Nezapomeňte také na to, že je třeba povolit směrování paketů jako takové, viz výše.</p>
 
 <p>V rámci DNATu samozřejmě není nutné specifikovat cílový port, takže je možné přesměrovat veškerou komunikaci:</p>
 
@@ -421,22 +421,26 @@ iptables -A FORWARD -i eth1 -o eth2 -d 10.0.2.200 -p tcp --dport 8080 -j ACCEPT
 
 <p>Na serveru nemusí být úplně od věci monitorovat nejenom příchozí komunikaci,    ale i odchozí. V rámci této odchozí komunikace se vám může hodit filtrovat    pakety na základě UID nebo GID procesu, který je generuje:</p>
 
-<pre>iptables -A OUTPUT -o eth0 -m owner --uid-owner podezrely-uzivatel -m limit --limit 1/s --limit-burst 10 -j LOG
-</pre>
+<pre>iptables -A OUTPUT -o eth0 -m owner --uid-owner podezrely-uzivatel -m limit --limit 1/s --limit-burst 10 -j LOG</pre>
 
-<p>Toto pravidlo bude logovat odchozí pakety generované procesy uživatele  <code>podezrely-uzivatel</code> a směřující na síťové rozhraní  <code>eth0</code>. Naznačil jsem zde i ochranu proti přeplnění logů, pokud by uživatel generoval  příliš velký síťový traffic. Ta je zajištěna modulem <code>limit</code>. Pokud byste chtěli logovat provoz všech uživatelů (členů skupiny <code>users</code>), specifikovali byste příslušnou skupinu takto:</p>
+<p>Toto pravidlo bude logovat odchozí pakety generované procesy uživatele  <em>podezrely-uzivatel</em> a směřující na síťové rozhraní  <code>eth0</code>. Naznačil jsem zde i ochranu proti přeplnění logů, pokud by uživatel generoval  příliš velký síťový traffic. Ta je zajištěna modulem <code>limit</code>. Pokud byste chtěli logovat provoz všech uživatelů (členů skupiny <em>users</em>), specifikovali byste příslušnou skupinu takto:</p>
 
 <pre>iptables -A OUTPUT -o eth0 -m owner --gid-owner users -m limit --limit 1/s --limit-burst 10 -j LOG
 </pre>
+
 <h4>Počet spojení (connlimit)</h4>
+
 <p>V některých situacích se vám může hodit zaškrtit určitý provoz, pokud překoná určitý počet spojení:</p>
-<pre>iptables -A FORWARD -i eth2 -o eth0 -m connlimit --connlimit-above 10 -j REJECT
-</pre>
+
+<pre>iptables -A FORWARD -i eth2 -o eth0 -m connlimit --connlimit-above 10 -j REJECT</pre>
+
 <p>Toto pravidlo, použité na směrovači, omezí síťový provoz z rozhraní  <code>eth2</code> na <code>eth0</code> tak, že povolí pouze 10 spojení.  Ostatní pak bude odmítat.</p>
+
 <h4>Multiport</h4>
+
 <p>Pokud chcete v jednom pravidlu specifikovat více TCP/UDP portů, můžete použít    modul <code>multiport</code>:</p>
-<pre>iptables -A INPUT -p tcp -m multiport --ports 22,80,40000:50000 -j ACCEPT
-</pre>
+
+<pre>iptables -A INPUT -p tcp -m multiport --ports 22,80,40000:50000 -j ACCEPT</pre>
 
 <p>Zde je naznačeno jak specifikování několika portů za sebou (oddělovač je čárka), tak specifikování rozsahu (oddělovačem rozsahu je dvojtečka). Takto je možné specifikovat až 15 portů (rozsah je počítán jako dva porty).</p>
 
@@ -457,3 +461,10 @@ http://linux.die.net/man/8/ip6tables man ip6tables
 http://fedorasolved.org/Members/kanarip/iptables-howto Iptables Howto
 http://www.faqs.org/docs/iptables/statemachine.html The state machine (iptables tutorial)
 http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables Linux firewalls using iptables
+http://www.fs-security.com Firestarter
+http://www.fwbuilder.org/ fwbuilder
+https://launchpad.net/ufw ufw
+http://firehol.sourceforge.net/ FireHOL
+http://www.linuxexpres.cz/software/shorewall-2-rychla-obrana-na-stanici LinuxEXPRES, Shorewall 2 - rychlá obrana na stanici
+http://www.linuxexpres.cz/praxe/shorewall-1-dil-1 LinuxEXPRES, Shorewall, 1. díl
+http://www.linuxexpres.cz/praxe/shorewall-2-dil LinuxEXPRES, Shorewall, 2. díl

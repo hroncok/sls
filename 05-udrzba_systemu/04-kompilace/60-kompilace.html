@@ -386,7 +386,7 @@ make oldconfig</pre>
 <pre>make-kpkg clean
 fakeroot make-kpkg --initrd --append-to-version=-custom kernel_image kernel_headers</pre>
 
-<p>V příkazu výše upravte parametr <code>--append-to-version</code> podle toho, jakou příponu pro název vámi sestaveného jádra chcete použít. Až kompilace skončí, podívejte se do <code>/usr/src</code>, kde se měly vygenerovat příslušné balíčky. Ty pak nainstalujte pomocí <code>dpkg</code>:</p>
+<p>V příkazu výše upravte parametr <code>--append-to-version</code> podle toho, jakou příponu pro název vámi sestaveného jádra chcete použít. Až kompilace skončí, podívejte se do nadřazeného adresáře - tam naleznete balíčky se zkompilovaným jádrem. Pokud jste kompilovali jádro v <code>/usr/src/linux-x.y.z</code>, naleznete balíčky v <code>/usr/src</code>. Ty pak nainstalujte pomocí <code>dpkg</code>:</p>
 
 <pre>cd /usr/src
 dpkg -i linux-image-verze_jadra.deb
