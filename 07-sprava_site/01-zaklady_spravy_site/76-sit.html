@@ -1,4 +1,6 @@
-<h1>Nastavení sítě pomocí nástroje ip</h1>
+<h1>Správa sítě</h1>
+
+<h2>Nastavení sítě pomocí nástroje ip</h2>
 
 <h3>Úvod a ifconfig</h3>
 
@@ -114,13 +116,13 @@ ip link set dev eth0 down   # shození rozhraní</pre>
 <pre>ifconfig eth0 up
 ifconfig eth0 down</pre>
 
-<p class="box">Při této práci s rozhraními si dejte pozor, abyste nebyli na server připojeni přes SSH, protože pokud shodíte rozhraní, přes které jste připojeni, pak ho už nenahodíte.</p>
+<p>Při této práci s rozhraními si dejte pozor, abyste nebyli na server připojeni přes SSH, protože pokud shodíte rozhraní, přes které jste připojeni, pak ho už nenahodíte.</p>
 
 <p>Ale zpět k nástroji <code>ip</code>. Ten umí měnit nejenom stav rozhraní, ale také řadu jejich parametrů. Mnoho z nich se dočtete v manuálu, já zmíním dva nejběžnější. Prvním je MAC adresa, kterou můžete změnit i bez nástroje <code>ethtool</code>, takto:</p>
 
 <pre>ip link set dev eth0 address 11:22:33:44:55:66</pre>
 
-<p>Dalším parametrem, který můžete chtít někdy změnit, je <a href="http://cs.wikipedia.org/wiki/Maximum_transmission_unit">MTU</a>, tedy maximální velikost IP datagramu, kterou dané rozhraní zpracuje. V případě ethernetu je to nejčastěji 1500 bytů:</p>
+<p>Dalším parametrem, který můžete chtít někdy změnit, je MTU, tedy maximální velikost IP datagramu, kterou dané rozhraní zpracuje. V případě ethernetu je to nejčastěji 1500 bytů:</p>
 
 <pre>ip link set dev eth0 mtu 1500</pre>
 
@@ -190,7 +192,7 @@ ip addr add 10.0.1.2/24 dev eth0</pre>
 
 <pre>ping 10.0.1.1</pre>
 
-<h1>Pokročilé nastavení sítě pomocí nástroje ip</h1>
+<h2>Pokročilé nastavení sítě pomocí nástroje ip</h2>
 
 <h3>Úvod</h3>
 
@@ -198,7 +200,7 @@ ip addr add 10.0.1.2/24 dev eth0</pre>
 
 <h3>Práce s ARP tabulkou</h3>
 
-<p><a href="http://cs.wikipedia.org/wiki/Address_Resolution_Protocol">ARP protokol</a> je určen k překladu síťové (IP) adresy na linkovou (MAC) adresu. Pokaždé, když s někým komunikujete po místní síti, se váš počítač nejprve dotáže pomocí ARP protokolu na to, které linkové adrese přísluší daná IP adresa, a té pak odešle příslušný IP datagram. Řada typů útoků v místní síti (zejména pak MITM:man-in-the-middle) jsou vedeny podvržením ARP záznamů.</p>
+<p>ARP protokol je určen k překladu síťové (IP) adresy na linkovou (MAC) adresu. Pokaždé, když s někým komunikujete po místní síti, se váš počítač nejprve dotáže pomocí ARP protokolu na to, které linkové adrese přísluší daná IP adresa, a té pak odešle příslušný IP datagram. Řada typů útoků v místní síti (zejména pak MITM:man-in-the-middle) jsou vedeny podvržením ARP záznamů.</p>
 
 <p>Vypsat si ARP tabulku je jednoduché:</p>
 
@@ -370,7 +372,7 @@ ip -4 route # IPv4 směrovací tabulka</pre>
 
 <p>V datacentrech byste se neměli setkat s tím, že IPv6 připojení není k dispozici, i když raději onen podmiňovací způsob zdůrazňuji, jelikož do nedávna to ještě stále někde problém byl. Většinou se ale s absencí IPv6 konektivity setkáte spíše v domácích podmínkách než v datacentrech. Ideální je samozřejmě tlačit na ISP, aby vám poskytl nativní IPv6 konektivitu, to v každém případě. Ale do té doby, než se tak stane, můžete využít tunelování IPv6 protokolu přes IPv4 protokol.</p>
 
-<p>K tomu samozřejmě potřebujete někoho, kdo IPv6 konektivitu poskytuje a kdo vám poskytne druhý konec tunelu, vaše IPv6 pakety vybalí z IPv4 paketů a pošle je přes IPv6 síť tam, kam mají odejít. Těchto subjektů je k dispozici celá řada, ideální je samozřejmě vybírat ten subjekt, který je vám fyzicky co nejblíže. Odkážu vás v této souvislosti na <a href="https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers">seznam</a> na Wikipedii.</p>
+<p>K tomu samozřejmě potřebujete někoho, kdo IPv6 konektivitu poskytuje a kdo vám poskytne druhý konec tunelu, vaše IPv6 pakety vybalí z IPv4 paketů a pošle je přes IPv6 síť tam, kam mají odejít. Těchto subjektů je k dispozici celá řada, ideální je samozřejmě vybírat ten subjekt, který je vám fyzicky co nejblíže. Odkážu vás v této souvislosti na seznam brokerů IPv6 tunelů na Wikipedii (viz odkaz pod kapitolou).</p>
 
 <p>Pokud naleznete schopného „brokera“, dá vám k dispozici nejenom potřebné údaje k nastavení sítě, ale i sadu příkazů podle operačního systému a vy můžete použít oblíbenou metodu copy &amp; paste do terminálu či do editoru. Konfigurace pomocí nástroje <code>ip</code> může vypadat nějak takto:</p>
 
@@ -442,14 +444,11 @@ http://www.linuxfoundation.org/collaborate/workgroups/networking/ Kernel network
 http://www.policyrouting.org/iproute2.doc.html IPROUTE2 Utility Suite Howto
 http://lartc.org/howto/index.html Linux Advanced Routing & Traffic Control HOWTO
 http://web.archive.org/web/20090309011121/http://www.m4r3k.org/czech/proc-nepouzivat-ifconfig/ Marek Stopka, Proč nepoužívat ifconfig?
+http://cs.wikipedia.org/wiki/Maximum_transmission_unit Wikipédie (česky), MTU
+http://cs.wikipedia.org/wiki/Address_Resolution_Protocol Wikipédie (česky), ARP protokol
+https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers Wikipédie (anglicky), Seznam brokerů IPv6 tunelů
 
-TODO rozdelit na dalsi kapitolu
-
-<h1>Úvod do skenování sítí pomocí Nmap</h1>
-
-<p>Nmap je jeden z nejpopulárnějších nástrojů pro skenování portů. Umí toho poměrně dost a výborně se hodí k základním prověrkám bezpečnosti, zejména pak po různých úpravách firewallu nebo konfigurace sítě. V tomto dílu vás s tímto nástrojem seznámím.</p>
-
-<h3>Úvod</h3>
+<h2>Úvod do skenování sítí pomocí Nmap</h2>
 
 <p>Jako správci jste se určitě setkali s potřebou ověřit si, zda vámi nastavený firewall funguje podle vašich představ, zda jste na něco nezapomněli nebo zda jste se v něčem nespletli. Stejně tak jste možná chtěli zjistit, jaké informace mohou o vašich serverech (a službách na nich dostupných) získat případní útočníci.</p>
 
@@ -563,7 +562,7 @@ Nmap done: 256 IP addresses (7 hosts up) scanned in 3.01 seconds</pre>
 
 <p>Zavřený port je takový, který odmítá pokus o spojení (v <code>iptables</code> je to typicky <code>-j REJECT</code>). Tím se liší od filtrovaného portu, který neodpovídá vůbec (ekvivalent <code>-j DROP</code>). Pokud chcete být hodní a chovat se podle norem, měli byste na pokus o spojení reagovat odmítnutím. To však podstatně urychluje skenování portů. Mimo jiné i proto řada správců využívá možnosti zahazovat neoprávněné žádosti o spojení bez jakéhokoliv oznamování. Skenování portů pak trvá déle, jelikož nelze s jistotou říci, zda paket k cíli dorazil nebo ne, tudíž se déle čeká. Skenování portů ovšem zahazování žádostí o spojení nijak nezabrání.</p>
 
-<h1>Typy skenů a volby Nmapu</h1>
+<h2>Typy skenů a volby Nmapu</h2>
 
 <p>Na úvod bych rád zmínil skutečnost, že volby Nmapu se mezi jednotlivými verzemi mohou měnit. Pokud používáte starší verzi Nmapu (např. dostupnou v Debianu Squeeze), pak asi budete mít problémy s volbami <code>-sn</code> a <code>-Pn</code>, které tento starší Nmap nezná. Jejich ekvivalentem jsou volby <code>-sP</code> a <code>-PN</code>, které vám v něm budou fungovat. V případě problémů s nevyhovující syntaxí doporučuji nahlédnout do manuálu, který bude zmiňovat specifika té verze, kterou na svém stroji používáte.</p>
 
@@ -733,7 +732,7 @@ Nmap done: 1 IP address (1 host up) scanned in 6.00 seconds</pre>
 
 <h3>Nmap a -A</h3>
 
-<p>Poměrně zajímavou volbu tvoří <code>-A</code>, což je „šablona“ zapínající mnoho typických funkcí (detekci verzí služeb i operačního systému, traceroute a použití skriptů z kategorie „default“). Skripty jsou psané v jazyce LUA a představují možnosti rozšíření funkcionality Nmapu. Některé přibalené skripty mohou být poměrně invazivní (v kategorii „default“ by měly být zejména bezpečné skripty). Skripty umí provádět ledacos, v příkladu níže je u SSH patrné vypsání fingerprintů serverových klíčů. Více o skriptech se dozvíte <a href="http://nmap.org/book/nse-usage.html#nse-categories">zde</a>.</p>
+<p>Poměrně zajímavou volbu tvoří <code>-A</code>, což je „šablona“ zapínající mnoho typických funkcí (detekci verzí služeb i operačního systému, traceroute a použití skriptů z kategorie „default“). Skripty jsou psané v jazyce LUA a představují možnosti rozšíření funkcionality Nmapu. Některé přibalené skripty mohou být poměrně invazivní (v kategorii „default“ by měly být zejména bezpečné skripty). Skripty umí provádět ledacos, v příkladu níže je u SSH patrné vypsání fingerprintů serverových klíčů. Více o skriptech se dozvíte v odkazech pod kapitolou.</p>
 
 <p>Výstup Nmapu s použitím volby <code>-A</code> může vypadat takto:</p>
 
@@ -762,8 +761,6 @@ Nmap done: 1 IP address (1 host up) scanned in 16.05 seconds</pre>
 
 <p>Nmap je velmi schopný síťový skener, který můžete použít nejenom v GNU/Linuxu a unixových operačních systémech, ale také třeba na Windows. Můžete jej používat v příkazové řádce i pomocí grafického rozhraní, které umí např. kompletovat výsledky z více skenů, popřípadě vizualizovat skenovanou síť. Alespoň základní zacházení s Nmapem patří k základům schopností správců serverů i sítí.</p>
 
-<p>Při používání Nmapu je vhodná opatrnost a dobrá představa o tom, čemu vlastně svůj cíl vystavíte. Nmap umožňuje provádět celkem invazivní operace, které mohou za určitých okolností způsobit problémy. Dobrá představa o tom, co Nmap vlastně provádí, je také nutná ke správné interpretaci výsledků. Rozhodně není vhodné spoléhat na to, že to, co Nmap napíše, vždy na sto procent platí. Je třeba vědět, odkud se ta informace vzala a jak byla získána. Kupříkladu, bez detekce verzí se služba na portu identifikuje dle záznamu v <code>/etc/services</code>, což samozřejmě nemusí odpovídat, jak bylo výše demonstrováno. Určitě tedy doporučuji experimentování (ve vlastní síti) a studium dokumentace k Nmapu.</p>
+<p>Při používání Nmapu je vhodná opatrnost a dobrá představa o tom, čemu vlastně svůj cíl vystavíte. Nmap umožňuje provádět celkem invazivní operace, které mohou za určitých okolností způsobit problémy. Dobrá představa o tom, co Nmap vlastně provádí, je také nutná ke správné interpretaci výsledků. Rozhodně není vhodné spoléhat na to, že to, co Nmap napíše, vždy na sto procent platí. Je třeba vědět, odkud se ta informace vzala a jak byla získána. Kupříkladu, bez detekce verzí se služba na portu identifikuje dle záznamu v <code>/etc/services</code>, což samozřejmě nemusí odpovídat, jak bylo výše demonstrováno. Určitě tedy doporučuji experimentování (ve vlastní síti) a studium dokumentace k Nmapu. A tím bych problematiku Nmapu ukončil.</p>
 
-<p>Tím bych problematiku Nmapu ukončil.</p>
-
-
+http://nmap.org/book/nse-usage.html#nse-categories Nmap a skripty

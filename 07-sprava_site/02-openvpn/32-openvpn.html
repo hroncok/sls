@@ -1,4 +1,4 @@
-<h1>OpenVPN server</h1>
+<h2>OpenVPN server</h2>
 
 <h3>Úvod do OpenVPN</h3>
 
@@ -111,7 +111,7 @@ persist-key</pre>
 
 <h3>Komplexní řešení pro více klientů</h3>
 
-<p>Vytvoření tunelu mezi dvěma počítači je jistě užitečné, ale co když se chcete připojovat na VPN server z více počítačů, nebo dokonce nabídnout klientům možnost směrovat veškerou svou komunikaci přes VPN? I to samozřejmě OpenVPN umí. Pro snadnou správu přístupu mnoha klientů k VPN serveru využívá OpenVPN <a href="http://cs.wikipedia.org/wiki/PKI">PKI</a>. Je tedy třeba začít vytvořením certifikační autority, dále certifikátu serveru a certifikátu klientů.</p>
+<p>Vytvoření tunelu mezi dvěma počítači je jistě užitečné, ale co když se chcete připojovat na VPN server z více počítačů, nebo dokonce nabídnout klientům možnost směrovat veškerou svou komunikaci přes VPN? I to samozřejmě OpenVPN umí. Pro snadnou správu přístupu mnoha klientů k VPN serveru využívá OpenVPN PKI. Je tedy třeba začít vytvořením certifikační autority, dále certifikátu serveru a certifikátu klientů.</p>
 
 <h4>Vytvoření certifikační autority</h4>
 
@@ -127,7 +127,7 @@ cd easy-rsa/2.0</pre>
 ./clean-all
 ./build-ca</pre>
 
-<p>Po dokončení této procedury byste měli nalézt příslušné výstupy, tzn. zejména soubor <code>ca.crt</code> s kořenovým certifikátem certifikační autority a soubor <code>ca.key</code> se soukromým klíčem certifikační autority (tím se pak podepisují jednotlivé dílčí certifikáty).</p>
+<p>Po dokončení této procedury byste měli nalézt příslušné výstupy, tzn. zejména soubor <code>ca.crt</code> s kořenovým certifikátem certifikační autority a soubor <code>ca.key</code> se soukromým klíčem certifikační autority (tím se pak podepisují jednotlivé dílčí certifikáty) v podadresáři <code>keys</code>.</p>
 
 <h4>Vytvoření serverového klíče</h4>
 
@@ -318,7 +318,9 @@ push "dhcp-option DNS 10.45.42.1"</pre>
 
 <p>Jako parametr pro volbu <code>route-gateway</code> zadejte IP adresu serveru v rámci VPN, tedy IP adresu, kterou jste zadali jako parametr volby <code>ifconfig</code>. První řádka zajistí, že se klientovi pošle specifikovaná IP adresa brány. Druhá volba zajistí, že se klientovi nařídí, aby přesměroval veškerou svou komunikaci přes VPN. Parametr <code>def1</code> zajistí, aby se neodstranila původní brána z konfigurace sítě klienta.</p>
 
-<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď <a href="http://cs.wikipedia.org/wiki/OpenDNS">OpenDNS</a>, nebo <a href="http://code.google.com/intl/cs-CZ/speed/public-dns/">Google DNS</a>. Stavba vlastního DNS serveru je mimo zaměření tohoto článku, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>.</p>
+TODO ref link na DNS
+
+<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď OpenDNS, nebo Google DNS. Stavba vlastního DNS serveru je mimo zaměření tohoto článku, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>.</p>
 
 <h4>Úprava konfigurace OpenVPN klientů</h4>
 
@@ -338,3 +340,6 @@ http://www.annoying.dk/2007/10/14/quick-simple-tutorialhowto-on-openvpn-with-deb
 http://openvpn.net/index.php/open-source/documentation/howto.html OpenVPN howto
 http://www.jariq.sk/2008/10/14/vpn-siete-s-openvpn-1/ VPN siete s OpenVPN
 http://www.iprint.sk/instalace-konfigurace-openvpn-serveru/ Instalace a konfigurace OpenVPN serveru
+http://cs.wikipedia.org/wiki/PKI Wikipédie (česky), PKI
+http://cs.wikipedia.org/wiki/OpenDNS OpenDNS
+http://code.google.com/intl/cs-CZ/speed/public-dns/ Google DNS
