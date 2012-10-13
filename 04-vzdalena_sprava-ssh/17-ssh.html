@@ -6,8 +6,7 @@ tunel mezi dvěma počítači na bázi klient/server. Přes něj můžete přist
 shellu vzdáleného počítače, ale také kopírovat soubory, spouštět vzdáleně Xkové
 aplikace, vytvářet roury z místního počítače na vzdálený či vytvářet šifrované
 tunely pro vzdálený přístup k nějaké službě, která je za firewallem.
-Prostřednictvím <a
-href="http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh">sshfs</a>
+Prostřednictvím <code>sshfs</code>
 je dokonce možné připojit vzdálený souborový systém přes FUSE na místní
 adresář.</p>
 
@@ -64,19 +63,19 @@ adresář.</p>
 <li><b>Ctrl-A D</b> "odpojit" se od Screenu (zůstane běžet a bude možné se k danému sezení opět připojit přes výše uvedený přepínač <code>-x</code>)</li>
 </ul>
 
-<p>Tolik k nouzovému rychlokurzu Screenu. Pokud vás Screen zaujal, můžete se o něm dozvědět více třeba v <a href="http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu">tomto článku</a>.</p>
+<p>Tolik k nouzovému rychlokurzu Screenu. Pokud vás Screen zaujal, můžete se o něm dozvědět více v odkazech pod kapitolou.</p>
 
 <h4>sshfs</h4>
 
-<p><a href="http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh">Sshfs</a> je FUSE modul, který umožňuje připojovat vzdálené souborové systémy prostřednictvím SSH/SCP:</p>
+<p><code>sshfs</code> je FUSE modul, který umožňuje připojovat vzdálené souborové systémy prostřednictvím SSH/SCP:</p>
 
 <pre>sshfs uzivatel@server:/cesta /kam/pripojit</pre>
 
-<p>Souborový systém sshfs má celou řadu konfiguračních voleb, které se dozvíte z manuálové stránky. Já si dovolím upozornit na jednu věc, se kterou jsem se setkal, a sice problém s připojením <a href="https://git.wiki.kernel.org/index.php/GitFaq#Why_does_git_clone.2C_git_pull.2C_etc._fail_when_run_on_a_partition_mounted_with_sshfs_.28FUSE.29.3F">Git repozitáře</a> přes <code>sshfs</code>. Pokud se provede připojení s výchozím nastavením, Git odmítá poslušnost. Tento problém lze vyřešit následující volbou:</p>
+<p>Souborový systém sshfs má celou řadu konfiguračních voleb, které se dozvíte z manuálové stránky. Já si dovolím upozornit na jednu věc, se kterou jsem se setkal, a sice problém s připojením Git repositáře přes <code>sshfs</code>. Pokud se provede připojení s výchozím nastavením, Git mi odmítal poslušnost. Pokud na takový problém narazíte, zkuste použít následující volbu:</p>
 
 <pre>sshfs <strong>-o workaround=rename</strong> uzivatel@server:/cesta /kam/pripojit</pre>
 
-<p>Na tomto příkladu je patrné, že <code>sshfs</code> není úplně bezproblémová záležitost a neměl by být brán jako ekvivalent lokálně připojeného souborového systému.</p>
+<p>Na tomto příkladu je patrné, že <code>sshfs</code> není úplně bezproblémová záležitost a neměl by být brán jako plný ekvivalent lokálně připojeného souborového systému.</p>
 
 <h4>fish</h4>
 
@@ -84,13 +83,13 @@ adresář.</p>
 
 <h4>SSH servery</h4>
 
-<p>Nejznámějším SSH serverem je OpenSSH, vyvinut původně jako součást unixového operačního systému OpenBSD. Tento nástroj převzaly díky jeho licenci prakticky všechny linuxové distribuce. OpenSSH ale není jediným SSH serverem, těch je dokonce celá řada. Kromě komerčních a proprietárních variant máme pro GNU/Linux k dispozici <a href="http://matt.ucc.asn.au/dropbear/dropbear.html">Dropbear</a>, který vyniká především svou lehkostí, pro kterou se výborně hodí jak na embedded zařízení, tak třeba na virtuální servery s hodně omezenou pamětí (obvykle ty levnější tarify), kde vám ušetří nějaký kus paměti. Na ostatní SSH servery se můžete podívat <a href="http://en.wikipedia.org/wiki/Comparison_of_SSH_servers">sem</a>. Dodávám, že některé funkce SSH, které jsem tu popsal, nemusí být k dispozici ve všech SSH serverech.</p>
+<p>Nejznámějším SSH serverem je OpenSSH, vyvinut původně jako součást unixového operačního systému OpenBSD. Tento nástroj převzaly díky jeho licenci prakticky všechny linuxové distribuce. OpenSSH ale není jediným SSH serverem, těch je dokonce celá řada. Kromě komerčních a proprietárních variant máme pro GNU/Linux k dispozici Dropbear, který vyniká především svou lehkostí, pro kterou se výborně hodí jak na embedded zařízení, tak třeba na virtuální servery s hodně omezenou pamětí (obvykle ty levnější tarify), kde vám ušetří nějaký kus paměti. Na ostatní SSH servery se můžete podívat na Wikipédii. Dodávám, že některé funkce SSH, které jsem tu popsal, nemusí být k dispozici ve všech SSH serverech.</p>
 
 <h4>SSH klienti</h4>
 
-<p>SSH klientů je také celá řada. Kromě klasického <code>ssh</code> klienta z balíku OpenSSH vás upozorním na grafického klienta <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">Putty</a>, který je velmi známý zejména v prostředí MS Windows. Umí toho celou řadu a nehodí se ani zdaleka jenom k přihlašování přes SSH. Podpora SSH klíčů je samozřejmostí, i když klíče je třeba před použitím konvertovat (Putty nepodporuje klasické klíče generované v rámci OpenSSH, tedy ne přímo). Putty funguje dokonce i nativně v Linuxu, i když v Linuxu nám stačí emulátor terminálu a řádkový klient. Něco málo o klíčích v Putty se dozvíte <a href="http://www.linuxexpres.cz/okenko-do-oken/autentizace-pomoci-klicu">zde</a>.</p>
+<p>SSH klientů je také celá řada. Kromě klasického <code>ssh</code> klienta z balíku OpenSSH vás upozorním na grafického klienta Putty, který je velmi známý zejména v prostředí MS Windows. Umí toho celou řadu a nehodí se ani zdaleka jenom k přihlašování přes SSH. Podpora SSH klíčů je samozřejmostí, i když klíče je třeba před použitím konvertovat (Putty nepodporuje klasické klíče generované v rámci OpenSSH, tedy ne přímo). Putty funguje dokonce i nativně v Linuxu, i když v Linuxu nám stačí emulátor terminálu a řádkový klient. Něco málo o klíčích v Putty se dozvíte v odkazech pod kapitolou.</p>
 
-<p>Pro kopírování souborů (scp/sftp) je možné použít řádkového klienta <code>scp</code>, výše zmíněného "protokolu" fish v KDE aplikacích nebo <code>sshfs</code>. V prostředí MS Windows lze použít grafický nástroj <a href="http://winscp.net/eng/docs/lang:cs">WinSCP</a>, který se podobá klasickému dvoupanelovému diskovému manažeru.</p>
+<p>Pro kopírování souborů (scp/sftp) je možné použít řádkového klienta <code>scp</code>, výše zmíněného "protokolu" fish v KDE aplikacích nebo <code>sshfs</code>. V prostředí MS Windows lze použít grafický nástroj WinSCP, který se podobá klasickému dvoupanelovému diskovému manažeru.</p>
 
 <h3>SSH klíče</h3>
 
@@ -120,7 +119,7 @@ uzivatel@server$ chmod 700 .ssh</pre>
 
 <h4>SSH Agent a Keychain</h4>
 
-<p>Pokud se přihlašujete na servery přes SSH často, popřípadě chcete své klíče chránit heslem, ale současně nechcete být obtěžováni neustálým zadáváním hesla k danému klíči, můžete využít nástroj ssh-agent, který si jedno nebo více hesel ke klíčům zapamatuje, a pak už se vás ssh klient na hesla ptát nebude. Více informací o ssh-agentovi se dozvíte v <a href="http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-2">tomto článku</a>.</p>
+<p>Pokud se přihlašujete na servery přes SSH často, popřípadě chcete své klíče chránit heslem, ale současně nechcete být obtěžováni neustálým zadáváním hesla k danému klíči, můžete využít nástroj ssh-agent, který si jedno nebo více hesel ke klíčům zapamatuje, a pak už se vás ssh klient na hesla ptát nebude. Více informací o ssh-agentovi se dozvíte v odkazech pod kapitolou.</p>
 
 <p>Já si dovolím doplnit informaci o nástroji <code>keychain</code>, který vám může usnadnit práci se ssh-agentem. V jeho případě postačí do <code>.bashrc</code> přidat následující dva řádky:</p>
 
@@ -136,8 +135,16 @@ source $HOME/.keychain/$HOSTNAME-sh
 
 <p>SSH je velmi mocný nástroj, který umí mnohé. Proto je vhodné vnímat SSH z pohledu správce nikoliv jako nástroj pro vzdálenou práci se shellem, ale jako komplexní nástroj umožňující vytvářet šifrované, zabezpečené tunely mezi dvěma nebo více počítači, a posílat přes ně nejrůznější data a přistupovat k nejrůznějším službám. SSH je samozřejmě pouze nástroj, jehož faktická bezpečnost záleží na správcích i uživatelích. Na bezpečnost SSH, zejména pak z pohledu správců serverů, se podíváme v části Bezpečnost.</p>
 
-<pre id="links">http://cs.wikipedia.org/wiki/OpenSSH Wikipédie, OpenSSH
+TODO ref link
+
+http://cs.wikipedia.org/wiki/OpenSSH Wikipédie, OpenSSH
 http://www.cyberciti.biz/faq/ssh-passwordless-login-with-keychain-for-scripts/ keychain: Set Up Secure Passwordless SSH Access For Backup Scripts
 http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh SSHFS - súborový systém v bezpečných vodách SSH
 http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-1 SSH receptem na bezpečnost 1
-http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-2 SSH receptem na bezpečnost 2</pre>
+http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-2 SSH receptem na bezpečnost 2
+http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu Screen - správce sezení v terminálu
+https://git.wiki.kernel.org/index.php/GitFaq#Why_does_git_clone.2C_git_pull.2C_etc._fail_when_run_on_a_partition_mounted_with_sshfs_.28FUSE.29.3F Git FAQ: problém s Gitem na sshfs
+http://en.wikipedia.org/wiki/Comparison_of_SSH_servers Wikipédie, Porovnání SSH serverů
+http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html Putty
+http://www.linuxexpres.cz/okenko-do-oken/autentizace-pomoci-klicu LinuxEXPRES, Autentizace pomocí klíčů 
+http://winscp.net/eng/docs/lang:cs WinSCP

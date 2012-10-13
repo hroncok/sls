@@ -1,12 +1,14 @@
-<h1>RAID teoreticky</h1>
+<h1>Správa disku</h1>
 
 <p>Ještě před tím, než se rozhodnete nainstalovat Debian na server, byste měli zvážit, jakým způsobem budete pracovat s pevnými disky. Mít všechno na jednom disku v jednom či více diskových oddílech je sice možné, ale existují i jiné možnosti, a sice RAID a LVM, potažmo ještě dm-crypt/LUKS pro diskové šifrování.</p>
 
+<h2>RAID teoreticky</h2>
+
 <h3>Kam se systémem a daty? RAID</h3>
 
-<p>Co je <a href="http://cs.wikipedia.org/wiki/RAID">RAID</a>? Je to způsob práce se dvěma nebo více pevnými disky jako s jednou logickou datovou jednotkou (blokovým zařízením), která na fyzické úrovni poskytuje jistý kompromis mezi odolností proti výpadku jednoho nebo více disků, kapacitou a výkonem.</p>
+<p>Co je RAID? Je to způsob práce se dvěma nebo více pevnými disky jako s jednou logickou datovou jednotkou (blokovým zařízením), která na fyzické úrovni poskytuje jistý kompromis mezi odolností proti výpadku jednoho nebo více disků, kapacitou a výkonem.</p>
 
-<p>Odolnost proti výpadkům je zajišťována jistou formou redundance (liší se u jednotlivých typů RAIDu), která ovšem jistým způsobem snižuje úložný prostor (kapacitu) pole. <a href="http://en.wikipedia.org/wiki/Standard_RAID_levels">Typů RAIDu</a> je mnoho, já se zaměřím na ty nejtypičtější a nejzajímavější (informace o ostatních typech naleznete v článcích odkazovaných v závěru článku):</p>
+<p>Odolnost proti výpadkům je zajišťována jistou formou redundance (liší se u jednotlivých typů RAIDu), která ovšem jistým způsobem snižuje úložný prostor (kapacitu) pole. Typů RAIDu je mnoho, já se zaměřím na ty nejtypičtější a nejzajímavější (informace o ostatních typech naleznete v článcích odkazovaných v závěru článku):</p>
 
 <h4>RAID 0</h4>
 
@@ -70,7 +72,7 @@
 
 <h4>Integrita RAIDů 5 a 6</h4>
 
-<p>Po výměně defektního disku za nový začíná rekonstrukce pole. To obnáší přečtení všech sektorů ze všech disků. Disky si ovšem někdy usmyslí, že některý sektor z nějakého důvodu nepřečtou (o tomhle pojednává lehce katastrofický článek <a href="http://blogs.zdnet.com/storage/?p=162">Why RAID 5 stops working in 2009</a>, který zmiňuji především kvůli zajímavým komentářům). Pokud se na takový sektor natrefí během rekonstrukce, vypadne obvykle příslušný disk z pole, a máte velký problém.</p>
+<p>Po výměně defektního disku za nový začíná rekonstrukce pole. To obnáší přečtení všech sektorů ze všech disků. Disky si ovšem někdy usmyslí, že některý sektor z nějakého důvodu nepřečtou (o tomhle pojednává lehce katastrofický článek <em>Why RAID 5 stops working in 2009</em>, který zmiňuji především kvůli zajímavým komentářům). Pokud se na takový sektor natrefí během rekonstrukce, vypadne obvykle příslušný disk z pole, a máte velký problém.</p>
 
 <p>Důvodů, proč některý sektor nepůjde přečíst, může být celá řada, počínaje výpadkem proudu, když zrovna probíhá zápis, nebo prostě vznik špatného sektoru. Ano, moderní pevné disky mají oblast záložních (spare) sektorů, kam špatné sektory realokují. Jenomže, realokace špatného sektoru se provádí při zápisu, nikoliv při čtení (čtení se totiž může podařit některým z opakovaných pokusů). Tudíž vás realokace v tomto směru nezachrání.</p>
 
@@ -82,11 +84,11 @@
 
 <h4>Data corruption (poškození dat)</h4>
 
-<p>V rámci RAIDu se nijak neverifikují zapsaná data. To znamená, že RAID je <a href="http://linas.org/linux/raid.html">zranitelný vůči poškození dat</a> (třeba vlivem špatného kabelu nebo řadiče, chyby v RAM modulu, apod.).</p>
+<p>V rámci RAIDu se nijak neverifikují zapsaná data. To znamená, že RAID je zranitelný vůči poškození dat (třeba vlivem špatného kabelu nebo řadiče, chyby v RAM modulu, apod.).</p>
 
 <p>S takovou situací už jsem se jednou setkal - u jednoho levného SATA řadiče docházelo k bitovým chybám při čtení/zápisu, následkem čehož v delším období došlo ke rozsáhlému poškození dat na (softwarovém) RAIDu 1, který jsem na něm provozoval. I proto zdůrazňuji, že RAID není náhradou zálohování.</p>
 
-<p>Poškození dat je to nejhorší, s čím se lze setkat - je totiž obvykle nepostřehnutelné. V době, kdy se váš systém začne chovat divně nebo dojde k nějaké jiné události, která vás donutí dívat se tímto směrem, může být již pozdě (a co je horší - chyby v datech se mohou promítnout i do záloh). Tohle třeba pěkně řeší <a href="http://cs.wikipedia.org/wiki/ZFS">ZFS</a> (souborový systém od Sunu), který, na rozdíl od tradičních linuxových souborových systémů jako ext4 či reiserfs, dohlíží na integritu dat. Bohužel, ZFS v Linuxu není a z licenčních důvodů asi ani nebude. Máme pouze BTRFS, který zatím stále není určený pro produkční nasazení.</p>
+<p>Poškození dat je to nejhorší, s čím se lze setkat - je totiž obvykle nepostřehnutelné. V době, kdy se váš systém začne chovat divně nebo dojde k nějaké jiné události, která vás donutí dívat se tímto směrem, může být již pozdě (a co je horší - chyby v datech se mohou promítnout i do záloh). Tohle třeba pěkně řeší souborový systém <em>ZFS</em> (souborový systém od bývalého Sunu, dnes Oraclu), který, na rozdíl od tradičních linuxových souborových systémů jako <em>ext4</em> či <em>reiserfs</em>, dohlíží na integritu dat. Bohužel, <em>ZFS</em> v Linuxu není a z licenčních důvodů asi ani nebude. Máme pouze BTRFS (vyvíjený společností Oracle), který zatím stále není určený pro produkční nasazení.</p>
 
 <p>Z tohoto důvodu nelze než doporučit alternativní postupy - Tripwire, md5sum nebo podobné nástroje pro kontrolu integrity vybraných souborů.</p>
 
@@ -94,10 +96,11 @@
 
 <p>Chcete-li být zodpovědní, RAID nemůžete nechat běžet bez nějaké formy monitorování, které vás informuje v případě nějaké významné události (zejména pak výpadku pevného disku). Měli byste si tedy vytvořit nějaký systém monitorování diskového pole, abyste byli včas varováni, že máte vyměnit disk nebo (v horším případě) obnovit data ze záloh.</p>
 
-<p>V Linuxu existuje nástroj <em>mdadm</em>, který umožňuje nejenom provádět správu softwarového RAIDu, ale je schopen fungovat i jako démon, dohlížet nad softwarovým RAIDem a informovat vás (třeba e-mailem), že došlo k nějaké významné události. Jeho konfiguraci se budu věnovat dále. V tuto chvíli vám postačí vědět, že diskové pole je třeba nějakým způsobem monitorovat.</p>
+<p>V Linuxu existuje nástroj <code>mdadm</code>, který umožňuje nejenom provádět správu softwarového RAIDu, ale je schopen fungovat i jako démon, dohlížet nad softwarovým RAIDem a informovat vás (třeba e-mailem), že došlo k nějaké významné události. Jeho konfiguraci se budu věnovat dále. V tuto chvíli vám postačí vědět, že diskové pole je třeba nějakým způsobem monitorovat.</p>
 
-<pre id="links">http://linas.org/linux/raid.html Linas Vepstas, RAID and Data Storage Protection Solutions for Linux
+http://blogs.zdnet.com/storage/?p=162 Why RAID 5 stops working in 2009
+http://linas.org/linux/raid.html Linas Vepstas, RAID and Data Storage Protection Solutions for Linux
 http://en.wikipedia.org/wiki/RAID Wikipedia, RAID
 http://en.wikipedia.org/wiki/Standard_RAID_levels Wikipedia, Standard RAID levels
 http://en.wikipedia.org/wiki/Nested_RAID_levels Wikipedia, Nested RAID levels
-http://en.wikipedia.org/wiki/Self-Monitoring,_Analysis,_and_Reporting_Technology Wikipedia, S.M.A.R.T.</pre>
+http://en.wikipedia.org/wiki/Self-Monitoring,_Analysis,_and_Reporting_Technology Wikipedia, S.M.A.R.T.

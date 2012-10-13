@@ -1,6 +1,70 @@
-<h1>Správa linuxového serveru: Šifrování s dm-crypt/LUKS</h1>
+<h2>Šifrování s dm-crypt/LUKS</h2>
 
-<h3>Co lze šifrovat a proč</h3>
+<h3>Úvod do diskového šifrování</h3>
+
+<p>Diskové šifrování na serverech je minimálně využívanou funkcionalitou, ale ať už se rozhodnete diskové šifrování nasadit či nenasadit, měli byste vědět, o co se jedná, co vám diskové šifrování nabídne, před čím vás ochrání, a před čím vás naopak neochrání.</p>
+
+<p>Diskové šifrování je metoda, při níž se obsah pevného disku (resp. konkrétních šifrovaných oddílů) udržuje zašifrovaný, ale operační systém je schopen prostřednictvím online šifrování a dešifrování zpřístupnit šifrovaný svazek tak, jako by se jednalo o svazek nešifrovaný. Předpokladem je samozřejmě zadání správného hesla.</p>
+
+<p>To znamená, že v optimálním případě nebude útočník schopen získat bez znalosti klíče citlivá data na šifrovaných oddílech, pokud si třeba odnese pevný disk nebo ho vytrhne z běžícího serveru.</p>
+
+<p>Úskalí diskového šifrování je nicméně mnoho, a na serveru to platí dvojnásob. <strong>Za prvé</strong>, velmi záleží na použitých kryptografických metodách a jejich implementaci. Diskové šifrování je problematické z toho důvodu, že se šifrují data o velkém objemu, a ještě navíc data, která mají určité vzorce, a o kterých lze mnohé usoudit, i když data nejsme schopni dešifrovat (toto zahrnuje datové struktury souborových systémů, prázdné místo, apod.). Je tedy třeba použít vhodné řešení (v našem případě dm-crypt/LUKS), vhodné kryptografické metody (viz dále) a samozřejmě dostatečně silné heslo.</p>
+
+<p><strong>Za druhé</strong>, diskové šifrování v současné době není schopné nahradit fyzické zabezpečení serveru - to znamená, že před útočníkem schopným dostat se fyzicky k našemu serveru, data příliš chráněna nejsou. Existuje řada útoků, proti kterým se u serveru nelze rozumně bránit. Tyto útoky zahrnují nejobávanější cold boot attack (předpokládá fyzický přístup k serveru, když server běží), ale i útoky na části systému, které z principu šifrovat nelze (zavaděč, obrazy jader, iniciální ramdisk, apod.) - tyto útoky je možné realizovat i v situaci, kdy je server vypnutý.</p>
+
+<p><strong>Za třetí</strong>, diskové šifrování znamená poměrně citelný dopad na rychlost čtení a zápisu dat, ale také na zatížení serveru - šifrování a dešifrování totiž zajišťuje procesor, a šifrování / dešifrování jako takové je výpočetně náročné. V Linuxu je navíc ještě problém v tom, že diskové šifrování obstarává u každého oddílu jen jedno vlákno, což nám vytváří úzké hrdlo u vícejaderných a víceprocesorových konfigurací, kde není dost dobře možné jejich výhodu paralelních výpočtů využít.</p>
+
+<p><strong>Za čtvrté</strong>, stejně jako u LVM se jedná o vrstvu funkcionality navíc, kde může dojít k chybě, a kde může přehození jediného bitu způsobit nečitelnost celého jednoho bloku. Dvouúrovňové šifrování v rámci LUKS navíc vytváří <em>single point of failure</em>, kde, pokud dojde k narušení integrity hlavičky šifrovaného svazku, přijdeme zcela jistě o všechna data (hlavička totiž obsahuje klíč k dešifrování celého oddílu).</p>
+
+<p><strong>Za páté</strong>, pro dešifrování oddílů je nutné zadat heslo, což u serveru, který by měl po restartu co nejdříve naběhnout, komplikuje situaci. Ještě více situaci komplikuje absence fyzické přítomnosti správce, pokud je server umístěn v datacentru a spravován na dálku. Toto se však dá řešit zadáním hesla přes SSH. Není mi známo, že by Debian tuto možnost měl vestavěnou, ale je možné sestavit vlastní řešení, popřípadě se podívat na jeden z odkazů pod kapitolou, kde je jedno takové řešení popsáno.</p>
+
+<p>Jaký má tedy diskové šifrování smysl? U serveru přichází v úvahu následující alternativy:</p>
+
+<ul>
+<li>ochrana proti úniku dat z defektních nebo jinak vyřazených pevných disků</li>
+<li>ochrana proti úniku dat následkem zcizení serveru - ovšem pouze pokud by ke zcizení došlo ve chvíli, kdy je server vypnutý, tzn. třeba při jeho převozu z jednoho datacentra do druhého</li>
+<li>minimální ochrana před neznalým útočníkem s fyzickým přístupem k disku</li>
+</ul>
+
+<p>Uživatelé RAIDu mi nyní pravděpodobně řeknou, že k zabezpečení dat před prvním zmíněnou situací postačí fakt, že data se nachází třeba v RAIDu 5 nebo 6. Ano, v takové situaci sice nelze rekonstruovat původní data, nicméně vzhledem k tomu, že data se v rámci RAIDu 5 a 6 rozdělují na bloky určité velikosti, je přeci jen možné získat nějaká data i z disku v diskovém poli - tím, že se pokusíme vytáhnout informace z datových bloků. Pokud nakládáme s citlivými daty, může být i takto omezený "únik" nepřijatelný.</p>
+
+<p>Diskové šifrování není vzhledem ke svým nevýhodám vhodné pro nasazení na běžný server, ale určitě se velmi hodí správcům pro ochranu citlivých dat jako SSH klíčů, hesel nebo jiných materiálů na přenosných zařízení nebo desktopech.</p>
+
+<h4>dm-crypt/LUKS</h4>
+
+<p><code>dm-crypt</code> je specifický subsystém linuxového jádra, který využívá
+infrastrukturu device mapperu a linuxového CryptoAPI, a vytváří transparentní
+vrstvu pro online šifrování a dešifrování blokových zařízení. Dodávám, že
+<code>dm-crypt</code> je možné využívat samostatně, bez LUKS nadstavby, a to
+prostřednictvím stejného nástroje - <code>cryptsetup</code>. V tomto článku se
+však plně zaměřím právě na LUKS.</p>
+
+<p>LUKS je nadstavba dm-cryptu, která, vezmu-li to zjednodušeně, přidává
+dvouúrovňové šifrování, správu klíčů a funkci pro posílení uživatelského hesla
+<b>PBKDF2</b>. Specifikace LUKS je multiplatformní a je možné s jeho pomocí
+vytvářet šifrované kontejnery, které lze otevřít i v jiných operačních
+systémech (třeba s pomocí aplikace pro MS Windows s názvem, ale ta má dnes již citelné
+nevýhody, a proto je šifrování pomocí LUKS opět spíše Linuxová záležitost).</p>
+
+<p>Dvouúrovňové šifrování v případě LUKS znamená, že samotný svazek je šifrován
+tzv. hlavním klíčem (master key), který je následně zašifrován uživatelským
+heslem a uložen do jednoho z úložišť (slotů). Z toho vyplývá jak na jedné
+straně velká výhoda v podobě nezávislosti šifrování na uživatelském hesle, a
+tudíž možnost bezproblémové revokace (či změny) existujícího přístupového
+hesla, tak na straně druhé nevýhoda spočívající v potenciální ztrátě dat, je-li
+nezálohovaná hlavička s úložištěm klíčů přepsána.</p>
+
+<h4>Praktická realizace diskového šifrování</h4>
+
+<p>Jak už bylo zmíněno, nelze šifrovat úplně všechno, oddíl zahrnující <code>/boot</code> musí zůstat nešifrovaný. Všechno ostatní (včetně kořenového oddílu) může být šifrované (a má-li šifrování mít alespoň nějaký smysl, je třeba šifrovat nebo jinak zabezpečit <code>swap</code> i veškerá umístění, kam by se mohla dostat citlivá data - např. <code>/tmp</code>). Šifrování lze postavit nad RAIDem a výsledný šifrovaný svazek použít pro LVM, třeba jak je to naznačeno na tomto obrázku.</p>
+
+lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS a LVM
+
+<p>Na tomto obrázku bych rád ilustroval, jak složité struktury pro uložení a zabezpečení dat je možné vytvářet. Spolu s tím bych rád upozornil na to, že na pořadí v tomto případě velice záleží - proto je třeba navrhnout způsob práce s úložištěm s rozmyslem, což je také důvodem, proč se těmto tématům věnuji před samotnou instalací.</p>
+
+<p>Co se týče nastavení, volby šifry a šifrovacího módu, jen ve stručnosti, podrobněji bude probráno dále. Šifru si vyberte dle libosti, ale pokud možno takovou, která není zastaralá (jako například Blowfish) - ideální je vybírat některého z finalistů soutěže o AES (Advanced Encryption Standard). U diskového šifrování dnes nepřipadá v úvahu jiný mód než <code>XTS</code>. Módy <code>cbc-essiv</code> i <code>LRW</code> jsou zranitelné. Více o teorii šifrovacích módů pro diskové šifrování si můžete přečíst na Wikipédii v článku nazvaném <em>Disk encryption theory</em>.</p>
+
+<h3>Ještě než začnete šifrovat</h3>
 
 <p>Pomocí dm-crypt/LUKS lze šifrovat <strong>jakékoliv blokové zařízení</strong>, tzn. diskový oddíl, celý pevný disk, diskové pole (RAID), logický svazek v rámci LVM, atd.</p>
 
@@ -10,21 +74,21 @@
 
 <p>Budete-li tedy uvažovat o nasazení šifrování, uvažte pečlivě, jaká data  chcete chránit a před kým. Následně zauvažujte, zda-li má šifrování v daném scénáři smysl, a pokud ano, tak jak velký. Jelikož má šifrování negativní dopad na výkon i na případnou záchranu dat z poškozeného pole nebo disku, je třeba pečlivě zvážit, zda-li šifrování nasadíte a kam.</p>
 
-<h3>Co šifrovat</h3>
+<h3>Co šifrovat?</h3>
 
 <p>Aby mělo použití šifrování smysl, je třeba zajistit, aby na discích nezůstalo nic z chráněných dat v nešifrované podobě. Proto je každopádně třeba začít se šifrováním swapu. Dále je třeba kromě samotných úložišť citlivých dat zabezpečit i všechna místa, kam by se data mohla dostat. Typicky je to adresář <code>/tmp</code>, pro který bývá dobré využívat buď <code>tmpfs</code> nebo samostatný šifrovaný oddíl. V některých specifických případech to může být kromě obvyklého <code>/home</code> i adresář <code>/var</code>, <code>/srv</code> či jiné umístění.</p>
 
-<p>Šifrovat lze samozřejmě jak selektivně (tj. jen to důležité), tak téměř úplně všechno včetně celého systému s výjimkou zavaděče, obrazu jádra a initrd. V prvním případě je nutné dát si pozor na "prosakování" chráněných dat mimo šifrované svazky, ve druhém případě obvykle vznikne problém se zaváděním systému, během kterého bude třeba nějakým způsobem zadat heslo, což třeba u serveru, který je umístěn v nějakém datacentru, a ke kterému přistupujete vzdáleně, působí jistý problém. Ten je možné řešit pomocí malého ssh démona v initrd (třeba <a href="http://matt.ucc.asn.au/dropbear/dropbear.html">dropbear</a>), který se spustí a umožní správci přihlásit se a zadat heslo vzdáleně.</p>
+<p>Šifrovat lze samozřejmě jak selektivně (tj. jen to důležité), tak téměř úplně všechno včetně celého systému s výjimkou zavaděče, obrazu jádra a initrd. V prvním případě je nutné dát si pozor na "prosakování" chráněných dat mimo šifrované svazky, ve druhém případě obvykle vznikne problém se zaváděním systému, během kterého bude třeba nějakým způsobem zadat heslo, což třeba u serveru, který je umístěn v nějakém datacentru, a ke kterému přistupujete vzdáleně, působí jistý problém. Ten je možné řešit pomocí malého ssh démona v initrd (třeba dropbear), který se spustí a umožní správci přihlásit se a zadat heslo vzdáleně.</p>
 
-<p class="box">Návod pro toto řešení v rámci distribuce Debian naleznete <a href="http://www.debian-administration.org/articles/579">v článku na debian-administration.org</a>.</p>
+<p>Návod pro toto řešení v rámci distribuce Debian naleznete mezi odkazy pod kapitolou.</p>
 
 <h3>Výběr šifry a šifrovacího módu</h3>
 
-<p>Před samotným nasazením šifrování je třeba připomenout problematiku šifrovacích algoritmů a šifrovacích módů. V zásadě, šifrovací algoritmus byste měli vybírat nejlépe z <a href="http://en.wikipedia.org/wiki/Advanced_Encryption_Standard_process">finalistů AES</a>. Starším šifrám jako DES či Blowfish se doporučuji vyhnout. Se samotným výběrem vám neporadím, jen podotknu, že nejrychlejší implementací je samotný AES/Rijndael, v závěsu za ním pak Serpent a Twofish. Jejich bezpečnost by měla být velmi podobná.</p>
+<p>Před samotným nasazením šifrování je třeba připomenout problematiku šifrovacích algoritmů a šifrovacích módů. V zásadě, šifrovací algoritmus byste měli vybírat nejlépe z finalistů AES. Starším šifrám jako DES či Blowfish se doporučuji vyhnout. Se samotným výběrem vám neporadím, jen podotknu, že nejrychlejší implementací je samotný AES/Rijndael, v závěsu za ním pak Serpent a Twofish. Jejich bezpečnost by měla být velmi podobná.</p>
 
-<p>Pro diskové šifrování je klíčový výběr vhodného šifrovacího módu. Je totiž nutné šifrovat ohromné kvantum dat, která mají ovšem předvídatelnou strukturu (souborový systém, superblok, atd.), což může případnému útočníkovi usnadnit kryptoanalýzu, i když je samotný šifrovací algoritmus bezpečný. Pro diskové šifrování dnes přichází v úvahu především mód XTS. LRW je vzhledem k jeho objevené zranitelnosti nutné zavrhnout. Pro systémy se staršími jádry, které ještě nemají podporu pro mód XTS, je vhodné použít mód cbc-essiv (nikoliv však samotné cbc!).</p>
+<p>Pro diskové šifrování je klíčový výběr vhodného šifrovacího módu. Je totiž nutné šifrovat ohromné kvantum dat, která mají ovšem předvídatelnou strukturu (souborový systém, superblok, atd.), což může případnému útočníkovi usnadnit kryptoanalýzu, i když je samotný šifrovací algoritmus bezpečný. Pro diskové šifrování dnes přichází v úvahu především mód <code>XTS</code>. <code>LRW</code> je vzhledem k jeho objevené zranitelnosti nutné zavrhnout. Pro systémy se staršími jádry, které ještě nemají podporu pro mód <code>XTS</code>, je vhodné použít mód <code>cbc-essiv</code> (nikoliv však samotné <code>cbc</code>!).</p>
 
-<p>Řada distribucí nabízí v rámci instalátoru možnost postavit šifrovaný systém. Bohužel, tato možnost obvykle neumožňuje precizní nastavení šifrovacího algoritmu a šifrovacího módu, a mnohde bývají výchozí hodnoty nastavené patrně ve snaze zachovat kompatibilitu příliš konzervativně (což je i případ Debianu), tudíž není zvolen výchozí mód XTS, ale třeba cbc-essiv. V takových případech je tedy vhodnější postavit šifrovaný systém ručně, neboť šifrovací mód na existujícím šifrovaném svazku měnit nelze.</p>
+<p>Řada distribucí nabízí v rámci instalátoru možnost postavit šifrovaný systém. Bohužel, tato možnost obvykle neumožňuje precizní nastavení šifrovacího algoritmu a šifrovacího módu, a mnohde bývají výchozí hodnoty nastavené patrně ve snaze zachovat kompatibilitu příliš konzervativně (což je i případ Debianu), tudíž není zvolen výchozí mód XTS, ale třeba <code>cbc-essiv</code>. V takových případech je tedy vhodnější postavit šifrovaný systém ručně, neboť šifrovací mód na existujícím šifrovaném svazku měnit nelze.</p>
 
 <h3>Alternativy pro šifrování v GNU/Linuxu</h3>
 
@@ -38,13 +102,13 @@
 
 <p>Nejvíce zmiňovanou alternativou pro dm-crypt/LUKS je Truecrypt, zejména kvůli přenositelnosti šifrovaných kontejnerů mezi GNU/Linuxem a MS Windows. V dnešní době je Truecrypt schopen využívat přímo linuxové CryptoAPI a vytváří přímo blokové zařízení prostřednictvím Device Mapperu, což jej řadí blízko k dm-cryptu a LUKS. Samotný Truecrypt nabízí uživatelům pěkné grafické rozhraní, stejně jako možnost jej ovládat přes příkazový řádek.</p>
 
-<p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související "plausible deniability" aneb možnost "hodnověrného popření" - skryté svazky využívají <a href="http://cs.wikipedia.org/wiki/Steganografie">steganografii</a>, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco "nápadnější" než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s Ext2/Ext3.</p>
+<p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související "plausible deniability" aneb možnost "hodnověrného popření" - skryté svazky využívají steganografii, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco "nápadnější" než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s linuxovými souborovými systémy.</p>
 
-<p>Je nutné dodat, že licence Truecryptu je mnohými distribucemi (<a href="http://lists.debian.org/debian-legal/2006/06/msg00295.html">Debian</a>, <a href="http://fedoraproject.org/wiki/ForbiddenItems#TrueCrypt">Fedora</a> a další) považována za nesvobodnou a mj. pro distributory potenciálně problematickou. Proto třeba nenajdete Truecrypt v oficiálních repositářích Debianu.</p>
+<p>Je nutné dodat, že licence Truecryptu je mnohými distribucemi (Debian, Fedora a další) považována za nesvobodnou a mj. pro distributory potenciálně problematickou. Proto třeba nenajdete Truecrypt v oficiálních repositářích Debianu.</p>
 
 <h4>encfs</h4>
 
-<p>Další alternativou je <code>encfs</code> (<a href="http://www.arg0.net/encfs">web projektu</a>) využívající FUSE. Jeho výhodou i nevýhodou zároveň (záleží na úhlu pohledu) je funkce "nad" existujícím souborovým systémem, nikoliv "pod" ním jako v případě ostatních zmíněných řešení. Šifrují se tedy přímo vlastní data, včetně názvů souborů a adresářů. Potenciálním problémem je zachování metadat (velikost souboru, datum vytvoření a poslední modifikace, atd.) pro případného útočníka. To sice nemá přímý bezpečnostní dopad ve smyslu usnadnění kryptoanalýzy, ale může to v některém případě odhalit jisté informace, které by nebyly k dispozici, kdyby byl zašifrovaný celý souborový systém.</p>
+<p>Další alternativou je <code>encfs</code> využívající FUSE. Jeho výhodou i nevýhodou zároveň (záleží na úhlu pohledu) je funkce "nad" existujícím souborovým systémem, nikoliv "pod" ním jako v případě ostatních zmíněných řešení. Šifrují se tedy přímo vlastní data, včetně názvů souborů a adresářů. Potenciálním problémem je zachování metadat (velikost souboru, datum vytvoření a poslední modifikace, atd.) pro případného útočníka. To sice nemá přímý bezpečnostní dopad ve smyslu usnadnění kryptoanalýzy, ale může to v některém případě odhalit jisté informace, které by nebyly k dispozici, kdyby byl zašifrovaný celý souborový systém.</p>
 
 <p>Encfs se však výborně hodí pro různé síťové disky a podobné online služby, kde příslušná data nemáte pod kontrolou a nevíte, kdo má k nim přístup. Jistě, je možné použít šifrovaný kontejner, ale to nemusí být zcela efektivní z hlediska využitého prostoru, který je v rámci daných služeb obvykle velmi omezený.</p>
 
@@ -52,7 +116,7 @@
 
 <p>GnuPG je běžnou součástí distribucí a umožňuje jak šifrování souborů asymetrickým klíčem, tak šifrování běžnou, blokovou šifrou. Pomocí GnuPG lze tedy snadno zašifrovat nějaký soubor buď k přenosu přes nezabezpečenou síť nebo pro uložení na nějaké médium či síťový disk.</p>
 
-<p>GnuPG využívá, kupříkladu, zálohovací nástroj <a href="http://www.nongnu.org/duplicity/">Duplicity</a>, který umožňuje vytvářet na místním či vzdáleném úložišti šifrované zálohy.</p>
+<p>GnuPG využívá, kupříkladu, zálohovací nástroj Duplicity, který umožňuje vytvářet na místním či vzdáleném úložišti šifrované zálohy.</p>
 
 <h3>Jak poskládat RAID, LVM a dm-crypt/LUKS?</h3>
 
@@ -67,32 +131,6 @@
 <p>Šifrovat lze samozřejmě i pod softwarovým RAIDem, což bývá i doporučeno, jsou-li pevné disky příliš velké (příliš mnoho dat šifrovaných jedním postupem usnadňuje případnou kryptoanalýzu). Nutnost "odemknout" více zařízení může vyřešit malý šifrovaný oddíl na jednom z disků, který obsahuje klíče k "odemčení" zbylých disků v poli.</p>
 
 <p>Co se týče ostatních kombinací, provozovat softwarový RAID nad LVM je sice možné, ale naprosto nesmyslné a potenciálně problémové, a provozovat LVM bez RAIDu na více discích je nevhodné - stoupá pravděpodobnost selhání jednoho z disků a selhání kteréhokoliv z disků znamená ztrátu dat. Pokud byste používali zrcadlení v rámci LVM, je podle mého lepší využít rovnou softwarový nebo hardwarový RAID.</p>
-
-<h3>dm-crypt/LUKS</h3>
-
-<p><a href="http://en.wikipedia.org/wiki/Dm-crypt">dm-crypt</a> je specifický
-subsystém linuxového jádra, který využívá infrastrukturu device mapperu a
-linuxového CryptoAPI, a vytváří transparentní vrstvu pro online šifrování a
-dešifrování blokových zařízení. Dodávám, že <code>dm-crypt</code> je možné
-využívat samostatně, bez LUKS nadstavby, a to prostřednictvím stejného nástroje
-- <code>cryptsetup</code>. V tomto článku se však plně zaměřím právě na LUKS.</p>
-
-<p><a href="http://code.google.com/p/cryptsetup/">LUKS</a> je nadstavba
-dm-cryptu, která, vezmu-li to zjednodušeně, přidává dvouúrovňové šifrování,
-správu klíčů a funkci pro posílení uživatelského hesla <b>PBKDF2</b>.
-Specifikace LUKS je multiplatformní a je možné s jeho pomocí vytvářet šifrované
-kontejnery, které lze otevřít i v jiných operačních systémech (třeba s pomocí
-aplikace pro MS Windows s názvem <a
-href="http://www.freeotfe.org/">FreeOTFE</a>, ale ta má dnes již citelné nevýhody,
-a proto je šifrování pomocí LUKS opět spíše Linuxová záležitost).</p>
-
-<p>Dvouúrovňové šifrování v případě LUKS znamená, že samotný svazek je šifrován
-tzv. hlavním klíčem (master key), který je následně zašifrován uživatelským
-heslem a uložen do jednoho z úložišť (slotů). Z toho vyplývá jak na jedné
-straně velká výhoda v podobě nezávislosti šifrování na uživatelském hesle, a
-tudíž možnost bezproblémové revokace (či změny) existujícího přístupového
-hesla, tak na straně druhé nevýhoda spočívající v potenciální ztrátě dat, je-li
-nezálohovaná hlavička s úložištěm klíčů přepsána.</p>
 
 <h3>Příprava budoucího šifrovaného svazku</h3>
 
@@ -121,24 +159,8 @@ zaplnění svazku méně kvalitními náhodnými daty, které patrně může zku
 kryptoanalytik rozeznat od šifrovaných dat, což by činilo celý tento krok
 zbytečným.</p>
 
-<p>Já osobně používám následující urychlovací metodu. Dodávám však, že nejsem
-kryptolog ani kryptoanalytik, tudíž nejsem schopen odhadnout, zda-li je to
-správný postup nebo naopak z nějakého důvodu velmi špatný.</p>
-
-<p>Můj postup je následující - vytvořím šifrovaný svazek (viz další bod),
-následně použiji nástroj <code>badblocks</code> k zaplnění svazku nekvalitními
-náhodnými daty, která by ovšem po zašifrování měla být nerozeznatelná od
-kvalitních (nebo od skutečných zašifrovaných dat):</p>
-
-<pre>badblocks -v -s -w -t random /dev/mapper/desifrovany_svazek</pre>
-
-<p>Následně svazek odpojím pomocí <code>luksClose</code> (viz níže) a přepíšu
-ještě začátek oddílu s LUKS hlavičkou pomocí <code>/dev/urandom</code>:</p>
-
-<pre>dd if=/dev/urandom of=/dev/zarizeni bs=1M count=32</pre>
-
-<p>Lepší je ale v každém případě použít data z <code>/dev/urandom</code>,
-popřípadě použít řešení typu <em>frandom</em>.</p>
+<p>Jedno z alternativních řešení může představovat projekt <em>frandom</em>.
+</p>
 
 <h3>Vytvoření šifrovaného svazku</h3>
 
@@ -311,11 +333,11 @@ chome /dev/sda3 none luks</pre>
 
 <p>Předně, v době generování iniciálního ramdisku je třeba mít zavedené všechny moduly potřebné pro dešifrování kořenového svazku (ideálně by daný svazek měl být připojen). Dále je třeba adekvátně upravit <code>/etc/crypttab</code> a <code>/etc/fstab</code>. Poté je třeba nechat znovu vygenerovat iniciální ramdisk a upravit zavaděč, aby jádru předal vhodný parametr <code>root=</code> (třeba <code>/dev/mapper/root</code>).</p>
 
-<p>Instalátor Debianu umí vytvořit šifrovaný systém i s kořenovým svazkem. Problémem je, jak už bylo zmíněno dříve, nastavení, které neumožňuje použít lepší šifrovací mód než cbc-essiv. Jelikož šifrovací mód nelze na existujícím šifrovaném svazku jen tak změnit, je lepší celý proces provést ručně.</p>
+<p>Instalátor Debianu umí vytvořit šifrovaný systém i s kořenovým svazkem. Problémem je, jak už bylo zmíněno dříve, nastavení, které neumožňuje použít lepší šifrovací mód než <code>cbc-essiv</code>. Jelikož šifrovací mód nelze na existujícím šifrovaném svazku jen tak změnit, je lepší celý proces provést ručně.</p>
 
 <p>Já se zaměřím na situaci, kdy již máte systém nainstalovaný, a chcete jej zašifrovat. Prvním krokem by mělo být šifrování swapu - tento krok je již naznačen výše.</p>
 
-<p>Samotná příprava a vytvoření šifrovaného svazku byla probrána v minulém díle. Varoval bych vás snad jen před různými návody na rychlé zašifrování nešifrovaného oddílu pomocí nástroje <code>dd</code>. Uvědomte si, že operace <code>luksFormat</code> přepíše začátek daného oddílu a samotná LUKS hlavička oddíl o něco zmenší (tj. souborovému systému by to uřízlo konec).</p>
+<p>Samotná příprava a vytvoření šifrovaného svazku byla probrána výše. Varoval bych vás snad jen před různými návody na rychlé zašifrování nešifrovaného oddílu pomocí nástroje <code>dd</code>. Uvědomte si, že operace <code>luksFormat</code> přepíše začátek daného oddílu a samotná LUKS hlavička oddíl o něco zmenší (tj. souborovému systému by to uřízlo konec).</p>
 
 <p>Druhým krokem může být zašifrování všech ostatních svazků s výjimkou kořenového. Bohužel mi není známa spolehlivá metoda zašifrování nešifrovaného svazku (alespoň ne, jedná-li se o LUKS svazek). Z tohoto důvodu se asi nevyhnete přesunům dat mimo budoucí šifrovaný svazek a pak zpět, což ovšem není z hlediska bezpečnosti vůbec ideální, jelikož citlivá data se během tohoto procesu přesouvají na další médium - toto médium, stejně jako i původní svazek, je třeba ošetřit tak, aby citlivá data již nebylo možné obnovit (viz bezpečné mazání v závěru článku).</p>
 
@@ -341,7 +363,7 @@ chome /dev/sda3 none luks</pre>
 
 <p>Následuje poslední úprava - úprava konfigurace zavaděče, kde je třeba kořenový oddíl (typicky je předávaný jádru v hodnotě parametru <code>root=</code>) zaměnit za <code>/dev/mapper/root</code>.</p>
 
-<p>Nyní již zbývá data z kořenového oddílu přesunout, z oddílu vytvořit šifrovaný svazek a na ten data přesunout zpět. Nejpohodlněji se to provádí z nějaké live distribuce, třeba z mého oblíbeného <a href="http://www.linuxexpres.cz/distro/system-rescue-cd?highlightWords=system+rescue">System Rescue CD</a>.</p>
+<p>Nyní již zbývá data z kořenového oddílu přesunout, z oddílu vytvořit šifrovaný svazek a na ten data přesunout zpět. Nejpohodlněji se to provádí z nějaké live distribuce, třeba z mého oblíbeného <em>System Rescue CD</em>.</p>
 
 <p>Poté proveďte reboot, a pokud jste nastavili všechno správně, systém by měl naběhnout, dotázat se na příslušná hesla a zpřístupnit šifrované svazky.</p>
 
@@ -368,16 +390,27 @@ chome /dev/sda3 none luks</pre>
 <li>kamera či útočníkovo oko sledující zadání hesla; obrana - dávat si pozor při zadávání hesla, možné kompromitované heslo revokovat či používat flashdisk s klíčem</li>
 <li>HW keylogger - útočník může nasadit štěnici mezi klávesnici a počítač, čímž odposlechne heslo; obrana - zajistit fyzickou bezpečnost počítače, používat flashdisk s klíčem</li>
 <li>cold boot attack - útočník může získat heslo přímo z RAM, má-li fyzický  přístup k počítači; obrana - zajistit fyzickou bezpečnost počítače, vypínat nebo hibernovat počítač když ho není třeba, nepoužívat suspend u laptopů, pokud v rámci suspendu nedojde k výmazu hesel z paměti</li>
-<li>fyzický útok či nátlak na znalce hesla - viz oblíbený <a href="http://xkcd.com/538/">komiks</a>;  obrana - záleží na typu útočníka, ideální je používat kromě hesla i klíčový soubor (key file) třeba na flash disku a ten včas zničit, popř. používat <a href="http://en.wikipedia.org/wiki/Deniable_encryption">popiratelné šifrování</a> (což LUKS vzhledem k hlavičce rozhodně není)</li>
+<li>fyzický útok či nátlak na znalce hesla - komiks XKCD má o této formě útoku pěkný strip (naleznete v odkazech pod kapitolou);  obrana - záleží na typu útočníka, ideální je používat kromě hesla i klíčový soubor (key file) třeba na flash disku a ten včas zničit, popř. používat popiratelné šifrování (což LUKS vzhledem k hlavičce rozhodně není)</li>
 <li>a další</li>
 </ul>
 
-<pre id="links">http://en.wikipedia.org/wiki/Disk_encryption_theory Wikipedia: Disk encryption theory
-http://code.google.com/p/cryptsetup/ Linux unified key setup (LUKS)
-http://en.wikipedia.org/wiki/Dm-crypt Dm-crypt</pre>
+http://en.wikipedia.org/wiki/Cold_boot_attack Wikipedia, Cold boot attack
+http://en.wikipedia.org/wiki/Advanced_Encryption_Standard_process Wikipedia, finalisté AES
+http://en.wikipedia.org/wiki/Device_mapper Wikipedia, Device mapper
+http://www.saout.de/misc/dm-crypt/ Web projektu dm-crypt
+http://code.google.com/p/cryptsetup/ Web projektu LUKS
+http://en.wikipedia.org/wiki/Disk_encryption_theory Wikipedia, Disk encryption theory
+http://www.root.cz/serialy/diskove-sifrovani-pomoci-dm-cryptluks/  Root.cz, Michal Dočekal, Diskové šifrování pomocí dm-crypt/LUKS
 http://wiki.archlinux.org/index.php/System_Encryption_with_LUKS_for_dm-crypt System Encryption with LUKS for dm-crypt (Arch Linux Wiki)
-http://en.wikipedia.org/wiki/Disk_encryption_theory Wikipedia: Disk encryption theory
-http://code.google.com/p/cryptsetup/ Linux unified key setup (LUKS)
-http://en.wikipedia.org/wiki/Dm-crypt Dm-crypt</pre>
 http://www.debian-administration.org/article/Encrypting_an_existing_Debian_lenny_installation Encrypting an existing Debian Lenny Installation
-http://www.saout.de/tikiwiki/tiki-index.php?page=LUKSFaq LUKS FAQ</pre>
+http://www.saout.de/tikiwiki/tiki-index.php?page=LUKSFaq LUKS FAQ
+http://matt.ucc.asn.au/dropbear/dropbear.html Dropbear
+http://www.debian-administration.org/articles/579 Unlocking a LUKS encrypted root partition via ssh
+http://cs.wikipedia.org/wiki/Steganografie Wikipédie (česká), Steganografie
+http://lists.debian.org/debian-legal/2006/06/msg00295.html Výhrady Debianu k Truecryptu
+http://fedoraproject.org/wiki/ForbiddenItems#TrueCrypt Výhrady Fedory k Truecryptu
+http://www.arg0.net/encfs Encfs
+http://www.nongnu.org/duplicity/ Duplicity
+http://www.linuxexpres.cz/distro/system-rescue-cd Článek o System Rescue CD
+http://xkcd.com/538/ XKCD: o šifrování
+http://en.wikipedia.org/wiki/Deniable_encryption Wikipédie, Popiratelné šifrování

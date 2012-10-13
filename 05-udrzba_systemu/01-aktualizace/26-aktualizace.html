@@ -1,4 +1,6 @@
-<h1>Správa linuxového serveru: Jak aktualizovat server(y)</h1>
+<h1>Údržba systému</h1>
+
+<h2>Jak aktualizovat servery</h2>
 
 <p>Oproti aktualizacím desktopu je aktualizace serveru přeci jen v pár věcech odlišná. Na desktopu je obvykle ve výchozí instalaci přítomen nějaký nástroj, který vás na dostupnost nových aktualizací upozorní a provede vás příslušným procesem, a to obvykle v pohodlí grafického prostředí. Na serveru si upozorňování i provádění aktualizací musíte zařídit sami. Druhým podstatným rozdílem je dopad případného problému při aktualizaci - na serveru obvykle jakýkoliv problém postihuje řádově větší množství lidí.</p>
 
@@ -46,5 +48,10 @@
 
 <p>Ve spolupráci s balíčkem <code>apt-listchanges</code> umí <code>apticron</code> posílat v mailech i podrobnosti o aktualizacích. Dozvíte se tak třeba, zdali se jedná o bezpečnostní aktualizaci, čeho se aktualizace týká a také, jak moc je doporučováno aktualizovat.</p>
 
-<p>V rámci ruční aktualizace máte samozřejmě možnost vybírat, kdy a co aktualizovat. Jedna z možných strategií je aktualizovat vše, druhou možností je aktualizovat jen to, co je opravdu nutné. K tomuto rozhodování vám velice dobře poslouží výše zmíněné nástroje. Nemusí být také úplně od věci přihlásit se k odběru zpráv o bezpečnostních problémech a aktualizacích. V případě Debianu se podívejte na <a href="http://www.debian.org/security/">Debian.org</a>.</p>
+<p>V rámci ruční aktualizace máte samozřejmě možnost vybírat, kdy a co aktualizovat. Jedna z možných strategií je aktualizovat vše, druhou možností je aktualizovat jen to, co je opravdu nutné. K tomuto rozhodování vám velice dobře poslouží výše zmíněné nástroje. Nemusí být také úplně od věci přihlásit se k odběru zpráv o bezpečnostních problémech a aktualizacích (zdroj těchto informací pro Debian naleznete v odkazech pod kapitolou.</p>
 
+<h3>Povýšení na nové vydání</h3>
+
+<p>Návod na povýšení na nové vydání Debianu si vždy přečtěte na stránkách Debianu. Někdy se pro upgrade používá <code>apt-get</code>, někdy <code>aptitude</code>, protože jeden nebo druhý dává lepší výsledky řešení konfliktů balíčků. Kromě toho naleznete v dokumentaci pro dané vydání také seznam problémů, na které můžete při upgradu natrefit. Tento seznam je dobré navštívit před upgradem a nikoliv po tom, co se něco při upgradu pokazí a vy skončíte třeba s nefunkční službou a žádnou možností, jak upgrade vrátit zpět.</p>
+
+http://www.debian.org/security/ Debian security

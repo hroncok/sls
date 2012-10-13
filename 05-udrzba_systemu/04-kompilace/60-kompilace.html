@@ -1,6 +1,6 @@
-<h1>Úvod do kompilace softwaru</h1>
+<h3>Úvod do kompilace softwaru</h3>
 
-<h3>Balíček, repozitář, závislost, správce balíčků</h3>
+<h4>Balíček, repozitář, závislost, správce balíčků</h4>
 
 <p>Toto jsou pojmy, které – předpokládám – dobře znáte, tudíž je prolétnu jen letem světem. Balíček je obecně komponenta. Může to být aplikace, ale také dokumentace, datové soubory, sada ikon, fontů či tapet, knihovna atd. Jelikož balíčky mají atomický charakter (obsahují „jedno kolečko v soukolí“), existují mezi nimi závislostní vazby, tj. jeden balíček pro svou funkci může vyžadovat další balíčky, a ty mohou vyžadovat další balíčky atd.</p>
 
@@ -8,15 +8,15 @@
 
 <p>Software je v linuxových distribucích spravován centrálně, prostřednictvím správce balíčků, který bere v úvahu závislosti, ví, co je dostupné v repozitářích a de facto provádí téměř vše za správce. Ten mu jen řekne, co chce instalovat, odinstalovat či aktualizovat, a správce balíčků to provede.</p>
 
-<h3>Kompilace</h3>
+<h4>K čemu je kompilace</h4>
 
 <p>Software pro Linux, alespoň ten svobodný a open-source, je obvykle k dispozici v podobě zdrojového kódu (člověkem čitelné podoby programu). Ten je v případě řady programovacích jazyků nutné převést do podoby, kterou je schopen zpracovat procesor, tedy do strojového kódu. Ten pak můžete spustit a využívat.</p>
 
 <p>V případě většiny linuxových distribucí tento proces již někdo provedl a do repozitářů umístil příslušný balíček se strojovým kódem (někdy také „binárkou“), který stačí nainstalovat a je připraven k použití.</p>
 
-<h3>Distribuce a software</h3>
+<h4>Distribuce a software</h4>
 
-<p>Centralizovaná správa softwaru, tedy správa softwaru pomocí správce balíčků, je považována za jednu ze silných stránek GNU/Linuxu. Má ovšem z pohledu správce serverů dvě nevýhody. V první řadě, ne všechen software dostupný pro GNU/Linux je v distribučních repozitářích a ne vždy je to proto, že by daná věc nebyla zajímavá či užitečná. Abych nezůstával příliš v teoretických rovinách, uvedu malý příklad. Debian (a řada dalších distribucí) neobsahuje jádra patchovaná pomocí <a href="http://grsecurity.net/">grsecurity</a>. Zřejmě proto, že se dosud nenašel dobrovolník, který by jádra připravoval a udržoval.</p>
+<p>Centralizovaná správa softwaru, tedy správa softwaru pomocí správce balíčků, je považována za jednu ze silných stránek GNU/Linuxu. Má ovšem z pohledu správce serverů dvě nevýhody. V první řadě, ne všechen software dostupný pro GNU/Linux je v distribučních repozitářích a ne vždy je to proto, že by daná věc nebyla zajímavá či užitečná. Abych nezůstával příliš v teoretických rovinách, uvedu malý příklad. Debian (a řada dalších distribucí) neobsahuje jádra patchovaná pomocí grsecurity. Zřejmě proto, že se dosud nenašel dobrovolník, který by jádra připravoval a udržoval.</p>
 
 <p>Řada distribucí, včetně Debianu, stojí na ryze komunitním vývoji. O konkrétní balíčky se starají konkrétní lidé (říká se jim maintainer), kteří jsou zodpovědní za jejich tvorbu i údržbu. Někdy se stane, že nějaký balíček z repozitářů vypadne, nebo nebude začleněn, protože to představuje hodně práce a nikomu se do toho nechce. U podnikových distribucí, kde není problém na „nechtěnou“ práci někoho najmout, je zase typické, že jejich repozitáře obsahují méně softwaru než jejich ryze komunitní kolegové.</p>
 
@@ -26,39 +26,39 @@
 
 <p>Dlužno dodat, že tento problém se netýká distribucí, které používají tzv. rolling release model vývoje (Arch Linux, Gentoo, <a href="http://www.linuxexpres.cz/distro/source-mage-zacarovany-linux">Source Mage GNU/Linux</a> apod.), kde se nové verze (po otestování) rovnou zařazují do hlavních repozitářů, a distribuce jsou tak vlastně ve stádiu neustálého vývoje. Tyto distribuce obecně nebývají doporučovány pro produkční servery, i když jsou na některých používány. Jistě, záleží v první řadě na tom, co a jak má na serveru běžet a která distribuce je pro to nejvhodnější (nehledě na to, že velkou roli hraje i to, kterou distribuci správce dobře ovládá).</p>
 
-<h3>Úskalí kompilace</h3>
+<h4>Úskalí kompilace</h4>
 
 <p>Balíčkovací systém šetří (nejen) správcům práci. Umožňuje snadnou instalaci, odinstalaci i aktualizaci softwaru. Aktualizace se týká veškerého softwaru dostupného z repozitářů (pokud distribuce nestanoví jinak). Ve chvíli, kdy se pustíte do kompilace, o tyto výhody přijdete. Pokud si nesestavíte vlastní balíček obsahující vámi zkompilovaný software, nebude moci brát balíčkovací systém v úvahu soubory, které tomuto softwaru v souborovému systému patří - odinstalování tedy může být problematické. Ale i když si vlastní balíček postavíte a nainstalujete jej přes správce balíčků, zůstane na vás stále to nejdůležitější - jeho aktualizace.</p>
 
-<h4>Závislosti</h4>
+<h5>Závislosti</h5>
 
 <p>Samotná kompilace není jednoduchá. Nejenom, že potřebujete kompilátory a příslušné nástroje, ale musíte také vyřešit závislostní vazby. Je možné, že váš software vyžaduje knihovny nebo komponenty, které v systému nemáte. Ty je pak třeba buď doinstalovat z repozitářů, nebo také zkompilovat.</p>
 
-<h4>Změny v knihovnách</h4>
+<h5>Změny v knihovnách</h5>
 
 <p>Aktualizovat balíček byste měli nejenom, když vyjde jeho nová verze, ale také, pokud se zásadně změní verze závislých knihoven. Tohle je ale naštěstí spíše problém rolling release distribucí, jelikož v klasických zůstanou knihovny zpravidla ve stejných verzích. Může ale nastat problém při povýšení distribuce. V rolling release distribucích je třeba překompilovávat častěji, neboť tam se verze knihoven čas od času mění.</p>
 
-<h3>Alternativy</h3>
+<h5>Alternativy</h5>
 
 <p>Ideální je, pokud jste schopni pracovat se softwarem, který je v distribučních repozitářích, byť někdy musíte překousnout, že nová verze, už třeba půl roku dostupná, umí něco nového, co by vám usnadnilo práci. Ale ideální situace nenastane vždy – proto se někdy kompilaci nevyhnete. Ovšem ještě před tím, než se do kompilace pustíte, by bylo vhodné zvážit možná alternativní řešení.</p>
 
-<h4>Debian backports</h4>
+<h5>Debian backports</h5>
 
-<p>Jelikož se tento seriál zaměřuje na distribuci Debian, nelze nezmínit nyní již oficiální projekt <a href="http://backports.debian.org/">Debian backports</a>. Tento projekt tvoří repozitář, který lze zkombinovat se standardními repozitáři Debianu, a získat tak možnost instalace vybraného novějšího softwaru, který byl zkompilován pro stabilní vydání. Kupříkladu, kdybyste bývali nebyli spokojeni s Postgresem 8.4 v Debianu Squeeze a chtěli Postgresql 9.0, který vyšel nedávno po jeho vypuštění, nemuseli byste bývali sáhnout ke kompilaci – stačilo by vám použít backporty, ze kterých byste verzi 9.0 nainstalovali.</p>
+<p>Jelikož se tento seriál zaměřuje na distribuci Debian, nelze nezmínit nyní již oficiální projekt Debian Backports. Tento projekt tvoří repozitář, který lze zkombinovat se standardními repozitáři Debianu, a získat tak možnost instalace vybraného novějšího softwaru, který byl zkompilován pro stabilní vydání. Kupříkladu, kdybyste bývali nebyli spokojeni s Postgresem 8.4 v Debianu Squeeze a chtěli Postgresql 9.0, který vyšel nedávno po jeho vypuštění, nemuseli byste bývali sáhnout ke kompilaci – stačilo by vám použít backporty, ze kterých byste verzi 9.0 nainstalovali.</p>
 
-<h4>Neoficiální repozitáře</h4>
+<h5>Neoficiální repozitáře</h5>
 
-<p>Řada projektů má k dispozici neoficiální repozitáře (neoficiální z pohledu Debianu), které můžete použít k získání aktuální verze ve stabilním vydání. Kupříkladu, zde v seriálu <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-xmpp-jabber-server-prosody">zmíněný</a> Jabber/XMPP server Prosody má k dispozici <a href="http://prosody.im/download/package_repository">neoficiální repozitář</a>, kde najdete vždy aktuální verzi.</p>
+<p>Řada projektů má k dispozici neoficiální repozitáře (neoficiální z pohledu Debianu), které můžete použít k získání aktuální verze ve stabilním vydání. Kupříkladu, v této knize zmíněný Jabber/XMPP server Prosody má k dispozici neoficiální repozitář, kde najdete vždy aktuální verzi.</p>
 
-<h3>Strategie</h3>
+<h4>Strategie</h4>
 
 <p>Jelikož kompilace není jednoduchá a má svá úskalí, bývá dobré se jí vyhnout, pokud můžete. Zde mohou pomoci výše zmíněné alternativy. Pokud se pro kompilaci rozhodnete, musíte zvážit jednak dopad na „pohodlnost“ správy, respektive na nové povinnosti a možná úskalí, ale také na možné bezpečnostní dopady (síťová služba, SUID root popřípadě pod rootem běžící atd.). Řada projektů má k dispozici e-mailové konference s bezpečnostními hlášeními nebo hlášeními o nových verzích. Doporučuji se do nich přihlásit a pravidelně číst poštu, abyste mohli reagovat na případný bezpečnostní problém nebo věděli o dostupnosti nové verze.</p>
 
-<h1>Kompilace softwaru</h1>
+<h4>Kompilace softwaru</h4>
 
 <p>Kompilace by měla být vnímána spíše jako na nouzové řešení. Ideální je používat správce balíčků a software instalovat a spravovat prostřednictvím něj. Ruční kompilace je nejen relativně složitější, ale také vyžaduje, abyste se o takto instalovaný software starali, tedy primárně sledovali bezpečnostní problémy, hodnotili jejich vážnost a řešili je, druhotně pak abyste také měli přehled o dostupnosti nových verzí a změn fungování i nastavování daného softwaru. To je velmi důležité, jelikož nové verze mohou měnit syntax či parametry v konfiguračních souborech, což by při slepém přechodu na novou verzi mohlo zapříčinit nefunkčnost dané komponenty.</p>
 
-<p>Kompilace však přináší i jisté výhody, které pak dotahují do konce zdrojově založené (source-based) distribuce jako Gentoo, SourceMage GNU/Linux atd., které pak kompilaci v mnohém usnadňují. Co se týče výhod kompilace, v první řadě je to jistě možnost mít konkrétní verzi softwaru bez ohledu na to, která verze je k dispozici v aktuálním vydání distribuce. Vedle toho je to ale také možnost používat upravenou verzi, aplikovat specifické patche nebo naopak možnost použít čistou (tzv. vanilla) verzi, která nebyla distribučně upravena – řada distribucí totiž pro různé komponenty využívá vlastní patche, které mohou měnit jejich funkčnost, což někdy přináší nové vlastnosti, ale někdy to může být zdrojem chyb či problémů (v souvislosti s tím nemohu nezmínit nechvalně známý <a href="http://www.debian.org/security/2008/dsa-1571">zásah</a> Debianu do openssl knihovny, který díky predikovatelnosti generátoru náhodných čísel oslabil veškeré klíče či certifikáty generované pomocí této knihovny).</p>
+<p>Kompilace však přináší i jisté výhody, které pak dotahují do konce zdrojově založené (source-based) distribuce jako Gentoo, SourceMage GNU/Linux atd., které pak kompilaci v mnohém usnadňují. Co se týče výhod kompilace, v první řadě je to jistě možnost mít konkrétní verzi softwaru bez ohledu na to, která verze je k dispozici v aktuálním vydání distribuce. Vedle toho je to ale také možnost používat upravenou verzi, aplikovat specifické patche nebo naopak možnost použít čistou (tzv. vanilla) verzi, která nebyla distribučně upravena – řada distribucí totiž pro různé komponenty využívá vlastní patche, které mohou měnit jejich funkčnost, což někdy přináší nové vlastnosti, ale někdy to může být zdrojem chyb či problémů (v souvislosti s tím nemohu nezmínit nechvalně známý zásah Debianu do openssl knihovny, který díky predikovatelnosti generátoru náhodných čísel oslabil veškeré klíče či certifikáty generované pomocí této knihovny).</p>
 
 <p>Leckterý software lze sestavit s podporou nějaké komponenty nebo bez ní. Kupříkladu, oblíbený textový editor Vim může fungovat jak v terminálu, tak samostatně v grafickém prostředí. Podpora grafického režimu je otázkou kompilační volby. Na serveru je obvykle zbytečné mít konzolové aplikace zkompilované s podporou Xorg, což u binárních distribucí znamená mj. nutnost dotáhnout spolu s instalovanými aplikacemi ještě Xkové knihovny. Kompilací můžete sami určit, jak se má vámi instalovaný software sestavit. Výše uvedená situace je opravdu jen příklad pro ilustraci, jelikož v Debianu můžete tuto situaci snadno vyřešit nainstalováním verze Vimu zkompilované bez Xorg (balíček <code>vim-nox</code>).</p>
 
@@ -66,7 +66,7 @@
 
 <p>Máte-li potřebu měnit konfigurační volby a kompilovat větší množství softwaru podle svých potřeb, doporučuji zvážit použití některé ze source-based distribucí.</p>
 
-<h3>Kompilační nástroje a zdrojový kód</h3>
+<h4>Kompilační nástroje a zdrojový kód</h4>
 
 <p>Abyste mohli kompilovat, potřebujete příslušné nástroje, zejména pak kompilátor. Pro software napsaný v C nebo C++ postačí GCC, dále pak nástroj <code>make</code>. V Debianu je možné tyto nástroje nainstalovat prostřednictvím metabalíčku <code>build-essential</code>:</p>
 
@@ -76,11 +76,11 @@
 
 <p>Kromě kompilačních nástrojů potřebujete samozřejmě zdrojový kód daného softwaru. Obvykle jeho získání nepředstavuje problém, pomocí vyhledávače lokalizujete oficiální web projektu, stáhnete příslušný balíček, obvykle <code>tar.gz</code> či <code>tar.bz2</code>, přičemž před jeho použitím ověříte kontrolní součty nebo digitální podpisy. Na serveru se vám určitě hodí nástroj <code>wget</code>, popřípadě nějaký textový prohlížeč (např. <code>lynx</code>), abyste mohli příslušný software stahovat přímo na serveru a nemuseli ho tam kopírovat ze své stanice (což byste nejspíše provedli pomocí nástroje <code>scp</code> či FUSE modulu <code>sshfs</code>).</p>
 
-<h4>SCM: Systémy pro správu verzí</h4>
+<h5>SCM: Systémy pro správu verzí</h5>
 
 <p>Chcete-li opravdu „bleeding-edge“ kód (na serveru lze jeho použití důrazně nedoporučit), přijdete nejspíše do styku s nástroji pro správu verzí (SCM, Source Control Management, tedy např. Git, Mercurial, Subversion apod.). To jsou nástroje, které umožňují v zásadě dvě věci – v první řadě udržují přehled změn ve zdrojovém kódu, ve druhé řadě pak umožňují nebo usnadňují spolupráci více vývojářů na jednom projektu. Z pohledu správce obvykle představují nutnost nainstalovat příslušný nástroj nebo jeho klienta. Zde předešlu, že mnoho webových služeb (GitHub apod.) umožňuje stáhnout balíček s kódem odpovídajícím dané revizi, čímž si tuto práci ušetříte.</p>
 
-<h3>Závislosti a instrukce pro sestavení</h3>
+<h4>Závislosti a instrukce pro sestavení</h4>
 
 <p>Řada softwaru má k dispozici instrukce pro sestavení buď v dokumentaci na webu projektu, nebo v souboru <code>INSTALL</code>, který je přibalován ke zdrojovému kódu. Měli byste zde najít veškeré podstatné závislosti.</p>
 
@@ -93,13 +93,13 @@ apt-cache search závislost</pre>
 
 <p>Pokud danou závislost v repozitářích nemáte, nebo ji máte ve staré verzi, nezbude vám než ji zkompilovat také. Vzhledem k tomu, že závislostní vazby mohou být košaté, musíte zvážit, zdali se vám kompilace, ale také následná údržba, opravdu vyplatí. Máte-li stabilní binární distribuci, která je už nějaký čas venku, může se klidně stát, že aktuální verze vámi zvoleného softwaru bude vyžadovat kompilaci řady dalších komponent, jelikož v repozitářích je sice máte, ale příliš zastaralé. Udržovat takto sestavený software ručně je dřina.</p>
 
-<h4>Hlavičkové soubory</h4>
+<h5>Hlavičkové soubory</h5>
 
 <p>V případě knihoven a komponent, které tvoří závislosti vámi zvoleného softwaru, potřebujete nejenom binárky příslušných knihoven, ale také tzv. hlavičkové soubory. Hlavičkové soubory představují kompilační závislost, k běhu softwaru po kompilaci je tedy nepotřebujete. V případě některých distribucí jsou hlavičkové soubory součástí balíčků s danými komponentami (namátkou Arch Linux). V Debianu jsou umístěny v samostatných balíčcích s přídomkem <code>-dev</code>. Pokud byste tedy měli knihovnu <code>libssl</code> v závislostech vámi zvoleného softwaru, nainstalovali byste nejenom balíček <code>libssl</code>, ale také <code>libssl-dev</code>.</p>
 
-<h3>Svatá trojice</h3>
+<h4>Svatá trojice</h4>
 
-<p>Tento díl zakončím základní informací o tzv. svaté trojici, tedy sérii třech příkazů, které se nejčastěji zmiňují v souvislosti s kompilací. V příštím díle na tuto informaci navážu a ukážu vám vše na příkladu. „Svatá trojice“ vypadá takto:</p>
+<p>Úvod do kompilace zakončím základní informací o tzv. svaté trojici, tedy sérii třech příkazů, které se nejčastěji zmiňují v souvislosti s kompilací. „Svatá trojice“ vypadá takto:</p>
 
 <pre>./configure
 make
@@ -113,9 +113,9 @@ make install</pre>
 
 <p>Zbývá už jen software nainstalovat. Jeho instalaci je možné provést příkazem <code>make install</code>, avšak tento postup nedoporučuji – software instalovaný mimo repozitáře je vhodné izolovat od zbytku systému, abyste měli přehled o tom, kde se nachází jeho soubory a nezanesli si do systému nepořádek. Popřípadě si můžete (např. pomocí nástroje <code>checkinstall</code>) vytvořit balíček, který pak nainstalujete pomocí správce balíčků (v Debianu nástrojem <code>dpkg</code>). O tom ale až v další kapitole.</p>
 
-<h1>Kompilace softwaru prakticky</h1>
+<h3>Kompilace softwaru prakticky</h3>
 
-<h3>Stabilní, vývojová a SCM verze</h3>
+<h4>Stabilní, vývojová a SCM verze</h4>
 
 <p>Ještě před samotnou kompilací zmíním jednu věc, kterou jsem dostatečně neosvětlil v minulých dvou dílech, a sice, jaké verze softwaru jsou obvykle k dispozici a jaký je mezi nimi rozdíl. Většina FOSS projektů má něco jako stabilní vývojovou větev. Stabilní větev by měla obsahovat dostatečně otestovaný, časem ověřený kód s minimem chyb. Na server je to určitě dobrá volba.</p>
 
@@ -129,21 +129,21 @@ make install</pre>
 
 <p>Výše uvedená pravidla samozřejmě podléhají tomu, jak na vývoj nahlíží vývojáři projektu, který chcete nasadit. Stabilní verze jednoho projektu může stabilitou klidně odpovídat vývojové verzi jiného. Záleží na typu projektu a na vývojářích. Obecně je vhodné se nestabilním verzím vyhnout, pokud nemáte opravdu dobrý důvod je nasadit.</p>
 
-<h3>Kompilace zvoleného softwaru</h3>
+<h4>Kompilace zvoleného softwaru</h4>
 
-<p>Software, který bude sloužit jako pokusný králík pro kompilaci, je webový server Apache, kterému se tento seriál věnoval v několika dílech. Je to pouze příklad, na kterém bude demonstrována kompilace. V žádném případě se nejedná o doporučený způsob kompilace Apache. Kromě toho, Apache určitě naleznete v repozitářích vámi používané distribuce. Budete-li chtít kompilovat právě Apache, určitě se primárně řiďte oficiální dokumentací, na kterou článek pro úplnost odkazuje.</p>
+<p>Software, který bude sloužit jako pokusný králík pro kompilaci, je webový server Apache, kterému se tento seriál věnoval v několika dílech. Je to pouze příklad, na kterém bude demonstrována kompilace. V žádném případě se nejedná o doporučený způsob kompilace Apache. Kromě toho, Apache určitě naleznete v repozitářích vámi používané distribuce. Budete-li chtít kompilovat právě Apache, určitě se primárně řiďte oficiální dokumentací, na kterou kapitola pro úplnost odkazuje.</p>
 
-<h3>Nahlédnutí do dokumentace</h3>
+<h4>Nahlédnutí do dokumentace</h4>
 
-<p>Před tím, než budete software kompilovat, doporučuji podívat se do dokumentace, ať už dokumentace na webu projektu nebo dokumentace přibalené v příslušném zdrojovém balíčku. Obvykle zde naleznete návody či případné důležité informace týkající se kompilace ze zdrojových kódů. Uvnitř balíčku hledejte soubory <code>README</code> a <code>INSTALL</code>. V případě webového serveru Apache je dokumentace dostupná <a href="http://httpd.apache.org/docs/2.0/install.html">online</a>.</p>
+<p>Před tím, než budete software kompilovat, doporučuji podívat se do dokumentace, ať už dokumentace na webu projektu nebo dokumentace přibalené v příslušném zdrojovém balíčku. Obvykle zde naleznete návody či případné důležité informace týkající se kompilace ze zdrojových kódů. Uvnitř balíčku hledejte soubory <code>README</code> a <code>INSTALL</code>. V případě webového serveru Apache je dokumentace dostupná i online.</p>
 
-<h3>Získání a příprava zdrojového kódu</h3>
+<h4>Získání a příprava zdrojového kódu</h4>
 
 <p>Vyberte si vhodnou verzi (dle rad výše) a stáhněte si příslušný balíček, obvykle je to <code>tar.gz</code>, i když <code>tar.bz2</code> bývá menší, tedy úspornější na přenášená data. Na serveru můžete pro samotné stažení použít nástroj <code>wget</code>, což se určitě hodí, máte-li na stanici, ze které se vzdáleně připojujete k serveru, pomalý upload (typické pro ADSL a mobilní připojení). Můžete si také pomoci textovým prohlížečem přímo na serveru:</p>
 
 <pre>lynx http://httpd.apache.org/download.cgi</pre>
 
-<p>Jelikož je při instalaci na server vhodné dbát zvýšené opatrnosti, je třeba si po získání balíčku ověřit kontrolní součty či digitální podpisy. Opatřete si příslušné PGP klíče a ověřte podpis náležející příslušnému souboru. Zde je samozřejmě otázka, jak si opatřit PGP klíče vývojářů z opravdu důvěryhodného zdroje. Pokud se vám nechce <a href="http://httpd.apache.org/dev/verification.html">hledat</a> nejbližšího vývojáře, spojit se s ním, domluvit osobní setkání, ověřit jeho občanku a zaznamenat si otisk (fingerprint) jeho klíče, můžete zkusit méně bezpečnou metodu popsanou <a href="http://httpd.apache.org/download.cgi#verify">na stránkách projektu</a>, a sice stáhnout soubor s PGP klíči vývojářů (doporučuji alespoň přes HTTPS a přímo ze serveru <code>apache.org</code>), importovat tyto klíče a ověřit podpis, takto:</p>
+<p>Jelikož je při instalaci na server vhodné dbát zvýšené opatrnosti, je třeba si po získání balíčku ověřit kontrolní součty či digitální podpisy. Opatřete si příslušné PGP klíče a ověřte podpis náležející příslušnému souboru. Zde je samozřejmě otázka, jak si opatřit PGP klíče vývojářů z opravdu důvěryhodného zdroje. Pokud se vám nechce hledat nejbližšího vývojáře, spojit se s ním, domluvit osobní setkání, ověřit jeho občanku a zaznamenat si otisk (fingerprint) jeho klíče, můžete zkusit méně bezpečnou metodu popsanou na stránkách projektu, a sice stáhnout soubor s PGP klíči vývojářů (doporučuji alespoň přes HTTPS a přímo ze serveru <code>apache.org</code>), importovat tyto klíče a ověřit podpis, takto:</p>
 
 <pre>gpg --import KEYS
 gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
@@ -152,7 +152,7 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <pre>tar xvf httpd-2.2.20.tar.bz2</pre>
 
-<h3>Závislosti</h3>
+<h4>Závislosti</h4>
 
 <p>Závislosti, ať již kompilační či běhové si budete muset zajistit sami (ideálně instalací příslušných balíčků, v horším případě je budete muset zkompilovat jako první). V rámci Debianu je třeba dodat, že hlavičkové soubory potřebné pro kompilaci jsou v extra balíčcích. Pokud tedy máte jako závislost nějakou komponentu, obvykle nestačí instalovat pouze balíček s binárkou komponenty (např. <code>libknihovna</code>), ale musíte ještě přidat balíček s příslušnými hlavičkovými soubory pro kompilaci, tedy např. <code>libknihovna-dev</code>.</p>
 
@@ -162,9 +162,9 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <p>Chcete-li pouze rekompilovat balíček dostupný z repozitářů (nechcete jinou verzi), popřípadě chcete-li si sestavit vlastní balíček a hledáte vhodný vzor, můžete použít <code>apt-src</code>, postup je naznačen v odkazech pod článkem.</p>
 
-<h3>configure</h3>
+<h4>configure</h4>
 
-<p>Následuje „svatá trojice“, tedy <code>./configure</code>, <code>make</code> a <code>make install</code>. Fáze konfigurace je ta nejnáročnější na činnost správce, jelikož se obvykle nespokojíte s pouhým spuštěním skriptu <code>./configure</code>, ale budete hledat ty správné volby, které daný program zkompilují s těmi správnými vlastnostmi. Mnohé vlastnosti lze totiž zahrnout nebo naopak vyřadit vhodnými parametry. Méně vlastností znamená obvykle větší bezpečnost, naopak někdy můžete mít zájem zkompilovat daný software s parametrem, který vámi zvolená distribuce při sestavování binárního balíčku ignorovala. Zde opět odkážu na dokumentaci vámi zvoleného projektu. Dokumentace Apache je nejen v tomto ohledu vskutku vynikající, viz podrobný <a href="http://httpd.apache.org/docs/2.0/programs/configure.html">článek o konfiguračních volbách</a>. Kupříkladu, pokud nechcete v Apachi používat CGI, použijete volbu <code>--disable-cgi</code>:</p>
+<p>Následuje „svatá trojice“, tedy <code>./configure</code>, <code>make</code> a <code>make install</code>. Fáze konfigurace je ta nejnáročnější na činnost správce, jelikož se obvykle nespokojíte s pouhým spuštěním skriptu <code>./configure</code>, ale budete hledat ty správné volby, které daný program zkompilují s těmi správnými vlastnostmi. Mnohé vlastnosti lze totiž zahrnout nebo naopak vyřadit vhodnými parametry. Méně vlastností znamená obvykle větší bezpečnost, naopak někdy můžete mít zájem zkompilovat daný software s parametrem, který vámi zvolená distribuce při sestavování binárního balíčku ignorovala. Zde opět odkážu na dokumentaci vámi zvoleného projektu. Dokumentace Apache je nejen v tomto ohledu vskutku vynikající, viz podrobný článek o konfiguračních volbách. Kupříkladu, pokud nechcete v Apachi používat CGI, použijete volbu <code>--disable-cgi</code>:</p>
 
 <pre>./configure --disable-cgi</pre>
 
@@ -176,9 +176,9 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <p>Unixový software si obvykle v adresáři specifikovaném jako <code>prefix</code> vytvoří vlastní strukturu s adresáři <code>bin</code>, <code>lib</code>, atd., a tam umístí příslušné soubory. V mém příkladu výše byste pak ke zkompilovanému Apachi přistupovali přes <code>/opt/apache-2.2.20/bin/apache2ctl</code>.</p>
 
-<h3>make</h3>
+<h4>make</h4>
 
-<p>Tento příkaz provede samotnou kompilaci. Máte-li vícejádrový či víceprocesorový server (nebo obojí), doporučuji přidat volbu <code>-j</code> s parametrem v podobě čísla odpovídajícímu počtu procesorů zvýšeného o jedničku. Máte-li dvouprocesorový server se čtyřmi jádry, tj. s osmi logickými procesory, zvolili byste devítku (8 jader + 1):</p>
+<p>Tento příkaz provede samotnou kompilaci. Máte-li vícejádrový či víceprocesorový server (nebo obojí), doporučuji přidat volbu <code>-j</code> s parametrem v podobě čísla odpovídajícímu počtu procesorů zvýšeného o jedničku. Máte-li dvouprocesorový server se čtyřmi jádry na procesor, tj. s osmi logickými procesory, zvolili byste devítku (8 jader + 1):</p>
 
 <pre>make -j9</pre>
 
@@ -186,11 +186,11 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <pre>nice -n 19 make -j9</pre>
 
-<p>Máte-li naopak pomalý počítač, který kompiluje příliš dlouho, a na dostatečně rychlé LAN máte k dispozici silný stroj, obraťte svou pozornost k nástroji <a href="http://en.wikipedia.org/wiki/Distcc">distcc</a>, kterým můžete propojit více počítačů a vytvořit si malý kompilační „cluster“.</p>
+<p>Máte-li naopak pomalý počítač, který kompiluje příliš dlouho, a na dostatečně rychlé LAN máte k dispozici silný stroj, obraťte svou pozornost k nástroji <code>distcc</code>, kterým můžete propojit více počítačů a vytvořit si malý kompilační „cluster“.</p>
 
 <h3>Instalace</h3>
 
-<p>Pokud kompilace proběhne bez chyb, zbývá software nainstalovat. Dosud bylo možné všechny kroky (s výjimkou používání správce balíčků) vykonávat bez práv superuživatele. K instalaci je ovšem jeho oprávnění potřeba. Výjimkou může být situace, kdy jste použili <code>prefix</code> k tomu, abyste software mohli nainstalovat do adresáře, který patří aktuálnímu uživateli. V takovém případě bez obav instalujte.</p>
+<p>Pokud kompilace proběhne bez chyb, zbývá software nainstalovat. Dosud bylo možné všechny kroky (s výjimkou používání správce balíčků) vykonávat bez práv superuživatele. K instalaci je ovšem jeho oprávnění potřeba. Výjimkou může být situace, kdy jste použili <code>-- prefix</code> k tomu, abyste software mohli nainstalovat do adresáře, který patří aktuálnímu uživateli. V takovém případě bez obav instalujte.</p>
 
 <p>Pokud software nainstalujete přímo, pomocí <code>make install</code>, správce balíčků o těchto souborech nebude nic vědět a nebude je moci odstranit nebo vám říci, kde jsou. Můžete si samozřejmě vytvořit balíček, který nainstalujete pomocí <code>dpkg</code>, ale to obvykle představuje hodně práce. Existuje však i jiná možnost - nástroj <code>checkinstall</code>, který se používá místo <code>make install</code>. Tento nástroj vám balíček na počkání balíček vytvoří:</p>
 
@@ -202,15 +202,11 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <p>Checkinstall ovšem nevyplňuje závislostní vazby balíčku. Je to tedy jen polovičaté řešení – správce balíčků sice bude o vašem softwaru vědět a bude ho moci odstranit, ale nebude moci v souvislosti s ním řešit závislostní vazby. Ty si budete muset ohlídat sami.</p>
 
+<h3>Úvod do kompilace jádra a modulů</h3>
 
-<h1>Správa linuxového serveru: Úvod do kompilace jádra a modulů</h1>
+<h4>Lekce z anatomie: Jádro, moduly a initrd</h4>
 
-<p>Minulý díl probral kompilaci softwaru obecně, včetně začlenění ručně zkompilovaného softwaru do balíčkovacího systému. Dnešní díl se podívá na zoubek problematice kompilace patrně nejrozsáhlejšího softwaru, který v linuxových distribucích naleznete. Je jím samotné jádro, srdce operačního systému.</p>
-
-
-<h3>Lekce z anatomie: Jádro, moduly a initrd</h3>
-
-<p>Jádro (kernel) je část operačního systému, která je zodpovědná za přidělování systémových prostředků procesům, hardwarovou abstrakci, správu a plánování procesů, správu paměti atd. Linux představuje nejčastěji používané jádro (a také jediné možné, má-li jít o <em>linuxovou</em> distribuci), i když existují i jiná jádra použitelná s projektem GNU. Jen tak pro zajímavost, Debian má kupříkladu k dispozici i variantu s jádrem z FreeBSD (Debian GNU/kFreeBSD) či s jádrem Hurd (Debian GNU/Hurd). V tomto seriálu se ale budu zabývat výhradně jádrem Linux.</p>
+<p>Jádro (kernel) je část operačního systému, která je zodpovědná za přidělování systémových prostředků procesům, hardwarovou abstrakci, správu a plánování procesů, správu paměti atd. Linux představuje nejčastěji používané jádro (a také jediné možné, má-li jít o <em>linuxovou</em> distribuci), i když existují i jiná jádra použitelná s projektem GNU. Jen tak pro zajímavost, Debian má kupříkladu k dispozici i variantu s jádrem z FreeBSD (Debian GNU/kFreeBSD) či s jádrem Hurd (Debian GNU/Hurd). V této knize se ale budu zabývat výhradně jádrem Linux.</p>
 
 <p>Jádro jako takové je jedna jediná binárka, která obvykle sídlí v adresáři <code>/boot</code>. Často se označuje jako <code>vmlinuz</code>. V adresáři <code>/boot</code> může vedle sebe existovat mnoho verzí jader, přičemž je na zavaděči, aby konkrétní jádro po spuštění počítače zavedl do paměti a spustil. Linuxové zavaděče samozřejmě nemají problém se zaváděním různých jader podle toho, které si obsluha počítače zvolí při jeho startu.</p>
 
@@ -220,13 +216,13 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <p>Tento problém elegantně řeší iniciální ramdisk, malý, zkomprimovaný souborový systém, uložený také v adresáři <code>/boot</code> (v Debianu pod názvem <code>initrd.img</code> s příponou v podobě verze použitého jádra), který obsahuje všechny potřebné moduly a nástroje k zavedení systému. Distribuce této možnosti hojně využívají a obsahují nástroje k jeho snadnému vygenerování. Iniciální ramdisk samozřejmě nepotřebujete, pokud vaše jádro obsahuje všechny potřebné moduly (čehož můžete dosáhnout kompilací vlastního jádra) a také pokud pro zavedení systému není třeba provést ještě něco speciálního (jako se např. dotázat uživatele na heslo šifrovaného oddílu, kde se systém nachází).</p>
 
-<h3>Proč kompilovat jádro?</h3>
+<h4>Proč kompilovat jádro?</h4>
 
 <p>Pokud nepoužíváte source-based distribuci jako Gentoo, asi příliš důvodů pro odklon od distribučního jádra mít nebudete. Distribuční jádra bývají modulární, tzn. maximum funkcionality a ovladačů je dostupné v modulech, které můžete za běhu systému do jádra nahrát nebo naopak z jádra vyjmout (k tomu slouží nástroje jako <code>lsmod</code> a <code>modprobe</code>). Nemáte-li v distribučním jádru k dispozici určitý modul, není kvůli tomu třeba kompilovat celé jádro, stačí zkompilovat pouze příslušný modul (podmínkou je dostupnost zdrojového kódu jádra, který lze snadno doinstalovat pomocí správce balíčků).</p>
 
 <p>Proč si tedy kompilovat vlastní jádro? Ideální je, pokud se můžete spokojit s distribučním a ušetřit si tak nejen kompilaci, ale také sledování bezpečnostních problémů a následnou rekompilaci, jakmile se objeví nějaká zranitelnost. Existují ovšem situace, kdy se vám kompilace může vyplatit.</p>
 
-<h4>Patche</h4>
+<h5>Patche</h5>
 
 <p>Patch jako takový představuje úpravu zdrojového kódu jádra oproti oficiální verzi. Oficiální verze softwaru (v tomto případě jádra), která nebyla nijak upravena, se označuje jako „vanilla“. Distribuční jádra téměř vždy aplikují vlastní patche, ať už to jsou úpravy funkčnosti nebo opravy chyb, které byly zpětně portovány pro stabilní verzi jádra dané distribuce.</p>
 
@@ -234,23 +230,23 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <p>Existuje řada úprav jádra, které přidávají nové vlastnosti nebo optimalizují jeho použití pro konkrétní účel. Některé z nich se časem dostanou do jádra a jeho vývojáři se o ně budou starat, jiným zůstává z mnoha důvodů neoficiální statut a patchování představuje jedinou možnost, jak tuto funkcionalitu dostat do vámi používaného jádra. Takovýchto patchů pro Linux existuje mnoho. Na desktopech je to např. plánovač BFS Cona Kolivase, který by měl vylepšovat odezvu a výkon na obyčejných domácích počítačích (nikoliv na serverech s mnoha procesory).</p>
 
-<p>Na serveru existuje rovněž mnoho možností. Jednu kategorii tvoří bezpečnostní patche jako např. <a href="http://grsecurity.net/">grsecurity</a> či <a href="http://tomoyo.sourceforge.jp/">TOMOYO</a>, které jsou sice neoficiální (nebo částečně neoficiální jako TOMOYO), ale mohou nabídnout jednodušší konfiguraci nebo jinou sadu vlastností než v jádře vestavěný SELinux. Další kategorii tvoří virtualizační patche, které implementují různé druhy virtualizace (Xen, OpenVZ, VServer apod.). Možností je mnoho.</p>
+<p>Na serveru existuje rovněž mnoho možností. Jednu kategorii tvoří bezpečnostní patche jako např. grsecurity či TOMOYO, které jsou sice neoficiální (nebo částečně neoficiální jako TOMOYO), ale mohou nabídnout jednodušší konfiguraci nebo jinou sadu vlastností než v jádře vestavěný SELinux. Další kategorii tvoří virtualizační patche, které implementují různé druhy virtualizace (Xen, OpenVZ, VServer apod.). Možností je mnoho.</p>
 
 <p>Některá jádra s příslušnými patchi (např. patche týkající se virtualizace) již distribuce mívají v repozitářích, takže rozhodně doporučuji se podívat, jestli náhodou nemáte jádro s již aplikovaným požadovaným patchem. Můžete také narazit na neoficiální repozitář s dalšími patchovanými jádry přímo pro vaši distribuci. V případě neoficiálních repozitářů je však obezřetnost určitě na místě. Nejde jenom o bezpečnost, ale také o dostatečně zodpovědný přístup správce daného repozitáře, abyste po instalaci příslušného jádra nezjistili, že dotyčný se na měsíc odmlčel, a vy máte už tři týdny v neoficiálním jádře nezáplatovanou bezpečnostní díru, která právě začíná být masivně zneužívána.</p>
 
-<h4>Nastavení</h4>
+<h5>Nastavení</h5>
 
 <p>Nastavení vlastností jádra je druhá oblast, kvůli které se může vyplatit jádro zkompilovat. Distribuce se přirozeně snaží zvolit takové nastavení, které bude vyhovovat co nejvíce lidem, ale už z podstaty věci není možné se zavděčit všem. Některá nastavení kupříkladu sice mohou přidávat zajímavé vlastnosti, ale současně třeba snižují výkon. Správci distribucí pak mají dilema – zahrnout vlastnost, která zaujme např. deset procent správců serverů, ale všem ostatním, byť o pár procent, poklesne výkon. Podobně je to s veškerými optimalizacemi, popřípadě kompilacemi přímo pro daný typ procesoru. Distribuce volí takové nastavení, které poběží na co největším spektru hardwaru, což znemožňuje použití optimalizací pro konkrétní typ procesoru.</p>
 
-<h3>Vanilla nebo distribuční kernel?</h3>
+<h4>Vanilla nebo distribuční kernel?</h4>
 
-<p>Kompilovat můžete jak distribuční jádro (zdrojáky bývají k dispozici jako samostatný balíček), tak vanilla jádro, které si stáhnete z <a href="http://www.kernel.org/">kernel.org</a>. Vývojáři udržují více stabilních verzí jádra, přičemž některé větve mají dokonce dlouhodobou podporu. Volba je v tomto případě samozřejmě na vás. Novější jádra obvykle vylepšují podporu hardwaru a opravují chyby, ale mohou obsahovat i regrese (což v programátorském žargonu znamená „<em>dříve nám to fungovalo, ale mezi tím to někdo rozbil“</em>).</p>
+<p>Kompilovat můžete jak distribuční jádro (zdrojáky bývají k dispozici jako samostatný balíček), tak vanilla jádro, které si stáhnete z <code>kernel.org</code>. Vývojáři udržují více stabilních verzí jádra, přičemž některé větve mají dokonce dlouhodobou podporu. Volba je v tomto případě samozřejmě na vás. Novější jádra obvykle vylepšují podporu hardwaru a opravují chyby, ale mohou obsahovat i regrese (což v programátorském žargonu znamená „<em>dříve nám to fungovalo, ale mezi tím to někdo rozbil“</em>).</p>
 
 <p>Použít distribuční verzi jádra může být v tomto směru výhodnější – jednak neobjevíte regrese (s největší pravděpodobností) a jednak se vám bude dostávat jeho oprav po dobu života distribuce.</p>
 
-<h1>Kompilace jádra a modulů prakticky</h1>
+<h3>Kompilace jádra a modulů prakticky</h3>
 
-<h3>Kompilace modulů</h3>
+<h4>Kompilace modulů</h4>
 
 <p>Jaderný modul představuje obvykle určitou funkcionalitu. Ve většině případů se jedná o ovladač zařízení, ale stejně tak se může jednat o modul zpřístupňující určitý souborový systém, upravující či přidávající bezpečnostní model jádra, nějakou vlastnost atd. Pokud se dostanete do situace, kdy se vám nějaký modul zalíbí, ale ve vašem distribučním jádře nebude, naštěstí nebudete muset projít kompilací jádra – postačí zkompilovat jen samotný modul a ušetřit si tak práci. Předesílám však, že bude nutné tento proces opakovat při každé změně jádra (např. po aktualizaci na novou či opravenou verzi).</p>
 
@@ -295,13 +291,13 @@ depmod -a</pre>
 
 <p>Debian také obsahuje nástroj <em>Module assistant</em> (balíček <code>module-assistant</code>), který usnadňuje kompilaci a instalaci řady modulů.</p>
 
-<h3>Kompilace jádra</h3>
+<h4>Kompilace jádra</h4>
 
 <p>Jestli nemáte všechny nástroje potřebné pro sestavení jádra, tak si je nainstalujte:</p>
 
 <pre>aptitude install kernel-package libncurses5-dev fakeroot wget bzip2</pre>
 
-<p>Jako první je třeba, abyste si opatřili zdrojové kódy jádra. To můžete učinit buď prostřednictvím balíčkovacího systému (balíček <code>linux-source</code>), nebo si je stáhnout přímo ze zdroje na <a href="http://www.kernel.org/">kernel.org</a>.</p>
+<p>Jako první je třeba, abyste si opatřili zdrojové kódy jádra. To můžete učinit buď prostřednictvím balíčkovacího systému (balíček <code>linux-source</code>), nebo si je stáhnout přímo ze zdroje na <code>kernel.org</code>.</p>
 
 <p>Zdrojové kódy rozbalte:</p>
 
@@ -314,7 +310,7 @@ make mrproper</pre>
 
 <h4>Aplikace patchů</h4>
 
-<p>Chcete-li aplikovat nějaký patch (pro příslušnou teorii vás odkazuji na <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-kompilace-jadra-a-modulu">minulý díl</a>), nyní je vhodná doba. Patch můžete po rozbalení aplikovat nejlépe podle instrukcí na webu příslušného projektu, nebo pomocí nástroje <code>patch</code>, nějak takto:</p>
+<p>Chcete-li aplikovat nějaký patch, nyní je vhodná doba. Patch můžete po rozbalení aplikovat nejlépe podle instrukcí na webu příslušného projektu, nebo pomocí nástroje <code>patch</code>, nějak takto:</p>
 
 <pre>patch -p1 &lt; muj_patch.patch</pre>
 
@@ -343,11 +339,11 @@ make oldconfig</pre>
 
 <p>Výše zmíněným příkazem spustíte textový konfigurační nástroj jádra. Těchto nástrojů je více, nemusíte tedy nutně používat <code>menuconfig</code>, můžete použít <code>xconfig</code> nebo jiné varianty (dostupné možnosti zjistíte pomocí <code>make help</code>). Pomocí těchto nástrojů vytvořte nebo upravte nastavení jádra. Až budete hotovi, uložte nastavení a opusťte nástroj.</p>
 
-<h4>Pojmenování vámi upravené verze jádra</h4>
+<h5>Pojmenování vámi upravené verze jádra</h5>
 
-<p>Abyste odlišili svou verzi jádra od jádra, které máte nainstalované, v nastavení jádra <code>General setup</code> - <code>local version</code> vyplňte příponu, kterou chcete použít, např. <code>-custom</code>. Pokud tak neučiníte a jádro budete instalovat ručně bez správce balíčků, hrozí, že si přepíšete distribuční jádro!</p>
+<p>Abyste odlišili svou verzi jádra od jádra, které máte nainstalované, v nastavení jádra <strong>General setup</strong> - <strong>local version</strong> vyplňte příponu, kterou chcete použít, např. <code>-custom</code>. Pokud tak neučiníte a jádro budete instalovat ručně bez správce balíčků, hrozí, že si přepíšete distribuční jádro!</p>
 
-<h3>Sestavení jádra</h3>
+<h4>Sestavení jádra</h4>
 
 <p>Nechcete-li využívat správce balíčků, zkompilujte jádro následujícím příkazem:</p>
 
@@ -361,7 +357,7 @@ make oldconfig</pre>
 
 <pre>cp arch/x86/boot/bzImage /boot/vmlinuz-verze_jadra</pre>
 
-<p>Zde musíte řetězec <code>verze_jadra</code> nahradit za celý název verze jádra (můžete se orientovat dle názvu adresáře v <code>/lib/modules</code>, který odpovídá vámi zkompilovanému jádru).</p>
+<p>Zde musíte řetězec <code>verze_jadra</code> nahradit za celý název verze jádra (můžete se orientovat dle názvu adresáře v <code>/lib/modules</code>, který odpovídá vámi zkompilovanému jádru). Dodám, že tato cesta by měla platit i pro jádra zkompilovaná pro 64-bitový procesor.</p>
 
 <p>Následně vygenerujte iniciální ramdisk:</p>
 
@@ -381,7 +377,11 @@ make oldconfig</pre>
 
 <h4>Sestavení jádra v Debianu</h4>
 
-<p>Debian má vlastní nástroje, které vám pomohou sestavit jádro a začlenit jej do balíčkovacího systému. Místo výše uvedeného postupu tedy můžete použít následující. Po konfiguraci jádra proveďte:</p>
+<p>Debian má vlastní nástroje, které vám pomohou sestavit jádro a začlenit jej do balíčkovacího systému. Budete potřebovat balíček <code>kernel-package</code>, tak jej nainstalujte:</p>
+
+<pre>aptitude install kernel-package</pre>
+   
+<p>Místo výše uvedeného postupu můžete použít následující. Po konfiguraci jádra proveďte:</p>
 
 <pre>make-kpkg clean
 fakeroot make-kpkg --initrd --append-to-version=-custom kernel_image kernel_headers</pre>
@@ -394,8 +394,6 @@ dpkg -i linux-headers-verze_jadra.deb</pre>
 
 <p>Iniciální ramdisk by se měl vygenerovat automaticky, totéž by mělo platit o nastavení zavaděče. Tím by měla být instalace nového jádra hotova.</p>
 
-<h3>Zdroje a další odkazy</h3>
-
 http://wiki.debian.org/ModuleAssistant Debian Wiki: Module assistant
 http://www.howtoforge.com/kernel_compilation_debian_etch How To Compile A Kernel - Debian Etch
 http://en.wikipedia.org/wiki/Software_release_life_cycle Wikipédie, Software release life cycle
@@ -405,4 +403,9 @@ http://wiki.debian.org/apt-src Apt-src
 http://www.h-online.com/open/news/item/Linux-kernel-with-long-term-support-1148154.html Linux kernel with long-term support
 http://www.kroah.com/log/linux/longterm-proposal-08-2011.html Future of the -longterm kernel releases.
 http://en.wikipedia.org/wiki/Linux_kernel Wikipedia: Linux kernel
-
+http://grsecurity.net/ grsecurity
+http://backports.debian.org/ Debian backports
+http://www.debian.org/security/2008/dsa-1571 Zranitelnost vzniklá úpravou OpenSSL v Debianu
+http://httpd.apache.org/docs/2.0/programs/configure.html Článek o konfiguračních volbách Apache
+http://en.wikipedia.org/wiki/Distcc distcc
+http://tomoyo.sourceforge.jp/ TOMOYO

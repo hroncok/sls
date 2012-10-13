@@ -1,8 +1,8 @@
-<h1>Správa linuxového serveru: S.M.A.R.T. a zdraví pevných disků</h1>
+<h2>S.M.A.R.T. aneb zdraví pevných disků</h2>
 
 <p>Pevné disky obsahují obvykle to nejcennější - vaše data. Ať už využíváte linuxového softwarového RAIDu nebo ne, hlídat zdraví disků je určitě velmi důležité, stejně jako mít možnost odhadnout, v jakém stavu je disk, který se vám zrovna dostal pod ruku.</p>
 
-<p>Pevné disky jsou v dnešní době relativně uzavřené systémy s vlastní vnitřní logikou, ale také vnitřním monitorováním a diagnostikou, a to je právě <a href="http://cs.wikipedia.org/wiki/S.M.A.R.T.">S.M.A.R.T.</a> (<em>Self Monitoring, Analysis and Reporting Technology</em>). Původní myšlenkou této technologie byla schopnost předpovědět selhání disku a varovat uživatele ještě před tím, než k tomu dojde.</p>
+<p>Pevné disky jsou v dnešní době relativně uzavřené systémy s vlastní vnitřní logikou, ale také vnitřním monitorováním a diagnostikou, a to je právě S.M.A.R.T. Původní myšlenkou této technologie byla schopnost předpovědět selhání disku a varovat uživatele ještě před tím, než k tomu dojde.</p>
 
 <p>Realita je taková, že S.M.A.R.T. dokáže předpovědět blížící se selhání pevného disku jen v některých případech. Přesné procento případů udávají různé zdroje různě (Wikipedie udává 64 %, ale zdroj, ze kterého byla tato informace převzata, udává 30 %). Je jasné, že už jen z podstaty věci může S.M.A.R.T. předpovědět jenom takové typy poruch, které se projevují časem, pozvolna, nikoliv poruchy, které nastanou okamžitě a bez varování. To ale neznamená, že nemá cenu tuto technologii využít, naopak - i když není dokonalá, dokáže nám v řadě případů pomoci.</p>
 
@@ -18,7 +18,7 @@
 
 <pre>smartctl -a /dev/sda | less</pre>
 
-<p>Výpis vás asi na první pohled odradí, protože bude velmi dlouhý (proto také doporučuji použít <code>less</code> nebo <code>more</code>). Výpis nemusíte číst celý, stačí se zaměřit na ty nejpodstatnější části. První takovou částí je výpis hodnot <a href="http://en.wikipedia.org/S.M.A.R.T.">atributů</a>, které S.M.A.R.T. měří:</p>
+<p>Výpis vás asi na první pohled odradí, protože bude velmi dlouhý (proto také doporučuji použít <code>less</code> nebo <code>more</code>). Výpis nemusíte číst celý, stačí se zaměřit na ty nejpodstatnější části. První takovou částí je výpis hodnot atributů, které S.M.A.R.T. měří:</p>
 
 <pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
   1 Raw_Read_Error_Rate     0x000f   200   200   051    Pre-fail  Always       -       0
@@ -64,11 +64,11 @@
 
 <p><strong>Spin retry count</strong> je počet neúspěšných pokusů o náběh disku na provozní otáčky - zvyšující se hodnota značí problém s mechanikou disku.</p>
 
-<p>Další atributy jsou <a href="http://en.wikipedia.org/wiki/S.M.A.R.T.">popsány</a> podrobně v anglické Wikipedii, nicméně výše uvedené mají obvykle dostatečnou vypovídací schopnost.</p>
+<p>Další atributy jsou popsány podrobně v anglické Wikipedii, nicméně výše uvedené mají obvykle dostatečnou vypovídací schopnost.</p>
 
 <p>Hodnoty jednotlivých atributů je třeba vhodně interpretovat, a k tomu vám bohužel přímé vodítko neposkytnu. Zvyšující se hodnoty klíčových atributů uvedených výše značí možný problém, tedy možné selhání disku v blízké budoucnosti, ale pouze s jistou pravděpodobností. To, že máte na disku třeba jeden realokovaný sektor, ještě nemusí vylučovat možnost, že disk bude spolehlivě fungovat ještě roky. Stejně tak fakt, že veškeré "klíčové" atributy mají nulové hodnoty, neznamená, že disk nemůže během hodiny katastrofálně selhat.</p>
 
-<p>Mohu vás nicméně odkázat na <a href="http://research.google.com/archive/disk_failures.pdf">studii o poruchovosti disků (PDF)</a>, kterou provedl Google, a která zohledňuje některé S.M.A.R.T. atributy a jejich vztah k pravděpodobnosti selhání disku. Tato studie je poměrně komplexní a zahrnuje i další faktory, jako je například teplota.</p>
+<p>Mohu vás nicméně odkázat na studii o poruchovosti disků (viz odkazy pod kapitolou), kterou provedl Google, a která zohledňuje některé S.M.A.R.T. atributy a jejich vztah k pravděpodobnosti selhání disku. Tato studie je poměrně komplexní a zahrnuje i další faktory, jako je například teplota.</p>
 
 <h3>S.M.A.R.T. logy</h3>
 
@@ -136,7 +136,7 @@ Error 36 occurred at disk power-on lifetime: 27 hours (1 days + 3 hours)
 
 <h3>Teplota a zdraví pevných disků</h3>
 
-<p>Pokud se podíváte na studii Googlu (<a href="http://research.google.com/archive/disk_failures.pdf">PDF</a>), na kterou jsem vás odkazoval v minulém díle, pak zjistíte, že teplota sice hraje roli v rámci životnosti disku, ale možná ne tak, jak byste očekávali. Z výsledků této studie totiž mj. vyplývá, že diskům vadí spíše příliš nízké teploty (kolem 15°C) než příliš vysoké. Teplota do výše 50°C ovlivňuje negativně životnost disku méně než teploty pod 25°C. Teplotní optimum se podle dané studie nachází někde kolem 40°C.</p>
+<p>Pokud se podíváte na studii Googlu, na kterou jsem vás odkazoval výše, pak zjistíte, že teplota sice hraje roli v rámci životnosti disku, ale možná ne tak, jak byste očekávali. Z výsledků této studie totiž mj. vyplývá, že diskům vadí spíše příliš nízké teploty (kolem 15°C) než příliš vysoké. Teplota do výše 50°C ovlivňuje negativně životnost disku méně než teploty pod 25°C. Teplotní optimum se podle dané studie nachází někde kolem 40°C.</p>
 
 <p>Některé disky umí v rámci S.M.A.R.T. zaznamenat nejen svou aktuální teplotu, ale i celoživotní minimum a maximum:</p>
 
@@ -254,7 +254,7 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
 
 <pre>hdparm -B 128 -S 0 /dev/disk</pre>
 
-<p>V případě domácích serverů byste asi řekli, že se jich tato problematika netýká. To jsem si myslel také, dokud jsem nenarazil na <a href="http://forum.synology.com/enu/viewtopic.php?f=124&amp;t=11653">jednu sérii</a> úsporných disků jisté značky, u kterých docházelo k příliš častému parkování hlaviček, a aby to nebylo tak jednoduché, příslušné disky nereagovaly na adekvátní příkazy <code>hdparm -B</code> a <code>hdparm -S</code>. Jediné, co zbývalo, byla úprava firmwaru (já jsem se do ní nepouštěl a disk raději rovnou vyměnil).</p>
+<p>V případě domácích serverů byste asi řekli, že se jich tato problematika netýká. To jsem si myslel také, dokud jsem nenarazil na jednu sérii úsporných disků jisté značky, u kterých docházelo k příliš častému parkování hlaviček, a aby to nebylo tak jednoduché, příslušné disky nereagovaly na adekvátní příkazy <code>hdparm -B</code> a <code>hdparm -S</code>. Jediné, co zbývalo, byla úprava firmwaru (já jsem se do ní nepouštěl a disk raději rovnou vyměnil).</p>
 
 <p>Bohužel, snaha o úsporu energie, související marketing a možná laxní přístup některých výrobců k testování svých pevných disků pod více operačními systémy, může vést k podobným nepříjemným situacím.</p>
 
@@ -279,7 +279,9 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
 
 <p>Pozor - tímto příkazem přepíšete všechna data na daném pevném disku! Pokud si nemůžete dovolit data přesunout, můžete použít dlouhý S.M.A.R.T. test, který povrch disku prověří.</p>
 
-<pre id="links">http://en.wikipedia.org/wiki/S.M.A.R.T. S.M.A.R.T. (wikipedia)
+http://en.wikipedia.org/wiki/S.M.A.R.T. S.M.A.R.T. (wikipedia)
 http://en.wikipedia.org/wiki/Hard_disk_failure Hard disk failure (wikipedia)
 http://research.google.com/archive/disk_failures.pdf Failure Trends in a Large Disk Drive Population, Google
-http://en.wikibooks.org/wiki/Minimizing_hard_disk_drive_failure_and_data_loss Minimizing hard disk drive failure and data loss (Wikibooks)</pre>
+http://en.wikibooks.org/wiki/Minimizing_hard_disk_drive_failure_and_data_loss Minimizing hard disk drive failure and data loss (Wikibooks)
+http://research.google.com/archive/disk_failures.pdf Studie o poruchovosti disků (PDF) od Googlu
+http://forum.synology.com/enu/viewtopic.php?f=124&amp;t=11653 Fórum Synology, WD10EACS: dramatic high load cycle counts

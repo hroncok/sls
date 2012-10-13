@@ -1,4 +1,4 @@
-<h1>Softwarový RAID prakticky</h1>
+<h2>Softwarový RAID prakticky</h2>
 
 <h3>Průzkum existujícího pole</h3>
 
@@ -99,7 +99,7 @@ Internal Bitmap : 8 sectors from superblock
 
 <h3>Vytvoření nového pole</h3>
 
-<p>Veškerá správa <a href="http://raid.wiki.kernel.org/">linuxového softwarového RAIDu</a> se provádí pomocí nástroje <code>mdadm</code>. Pokud byste chtěli vytvořit RAID 5 pole se třemi zařízeními (<code>sda1</code>, <code>sdb1</code> a <code>sdc1</code>) a jednou náhradou (spare) v podobě zařízení <code>sdd1</code>, můžete použít následující příkaz:</p>
+<p>Veškerá správa linuxového softwarového RAIDu se provádí pomocí nástroje <code>mdadm</code>. Pokud byste chtěli vytvořit RAID 5 pole se třemi zařízeními (<code>sda1</code>, <code>sdb1</code> a <code>sdc1</code>) a jednou náhradou (spare) v podobě zařízení <code>sdd1</code>, můžete použít následující příkaz:</p>
 
 <pre>mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/sda1 /dev/sdb1 /dev/sdc1 --spare-devices=1 /dev/sdd1</pre>
 
@@ -160,7 +160,7 @@ mdadm --manage /dev/md0 --add /dev/sdf1</pre>
 
 <p>Znovu raději zopakuji, že pro případ katastrofálního selhání, kdy selže krátce po sobě více disků než je pole schopné unést, nebo i pro případ chyby administrátora, atd., je nutné nebrat disková pole jako náhradu zálohování. Důležitá data je nutné pravidelně zálohovat nejlépe na nějaké geograficky odloučené místo.</p>
 
-<p>V případě, že se dostanete do nějaké opravdu svízelné situace, kdy třeba pole nepůjde znovu sestavit, doporučuji se kromě rozvahy podívat do <a href="http://marc.info/?l=linux-raid&amp;r=1&amp;w=2">archívu e-mailové konference</a> linuxového softwarového RAIDu. Tam také naleznete dostatek motivace k tomu, abyste začali svá důležitá data zálohovat, pokud to ještě neděláte.</p>
+<p>V případě, že se dostanete do nějaké opravdu svízelné situace, kdy třeba pole nepůjde znovu sestavit, doporučuji se kromě rozvahy podívat do archívu e-mailové konference linuxového softwarového RAIDu. Tam také naleznete dostatek motivace k tomu, abyste začali svá důležitá data zálohovat, pokud to ještě neděláte.</p>
 
 <h3>Write-intent bitmap</h3>
 
@@ -214,4 +214,5 @@ PROGRAM /root/skript_spusteny_pri_udalosti</pre>
 
 <p>Máte-li problém s bootováním z RAIDu, nebo pokud budete nasazovat šifrování, vytvořte na všech discích malý oddíl (kolem 1GB maximálně), na kterém bude (třeba v RAIDu 1) oddíl s adresářem <code>/boot</code>, čímž vyřešíte dostupnost jádra a iniciálního ramdisku. Zbytek místa na discích pak můžete použít k vytvoření jiného typu pole.</p>
 
-<pre id="links">http://raid.wiki.kernel.org/ Linux Raid Wiki</pre>
+http://raid.wiki.kernel.org/ Linux Raid Wiki
+http://marc.info/?l=linux-raid&amp;r=1&amp;w=2 Archív e-mailové konference linuxového softwarového RAIDu
