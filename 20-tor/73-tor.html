@@ -62,7 +62,7 @@
 
 <p>Jak už jsem zmínil v úvodu, způsob použití Toru je třeba zvážit. Zde zmíněný výčet hrozeb jistě není úplný, ať už proto, že jsem na něco zapomněl já, nebo tím, že ne všechny hrozby byly dosud objeveny.</p>
 
-<h2>Skrytý server pomocí Tor</h2>
+<h2>Skrytý server pomocí Toru</h2>
 
 <h3>Úvod</h3>
 
@@ -145,9 +145,7 @@ iptables -A OUTPUT -m owner --uid-owner uzivatel -j REJECT</pre>
 
 <h4>Fyzická bezpečnost</h4>
 
-<p>Je jasné, že výše uvedená opatření nijak neovlivní situaci, kdy se útočník dostane k serveru fyzicky. Ať už používáte Tor jako klienta, nebo jako prostředníka pro poskytování skryté služby, bude na daném stroji uloženo mnoho dat, která souvisí s používáním Toru (v případě serveru data, která nabízíte, nebo data, která si u vás ukládají vaši uživatelé; v případě Tor klienta cache a historie prohlížeče, stažené soubory apod.). Pokud nechcete, aby se k těmto datům někdo dostal, budete se muset zaměřit i na fyzickou bezpečnost (připomínám, že tento seriál se fyzickou bezpečností a souvisejícím diskovým šifrováním <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-bezpecnost-linuxoveho-serveru">zabýval</a>).</p>
-
-TODO: ref link
+<p>Je jasné, že výše uvedená opatření nijak neovlivní situaci, kdy se útočník dostane k serveru fyzicky. Ať už používáte Tor jako klienta, nebo jako prostředníka pro poskytování skryté služby, bude na daném stroji uloženo mnoho dat, která souvisí s používáním Toru (v případě serveru data, která nabízíte, nebo data, která si u vás ukládají vaši uživatelé; v případě Tor klienta cache a historie prohlížeče, stažené soubory apod.). Pokud nechcete, aby se k těmto datům někdo dostal, budete se muset zaměřit i na fyzickou bezpečnost (připomínám, že tato kniha se fyzickou bezpečností a souvisejícím diskovým šifrováním zabývala, a to v kapitole <em>Šifrování s dm-crypt/LUKS</em>{link:"Správa disků":"Šifrování s dm-crypt/LUKS"}).</p>
 
 <h3>Závěr</h3>
 
@@ -298,9 +296,7 @@ ExitPolicy reject *:25,reject *:465,accept *:*</pre>
 
 <h4>Tor a firewall</h4>
 
-<p>Nastavení odchozí politiky a síťový provoz Toru můžete upravovat a omezovat pomocí linuxového firewallu. Jelikož Tor běží pod konkrétním uživatelem, můžete jej omezit pomocí modulu <code>owner</code>, což bylo naznačeno i s příkladem v minulém díle.</p>
-
-TODO ref link
+<p>Nastavení odchozí politiky a síťový provoz Toru můžete upravovat a omezovat pomocí linuxového firewallu. Jelikož Tor běží pod konkrétním uživatelem, můžete jej omezit pomocí modulu <code>owner</code>, což bylo naznačeno i s příkladem v předchozí kapitole{link:"Tor":"Skrytý server pomocí Toru"}.</p>
 
 <h3>Závěr</h3>
 

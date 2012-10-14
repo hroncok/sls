@@ -106,9 +106,7 @@ _xmpp-client._tcp.example.cz.  IN SRV   0 0 5222   hostname.</pre>
 
 <h4>SSL/TLS nastavení</h4>
 
-TODO ref link
-
-<p>Jabber komunikaci je velmi vhodné šifrovat, nejlépe platným certifikátem, kterému budou vaši klienti věřit. Problematika certifikátů a možnosti získání důvěryhodného certifikátu zdarma byly <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">probrány dříve v knize</a>. Zde už předpokládám, že certifikát k dispozici máte. Specifikace certifikátu by měla přijít do nastavení příslušného virtual hostu, konkrétně do sekce <code>ssl</code>:</p>
+<p>Jabber komunikaci je velmi vhodné šifrovat, nejlépe platným certifikátem, kterému budou vaši klienti věřit. Problematika certifikátů a možnosti získání důvěryhodného certifikátu zdarma byly probrány v kapitole <em>Úvod do konfigurace Apache</em>{link:"Webový server a databáze":"Úvod do konfigurace Apache"}. Zde už předpokládám, že certifikát k dispozici máte. Specifikace certifikátu by měla přijít do nastavení příslušného virtual hostu, konkrétně do sekce <code>ssl</code>:</p>
 
 <pre>VirtualHost "example.cz"
 

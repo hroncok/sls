@@ -393,9 +393,7 @@ inet_protocols = all</pre>
 
 <pre>/etc/init.d/postfix restart</pre>
 
-TODO ref link
-
-<p>Funkčnost serveru můžete otestovat pomocí znalostí z minulých dílů:</p>
+<p>Funkčnost serveru můžete otestovat pomocí znalostí z kapitoly <em>Úvod do poštovního server</em>{link:"Poštovní server":"Úvod do poštovního serveru"}:</p>
 
 <pre>telnet server.example.org 25</pre>
 
@@ -915,9 +913,7 @@ spammer@               REJECT</pre>
 
 <h4>reject_rbl_client a blacklisty</h4>
 
-TODO ref link
-
-<p>Blacklisty byly představeny v tomto seriálu již <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-agenti-e-mailu-metody-ochrany">dříve</a>, zopakuji tedy jen to nejdůležitější. Blacklist je služba, která sdružuje na základě nějaké politiky IP adresy nebo IP rozsahy a umožňuje poštovním serverům prostřednictvím specifických DNS dotazů zkontrolovat, zda se IP adresa SMTP klienta v této databázi vyskytuje, či nikoliv.</p>
+<p>Blacklisty byly představeny již v kapitole <em>Úvod do poštovního server</em>{link:"Poštovní server":"Úvod do poštovního serveru"}, zopakuji tedy jen to nejdůležitější. Blacklist je služba, která sdružuje na základě nějaké politiky IP adresy nebo IP rozsahy a umožňuje poštovním serverům prostřednictvím specifických DNS dotazů zkontrolovat, zda se IP adresa SMTP klienta v této databázi vyskytuje, či nikoliv.</p>
 
 <p>Blacklisty na této úrovni v Postfixu je možné využít pouze k odmítání pošty, což nebývá vždy ten nejlepší nápad. Řada správců poštovních serverů raději blacklisty zařazuje až do fáze kontroly antispamem (např. spamassassin), kde je příslušným e-mailům pouze zvýšeno skóre, ale nejsou natvrdo odmítány.</p>
 
@@ -1349,9 +1345,7 @@ http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)
 
 <p>Dosavadní konfigurace poštovního serveru počítala výhradně s vazbou poštovní schránky na unixové účty. Toto řešení je sice velmi jednoduché na implementaci, ale má několik nevýhod. V první řadě je to nutnost vytvořit unixový účet všem majitelům poštovních schránek. Pokud byste takovému uživateli nechtěli poskytnout přístup k shellu nebo jiným službám vázaným na unixové účty (což je z bezpečnostních důvodů více než rozumné), museli byste to nějakým způsobem ošetřit všude tam, kde se unixové účty používají.</p>
 
-<p>Obsluhuje-li váš server více domén, mohli jste narazit na problém se stejnými jmény na různých doménách. Představte si, že máte unixového uživatele <em>michal</em> a domény <em>example.com</em> a <em>example.net</em>, přičemž poštovní schránky <code>michal@example.com</code> a <code>michal@example.net</code> mají mít jiné vlastníky. Ve výchozí konfiguraci Postfixu by pošta z obou adres směřovala do schránky uživatele <em>michal</em>. Jedno z řešení tohoto problému, spočívající ve vytvoření virtuálních aliasů, které ukazují na různé unixové účty (tedy např. <code>michal@example.com</code> by ukazoval na <em>michal1</em> a <code>michal@example.net</code> by ukazoval na účet <em>michal2</em>), bylo představeno v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-aliasy-a-zalozni-postovni-server">tomto</a> dílu. Takové řešení lze použít, dokud nemáte větší množství uživatelů nebo domén.</p>
-
-TODO ref link
+<p>Obsluhuje-li váš server více domén, mohli jste narazit na problém se stejnými jmény na různých doménách. Představte si, že máte unixového uživatele <em>michal</em> a domény <em>example.com</em> a <em>example.net</em>, přičemž poštovní schránky <code>michal@example.com</code> a <code>michal@example.net</code> mají mít jiné vlastníky. Ve výchozí konfiguraci Postfixu by pošta z obou adres směřovala do schránky uživatele <em>michal</em>. Jedno z řešení tohoto problému, spočívající ve vytvoření virtuálních aliasů, které ukazují na různé unixové účty (tedy např. <code>michal@example.com</code> by ukazoval na <em>michal1</em> a <code>michal@example.net</code> by ukazoval na účet <em>michal2</em>), bylo představeno v kapitole <em>Aliasy a záložní poštovní server</em>{link:"Poštovní server":"Aliasy a záložní poštovní server}. Takové řešení lze použít, dokud nemáte větší množství uživatelů nebo domén.</p>
 
 <p>Jinou možností řešení tohoto problému jsou plně virtuální účty, tzn. zcela izolované účty pro poštu, s vlastním heslem (nezávislým na unixovém) pro každou schránku. Existuje mnoho způsobů, jak takové řešení implementovat. Často se jako úložiště nepoužívají textové soubory, nýbrž databáze (což bude i případ tohoto návodu). Postavíte-li si vlastní řešení, budete si muset ošetřit zakládání, rušení a nastavování účtů. V tomto díle bude uvedeno připravené řešení s využitím Postfixadminu, který správu účtů a domén usnadňuje.</p>
 

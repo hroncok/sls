@@ -2,9 +2,7 @@
 
 <h3>Úvod</h3>
 
-TODO ref link
-
-<p>Databázových systémů (DBMS) je v GNU/Linuxu dostupných poměrně dost. Mezi ty nejznámější patří určitě MySQL, která se na webových serverech používá nejčastěji a jejíž základní zprovoznění bylo již v této knize <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-instalace-lamp">probráno</a>. Kromě MySQL existuje ovšem řada jiných možností, které mohou být pro různé typy použití lepší volbou, a zde nelze nepřehlédnout PostgreSQL, špičkovou open-source databázi šířenou pod BSD/MIT-like licencí, s dlouhou tradicí a velmi působivými vlastnostmi.</p>
+<p>Databázových systémů (DBMS) je v GNU/Linuxu dostupných poměrně dost. Mezi ty nejznámější patří určitě MySQL, která se na webových serverech používá nejčastěji a jejíž základní zprovoznění bylo již v této knize probráno, a to v kapitole <em>Instalace LAMP</em>{link:"Webový server a databáze":"Instalace LAMP"}. Kromě MySQL existuje ovšem řada jiných možností, které mohou být pro různé typy použití lepší volbou, a zde nelze nepřehlédnout PostgreSQL, špičkovou open-source databázi šířenou pod BSD/MIT-like licencí, s dlouhou tradicí a velmi působivými vlastnostmi.</p>
 
 <p>Samotným porovnáním obou DBMS se tento článek zabývat nebude, nicméně v odkazech pod ním naleznete články, které oba DBMS velmi podrobně srovnávají. Aby to nevypadalo, že v GNU/Linuxu existují pouze MySQL a Postgres, dodám také, že kromě těchto dvou DBMS existuje řada dalších, ať již open-source nebo proprietárních, běžících pod GNU/Linuxem. Více viz odkazy pod kapitolou.</p>
 
@@ -191,9 +189,7 @@ TODO find image
 
 <p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4405.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4405.jpg','Grafické sestavení dotazu v pgAdmin III','1678','1027'); return false;"><img alt="Grafické sestavení dotazu v pgAdmin III" class="ph_detail" height="273" src="http://www.linuxexpres.cz/uploads/gallery/detail/4405.jpg" width="446" /></a> <span class="ph_title">Grafické sestavení dotazu v pgAdmin III</span></p>
 
-TODO ref link
-
-<p>Samotné připojení ke vzdálené databázi je možné provést řadou způsobů. Pro správce je patrně nejrychlejší použít SSH tunel, jehož vytvoření je popsáno v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-ssh-pro-spravce">Úvodu do SSH pro správce</a>. Je samozřejmě také možné nastavit Postgres, aby přijímal spojení ze sítě a umožňoval přihlášení uživatele či uživatelů z určité IP adresy. K tomu slouží konfigurační soubor <code>pg_hba.conf</code>, který v Debianu Wheezy s Postgresem 9.1 naleznete v <code>/etc/postgresql/9.1/main/</code>.</p>
+<p>Samotné připojení ke vzdálené databázi je možné provést řadou způsobů. Pro správce je patrně nejrychlejší použít SSH tunel, jehož vytvoření je popsáno v kapitole <em>Vzdálená správa pomocí SSH</em>{link:"Vzdálená správa pomocí SSH"}. Je samozřejmě také možné nastavit Postgres, aby přijímal spojení ze sítě a umožňoval přihlášení uživatele či uživatelů z určité IP adresy. K tomu slouží konfigurační soubor <code>pg_hba.conf</code>, který v Debianu Wheezy s Postgresem 9.1 naleznete v <code>/etc/postgresql/9.1/main/</code>.</p>
 
 <h3>Zálohování Postgresu</h3>
 
