@@ -1,4 +1,6 @@
-<h1>Git na vlastním serveru</h1>
+<h1>Git</h1>
+
+<h2>Git na vlastním serveru</h2>
 
 <h3>Úvod</h3>
 
@@ -153,15 +155,13 @@ ln -s /cesta/k/repositar.git /var/cache/git/repositar.git</pre>
 
 <h3>Prohlížení Git repozitáře online pomocí nástroje Gitweb</h3>
 
-<p>Gitweb je nástroj pro prohlížení Git repozitářů prostřednictvím webového prohlížeče. Můžete si procházet historii, stahovat snapshoty, prohlížet změny atd., a samozřejmě to také umožnit návštěvníkům vašeho webu. Nástroj si můžete prohlédnout v akci na <a href="http://git.kernel.org/?p=linux/kernel/git/next/linux-next.git;a=summary">git.kernel.org</a>, na některém z repozitářů obsahujícím linuxové jádro.</p>
+<p>Gitweb je nástroj pro prohlížení Git repozitářů prostřednictvím webového prohlížeče. Můžete si procházet historii, stahovat snapshoty, prohlížet změny atd., a samozřejmě to také umožnit návštěvníkům vašeho webu. Nástroj si můžete prohlédnout v akci na <code>git.kernel.org</code>.</p>
 
 <p>Instalace Gitwebu je poměrně jednoduchá, stačí nainstalovat příslušný balíček:</p>
 
 <pre>aptitude install gitweb</pre>
 
 <p>Máte-li nainstalovaný webový server Apache, Gitweb by měl začít fungovat okamžitě – vytvoří se alias <code>/gitweb</code>, tudíž zadejte URL následujícího typu: <code>http://server.example.org/gitweb</code>. Konfiguraci Gitwebu naleznete v <code>/etc/apache2/conf.d/gitweb</code>. Pokud tedy chcete změnit daný alias nebo si Gitweb zpřístupnit jen na určitém virtuálním serveru (virtual host), soubor upravte nebo přesuňte jinam a jeho obsah vložte tam, kde ho mít chcete.</p>
-
-TODO ref link to Apache server?
 
 <p>Používáte-li jiný webový server, budete muset upravit jeho nastavení pro Gitweb. Aplikaci Gitweb naleznete v <code>/usr/share/gitweb</code>, je napsaná v Perlu a patrně budete využívat CGI nebo FastCGI. Návod pro zprovoznění Gitwebu pomocí webového serveru Nginx naleznete v odkazech pod článkem.</p>
 
@@ -181,13 +181,17 @@ repositar2.git vlastnik2@example.org</pre>
 
 <p>Cesta k repozitářům může být relativní nebo absolutní, v příkladu výše je cesta relativní (resp. cesta vypadá neuvedená, jelikož soubor se seznamem projektů je ve stejném adresáři jako repozitáře).</p>
 
-<p>Tím bych tento díl ukončil. Příště vám představím řešení centrálního repozitáře s jemnějším systémem oprávnění než „plný přístup nebo žádný přístup“, které bylo prezentováno v minulém díle.</p>
+http://gitready.com/beginner/2009/01/19/ignoring-files.html Ignoring files
+http://www.frlinux.eu/?p=135 gitweb and nginx on Debian
+http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
+http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
+http://book.git-scm.com/ The Git Community Book
 
-<h1>Víceuživatelský Git server s Gitosis</h1>
+<h2>Víceuživatelský Git server s Gitosis</h2>
 
 <h3>Úvod</h3>
 
-<p>Na úvod předesílám, že Gitosis se v Debianu Wheezy nenachází, níže uvedený návod tedy využijete maximálně pro Debian Squeeze. Používáte-li Debian Wheezy, zkuste nástroj Gitolite.</p>
+<p>Na úvod předesílám, že Gitosis se v Debianu Wheezy nenachází, níže uvedený návod tedy využijete maximálně pro Debian Squeeze. Používáte-li Debian Wheezy, zkuste nástroj Gitolite, který vám představí následující kapitola.</p>
 
 <p>Představili jsme zde jednoduché techniky zprovoznění centrálního Git repozitáře. Probrali jsme v zásadě dvě možnosti – veřejný read-only přístup k repozitáři prostřednictvím Git démona a kompletní (read-write) přístup přes SSH. Obojí je velmi jednoduché na zprovoznění (je-li vůbec třeba něco zprovozňovat), avšak pro některá použití nemusí takto jednoduché techniky představovat optimální řešení, jelikož jim chybí možnost jemněji definovat pravidla přístupu a hlavně neumožňují bezpečný přístup více uživatelů k jednomu repozitáři. Gitosis je jedním z nástrojů, který umožňuje přístup k repozitářům definovat detailněji a pro více uživatelů. Lze jej integrovat s webovou aplikací Gitweb a Git démonem, i když to v Debianu nefunguje out-of-the-box (postup, jak toho docílit, bude naznačen).</p>
 
@@ -267,13 +271,13 @@ $strict_export = "true";</pre>
 
 <h4>Nastavení uživatelů a přístupových práv</h4>
 
-<p>Výchozí nastavení Gitosis zahrnuje skupinu <code>gitosis-admin</code>, jejíž členové mají práva k repozitáři správce:</p>
+<p>Výchozí nastavení Gitosis zahrnuje skupinu <em>gitosis-admin</em>, jejíž členové mají práva k repozitáři správce:</p>
 
 <pre>[group gitosis-admin]
 writable = gitosis-admin
 members = docekal</pre>
 
-<p>Pokud byste chtěli vytvořit skupinu <code>skupina</code> obsahující uživatele <code>milan</code> a <code>jan</code> s přístupem k repozitářům <code>mujprojekt1</code>, <code>mujprojekt2</code> a <code>mujprojekt3</code> tak, aby uživatelé skupiny měli přístup k repozitářům <code>mujprojekt1</code> a <code>mujprojekt2</code> pouze pro čtení a k repozitáři <code>mujprojekt3</code> i se zápisem, vypadala by konfigurace takto:</p>
+<p>Pokud byste chtěli vytvořit skupinu <code>skupina</code> obsahující uživatele <em>milan</em> a <em>jan</em> s přístupem k repozitářům <em>mujprojekt1</em>, <em>mujprojekt2</em> a <em>mujprojekt3</em> tak, aby uživatelé skupiny měli přístup k repozitářům <em>mujprojekt1</em> a <em>mujprojekt2</em> pouze pro čtení a k repozitáři <em>mujprojekt3</em> i se zápisem, vypadala by konfigurace takto:</p>
 
 <pre>[group skupina]
 writable = mujprojekt3
@@ -284,7 +288,7 @@ members = milan jan</pre>
 
 <pre>members = @nejaka_skupina</pre>
 
-<p>U uživatelů se předpokládá existence souborů s jejich SSH klíči. Uživatel <code>milan</code> by měl mít klíč v <code>keydir/milan.pub</code>. Po nastavení a přidání klíčů změny commitněte a nahrajte na server:</p>
+<p>U uživatelů se předpokládá existence souborů s jejich SSH klíči. Uživatel <em>milan</em> by měl mít klíč v <code>keydir/milan.pub</code>. Po nastavení a přidání klíčů změny commitněte a nahrajte na server:</p>
 
 <pre>git add gitosis.conf keydir
 git commit -m 'nastaveni repositaru'
@@ -311,13 +315,20 @@ git push origin master:refs/heads/master</pre>
 
 <pre>git push origin master:refs/heads/master</pre>
 
-<h1>Správa linuxového serveru: Víceuživatelský Git server s Gitolite</h1>
+https://pubmem.wordpress.com/2010/07/24/how-to-setup-git-gitosis-and-gitweb/ How to setup git, gitosis and gitweb
+http://stackoverflow.com/questions/7506832/git-push-origin-masterrefs-heads-master-what-does-this-do git push origin master:refs/heads/master what does this do
+http://www.frlinux.eu/?p=135 gitweb and nginx on Debian
+http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
+http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
+http://book.git-scm.com/ The Git Community Book
+
+<h2>Víceuživatelský Git server s Gitolite</h2>
 
 <h3>Úvod</h3>
 
 <p>Gitolite představuje z řešení zde probíraných nejsofistikovanější nástroj pro víceuživatelský přístup k centralizovanému Git repozitáři. Oproti Gitosis umí omezit právo zápisu na konkrétní větve (branches), respektive reference (refs). Můžete kontrolovat i to, zda má uživatel právo provést „rewind“, tedy „odčinění“ commitů nebo jiné změny historie.</p>
 
-<p>Je třeba si dát pozor na jednu věc. Gitolite neumí omezit read-only přístup na úroveň jednotlivých větví. Konkrétnímu uživateli tedy můžete zakázat read-only přístup k celému repozitáři, ale nikoliv ke konkrétním větvím. Je to dáno tím, že Git neumí rozlišit mezi jednotlivými větvemi, pokud provádí čtení. Tento problém spolu s alternativami řešení je podrobně <a href="http://sitaramc.github.com/gitolite/rpr_.html">popsán v dokumentaci</a>.</p>
+<p>Je třeba si dát pozor na jednu věc. Gitolite neumí omezit read-only přístup na úroveň jednotlivých větví. Konkrétnímu uživateli tedy můžete zakázat read-only přístup k celému repozitáři, ale nikoliv ke konkrétním větvím. Je to dáno tím, že Git neumí rozlišit mezi jednotlivými větvemi, pokud provádí čtení. Tento problém spolu s alternativami řešení je podrobně popsán v dokumentaci.</p>
 
 <h3>Instalace</h3>
 
@@ -427,7 +438,7 @@ git push origin master:refs/heads/master</pre>
 
 <p>Zde je uživateli <code>michal</code> uděleno právo vytvářet tagy ve tvaru <code>rc[číslo]</code>, je tedy možné vytvořit tag <code>rc1</code>, <code>rc10</code>, ale také <code>rc1a</code>. Uživatel <code>ludek</code> má oprávnění vytvářet libovolně pojmenované tagy, ovšem s výjimkou tagů začínajících na <code>rc[číslo]</code>. Budete-li zacházet s oprávněním pro odepření přístupu (mínusem), mějte na paměti, že záleží na pořadí prováděných pravidel. Kdybyste příklad výše otočili a dali prostřední řádek na konec, uživatel <code>ludek</code> by mohl vytvářet jakékoliv tagy a přístup by mu nikdy odepřen nebyl.</p>
 
-<p>Tolik k základům konfigurace Gitolite. Mnohé pokročilé vlastnosti Gitolite zde nezazněly, a (nejen) proto vám doporučuji podívat se na oficiální <a href="http://sitaramc.github.com/gitolite/master-toc.html">dokumentaci ke Gitolite</a>, která je velmi podrobná a přívětivá, čtivě psaná a plná užitečných příkladů. Uživatelům Gitolite důrazně doporučuji si ji projít.</p>
+<p>Tolik k základům konfigurace Gitolite. Mnohé pokročilé vlastnosti Gitolite zde nezazněly, a (nejen) proto vám doporučuji podívat se na oficiální dokumentaci ke Gitolite, která je velmi podrobná a přívětivá, čtivě psaná a plná užitečných příkladů. Uživatelům Gitolite důrazně doporučuji si ji projít.</p>
 
 <h3>Workflow</h3>
 
@@ -445,13 +456,22 @@ git push origin master:refs/heads/master</pre>
 
 <pre>ssh gitolite@server.example.org
 
-hello admin, the gitolite version here is 1.5.4-2+squeeze1 (Debian)
+hello admin, this is gitolite 2.3-1 (Debian) running on git 1.7.10.4
 the gitolite config gives you the following access:
-     R  W       gitolite-admin
+     R   W 	gitolite-admin
      R  W       projekt
     @R @W       testing</pre>
 
-<h1>Git hooky a alternativy ke Githubu</h1>
+http://blogs.gentoo.org/tampakrap/gitolite-installation-with-gitweb-and-anongit-in-gentoo-and-debian/ Gitolite installation with gitweb and anongit in Gentoo and Debian
+http://progit.org/book/ch4-8.html Pro Git: Gitolite
+http://sitaramc.github.com/gitolite/g2/master-toc.html Gitolite, dokumentace k verzi 2.x
+http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
+http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
+http://book.git-scm.com/ The Git Community Book
+http://www.regularnivyrazy.info/regularni-vyrazy-zaklady.html Miroslav Pecka, Základy regulárních výrazů
+http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí syntaxe regulárních výrazů
+
+<h2>Git hooky a alternativy ke Githubu</h2>
 
 <h3>Git hooky</h3>
 
@@ -627,7 +647,7 @@ the gitolite config gives you the following access:
 </tbody>
 </table>
 
-<p>Přehledovou tabulku doporučuji doplnit <a href="http://book.git-scm.com/5_git_hooks.html">dokumentací</a>. Stejně tak doporučuji si projít příklady skriptů, které by měly být součástí libovolného Git repozitáře. Naleznete tam nejenom příklady použití, ale také užitečné komentáře o použití daných háčků.</p>
+<p>Přehledovou tabulku doporučuji doplnit dokumentací. Stejně tak doporučuji si projít příklady skriptů, které by měly být součástí libovolného Git repozitáře. Naleznete tam nejenom příklady použití, ale také užitečné komentáře o použití daných háčků.</p>
 
 <p>Stejně jako existují místní a vzdálené Git repozitáře, můžete specifikovat různé místní a vzdálené háčky. Můžete tedy používat jednu sadu funkcionality lokálně a jinou vzdáleně.</p>
 
@@ -643,11 +663,11 @@ the gitolite config gives you the following access:
 
 <h4>Girocco</h4>
 
-<p><a href="http://repo.or.cz/w/girocco.git">Girocco</a> je Git hosting, který lze označit jako GitWeb na steroidech. Girocco je na Gitwebu založeno a ovládá se stejně. Obsahuje samozřejmě potřebné vlastnosti pro Git hosting, jako registraci uživatelů/projektů apod., a některé vlastnosti navíc. Autorem je Petr Baudiš a software je provozován na známém repozitáři <a href="http://repo.or.cz/">repo.or.cz</a>. Pro svou funkci potřebuje webový server, Git a GitWeb. Lze ho propojit s Git démonem. Podporuje zrcadlení repozitářů (můžete jej tedy používat jako záložní úložiště pro některé své repozitáře hostované jinde) a forkování projektů.</p>
+<p>Girocco je Git hosting, který lze označit jako GitWeb na steroidech. Girocco je na Gitwebu založeno a ovládá se stejně. Obsahuje samozřejmě potřebné vlastnosti pro Git hosting, jako registraci uživatelů/projektů apod., a některé vlastnosti navíc. Autorem je Petr Baudiš a software je provozován na známém repozitáři <code>repo.or.cz</code>. Pro svou funkci potřebuje webový server, Git a GitWeb. Lze ho propojit s Git démonem. Podporuje zrcadlení repozitářů (můžete jej tedy používat jako záložní úložiště pro některé své repozitáře hostované jinde) a forkování projektů.</p>
 
 <h4>Gitorious</h4>
 
-<p><a href="https://gitorious.org/gitorious/">Gitorious</a> je založený na Ruby on Rails a šířený pod licencí GNU Affero GPL verze 3. Ta se liší od klasické GNU/GPL tím, že zdrojový kód je třeba zpřístupnit nejen příjemcům při distribuci softwaru, ale také při jeho zpřístupnění uživatelům přes síť. Gitorious je Web 2.0 aplikace ve stylu Githubu, je mu tedy o něco blíže než Girocco. Oproti GitWebu obsahuje navíc vestavěnou wiki, kterou je možné použít pro dokumentaci projektu.</p>
+<p>Gitorious je založený na Ruby on Rails a šířený pod licencí GNU Affero GPL verze 3. Ta se liší od klasické GNU/GPL tím, že zdrojový kód je třeba zpřístupnit nejen příjemcům při distribuci softwaru, ale také při jeho zpřístupnění uživatelům přes síť. Gitorious je Web 2.0 aplikace ve stylu Githubu, je mu tedy o něco blíže než Girocco. Oproti GitWebu obsahuje navíc vestavěnou wiki, kterou je možné použít pro dokumentaci projektu.</p>
 
 <p>Žádný z těchto projektů neobsahuje všechny funkce Githubu, jako např. komentování, bug tracker apod. Pokud takové funkce potřebujete, je možné zkombinovat některé z těchto řešení s jiným open-source projektem – kupříkladu, open-source bug trackerů existuje celá řada (Flyspray, Bugzilla, Mantis apod.). Jediné, co budete muset oželet, je integrace těchto nástrojů s Git hostingem.</p>
 
@@ -661,35 +681,10 @@ TODO ref link
 
 <p>Tím bych toto téma uzavřel. Na závěr nemohu nezmínit, že existuje i řada jiných SCM nástrojů, kterým jsem se zde nevěnoval (např. Mercurial, Bazaar, SVN apod.). Řada z nich je open source a je možné (v případě centralizovaných SCM i nutné) je nasadit na server. Jsou opatřeny různými vlastnostmi a rozhodně bych vám doporučoval se na ně podívat.</p>
 
-<pre id="links">http://gitready.com/beginner/2009/01/19/ignoring-files.html Ignoring files
-http://www.frlinux.eu/?p=135 gitweb and nginx on Debian
 http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
-http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
-http://book.git-scm.com/ The Git Community Book</pre>
-
-<pre id="links">https://pubmem.wordpress.com/2010/07/24/how-to-setup-git-gitosis-and-gitweb/ How to setup git, gitosis and gitweb
-http://stackoverflow.com/questions/7506832/git-push-origin-masterrefs-heads-master-what-does-this-do git push origin master:refs/heads/master what does this do
-http://www.frlinux.eu/?p=135 gitweb and nginx on Debian
-http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
-http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
-http://book.git-scm.com/ The Git Community Book</pre>
-
-
-<pre id="links">http://blogs.gentoo.org/tampakrap/gitolite-installation-with-gitweb-and-anongit-in-gentoo-and-debian/ Gitolite installation with gitweb and anongit in Gentoo and Debian
-http://progit.org/book/ch4-8.html Pro Git: Gitolite
-http://sitaramc.github.com/gitolite/master-toc.html Hlavní rozcestník dokumentace projektu Gitolite
-http://sitaramc.github.com/gitolite/conf_examples.html Příklady konfigurace Gitolite
-http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
-http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny)
-http://book.git-scm.com/ The Git Community Book
-http://www.regularnivyrazy.info/regularni-vyrazy-zaklady.html Miroslav Pecka, Základy regulárních výrazů
-http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí syntaxe regulárních výrazů</pre>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-
-
-<pre id="links">http://git-scm.com/ Web projektu s odkazy na dokumentaci a videa o Gitu
 http://knihy.nic.cz/ Scott Chacon, CZ.NIC: Pro Git (kniha o Gitu přeložená do češtiny, e-book zdarma)
-http://book.git-scm.com/ The Git Community Book</pre>
-
+http://book.git-scm.com/ The Git Community Book
+http://book.git-scm.com/5_git_hooks.html Dokumentace věnující se Git hookům
+http://repo.or.cz/w/girocco.git Girocco, stránky projektu
+https://gitorious.org/gitorious/ Gitorious, stránky projektu
 
