@@ -1,10 +1,12 @@
-<h1>Správa linuxového serveru: Instalace LAMP</h1>
+<h1>Webový server a databáze</h1>
+
+<h2>Instalace LAMP</h2>
 
 <h3>Úvod</h3>
 
-<p>LAMP je zkratkou pro Linux, Apache, MySQL a PHP. Na úvod je třeba zdůraznit, že pro jednotlivé komponenty ze zkratky LAMP existují alternativy, které mohou být v mnoha situacích příhodnější. Už samotný webový server Apache má v prostředí GNU/Linuxu poměrně velkou konkurenci. Existují odlehčené varianty snažící se o vyšší výkon jako např. <a href="http://www.lighttpd.net/">Lighttpd</a>, na kterém běží tak gigantické projekty jako Youtube, Wikipedia atd., ale také třeba <a href="http://nginx.org/">Nginx</a>. Zajímavým projektem hodným zmínky je i webový server <a href="http://www.cherokee-project.com/">Cherokee</a>, který poskytuje přehledné webové konfigurační rozhraní, čímž odstraňuje nutnost editovat konfigurační soubory ručně, a ještě k tomu je nenáročný na zdroje a nabízí také <a href="http://c6s.co.uk/webdev/209">velmi slušný výkon</a>.</p>
+<p>LAMP je zkratkou pro Linux, Apache, MySQL a PHP. Na úvod je třeba zdůraznit, že pro jednotlivé komponenty ze zkratky LAMP existují alternativy, které mohou být v mnoha situacích příhodnější. Už samotný webový server Apache má v prostředí GNU/Linuxu poměrně velkou konkurenci. Existují odlehčené varianty snažící se o vyšší výkon jako např. Nginx či Lighttpd, na kterém běží tak gigantické projekty jako Youtube, Wikipedia atd. Zajímavým projektem hodným zmínky je i webový server Cherokee, který poskytuje přehledné webové konfigurační rozhraní, čímž odstraňuje nutnost editovat konfigurační soubory ručně, a ještě k tomu je nenáročný na zdroje a nabízí také velmi slušný výkon.</p>
 
-<p>Pokud se posunete k dalšímu písmenku, tedy k databázovému systému MySQL, i zde je v prostředí GNU/Linuxu značná konkurence. Na mysl by vám zde určitě měl přijít <a href="http://www.postgres.cz/">PostgreSQL</a>, <a href="http://www.firebirdsql.org/">Firebird</a> a další. Pokud vás zajímají rozdíly jednotlivých databázových systémů, můžete si přečíst článek <a href="http://www.linuxexpres.cz/software/srovnani-databazovych-serveru">Srovnání databázových serverů</a>, nebo se podívat na <a href="http://en.wikipedia.org/wiki/Comparison_of_relational_database_management_systems">komplexní srovnání</a> databázových systémů na Wikipedii.</p>
+<p>Pokud se posunete k dalšímu písmenku, tedy k databázovému systému MySQL, i zde je v prostředí GNU/Linuxu značná konkurence. Na mysl by vám zde určitě měl přijít PostgreSQL, Firebird a další. Pokud vás zajímají rozdíly jednotlivých databázových systémů, můžete si přečíst článek srovnávající databázové servery (odkaz naleznete pod kapitolou), popřípadě se podívat na komplexní srovnání databázových systémů na Wikipédii.</p>
 
 <p>Posledním písmenkem ve zkratce LAMP je písmeno P, značící PHP. Ačkoliv se jedná o jeden z nejpoužívanějších jazyků pro tvorbu webových aplikací, má svoje nedostatky (i když řadu z nich se snaží řešit řada PHP frameworků) a existuje opět řada alternativ, z nichž budu jmenovat alespoň Javu, Python či Ruby.</p>
 
@@ -59,7 +61,7 @@ password=heslo</pre>
 
 <h4>Instalace aplikace phpMyAdmin</h4>
 
-<p>PhpMyAdmin je webová aplikace napsaná v PHP a určená k pohodlné správě MySQL databáze. Představuje možnost, jak pracovat s databázovým systémem rychle, přehledně a efektivně bez nutnosti psát všechny SQL příkazy ručně. V případě LAMP serverů je této aplikace hojně využíváno také kvůli možnosti snadného importu a exportu dat z nebo do databáze. Více informací o použití této aplikace naleznete v článku <a href="http://www.linuxexpres.cz/praxe/sprava-databazi-pomoci-phpmyadmin">Správa databází pomocí phpMyAdmin</a>. Instalaci nástroje phpMyAdmin provedete v Debianu takto:</p>
+<p>PhpMyAdmin je webová aplikace napsaná v PHP a určená k pohodlné správě MySQL databáze. Představuje možnost, jak pracovat s databázovým systémem rychle, přehledně a efektivně bez nutnosti psát všechny SQL příkazy ručně. V případě LAMP serverů je této aplikace hojně využíváno také kvůli možnosti snadného importu a exportu dat z nebo do databáze. Více informací o použití této aplikace naleznete článku odkazovaném pod kapitolou. Instalaci nástroje phpMyAdmin provedete v Debianu takto:</p>
 
 <pre>aptitude install phpmyadmin</pre>
 
@@ -68,6 +70,8 @@ password=heslo</pre>
 <pre>lynx localhost/phpmyadmin</pre>
 
 <p>Budete-li k této aplikaci přistupovat vzdáleně, čiňte tak raději přes HTTPS, až tímto způsobem webový server nastavíte. Budete-li používat nešifrovaný protokol HTTP, umožníte kterémukoliv naslouchajícímu na cestě mezi vámi a vaším serverem, aby vaše heslo k databázi odposlechl.</p>
+
+<p>Dlužno dodat, že existují i jiné nástroje, které zvládnou spravovat MySQL databáze, které mohou některým z vás vyhovovat více, jako například Adminer, který napsal Jakub Vrána, vývojář PHP. Adminer má v Debianu Wheezy dokonce i stejnojmenný balíček.</p>
 
 <h4>LAMP je (skoro) hotov</h4>
 
@@ -101,7 +105,7 @@ password=heslo</pre>
 
 <p><code>memory_limit</code> přijímá jako parametr maximum paměti, kterou může PHP skript využít. Výchozí hodnotou je <code>128M</code>, kde M znamená MB. Pokud skript požádá o více paměti, bude ukončen s chybou. Jak v případě volby <code>max_execution_time</code>, tak v případě této platí daná hodnota pro jeden běh skriptu, tedy jeden HTTP požadavek obsluhovaný PHP skriptem. Více požadavků naráz může tedy zabrat n-krát více paměti.</p>
 
-<p><code>display_errors</code> řídí zobrazování chyb a může nabývat dvou hodnot, „On“ nebo „Off“. Jeho výchozí hodnota je „On“, což představuje potenciální bezpečnostní problém - chyby, varování či hlášení v rámci běhu PHP skriptů se pak zobrazují v prohlížeči včetně některých možných zneužitelných informací (chybová hlášení při práci s databází atd.). Tuto volbu je tedy na produkčních serverech vhodné nastavit na „Off“. To, co se vlastně zobrazuje, tzn. zdali se zobrazují pouze chyby, nebo i varování a hlášení, řídí parametr <code>error_reporting</code>. Více k tomuto tématu naleznete např. v <a href="http://www.zaachi.com/cs/items/chybova-hlaseni-v-php.html">tomto</a> článku.</p>
+<p><code>display_errors</code> řídí zobrazování chyb a může nabývat dvou hodnot, „On“ nebo „Off“. Jeho výchozí hodnota je „On“, což představuje potenciální bezpečnostní problém - chyby, varování či hlášení v rámci běhu PHP skriptů se pak zobrazují v prohlížeči včetně některých možných zneužitelných informací (chybová hlášení při práci s databází atd.). Tuto volbu je tedy na produkčních serverech vhodné nastavit na „Off“. To, co se vlastně zobrazuje, tzn. zdali se zobrazují pouze chyby, nebo i varování a hlášení, řídí parametr <code>error_reporting</code>. Více k tomuto tématu naleznete v odkazech pod kapitolou.</p>
 
 <p><code>display_startup_errors</code> řídí zobrazování kritických chyb, ke kterým dochází při spouštění PHP skriptu. Nabývá stejných hodnot jako parametr <code>display_errors</code>, jeho výchozí hodnotou je „Off“ a na produkčních serverech doporučuji tuto hodnotu ponechat.</p>
 
@@ -115,7 +119,7 @@ password=heslo</pre>
 
 <p><code>allow_url_fopen</code> a <code>allow_url_include</code> jsou vhodnými kandidáty na hodnotu „Off“. Umožňují v rámci některých funkcí určených pro práci se soubory získávat data z externích zdrojů (specifikováním URL místo cesty k souboru), což může posloužit k nejrůznějším útokům, pokud není v PHP aplikacích správně ošetřen uživatelský vstup (na což nebývá dobré se spoléhat).</p>
 
-<p><code>open_basedir</code> je Debianem označeno jako „defektní“ (broken) bezpečnostní opatření, a je tudíž v rámci Debianu nepodporované. <code>open_basedir</code> slouží k omezení operací se soubory na seznam adresářů uvedených jako hodnota této volby (adresáře je třeba oddělovat dvojtečkou). Pokud je tato volba ponechána jako neprázdná, nebude možné v rámci korektně ošetřených PHP funkcí použít cestu vedoucí mimo tyto adresáře (resp. použití takové cesty vyvolá chybu). Lepším (resp. jistějším) způsobem zabezpečení může být chroot na úrovni webového serveru (Apache má k tomuto účelu připraven modul <code>chroot</code> v balíčku <code>libapache2-mod-chroot</code>).</p>
+<p><code>open_basedir</code> je Debianem označeno jako „defektní“ (broken) bezpečnostní opatření, a je tudíž v rámci Debianu nepodporované. <code>open_basedir</code> slouží k omezení operací se soubory na seznam adresářů uvedených jako hodnota této volby (adresáře je třeba oddělovat dvojtečkou). Pokud je tato volba ponechána jako neprázdná, nebude možné v rámci korektně ošetřených PHP funkcí použít cestu vedoucí mimo tyto adresáře (resp. použití takové cesty vyvolá chybu). Lepším (resp. jistějším) způsobem zabezpečení může být chroot na úrovni webového serveru.</p>
 
 <p>Na závěr výčtu důležitých voleb dodávám, že některé z výše uvedených navrhovaných změn mohou mít negativní dopad na některé PHP aplikace. Dodám také, že veškeré změny v <code>php.ini</code> se projeví teprve až se znovunačtením konfigurace webového serveru, tedy v případě Apache po vykonání příkazu:</p>
 
@@ -127,13 +131,23 @@ password=heslo</pre>
 
 <h4>Dodatečné možnosti zabezpečení PHP: suexec</h4>
 
-<p>Suexec je modul Apache určený k tomu, aby PHP skript běžel s oprávněními vlastníka daného webu. Tím je řešen bezpečnostní problém v konfiguraci s řadou webů (virtualhostů), kde průnik přes jeden z nich umožní útočníkovi dostat se i k ostatním. Suexec vyžaduje běh PHP v rámci Apache prostřednictvím CGI, tedy přesněji FastCGI. Toto řešení je popsáno třeba v <a href="http://www.root.cz/clanky/oddelte-od-sebe-uzivatele-serveru-apache-a-php/">tomto</a> článku.</p>
+<p>Suexec je modul Apache určený k tomu, aby PHP skript běžel s oprávněními vlastníka daného webu. Tím je řešen bezpečnostní problém v konfiguraci s řadou webů (virtualhostů), kde průnik přes jeden z nich umožní útočníkovi dostat se i k ostatním. Suexec vyžaduje běh PHP v rámci Apache prostřednictvím CGI, tedy přesněji FastCGI. Toto řešení je popsáno v odkazovaném článku pod kapitolou.</p>
 
-<pre id="links">http://www.linuxexpres.cz/praxe/konfigurace-a-optimalizace-apache Konfigurace a optimalizace Apache
+http://www.lighttpd.net/ Lighttpd
+http://nginx.org/ Nginx
+http://www.cherokee-project.com/ Cherokee
+http://www.postgres.cz/ PostgreSQL
+http://www.firebirdsql.org/ Firebird
+http://www.linuxexpres.cz/software/srovnani-databazovych-serveru LinuxEXPRES, Srovnání databázových serverů
+http://en.wikipedia.org/wiki/Comparison_of_relational_database_management_systems Wikipédie, Comparison of relational database management systems
+http://www.linuxexpres.cz/praxe/sprava-databazi-pomoci-phpmyadmin Správa databází pomocí phpMyAdmin
+http://www.adminer.org/ Adminer
+http://www.zaachi.com/cs/items/chybova-hlaseni-v-php.html Zaachi.com, Chybová hlášení v PHP
+http://www.root.cz/clanky/oddelte-od-sebe-uzivatele-serveru-apache-a-php/ Root.cz, Oddělte od sebe uživatele serveru Apache a PHP
+http://www.linuxexpres.cz/praxe/konfigurace-a-optimalizace-apache Konfigurace a optimalizace Apache
 http://www.howtoforge.com/ubuntu_debian_lamp_server How To Set Up A Ubuntu/Debian LAMP Server
-http://www.debian-administration.org/articles/138 Tightening PHP security</pre>
-<pre id="links">http://www.zaachi.com/cs/items/chybova-hlaseni-v-php.html Chybová hlášení v PHP
+http://www.debian-administration.org/articles/138 Tightening PHP security
+http://www.zaachi.com/cs/items/chybova-hlaseni-v-php.html Chybová hlášení v PHP
 http://www.phpfreaks.com/tutorial/hardening-php-with-suhosin/ Hardening PHP with Suhosin
 http://www.hardened-php.net/suhosin/configuration.html Suhosin configuration
-http://www.debian-administration.org/articles/138 Tightening PHP security
-http://www.root.cz/clanky/oddelte-od-sebe-uzivatele-serveru-apache-a-php/ Oddělte od sebe uživatele serveru Apache a PHP</pre>
+http://www.root.cz/clanky/oddelte-od-sebe-uzivatele-serveru-apache-a-php/ Oddělte od sebe uživatele serveru Apache a PHP
