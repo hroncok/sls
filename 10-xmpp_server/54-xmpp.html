@@ -1,6 +1,6 @@
-<h1>Správa linuxového serveru: XMPP (Jabber) server Prosody</h1>
+<h1>XMPP (Jabber) servery</h1>
 
-<h3>Obecně o Jabberu a XMPP</h3>
+<h2>Úvod do XMPP</h2>
 
 <p>Instant messaging, tedy komunikace prostřednictvím „okamžitých zpráv“, se stala velmi populární. Existuje celá řada protokolů, služeb i klientů sloužící k realizaci tohoto typu komunikace. Jedním z protokolů je i Jabber/XMPP, který je populární nejenom ve sféře uživatelů Linuxu a svobodného softwaru.</p>
 
@@ -8,29 +8,40 @@
 
 <p>Otevřenost protokolu a související možnost jej použít volně, dle libosti, dala vzniknout řadě implementací XMPP serverů i klientů. Oproti řadě jiných protokolů a podobných služeb má Jabber ještě jednu zásadní odlišnost – je decentralizovaný. To znamená, že nemá žádný centrální bod, na kterém by komunikační síť závisela a bez kterého by nikdo s nikým nemohl komunikovat. Jabber se z tohoto pohledu podobá e-mailu - serverů je celá řada, mohou spolu navzájem komunikovat, přičemž uživatelé se mohou rozhodnout, jaký server si zvolí, popřípadě mají možnost si založit vlastní Jabber server (viz dále), a stále mají možnost komunikovat s uživateli ostatních serverů.</p>
 
-<p class="box">Jabber nebo XMPP? Dříve se protokol XMPP jmenoval Jabber. Nyní se toto označení používá spíše pro službu, zatímco novější XMPP se používá pro samotný protokol. Vztah mezi výrazy Jabber a XMPP je tak podobný jako mezi výrazy e-mail a SMTP.</p>
+<p>Jabber nebo XMPP? Dříve se protokol XMPP jmenoval Jabber. Nyní se toto označení používá spíše pro službu, zatímco novější XMPP se používá pro samotný protokol. Vztah mezi výrazy Jabber a XMPP je tak podobný jako mezi výrazy e-mail a SMTP.</p>
 
 <p>Uživatelé Jabberu jsou identifikováni pomocí JID (Jabber ID), které má totožný tvar jako e-mailová adresa: <code>jmeno@domena.cz</code>.</p>
 
-<h3>Klienty</h3>
+<h3>Klienti</h3>
 
-<p>Klientů pro Jabber existuje ohromné množství. Na webu LinuxEXPRES byly mj. představeny multiplatformní klienty <a href="http://www.linuxexpres.cz/software/jabber-instant-messaging-bez-omezeni-1">Psi</a>, <a href="http://www.linuxexpres.cz/duel/klienti-pro-jabber-coccinella-vs-gajim">Coccinella a Gajim</a>. Známým klientem je i multiplatformní a multiprotokolový <a href="http://www.pidgin.im/">Pidgin</a> nebo rovněž multiprotokolový klient pro prostředí KDE, <a href="http://www.linuxexpres.cz/blog/kopete-za-kde-ja-ano">Kopete</a>. Existují také klienty pro konzoli určené pro milovníky příkazové řádky, jedná se např. o klient <a href="http://www.linuxexpres.cz/software/mcabber-im-klient-pre-konzolu-zvladajuci-nielen-jabber">Mcabber</a> či s Pidginem distribuovaný <a href="http://developer.pidgin.im/wiki/Using%20Finch">Finch</a>. Jsou rovněž dostupné klienty pro webový prohlížeč i mobilní zařízení. Podrobnější seznam klientů naleznete jednak <a href="http://en.wikipedia.org/wiki/Comparison_of_instant_messaging_clients#XMPP_clients">na Wikipedii</a>, na <a href="http://www.jabber.cz/wiki/Kategorie:Klienti">wiki</a> českého Jabber portálu a také na <a href="http://xmpp.org/xmpp-software/clients/">webu XMPP nadace</a>.</p>
+<p>Klientů pro Jabber existuje ohromné množství. Na webu LinuxEXPRES byly mj. představeny multiplatformní klienty Psi, Coccinella a Gajim. Známým klientem je i multiplatformní a multiprotokolový Pidgin nebo rovněž multiprotokolový klient pro prostředí KDE, Kopete. Existují také klienty pro konzoli určené pro milovníky příkazové řádky, jedná se např. o klient Mcabber či s Pidginem distribuovaný Finch. Jsou rovněž dostupné klienty pro webový prohlížeč i mobilní zařízení. Podrobnější seznam klientů naleznete jednak na Wikipédii, dále na wiki českého Jabber portálu a také na webu XMPP nadace.</p>
 
 <h3>Servery</h3>
 
-<p>Jabber serverů existuje také celá řada. Existují v C napsané servery jabber14 a jabber2, v Erlangu napsaný ejabberd, v Javě napsané Openfire a Tigase a v neposlední řadě i odlehčený server Prosody napsaný v Lua (ten bude představen v tomto dílu). Tento soupis rovněž není úplný, obsáhlý seznam jsem nalezl na <a href="http://xmpp.org/xmpp-software/servers/">webu XMPP nadace</a>.</p>
+<p>Jabber serverů existuje také celá řada. Existují v C napsané servery jabber14 a jabber2, v Erlangu napsaný ejabberd, v Javě napsané Openfire a Tigase a v neposlední řadě i odlehčený server Prosody napsaný v Lua. Tento soupis rovněž není úplný, obsáhlý seznam jsem nalezl na webu XMPP nadace (odkaz naleznete pod kapitolou).</p>
 
-<h3>Prosody</h3>
+http://xmpp.org/xmpp-software/servers/ XMPP nadace, seznam XMPP serverů
+http://www.linuxexpres.cz/software/jabber-instant-messaging-bez-omezeni-1" LinuxEXPRES, článek o Jabber klientovi Psi
+http://www.linuxexpres.cz/duel/klienti-pro-jabber-coccinella-vs-gajim LinuxEXPRES, článek o Jabber klientech Coccinella a Gajim
+http://www.pidgin.im/ Pidgin, stránky projektu
+http://www.linuxexpres.cz/blog/kopete-za-kde-ja-ano LinuxEXPRES, článek o Jabber klientovi Kopete
+http://www.linuxexpres.cz/software/mcabber-im-klient-pre-konzolu-zvladajuci-nielen-jabber LinuxEXPRES, článek o Jabber klientovi Mcabber
+http://developer.pidgin.im/wiki/Using%20Finch Pidgin Wiki, Using Finch
+http://en.wikipedia.org/wiki/Comparison_of_instant_messaging_clients#XMPP_clients Wikipedia, Comparison of instant messaging clients
+http://www.jabber.cz/wiki/Kategorie:Klienti Jabber.cz Wiki, klienti
+http://xmpp.org/xmpp-software/clients/ XMPP nadace, seznam klientů
+
+<h2>XMPP server Prosody</h2>
 
 <p>Prosody je lehký XMPP server napsaný v jazyce Lua a vydaný pod MIT/X11 licencí. Snaží se o jednoduchost konfigurace (to budete moci posoudit níže) a nenáročnost na zdroje (to mohu potvrdit, jelikož mi běží na dvou serverech a na obou si alokuje kolem 10 MB virtuální paměti). Díky tomu se výborně hodí na osobní VPS nebo servery s omezenými zdroji.</p>
 
-<h4>Instalace</h4>
+<h3>Instalace</h3>
 
-<p>Ve vámi používané distribuci byste mohli najít balíček Prosody přímo v repozitářích (pokud ne, nezbude vám nic jiného než Prosody nainstalovat ze zdrojových kódů). Distribuce založené na Debianu by měly mít Prosody v repozitářích k dispozici, nicméně vývojářský tým tohoto serveru nabízí ještě svůj vlastní <a href="http://prosody.im/download/package_repository">repozitář</a>, kde byste měli najít vždy aktuální verzi. Tak či onak, pro instalaci by měl postačit příkaz:</p>
+<p>Ve vámi používané distribuci byste mohli najít balíček Prosody přímo v repozitářích (pokud ne, nezbude vám nic jiného než Prosody nainstalovat ze zdrojových kódů). Distribuce založené na Debianu by měly mít Prosody v repozitářích k dispozici, nicméně vývojářský tým tohoto serveru nabízí ještě svůj vlastní repozitář, kde byste měli najít vždy aktuální verzi. Tak či onak, pro instalaci by měl postačit příkaz:</p>
 
 <pre>aptitude install prosody</pre>
 
-<h4>Konfigurace</h4>
+<h3>Konfigurace</h3>
 
 <p>Pokud čtete tuto knihu od začátku, určitě tušíte, že po vzoru konfigurace webových serverů bude distribuce Debian strukturu konfiguračních souborů pro Prosody upravovat podobným stylem. Konfiguraci naleznete v adresáři <code>/etc/prosody</code>. Hlavním konfiguračním souborem je <code>prosody.cfg.lua</code>, pro konfigurační soubory jednotlivých virtuálních hostů je určen adresář <code>conf.avail</code>, přičemž aktivní konfigurační soubory je třeba nalinkovat symbolickým odkazem do <code>conf.d</code>.</p>
 
@@ -64,7 +75,7 @@
 
 <p>Obecně lze doporučit projít si tento soubor a jeho komentáře a upravit si nastavení podle svých představ.</p>
 
-<h4>Vytváření a rušení uživatelských účtů</h4>
+<h3>Vytváření a rušení uživatelských účtů</h3>
 
 <p>Prosody má k dispozici nástroj pro řízení jeho chodu, a sice <code>prosodyctl</code>. Tímto nástrojem můžete provádět změny za běhu, zejména pak přidání uživatele, odebrání uživatele a změna hesla uživatele:</p>
 
@@ -80,14 +91,14 @@
 </li>
 </ul>
 
-<h4>SRV záznamy DNS</h4>
+<h3>SRV záznamy DNS</h3>
 
-<p>Preferovaným způsobem navazování spojení v rámci XMPP klientů i serverů je využívání SRV DNS záznamů, které udávají, kde konkrétně běží příslušné služby (viz <a href="http://xmpp.org/rfcs/rfc6120.html#tcp-resolution-prefer">příslušné RFC</a>). V případě XMPP se jedná o dvě služby, resp. dva porty, port pro připojení klientů (5222) a port určený pro komunikaci mezi servery 5269. Z tohoto hlediska je velmi vhodné pro XMPP server příslušné SRV záznamy nastavit. Tyto záznamy mají následující podobu:</p>
+<p>Preferovaným způsobem navazování spojení v rámci XMPP klientů i serverů je využívání SRV DNS záznamů, které udávají, kde konkrétně běží příslušné služby (viz RFC 6120). V případě XMPP se jedná o dvě služby, resp. dva porty, port pro připojení klientů (5222) a port určený pro komunikaci mezi servery 5269. Z tohoto hlediska je velmi vhodné pro XMPP server příslušné SRV záznamy nastavit. Tyto záznamy mají následující podobu:</p>
 
 <pre>_xmpp-server._tcp.example.cz.  IN SRV   0 0 5269   hostname.
 _xmpp-client._tcp.example.cz.  IN SRV   0 0 5222   hostname.</pre>
 
-<p>Zde nahraďte <code>example.cz</code> za název domény, kde chcete nasadit Jabber server (toto je doménové jméno v JID); <code>hostname</code> pak nahraďte za jméno serveru, kde váš Jabber server běží. Pokud chcete, můžete upravit i čísla portů. Dvě nuly zde udávají prioritu a váhu (v tomto pořadí).</p>
+<p>Zde nahraďte <em>example.cz</em> za název domény, kde chcete nasadit Jabber server (toto je doménové jméno v JID); <code>hostname</code> pak nahraďte za jméno serveru, kde váš Jabber server běží. Pokud chcete, můžete upravit i čísla portů. Dvě nuly zde udávají prioritu a váhu (v tomto pořadí).</p>
 
 <p>Následující SRV záznam sice již ze specifikace XMPP protokolu zmizel a jakýkoliv software pracující s XMPP aktualizovaný během posledních několika let by jej neměl vyžadovat, nicméně z důvodu zpětné kompatibility může být vhodné zvážit přidání i tohoto záznamu. Přinejmenším je to jedna z věcí, kterou byste měli vést v patrnosti při řešení případných problémů, pokud tento SRV záznam nepoužijete.</p>
 
@@ -97,7 +108,7 @@ _xmpp-client._tcp.example.cz.  IN SRV   0 0 5222   hostname.</pre>
 
 TODO ref link
 
-<p>Jabber komunikaci je velmi vhodné šifrovat, nejlépe platným certifikátem, kterému budou vaši klienti věřit. Problematika certifikátů a možnosti získání důvěryhodného certifikátu zdarma byly <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">probrány dříve v seriálu</a>. Zde už předpokládám, že certifikát k dispozici máte. Specifikace certifikátu by měla přijít do nastavení příslušného virtual hostu, konkrétně do sekce <code>ssl</code>:</p>
+<p>Jabber komunikaci je velmi vhodné šifrovat, nejlépe platným certifikátem, kterému budou vaši klienti věřit. Problematika certifikátů a možnosti získání důvěryhodného certifikátu zdarma byly <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">probrány dříve v knize</a>. Zde už předpokládám, že certifikát k dispozici máte. Specifikace certifikátu by měla přijít do nastavení příslušného virtual hostu, konkrétně do sekce <code>ssl</code>:</p>
 
 <pre>VirtualHost "example.cz"
 
@@ -117,16 +128,20 @@ TODO ref link
 </li>
 </ul>
 
-<p>Více o pokročilém nastavení SSL/TLS v Prosody se dozvíte <a href="http://prosody.im/doc/advanced_ssl_tls">v dokumentaci</a>.</p>
+<p>Více o pokročilém nastavení SSL/TLS v Prosody se dozvíte v dokumentaci.</p>
 
 <h3>Jabber a transporty</h3>
 
-<p>Na závěr zmíním možnost komunikace s ostatními sítěmi pomocí transportů. Chcete-li propojit svůj Jabber/XMPP server se sítěmi jako ICQ, AIM, MSN apod., můžete použít některý z projektů jako např. <a href="http://spectrum.im/">spectrum</a>. Na jeho <a href="http://spectrum.im/projects/spectrum/wiki">wiki</a> naleznete prakticky veškeré potřebné informace, jak tuto komponentu nastavit a integrovat s Prosody. Spectrum není součástí Debianu Squeeze, ale projekt má k dispozici repozitáře pro Debian, tudíž použitím tohoto nástroje nepřijdete o snadnou aktualizaci.</p>
+<p>Na závěr zmíním možnost komunikace s ostatními sítěmi pomocí transportů. Chcete-li propojit svůj Jabber/XMPP server se sítěmi jako ICQ, AIM, MSN apod., můžete použít některý z projektů jako např. Spectrum. Na jeho  naleznete prakticky veškeré potřebné informace, jak tuto komponentu nastavit a integrovat s Prosody. Spectrum není součástí Debianu Wheezy, ale projekt má k dispozici repozitáře pro Debian, tudíž použitím tohoto nástroje nepřijdete o snadnou aktualizaci.</p>
 
-<pre id="links">http://prosody.im/ Prosody (Web projektu)
-http://cs.wikipedia.org/wiki/Extensible_Messaging_and_Presence_Protocol XMPP (Popis protokolu na české Wikipedii)
-http://www.jabber.cz/wiki/Hlavn%C3%AD_strana Česká Jabber wiki
-http://spectrum.im/projects/spectrum/wiki Spectrum Wiki (Jabber transport/gateway)</pre>
+http://prosody.im/ Prosody, stránky projektu
+http://cs.wikipedia.org/wiki/Extensible_Messaging_and_Presence_Protocol Wikipedie, XMPP
+http://www.jabber.cz/wiki/ Česká Jabber wiki
+http://spectrum.im/projects/spectrum/wiki Spectrum Wiki, Jabber transport/gateway</pre>
+http://prosody.im/download/package_repository Prosody, repozitář
+http://xmpp.org/rfcs/rfc6120.html#tcp-resolution-prefer RFC6210 (XMPP)
+http://prosody.im/doc/advanced_ssl_tls Prosody, pokročilé nastavení SSL/TLS
+http://spectrum.im/ Spectrum, stránky projektu
 
 <h1>Jabber (XMPP) server ejabberd</h1>
 
@@ -136,9 +151,9 @@ http://spectrum.im/projects/spectrum/wiki Spectrum Wiki (Jabber transport/gatewa
 
 <p>Ejabberd je výkonný XMPP server napsaný v jazyce Erlang a šířený pod licencí GNU/GPL. Pokud se minule představený server Prosody výborně hodil na soukromé VPS a na servery pro relativně málo uživatelů, ejabberd se výborně hodí na větší servery s větším provozem, kde se také velmi často používá. To mu ovšem přesto nebrání fungovat i na menších serverech, kde se dá rovněž nasadit (pouze spotřeba paměti v porovnání s Prosody je o něco vyšší). Ejabberd je používán mnoha známými subjekty, jako např. BBC Radio, KDE Talk, největším českým Jabber serverem Jabbim či jistou velmi známou sociální sítí.</p>
 
-<p>Ejabberd podporuje fungování v režimu clusteru, replikaci i rozložení zátěže, je tedy pomocí něj možné postavit řešení s vysokou dostupností. Provoz více domén (virtual hosting) je rovněž samozřejmostí. Jako datové úložiště je používán distribuovaný <a href="http://cs.wikipedia.org/wiki/Systém_řízení_báze_dat">SŘBD</a> (DBMS) Mnesia, který byl vyvinut pro jazyk Erlang. Prostřednictvím ODBC je však možné použít i jiné SŘBD jako např. MySQL či PostgreSQL.</p>
+<p>Ejabberd podporuje fungování v režimu clusteru, replikaci i rozložení zátěže, je tedy pomocí něj možné postavit řešení s vysokou dostupností. Provoz více domén (virtual hosting) je rovněž samozřejmostí. Jako datové úložiště je používán distribuovaný databázový systém (DBMS) Mnesia, který byl vyvinut pro jazyk Erlang. Prostřednictvím ODBC je však možné použít i jiné DBMS jako např. MySQL či PostgreSQL.</p>
 
-<p>Jelikož Mnesia je distribuovaná databáze, ukládá si kvůli zachování konzistence i jméno příslušného uzlu, tedy hostname. Změna hostname nebo přesun databáze na jiný stroj má pak za následek odmítnutí spuštění ejabberdu. Chcete-li změnit hostname nebo přesunout databázi jinam, podívejte se na heslo „Change Computer Hostname“ v <a href="http://www.process-one.net/docs/ejabberd/guide_en.html">dokumentaci</a> projektu, kde je postup popsán. Aby to nebylo jednoduché, tento postup funguje pouze v ejabberdu řady 2.1.x (to je ta, která je momentálně v Debianu Squeeze), pro řadu 2.0.x (Debian Lenny) je k dispozici <a href="http://www.ejabberd.im/migrate-host">jiný</a> návod, který je o něco složitější a také trochu dobrodružnější, jelikož se v něm nevyhnete použití Erlang shellu.</p>
+<p>Jelikož Mnesia je distribuovaná databáze, ukládá si kvůli zachování konzistence i jméno příslušného uzlu, tedy hostname. Změna hostname nebo přesun databáze na jiný stroj má pak za následek odmítnutí spuštění ejabberdu. Chcete-li změnit hostname nebo přesunout databázi jinam, podívejte se na heslo „Change Computer Hostname“ v dokumentaci projektu, kde je postup popsán.</p>
 
 <h3>Instalace</h3>
 
@@ -246,7 +261,7 @@ http://spectrum.im/projects/spectrum/wiki Spectrum Wiki (Jabber transport/gatewa
 %%                         web_admin
 %%                        ]}</pre>
 
-<p>Zde upozorním na jeden problém – tato položka je na konci seznamu, tudíž za specifikací portu 5280 již není čárka (viz konec posledního řádku výpisu). Za poslední položkou seznamu nesmí čárka následovat, tudíž ji musíte odstranit z poslední nezakomentované položky seznamu (jelikož ta se právě stala poslední, a tudíž má na konci nepovolenou čárku). Pokud jste neprováděli žádné změny sekce <code>listen</code> a používáte Debian Squeeze, pak poslední nezakomentovanou položkou před specifikací portu 5280 je specifikace portu 5269. Na jejím konci uvidíte „<code>]},</code>“, a zde stačí odstranit čárku.</p>
+<p>Zde upozorním na jeden problém – tato položka je na konci seznamu, tudíž za specifikací portu 5280 již není čárka (viz konec posledního řádku výpisu). Za poslední položkou seznamu nesmí čárka následovat, tudíž ji musíte odstranit z poslední nezakomentované položky seznamu (jelikož ta se právě stala poslední, a tudíž má na konci nepovolenou čárku).</p>
 
 <p>Kromě portu 5280 je velmi vhodné, ne-li ještě vhodnější, zablokovat port 4369, který náleží démonu epmd (Erlang Port Mapper Daemon). To je malý nameserver, který je využíván Erlang aplikacemi při komunikaci mezi uzly v clusteru. K němu potřebuje mít přístup ejabberd běžící na místním stroji (můžete tedy zakázat přístup odjinud než z lokální smyčky). Stavíte-li cluster, musí mít k tomuto portu přístup všechny jeho uzly.</p>
 
@@ -279,13 +294,11 @@ cd ejabberd-modules/pgsql/trunk/</pre>
 
 <pre>./build.sh</pre>
 
-<p>Posledním krokem je umístění modulů do správného adresáře. Pokud jste výše uvedený postup realizovali s právy uživatele, nyní je potřeba získat oprávnění roota:</p>
+<p>Posledním krokem je umístění modulů do správného adresáře. Pokud jste výše uvedený postup realizovali s právy uživatele, nyní je potřeba získat oprávnění uživatele <em>root</em> a provést následující příkaz:</p>
 
 <pre>cp ebin/* /usr/lib/ejabberd/ebin/</pre>
 
-<p>Instalace potřebných modulů je nyní hotová. Zřejmou nevýhodou je v tomto případě umístění souborů mimo balíčkovací systém. Ideální by bylo vytvořit <code>deb</code> balíček pro dané moduly a instalovat jej pomocí <code>dpkg</code>, ale to už je mimo záběr tohoto dílu.</p>
-
-TODO ref link checkinstall
+<p>Instalace potřebných modulů je nyní hotová. Zřejmou nevýhodou je v tomto případě umístění souborů mimo balíčkovací systém. Ideální by bylo vytvořit <code>deb</code> balíček pro dané moduly a instalovat jej pomocí <code>dpkg</code>, což můžete realizovat pomocí nástroje <code>checkinstall</code>.</p>
 
 <h4>Krok 2: Vytvoření databáze</h4>
 
@@ -431,8 +444,7 @@ psql -W -h localhost -U uzivatel jmeno_databaze &lt; pg.sql</pre>
 
 <pre>{registration_watchers, ["admin@example.cz"]},</pre>
 
-
-<pre id="links">http://www.ejabberd.im/ ejabberd (stránka projektu)
+http://www.ejabberd.im/ ejabberd (stránka projektu)
 http://www.process-one.net/docs/ejabberd/guide_en.html Oficiální dokumentace ejabberd
 http://www.codernotes.com/2011/176/ejabberd-mysql-on-debian-6-squeeze/ Ejabberd + MySQL on Debian 6 (Squeeze)
-http://www.planeterlang.org/en/planet/article/How_to_install_ejabberd_2.0.0_with_PostgreSQL_support/ How to install ejabberd 2.0.0 with PostgreSQL support</pre>
+http://www.planeterlang.org/en/planet/article/How_to_install_ejabberd_2.0.0_with_PostgreSQL_support/ How to install ejabberd 2.0.0 with PostgreSQL support
