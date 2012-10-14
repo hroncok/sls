@@ -1,6 +1,9 @@
-<h1>Tor na serveru</h1>
+<h1>Tor</h1>
+
+<h2>Tor na serveru</h2>
 
 <h3>Úvod</h3>
+
 <p>Tor je anonymizační nástroj. Jeho název je zkratkou pro „The onion router“, tedy „cibulový“ router. Zjednodušeně, pracuje tak, že náhodně vybere několik uzlů z Tor sítě a vytvoří z nich „obvod“ (circuit), přes který posílá šifrovaně veškerou komunikaci. Každý z uzlů tuší pouze, ze kterého uzlu a na který další uzel data tečou. Nedokáží odhadnout původního odesílatele a ani příjemce. Díky šifrování také netuší, jaká data vlastně přepravují.</p>
 
 <p>Způsob šifrování se inspiroval cibulí - jedná se o „vrstvené“ šifrování. Jednotlivé uzly vždy svým klíčem paket dešifrují a odešlou dalšímu uzlu, který proceduru opakuje. Konečným bodem komunikace je výstupní uzel (exit node), kde se paket dešifruje úplně (odloupne se poslední vrstva „cibule“) a odešle. Odpověď na něj se pak pošle sítí zpět. Obvod jako takový se samozřejmě čas od času mění, takže nová spojení pak chodí jinudy.</p>
@@ -13,17 +16,17 @@
 
 <p>Tato hláška říká, že byste měli považovat Tor za experimentální software a nespoléhat na něj jako na poskytovatele silné anonymity. Jinými slovy, určitě je třeba zvážit, jakým způsobem a k čemu budete Tor využívat, stejně jako rizika z toho vyplývající.</p>
 
-<p>Na závěr úvodu je třeba zmínit, že Tor není jediná služba podobného typu. Anonymizačních služeb a sítí existuje samozřejmě <a href="http://en.wikipedia.org/wiki/Category:Anonymity_networks">více</a>.</p>
+<p>Na závěr úvodu je třeba zmínit, že Tor není jediná služba podobného typu. Anonymizačních služeb a sítí existuje samozřejmě více.</p>
 
 <h3>Možnosti nasazení Toru na server</h3>
 
-<p><a href="https://www.torproject.org/">Tor</a> je svobodný software napsaný v jazyce C a šířený pod BSD licencí. Je možné jej nasadit nejenom jako klienta, který vám umožní brouzdat po webu anonymně nebo objevovat temná zákoutí darknetu, ale je také možné jej nasadit i na server, a to hned čtyřmi způsoby.</p>
+<p>Tor je svobodný software napsaný v jazyce C a šířený pod BSD licencí. Je možné jej nasadit nejenom jako klienta, který vám umožní brouzdat po webu anonymně nebo objevovat temná zákoutí darknetu, ale je také možné jej nasadit i na server, a to hned čtyřmi způsoby.</p>
 
-<p>První možností je vytvořit si <strong>Tor relay</strong>, tedy „zapojit“ váš server do sítě Tor, aby přes něj mohla téct data uživatelů a anonymita sítě jako takové mírně vzrostla. Zde máte dvě možnosti - buď vytvoříte pouze průchozí uzel, přes který budou data téct, ale který nebude sloužit jako výstupní uzel (<strong>exit relay</strong>), nebo vytvoříte uzel, který bude sloužit i jako výstupní.</p>
+<p>První možností je vytvořit si <em>Tor relay</em>, tedy „zapojit“ váš server do sítě Tor, aby přes něj mohla téct data uživatelů a anonymita sítě jako takové mírně vzrostla. Zde máte dvě možnosti - buď vytvoříte pouze průchozí uzel, přes který budou data téct, ale který nebude sloužit jako výstupní uzel (<em>exit relay</em>), nebo vytvoříte uzel, který bude sloužit i jako výstupní.</p>
 
-<p>Seznam Tor uzlů je veřejný - pokud se tedy připojíte k síti Tor (jako relay), zařadí se váš server automaticky do tohoto seznamu. To vyplývá ze samotného pricipu sítě - klient potřebuje v první řadě seznam uzlů, aby byl schopen vytvořit obvod. Pokud se vám toto nezamlouvá, stále můžete vytvořit „tichý“ uzel (<strong>bridge relay</strong>), který se nikde zveřejňovat nebude. Díky tichým uzlům pak může Tor využívat i uživatel připojený přes ISP, který Tor jako takový blokuje.</p>
+<p>Seznam Tor uzlů je veřejný - pokud se tedy připojíte k síti Tor (jako relay), zařadí se váš server automaticky do tohoto seznamu. To vyplývá ze samotného pricipu sítě - klient potřebuje v první řadě seznam uzlů, aby byl schopen vytvořit obvod. Pokud se vám toto nezamlouvá, stále můžete vytvořit „tichý“ uzel (<em>bridge relay</em>), který se nikde zveřejňovat nebude. Díky tichým uzlům pak může Tor využívat i uživatel připojený přes ISP, který Tor jako takový blokuje.</p>
 
-<p>Poslední variantou je možnost anonymizovat některou službu, která běží na vašem serveru (webový server, apod.), a vytvořit tzv. <strong>hidden service</strong> (skrytou službu). Klienti Tor sítě pak k této službě budou moci přistupovat, aniž by tušili, kde se server nachází, nebo aniž by váš server měl šanci zjistit, kým je vlastně využíván. Pro tuto možnost využití Toru nepotřebujete, aby váš server pracoval jako relay.</p>
+<p>Poslední variantou je možnost anonymizovat některou službu, která běží na vašem serveru (webový server, apod.), a vytvořit tzv. <em>hidden service</em> (skrytou službu). Klienti Tor sítě pak k této službě budou moci přistupovat, aniž by tušili, kde se server nachází, nebo aniž by váš server měl šanci zjistit, kým je vlastně využíván. Pro tuto možnost využití Toru nepotřebujete, aby váš server pracoval jako relay.</p>
 
 <h3>Hrozby spojené s Torem</h3>
 
@@ -39,7 +42,7 @@
 
 <p>Trošku pokročilejší hrozbou je pak korelační analýza, která může na základě časových a jiných údajů identifikovat uživatele, má-li útočník pod kontrolou vstupní a výstupní uzel (nebo přístup k datům, která k nim tečou).</p>
 
-<p>Samotné prohlížeče dnes představují velký problém, jelikož o sobě prozrazují příliš mnoho informací. Unikátní nebo méně obvyklé nastavení prohlížeče vás může identifikovat nebo vaší identifikaci napomoci. Jedná se o tzv. „<a href="http://panopticlick.eff.org/">browser fingerprinting</a>“. Z tohoto důvodu se tedy často nedoporučuje používat stejný prohlížeč pro normální brouzdání webem a pro brouzdání prostřednictvím Toru.</p>
+<p>Samotné prohlížeče dnes představují velký problém, jelikož o sobě prozrazují příliš mnoho informací. Unikátní nebo méně obvyklé nastavení prohlížeče vás může identifikovat nebo vaší identifikaci napomoci. Jedná se o tzv. „browser fingerprinting“. Z tohoto důvodu se tedy často nedoporučuje používat stejný prohlížeč pro normální brouzdání webem a pro brouzdání prostřednictvím Toru.</p>
 
 <p>Řada webů dnes využívá komponenty od Googlu či od Facebooku, čímž těmto společnostem dává možnost analyzovat pohyb uživatelů po webu. Navštěvujete-li tedy stejné stránky stejným způsobem (nebo hůř - se stejným prohlížečem) bez ohledu na použití Toru, je možné, že některá z těchto firem si vaši identitu propojí.</p>
 
@@ -59,11 +62,11 @@
 
 <p>Jak už jsem zmínil v úvodu, způsob použití Toru je třeba zvážit. Zde zmíněný výčet hrozeb jistě není úplný, ať už proto, že jsem na něco zapomněl já, nebo tím, že ne všechny hrozby byly dosud objeveny.</p>
 
-<h1>Skrytý server pomocí Tor</h1>
+<h2>Skrytý server pomocí Tor</h2>
 
 <h3>Úvod</h3>
 
-<p>Skrytá služba (hidden service) je služba běžící na vašem serveru, anonymizovaná (a dostupná) prostřednictvím Toru. Obecně se může jednat o jakoukoliv službu, nemusí to nutně být zrovna webový server, i když ten to bývá nejčastěji. Váš server získá určitý název v podobě „domény“ druhého řádu s TLD <code>.onion</code>, která funguje pouze v rámci Toru. Prostřednictvím tohoto názvu se pak budou k vašemu serveru moci připojit klienti. Jak konkrétně skryté služby fungují, se můžete dozvědět <a href="https://www.torproject.org/docs/hidden-services.html.en">na webu Toru</a>.</p>
+<p>Skrytá služba (hidden service) je služba běžící na vašem serveru, anonymizovaná (a dostupná) prostřednictvím Toru. Obecně se může jednat o jakoukoliv službu, nemusí to nutně být zrovna webový server, i když ten to bývá nejčastěji. Váš server získá určitý název v podobě „domény“ druhého řádu s TLD <code>.onion</code>, která funguje pouze v rámci Toru. Prostřednictvím tohoto názvu se pak budou k vašemu serveru moci připojit klienti. Jak konkrétně skryté služby fungují, se můžete dozvědět.</p>
 
 <p>Jako úplně první krok, ještě před samotnou anonymizací nějaké služby, bych doporučoval zvážit, čeho se snažíte dosáhnout, zda je použití Toru skutečně vhodné, jaké jsou jeho nevýhody a slabiny apod. Můžete samozřejmě prostřednictvím Toru zpřístupnit nějakou všeobecně dostupnou službu jako svůj osobní blog (pak vás případná ztráta anonymity nemusí trápit), nebo vytvořit nějakou službu dostupnou jen prostřednictvím Toru.</p>
 
@@ -150,7 +153,7 @@ TODO: ref link
 
 <p>Na závěr nemohu nezopakovat dvě podstatné věci z úvodu. V první řadě doporučuji promyslet, co budete přes Tor nabízet, jak, komu a jaké to pro vás bude mít důsledky. Druhým mým doporučením je zařadit do vašich krizových scénářů nejenom možnost, že server jako takový bude kompromitován, ale že bude kompromitována i jeho identita.</p>
 
-<h1>Správa linuxového serveru: Tvorba Tor relaye</h1>
+<h2>Tvorba Tor relaye</h2>
 
 <p>Minulé dva díly představily anonymizační nástroj Tor a jeho možné nasazení při tvorbě anonymizovaného serveru. Dnes vám ukážu, jak vytvořit vlastní Tor relay (resp. Tor server).</p>
 
@@ -164,11 +167,11 @@ TODO: ref link
 
 <h4>Nasadit Tor server, nebo ne?</h4>
 
-<p>Vytvoření Tor serveru je třeba pečlivě zvážit, neboť může mít za určitých podmínek pro jeho provozovatele negativní následky. IP adresa serveru se může objevit v některých blacklistech, je-li Tor server zařazen ve veřejném „adresáři“. V závislosti na tom, jakou výstupní politiku (exit policy) uplatníte, se může váš server stát i zdrojem podezřelé (nebo přímo nelegální) komunikace (platí pro výstupní uzel, který vyřizuje požadavky „za“ klienty). Může se tedy stát, že se stane váš server, nebo přímo vy, objektem policejního vyšetřování nebo případných žalob apod. Viz třeba <a href="https://www.eff.org/deeplinks/2011/08/why-ip-addresses-alone-dont-identify-criminals">tento článek</a>. V souvislosti s právními otázkami si můžete také projít <a href="https://www.eff.org/torchallenge/legal-faq/">právní FAQ</a> o Toru od EFF.</p>
+<p>Vytvoření Tor serveru je třeba pečlivě zvážit, neboť může mít za určitých podmínek pro jeho provozovatele negativní následky. IP adresa serveru se může objevit v některých blacklistech, je-li Tor server zařazen ve veřejném „adresáři“. V závislosti na tom, jakou výstupní politiku (exit policy) uplatníte, se může váš server stát i zdrojem podezřelé (nebo přímo nelegální) komunikace (platí pro výstupní uzel, který vyřizuje požadavky „za“ klienty). Může se tedy stát, že se stane váš server, nebo přímo vy, objektem policejního vyšetřování nebo případných žalob apod. Viz odkazy pod kapitolou. V souvislosti s právními otázkami si můžete také projít právní FAQ o Toru od EFF (odkazy naleznete pod kapitolou).</p>
 
 <p>Před tím, než Tor server nasadíte, určitě o tom doporučuji informovat v první řadě správce sítě (nebo ISP), popřípadě správce serveru či hypervizoru. Informovat byste měli všechny, kteří mohou být při případném maléru nějakým způsobem postiženi (zabavení serveru policií apod.). Uvažte také, na jakém serveru budete Tor provozovat, je-li jen váš, nebo zda jej s někým sdílíte (virtuální servery). Rozhodně by to neměl být jakýkoliv produkční či korporátní server. Ideálně by to měl být váš (pokud možno fyzický) server.</p>
 
-<p>Doporučuje se také na IP adrese Tor serveru zřídit webový server a vystavit na něm stránku, která informuje jeho návštěvníky, že se jedná o Tor server. Obsah takové stránky můžete čerpat <a href="https://gitweb.torproject.org/tor.git/blob_plain/HEAD:/contrib/tor-exit-notice.html">odsud</a>.</p>
+<p>Doporučuje se také na IP adrese Tor serveru zřídit webový server a vystavit na něm stránku, která informuje jeho návštěvníky, že se jedná o Tor server. Obsah takové stránky můžete čerpat z odkazů pod kapitolou.</p>
 
 <h3>Instalace</h3>
 
@@ -237,13 +240,13 @@ ExitPolicy reject *:25,reject *:465,accept *:*</pre>
 
 <h4>Vytvoření mostu (bridge)</h4>
 
-<p>Most je charakteristický tím, že na rozdíl od ostatních typů Tor serverů není automaticky zařazen do veřejného seznamu. Pokud by vás zajímal seznam jako takový, můžete se na něj podívat ve webové podobě <a href="http://torstatus.blutmagie.de/">třeba sem</a>. Nechcete-li, aby byl váš server veřejně zmiňován, vložte do konfiguračního souboru Toru následující řádek:</p>
+<p>Most je charakteristický tím, že na rozdíl od ostatních typů Tor serverů není automaticky zařazen do veřejného seznamu. Pokud by vás zajímal seznam jako takový, můžete se na něj podívat ve webové podobě MARK. Nechcete-li, aby byl váš server veřejně zmiňován, vložte do konfiguračního souboru Toru následující řádek:</p>
 
 <pre>BridgeRelay 1</pre>
 
 <p>Vytváříte-li most, nezapomeňte upravit také výstupní politiku (viz vytvoření výstupního uzlu a prostředníka výše).</p>
 
-<p>I když váš server nebude zmiňován veřejně, informace o něm bude stále odesílána, konkrétně pak na seznam mostů. Ten je, jako celek, neveřejný. Zájemci však mohou získat adresy některých mostů třeba <a href="https://bridges.torproject.org/,">zde</a>.</p>
+<p>I když váš server nebude zmiňován veřejně, informace o něm bude stále odesílána, konkrétně pak na seznam mostů. Ten je, jako celek, neveřejný. Zájemci však mohou získat adresy některých mostů přes <code>bridges.torproject.org.</p>
 
 <h4>Vytvoření soukromého, tajného serveru</h4>
 
@@ -267,7 +270,7 @@ ExitPolicy reject *:25,reject *:465,accept *:*</pre>
 
 <h3>Bezpečnost Tor serveru</h3>
 
-<p>Abyste zajistili anonymitu klientům sítě Tor, projděte si následující body (<a href="https://www.torproject.org/docs/tor-doc-relay.html.en#after">další</a> <a href="https://trac.torproject.org/projects/tor/wiki/doc/OperationalSecurity">body</a>):</p>
+<p>Abyste zajistili anonymitu klientům sítě Tor, projděte si následující body (a související odkazy pod kapitolou):</p>
 
 <ul>
 <li>
@@ -304,7 +307,8 @@ TODO ref link
 <p>Na závěr znovu připomínám, co jsem již zmínil v úvodu. Provoz Tor serveru může mít v závislosti na jeho nastavení jisté negativní následky, se kterými byste měli počítat a být na ně připraveni. Je smutným faktem, že Tor jako takový je využíván nejenom etickými způsoby (např. k překonání cenzury), ale také k nejrůznějším neetickým a nezákonným účelům. To je ale z podstaty věci neřešitelný problém. Faktem zůstává, že pro řadu lidí, a to nejen v zemích s vládní cenzurou (Čína, Írán apod.), má Tor obrovský význam. A čím více (důvěryhodných) Tor serverů bude, tím silnější anonymitu a lepší službu bude Tor svým uživatelům poskytovat.</p>
 
 
-<pre id="links">https://www.torproject.org/docs/hidden-services.html.en Tor: Hidden Service Protocol
+http://en.wikipedia.org/wiki/Category:Anonymity_networks Wikipedie, kategorie Anonymity networks
+https://www.torproject.org/docs/hidden-services.html.en Tor: Hidden Service Protocol
 https://www.torproject.org/docs/tor-hidden-service.html.en Configuring Hidden Services for Tor
 http://www.hrgeeks.com/2008/04/09/securely-deploying-tor-hidden-services/ Securely Deploying TOR Hidden Services
 https://www.torproject.org/ Web projektu Tor
@@ -312,19 +316,16 @@ https://www.torproject.org/about/overview.html.en Obecný popis Toru a jeho mož
 https://www.torproject.org/docs/documentation.html.en Dokumentace Toru
 https://trac.torproject.org/projects/tor/wiki Wiki Toru
 http://en.wikipedia.org/wiki/Tor_(anonymity_network) Článek o Toru na anglické Wikipedii
-http://cs.wikipedia.org/wiki/Tor_(software) Článek o Toru na české Wikipedii</pre>
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-
-<pre id="links">https://www.eff.org/torchallenge/what-is-tor/ What is Tor (stránky EFF)
+http://cs.wikipedia.org/wiki/Tor_(software) Článek o Toru na české Wikipedii
+https://www.eff.org/torchallenge/what-is-tor/ What is Tor (stránky EFF)
 https://www.eff.org/torchallenge/legal-faq/ Právní FAQ Toru (stránky EFF)
 https://www.torproject.org/docs/tor-doc-relay.html.en Configuring a Tor relay
 https://trac.torproject.org/projects/tor/wiki/doc/OperationalSecurity Operational Security
 http://www.jwsecure.com/2007/11/21/more-on-tor-directory-servers/ More on Tor Directory Servers
 http://en.wikipedia.org/wiki/Internet_censorship_by_country Wikipedia: Internet censorship by country
-https://www.torproject.org/ Web projektu Tor
-https://www.torproject.org/about/overview.html.en Obecný popis Toru a jeho možností
-https://www.torproject.org/docs/documentation.html.en Dokumentace Toru
-https://trac.torproject.org/projects/tor/wiki Wiki Toru
-http://en.wikipedia.org/wiki/Tor_(anonymity_network) Článek o Toru na anglické Wikipedii
-http://cs.wikipedia.org/wiki/Tor_(software) Článek o Toru na české Wikipedii</pre>
+http://panopticlick.eff.org/ Panoptick, browser fingerprinting
+https://www.eff.org/deeplinks/2011/08/why-ip-addresses-alone-dont-identify-criminals Why IP Addresses Alone Don't Identify Criminals
+https://gitweb.torproject.org/tor.git/blob_plain/HEAD:/contrib/tor-exit-notice.html Vzor pro Tor exit notice
+http://torstatus.blutmagie.de/ Tor Network Status
+https://www.torproject.org/docs/tor-doc-relay.html.en#after Co dělat po zprovoznění Tor serverů
+https://trac.torproject.org/projects/tor/wiki/doc/OperationalSecurity Tor operational security
