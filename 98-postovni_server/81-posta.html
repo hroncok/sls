@@ -1,4 +1,6 @@
-<h1>Správa linuxového serveru: Úvod do poštovního serveru</h1>
+<h1>Poštovní server</h1>
+
+<h2>Úvod do poštovního serveru</h2>
 
 <h3>Úvod</h3>
 
@@ -14,7 +16,7 @@
 
 <p>V GNU/Linuxu je k dispozici řada MTA. Tento seriál se bude zabývat Postfixem, nicméně existuje celá řada dalších jako sendmail, Exim, qmail atd.</p>
 
-<h4>SMTP</h4>
+<h3>SMTP</h3>
 
 <p>K přenosu zpráv je využíván protokol SMTP (port 25). Jedná se o velmi starý protokol, který byl postupem času poměrně dost rozšiřován, nicméně základní principy zůstaly stejné. Jedná se o klasický textový protokol, kde klient zadává určité příkazy a server na ně reaguje. To, jak protokol SMTP vypadá v praxi, můžete vidět v příkladu níže:</p>
 
@@ -56,7 +58,7 @@ server: 221 2.0.0 Bye</pre>
 
 <p>Jak je patrné, relace doručování e-mailu začíná příkazem <code>EHLO</code> (u hodně starých MTA/MUA to může být i <code>HELO</code>). Zde se klient identifikuje serveru – parametrem <code>EHLO</code> by mělo být plně kvalifikované doménové jméno klienta, přinejhorším specifikace IP adresy (IPv4 adresa se vkládá do hranatých závorek: <code>[1.2.3.4]</code>).</p>
 
-<p>Klient dále pokračuje specifikací odesílatele <code>MAIL FROM:</code>, specifikací příjemce nebo příjemců <code>RCPT TO:</code>, načež následuje příkaz <code>DATA</code>, po kterém následuje tělo zprávy. Tělo začíná hlavičkami jako <code>From:</code>, <code>To:</code>, <code>Date:</code> a samozřejmě nechybí ani předmět zprávy <code>Subject:</code>. Text zprávy je ukončen sekvencí znaků konce řádku, tečky a dalšího konce řádku. Klient ukončuje relaci příkazem <code>QUIT</code>. Všimněte si také reakcí serverů, které jsou zde více či méně samovysvětlující. Máte-li zájem dozvědět se o SMTP protokolu více, podívejte se na <a href="https://tools.ietf.org/html/rfc5321">RFC 5321</a>, kde je nejnovější revize protokolu SMTP z roku 2008.</p>
+<p>Klient dále pokračuje specifikací odesílatele <code>MAIL FROM:</code>, specifikací příjemce nebo příjemců <code>RCPT TO:</code>, načež následuje příkaz <code>DATA</code>, po kterém následuje tělo zprávy. Tělo začíná hlavičkami jako <code>From:</code>, <code>To:</code>, <code>Date:</code> a samozřejmě nechybí ani předmět zprávy <code>Subject:</code>. Text zprávy je ukončen sekvencí znaků konce řádku, tečky a dalšího konce řádku. Klient ukončuje relaci příkazem <code>QUIT</code>. Všimněte si také reakcí serverů, které jsou zde více či méně samovysvětlující. Máte-li zájem dozvědět se o SMTP protokolu více, podívejte se na RFC 5321, kde je nejnovější revize protokolu SMTP z roku 2008.</p>
 
 <p>Interakci s MTA pomocí protokolu SMTP si můžete vyzkoušet sami, ručně, a to buď pomocí nástroje <code>telnet</code>, nebo <code>nc</code>:</p>
 
@@ -65,7 +67,7 @@ nc postovni-server.example.org 25</pre>
 
 <p>Tento postup je velmi vhodný také pro testování a diagnostiku vlastních poštovních serverů (a nejen poštovních serverů, tohoto postupu lze využít u jakéhokoliv textového protokolu), přeci jen, možnost si ručně vyzkoušet, jak se váš server chová v různých situacích, je nedocenitelná pomůcka.</p>
 
-<h4>DNS</h4>
+<h3>DNS</h3>
 
 <p>Funkcionalita SMTP je přímo závislá na DNS. Asi vám nemusím připomínat, že e-mailová adresa má nejčastěji tvar <code>jmeno@domena</code>. Otázkou je, podle čeho určí MTA server, na který má poštu doručit. Odpovědí jsou tzv. MX záznamy příslušné domény. Ty specifikují jeden nebo více poštovních serverů a přiřazují jednotlivým serverům danou prioritu. Priorita je číslo, kde nižší číslo odpovídá vyšší prioritě (podobně jako „niceness“ u unixových procesů). MX záznamy si můžete poměrně snadno vypsat:</p>
 
@@ -84,13 +86,13 @@ example.org mail is handled by 10 mail.example.org.</pre>
 
 <p>Pokud pro danou doménu neexistuje vůbec žádný MX záznam, použije se A záznam dané domény místo něj.</p>
 
-<h4>Nastavení poštovního serveru versus SMTP</h4>
+<h3>Nastavení poštovního serveru versus SMTP</h3>
 
 <p>Poštovní server lze nastavit různým způsobem. Můžete respektovat příslušná RFC, což určitě patří k „dobrým mravům“ správců serverů. Naneštěstí bývá podstatně jednodušší nechat se strhnout úmyslem efektivnějšího boje se spamem (popřípadě neznalostí RFC) a RFC porušit. Kupříkladu, některé servery jako parametr <code>EHLO</code> vyžadují plně kvalifikované doménové jméno, i když podle RFC tam být nemusí. Takových příkladů bychom určitě našli mnoho.</p>
 
 <p>Je třeba mít na paměti, že čím striktněji svůj server nastavíte, tím méně pošty budete dostávat, a to platí pro spam i pro regulérní poštu, kterou dostávat chcete. Bohužel, v tomhle nepomáhá vždy ani důsledné respektování RFC, jelikož správci poštovních serverů je ne vždy správně nastaví (důvodem je mj. relativní složitost poštovních služeb zmíněná v úvodu), což, paradoxně, činí správu poštovních serverů ještě složitější.</p>
 
-<h4>Anatomie e-mailu</h4>
+<h3>Anatomie e-mailu</h3>
 
 <p>Pokud jste tak ještě nikdy neučinili, bylo by velmi vhodné si vyhlédnout jednu nebo několik zpráv ve vaší poštovní schránce a podívat se na jejich „zdrojový kód“. Ten může vypadat např. takto:</p>
 
@@ -149,7 +151,7 @@ Michal Do=C4=8Dekal</pre>
 
 <p>K dispozici je dokonce specifický jazyk pro pokročilé filtrování e-mailů s názvem Sieve (více viz odkazy pod článkem). Konfigurace MTA obvykle odkazuje na konkrétní MDA, který má být použit (v Postfixu k tomu slouží konfigurační direktiva <code>mailbox_command</code>, která udává, jaký program se má použít k doručování pošty).</p>
 
-<h4>Poštovní schránka</h4>
+<h3>Poštovní schránka</h3>
 
 <p>Aby to nebylo jednoduché, neexistuje jeden způsob uchovávání pošty. Nejčastěji se setkáte s jedním ze dvou způsobů, a sice mboxu nebo maildir. Mbox ukládá všechnu poštu do jednoho velkého souboru, zatímco maildir ukládá poštu do jednotlivých souborů ve struktuře adresářů. Tuto strukturu si můžete vytvořit buď sami nebo pomocí nástroje <code>maildirmake</code> (poskytuje ho řada balíků, např. balík <code>maildrop</code>).</p>
 
@@ -237,7 +239,21 @@ Michal Do=C4=8Dekal</pre>
 
 <p>Spam představuje velký problém, který různí správci řeší různě. Díky němu se v doručování e-mailů objevují prodlevy (Greylisting), regulerní e-maily končí ve spamovém koši, pošta z určitých serverů je odmítána na základě blacklistů, přičemž s tím vším jako správci přijdete do styku. A to jak z pohledu konfigurátorů a pánů nad vlastním serverem, tak z pohledu SMTP serverů, které se snaží doručit poštu na jiný server, který se s vámi nechce bavit.</p>
 
-<h3>Nastavení DNS</h3>
+https://tools.ietf.org/html/rfc5321 RFC 5321: Simple Mail Transfer Protocol
+https://cs.wikipedia.org/wiki/SMTP Wikipedia (CZ), Protokol SMTP
+https://cs.wikipedia.org/wiki/MX_z%C3%A1znam Wikipedia (CZ), MX záznam
+https://cs.wikipedia.org/wiki/MTA Wikipedia (CZ), MTA
+https://en.wikipedia.org/wiki/Mail_user_agent Wikipedia, MUA
+https://en.wikipedia.org/wiki/Mbox Wikipedia, Mbox
+https://en.wikipedia.org/wiki/Maildir Wikipedia, Maildir
+https://en.wikipedia.org/wiki/Internet_Message_Access_Protocol Wikipedia, IMAP
+https://en.wikipedia.org/wiki/Post_Office_Protocol Wikipedia, POP
+https://en.wikipedia.org/wiki/Sieve_%28mail_filtering_language%29 Wikipedia, Sieve
+https://en.wikipedia.org/wiki/STARTTLS Wikipedia, STARTTLS
+https://en.wikipedia.org/wiki/Greylisting Wikipedia, Greylisting
+http://www.postfix.org/postconf.5.html Postfix, konfigurační volby
+
+<h2>Nastavení DNS a SPF</h2>
 
 <p>Předpokladem pro funkci poštovního serveru je správně nastavené a fungující DNS. U příslušných domén, kterým chcete dělat pošťáka, byste měli mít nastaveny MX záznamy (pokud je nastaveny nemáte, využijí poštovní servery pro doručování pošty A záznam pro danou doménu).</p>
 
@@ -253,7 +269,7 @@ Michal Do=C4=8Dekal</pre>
 
 <p>Nasazením SPF si také můžete pomoci u antispamu některých poštovních serverů, které mohou vašemu mailu přidat nějaké bodíky k dobru. SPF nastavení se umisťuje do TXT záznamu pro danou doménu.</p>
 
-<p>Informace o SPF můžete nalézt na <a href="http://www.openspf.org/Introduction">webu openspf.org</a> nebo na <a href="http://en.wikipedia.org/wiki/Sender_Policy_Framework">Wikipedii</a>. Nejprostší nastavení může vypadat takto:</p>
+<p>Informace o SPF můžete nalézt na webu <code>openspf.org</code> nebo na Wikipédii (viz odkazy pod kapitolou)<a href="http://en.wikipedia.org/wiki/Sender_Policy_Framework">Wikipedii</a>. Nejprostší nastavení může vypadat takto:</p>
 
 <pre>v=spf1 a mx -all</pre>
 
@@ -276,9 +292,12 @@ Michal Do=C4=8Dekal</pre>
 </li>
 </ul>
 
-<p>Syntax SPF je velmi dobře popsána na <a href="http://www.openspf.org/SPF_Record_Syntax">openspf.org</a>.</p>
+<p>Syntax SPF je velmi dobře popsána na <code>openspf.org</code>.</p>
 
-<h3>Instalace Postfixu</h3>
+https://tools.ietf.org/html/rfc5321 RFC 5321
+http://www.openspf.org/Introduction OpenSPF, úvod do SPF
+
+<h2>Instalace a základní nastavení Postfixu</h2>
 
 <p>Jako téměř vždy, stačí nainstalovat jediný balíček, shodný s názvem nástroje, který chcete nainstalovat. V Debianu byste Postfix nainstalovali takto:</p>
 
@@ -383,9 +402,9 @@ TODO ref link
 
 <p>Postfix je velmi komplexní nástroj a má široké možnosti nastavení. V odkazech pod článkem naleznete jak odkazy na dokumentaci Postfixu, tak odkazy na wiki různých distribucí, ve kterých existují záznamy o Postfixu.</p>
 
-<h3>Pár slov o nastavení Postfixu a nástroji postconf</h3>
+<h2>Pár slov o nastavení Postfixu a nástroji postconf</h2>
 
-<p>Hlavní konfigurační soubor Postfixu, <code>/etc/postfix/main.cf</code> obsahuje (alespoň v případě Debianu) relativně málo voleb a minimum komentářů. Pokud nahlédnete do <a href="http://www.postfix.org/postconf.5.html">dokumentace</a>, zjistíte, že Postfix má nepřeberné množství nejrůznějších voleb. Přirozeně, každá z nich má nějaké výchozí nastavení, takže pokud její nastavení v <code>main.cf</code> neupravíte, použije se výchozí hodnota. Proto může být konfigurace Postfixu relativně strohá – například pouze několikařádková.</p>
+<p>Hlavní konfigurační soubor Postfixu, <code>/etc/postfix/main.cf</code> obsahuje (alespoň v případě Debianu) relativně málo voleb a minimum komentářů. Pokud nahlédnete do manuálové stránky (<code>man 5 postconf</code>, zjistíte, že Postfix má nepřeberné množství nejrůznějších voleb. Přirozeně, každá z nich má nějaké výchozí nastavení, takže pokud její nastavení v <code>main.cf</code> neupravíte, použije se výchozí hodnota. Proto může být konfigurace Postfixu relativně strohá – například pouze několikařádková.</p>
 
 <p>Konfiguraci Postfixu vám může podstatně ulehčit nástroj <code>postconf</code>, který je schopen s konfigurací manipulovat a vypisovat ji různým způsobem.</p>
 
@@ -423,7 +442,7 @@ smtpd_use_tls = yes</pre>
 <pre>man -k postfix
 apropos postfix</pre>
 
-<h3>Řízení fronty Postfixu</h3>
+<h2>Řízení fronty Postfixu a Postfix na více portech</h2>
 
 <p>Ne všechny maily se nutně musí podařit doručit okamžitě, a to nikoliv nezbytně proto, že je cílový poštovní server nedostupný. Pokud jste četli předchozí díly, možná si vzpomínáte na techniku zvanou greylisting, která spočívá v odmítání doručení po určitou dobu.</p>
 
@@ -451,13 +470,11 @@ apropos postfix</pre>
 
 <pre>man 5 master</pre>
 
-<h3>Greylisting</h3>
+<h2>Greylisting</h2>
 
 <p>Greylisting je v boji se spamem jednou z nejúčinnějších metod, i když skýtá jistá rizika a nevýhody. Hlavním problémem je zpoždění doručení pošty, které vyvolává. To se může v praxi pohybovat od několika minut až po hodiny. Některé špatně nastavené poštovní servery nemusí být schopny poštu doručit vůbec (to by měly být ale opravdu výjimky).</p>
 
-TODO ref link
-
-<p>Greylisting byl zmíněn v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-agenti-e-mailu-metody-ochrany">tomto dílu</a>, takže jen velmi stručně – tato technika spočívá v tom, že poštovní server odmítá přijmout e-mail z neznámého zdroje po určitou dobu. Standardně by se poštovní servery měly pokusit -e-mail doručit znovu, až se jim to nakonec podaří, zatímco spammeři obvykle e-maily dvakrát neposílají.</p>
+<p>Greylisting byl zmíněn v úvodu do poštovního serveru, takže jen velmi stručně – tato technika spočívá v tom, že poštovní server odmítá přijmout e-mail z neznámého zdroje po určitou dobu. Standardně by se poštovní servery měly pokusit -e-mail doručit znovu, až se jim to nakonec podaří, zatímco spammeři obvykle e-maily dvakrát neposílají.</p>
 
 <p>Démonů zajišťujících tuto funkcionalitu existuje více. Patrně nejčastěji se setkáte s nástrojem Postgrey, napsaným v Perlu a určeným pro Postfix. Nainstalujete jej jako obvykle, pomocí správce balíčků:</p>
 
@@ -509,23 +526,23 @@ TODO ref link
 
 <p>Postgrey má přirozeně své alternativy, u vytíženějšího serveru se může hodit, pokud se známé triplety ukládají do databáze (MySQL, PostgreSQL, atd.). K tomu vám může posloužit <code>sqlgrey</code>.</p>
 
-<h3>DKIM</h3>
+<h2>DKIM</h2>
 
 <p>DKIM je zkratka pro DomainKeys Identified Mail, tedy pošta identifikovaná pomocí doménových klíčů. Jedná se o techniku ověření původu e-mailu (nebo, chcete-li, techniku zaručení se za odeslaný e-mail) pomocí asymetrického šifrování.</p>
 
-<h4>Asymetrické šifrování</h4>
+<h3>Asymetrické šifrování</h3>
 
-<p>Symetrické šifrování asi každý zná, máte algoritmus, klíč a nešifrovaná data. Šifrovacímu algoritmu předáte klíč a nešifrovaná data, načež on vám vyprodukuje zašifrovaná data. K dešifrování použijete stejný algoritmus (v módu dešifrování) a stejný klíč.</p>
+<p>Symetrické šifrování asi každý z vás zná, máte algoritmus, klíč a nešifrovaná data. Šifrovacímu algoritmu předáte klíč a nešifrovaná data, načež on vám vyprodukuje zašifrovaná data. K dešifrování použijete stejný algoritmus (v módu dešifrování) a stejný klíč.</p>
 
 <p>Asymetrické šifrování nevyužívá jeden klíč, ale dva klíče (přesněji pár klíčů), jejichž zásadní vlastností je to, že co zašifrujete jedním klíčem, rozšifrujete pouze tím druhým. Asymetrického šifrování se využívá v mnoha oblastech, včetně kupříkladu oblasti digitálních podpisů.</p>
 
 <p>Digitální podepisování funguje tak, že si vygenerujete pár klíčů, z toho jeden (veřejný) klíč zveřejníte a druhý (soukromý) si chráníte. Z dat, která podepisujete, se spočítá hash, který se následně zašifruje vaším soukromým klíčem. Všichni, kteří mají k dispozici váš veřejný klíč, mohou daný hash dešifrovat, spočítat si hash podepsaných dat a jejich porovnáním zjistit, jestli jsou data stejná nebo zda nebyla pozměněna. Tyto postupy jsou samozřejmě zautomatizované.</p>
 
-<h4>Fungování DKIM</h4>
+<h3>Fungování DKIM</h3>
 
 <p>DKIM je v podstatě systém digitálního podepisování zpráv na úrovni serveru, a to pro každou z obsluhovaných domén. Ověřením tohoto podpisu si může kterýkoliv jiný poštovní server ověřit, že zpráva pochází skutečně ze serveru autorizovaného pro odesílání pošty z dané domény. Tato technika, spolu se SPF, umožňuje přidat vaší poště na důvěryhodnosti. Samozřejmě pouze u těch serverů, které provádí příslušná ověřování (SPF či DKIM).</p>
 
-<h4>Zprovoznění DKIM</h4>
+<h3>Zprovoznění DKIM</h3>
 
 <p>Zprovoznění DKIM představuje následující kroky:</p>
 
@@ -547,7 +564,7 @@ TODO ref link
 </li>
 </ol>
 
-<h5>Instalace DKIM filtru</h5>
+<h4>Instalace DKIM filtru</h4>
 
 <p>Samotná instalace představuje instalaci balíku <code>opendkim</code>, což v Debianu provedete takto:</p>
 
@@ -561,7 +578,7 @@ TODO ref link
 
 <pre>aptitude install opendkim-tools</pre>
 
-<h5>Vygenerování doménových klíčů</h5>
+<h4>Vygenerování doménových klíčů</h4>
 
 <p>Jelikož DKIM nemá v Debianu připraveno úložiště klíčů v <code>/etc</code>, je třeba nějaké vytvořit, např.:</p>
 
@@ -580,7 +597,7 @@ opendkim-genkey -b 1024 -d example.com</pre>
 
 <p>Pokud jste klíče vytvářeli pod rootem, pak u souborů s privátními klíči změňte vlastníka na uživatele <code>opendkim</code>.</p>
 
-<h5>Úprava DNS záznamů</h5>
+<h4>Úprava DNS záznamů</h4>
 
 <p>Aby si ostatní poštovní servery mohly podpisy ověřovat, je třeba umístit veřejné klíče na nějaké veřejně dostupné a důvěryhodné místo. Stejně jako v případě SPF i DKIM využívá DNS, konkrétně pak TXT záznamů. Samotný DNS záznam nemusíte nijak tvořit, stačí jej zkopírovat ze souboru <code>selektor.txt</code>. Pro představu, příslušný záznam vypadá např. takto:</p>
 
@@ -588,7 +605,7 @@ opendkim-genkey -b 1024 -d example.com</pre>
 
 <p>Povšimněte si selektoru, který má hodnotu <em>default</em> (hned na začátku řádku).</p>
 
-<h5>Nastavení DKIM filtru</h5>
+<h4>Nastavení DKIM filtru</h4>
 
 <p>Nejprve je třeba démonovi říci, jaké domény má obsluhovat. Toho docílíte vytvořením dvou souborů s vhodně formátovaným seznamem:</p>
 
@@ -625,7 +642,7 @@ SigningTable	/etc/dkim/signingtable.conf</pre>
 
 <pre>netstat -tlpn | grep 8891</pre>
 
-<h5>Nastavení Postfixu</h5>
+<h4>Nastavení Postfixu</h4>
 
 <p>Do <code>/etc/postfix/main.cf</code> umístěte následující řádky:</p>
 
@@ -640,7 +657,7 @@ non_smtpd_milters = inet:localhost:8891</pre>
 
 <pre>service postfix reload</pre>
 
-<h4>Otestování funkce DKIM</h4>
+<h3>Otestování funkce DKIM</h3>
 
 <p>Nejjednodušším způsobem otestování funkce DKIM je odeslat e-mail s odesílatelem odpovídajícím specifikovanému vzoru (nejspíše příslušné doméně). To můžete provést, jste-li přes SSH připojeni k serveru, třeba takto:</p>
 
@@ -674,7 +691,12 @@ Subject: DKIM test
 
 <p>A následně se po opětovném pokusu podívejte do <code>/var/log/mail.log</code>, opendkim by měl vysvětlit, proč nepodepsal nebo co se stalo.</p>
 
-<h3>Aliasy</h3>
+http://blog.tjitjing.com/index.php/2012/03/guide-to-install-opendkim-for-multiple-domains-with-postfix-and-debian.html Guide to Install OpenDKIM for multiple domains with Postfix and Debian
+http://www.dkim.org/ Oficiální web pro DKIM
+http://www.debiantutorials.com/setup-domainkeys-identified-mail-dkim-in-postfix/ Setup DomainKeys Identified Mail (DKIM) in Postfix
+http://blogs.cisco.com/security/common_errors_causing_dkim_verification_failures/ Common Errors Causing DKIM Verification Failures
+
+<h2>Aliasy a záložní poštovní server</h2>
 
 <p>Aliasy představují metodu, jak více e-mailových adres směrovat do jediné schránky. Aliasy jsou definované v souboru <code>/etc/aliases</code>, kde jsou již připraveny výchozí aliasy (kupříkladu, dle RFC by každý SMTP server měl přijímat poštu směrovanou na <code>postmaster@domena.tld</code> a jeden z aliasů přeposílá tuto poštu rootovi). Syntax tohoto konfiguračního souboru je velmi jednoduchá:</p>
 
@@ -725,11 +747,9 @@ uzivatel2@example.org x</pre>
 
 <p>Pokud takový seznam nechcete nebo nemůžete vytvořit a výše popsaný problém vám nevadí, ponechte <code>relay_recipient_maps</code> prázdné, což zapříčiní, že Postfix bude přijímat všechnu poštu. Je-li tato volba neprázdná, bude Postfix odmítat všechno kromě položek v daném seznamu.</p>
 
-<h3>Unixové a virtuální poštovní účty</h3>
+<h2>Unixové a virtuální poštovní účty</h2>
 
-TODO ref link
-
-<p>Standardní nastavení Postfixu, které jsem vám ukázal v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-postovniho-serveru">jednom z minulých dílů</a>, doručuje poštu všem lokálním unixovým účtům. Máte-li tedy uživatele <code>michal</code> a poštovní server na doméně <code>example.com</code>, bude se pošta směřující na <code>michal@example.com</code> doručovat do poštovní schránky uživatele <code>michal</code>. Obsluhuje-li server více domén, bude pošta ze všech domén směřovat na jediný unixový účet (tzn. pošta směřující na <code>michal@example.cz</code>, <code>michal@example.org</code> a <code>michal@example.com</code> bude doručena do schránky uživatele <code>michal</code>).</p>
+<p>Standardní nastavení Postfixu doručuje poštu všem lokálním unixovým účtům. Máte-li tedy uživatele <code>michal</code> a poštovní server na doméně <code>example.com</code>, bude se pošta směřující na <code>michal@example.com</code> doručovat do poštovní schránky uživatele <code>michal</code>. Obsluhuje-li server více domén, bude pošta ze všech domén směřovat na jediný unixový účet (tzn. pošta směřující na <code>michal@example.cz</code>, <code>michal@example.org</code> a <code>michal@example.com</code> bude doručena do schránky uživatele <code>michal</code>).</p>
 
 <p>U jedné domény nebo u osobního serveru je tato situace většinou tolerovatelná. Potřebujete-li však doručit poštu směřující na <code>info@example.com</code> a <code>info@example.org</code> do dvou různých schránek, musí přijít na řadu jiné řešení. Možnosti jsou zde v podstatě dvě:</p>
 
@@ -767,13 +787,11 @@ postmaster@example.org root
 
 <p>Doporučuji poté toto nastavení otestovat zasláním testovacích e-mailů. To, jak byla pošta doručována a kam, si můžete ověřit z logů - v Debianu je to <code>/var/log/mail.log</code>.</p>
 
-<h3>Restrictions</h3>
+<h2>Restrictions</h2>
 
 <p>Stejně jako veškeré ostatní antispamové metody (a metody řízení přístupu), které tu byly a budou představeny, představují i „restrictions“ v Postfixu dvousečnou zbraň. Na jednu stranu pomáhají v odmítání nechtěné a nevyžádané pošty, ale stejně tak mohou zabránit v přijetí regulérního mailu – stačí ne zcela vhodně nastavený server. Vždy je třeba zvážit přínos versus náklady, kde přínosem je vliv na příjem a propouštění spamu a náklady představují podíl regulérních mailů, které jsou odmítnuty.</p>
 
-TODO ref links
-
-<p>Jak název napovídá, restrictions jsou omezení různého typu a v různé fázi průběhu odesílání nebo příjmu pošty dle SMTP protokolu. Znalost tohoto protokolu, alespoň rámcově, je pro pochopení vítaná až nutná. Pokud SMTP protokol neznáte, přečtěte si <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-postovniho-serveru">první díl</a> seriálu o poštovním serveru nebo samotné <a href="https://tools.ietf.org/html/rfc5321">RFC 5321</a>. Restrictions umožňují omezit množství propuštěného spamu využitím mezer v softwaru spammerů, resp. faktu, že tento software často nerespektuje příslušná RFC nebo jejich doporučení. Problémem je, jak je již naznačeno výše, že tato omezení mohou odmítnout i regulérní e-mail přicházející z ne zcela vhodně nakonfigurovaného poštovního serveru.</p>
+<p>Jak název napovídá, restrictions jsou omezení různého typu a v různé fázi průběhu odesílání nebo příjmu pošty dle SMTP protokolu. Znalost tohoto protokolu, alespoň rámcově, je pro pochopení vítaná až nutná. Restrictions umožňují omezit množství propuštěného spamu využitím mezer v softwaru spammerů, resp. faktu, že tento software často nerespektuje příslušná RFC nebo jejich doporučení. Problémem je, jak je již naznačeno výše, že tato omezení mohou odmítnout i regulérní e-mail přicházející z ne zcela vhodně nakonfigurovaného poštovního serveru.</p>
 
 <p>Následují proměnné definující jednotlivá omezení:</p>
 
@@ -797,11 +815,11 @@ TODO ref links
 <p><code>smtpd_end_of_data_restrictions</code> – omezení vztažená k příkazu ukončujícímu přenos dat</p>
 </li>
 <li>
-<p><code>smtpd_etrn_restrictions</code> – omezení příkazu <code><a href="https://tools.ietf.org/html/rfc1985">ETRN</a></code></p>
+<p><code>smtpd_etrn_restrictions</code> – omezení příkazu <code>ETRN</code> (RFC 1985)</code></p>
 </li>
 </ul>
 
-<p>Tyto proměnné obsahují seznam pravidel (oddělených čárkou). Některá pravidla jsou společná (např. <code>check_policy_service</code>, <code>reject</code> či <code>permit</code>), jiná jsou specifická pro daný typ omezení. Podrobný popis jednotlivých omezení a všech možných hodnot naleznete v dokumentaci Postfixu, tj. buď <a href="http://www.postfix.org/postconf.5.html">v online podobě</a>, nebo pomocí příkazu:</p>
+<p>Tyto proměnné obsahují seznam pravidel (oddělených čárkou). Některá pravidla jsou společná (např. <code>check_policy_service</code>, <code>reject</code> či <code>permit</code>), jiná jsou specifická pro daný typ omezení. Podrobný popis jednotlivých omezení a všech možných hodnot naleznete v dokumentaci Postfixu, tj.:</p>
 
 <pre>man 5 postconf</pre>
 
@@ -817,7 +835,7 @@ TODO ref links
 
 <p>Tato volba zajistí, že v případě nevyhovění některému z pravidel nedojde k okamžitému odmítnutí, ale vyčká se s odmítnutím až na fázi po zadání <code>RCPT TO:</code>. To má jednak výhodu v kompatibilitě s některými špatně napsanými klienty, ale mnohem podstatnější je skutečnost, že díky tomu bude moci server v případě odmítnutí zaznamenat odesílatele i příjemce zprávy (což se pak dozvíte z logu).</p>
 
-<h4>smtpd_helo_restrictions</h4>
+<h3>smtpd_helo_restrictions</h3>
 
 <p>Příklad pro <code>smtpd_helo_restrictions</code>, omezení vztažená k příkazu <code>HELO</code>/<code>EHLO</code> následuje:</p>
 
@@ -836,7 +854,7 @@ smtpd_helo_restrictions =
 
 <p>Rozhodnete-li se nasadit tato omezení, bývá dobré také požadovat, aby klient příkaz HELO/EHLO uváděl (to je realizováno na prvním řádku příkladu, pomocí proměnné <code>smtpd_helo_required</code>).</p>
 
-<h4>smtpd_sender_restrictions</h4>
+<h3>smtpd_sender_restrictions</h3>
 
 <p>Tato omezení se vztahují k příkazu <code>MAIL FROM:</code> v rámci SMTP relace. Pozor – pole <code>From:</code> může následovat i v hlavičce mailu, kde už jeho obsah nehraje (v rámci tohoto omezení) roli.</p>
 
@@ -848,7 +866,7 @@ smtpd_helo_restrictions =
 
 <p>Struktura je podobná jako v příkladě výše. Pravidlo <code>reject_non_fqdn_sender</code> odmítne odesílatele, který nemá plně kvalifikované doménové jméno, jak je požadováno v RFC. Pravidlo <code>reject_unknown_sender_domain</code> pak odmítne klienta, který v doménové části e-mailu použije doménu, která nemá definovaný A ani MX záznam nebo která má nekorektní MX záznam. V případě dočasné chyby DNS vrací chybový kód 450 (čímž instruuje klienta, aby zkusil doručit mail později).</p>
 
-<h4>smtpd_recipient_restrictions</h4>
+<h3>smtpd_recipient_restrictions</h3>
 
 <p>Tato omezení se vztahují k příkazu <code>RCPT TO:</code> v rámci SMTP relace. Jako jediné ze všech omezení je povinné a jeho výchozí hodnota je tato:</p>
 
@@ -875,7 +893,7 @@ smtpd_helo_restrictions =
 
 <p>Zbývají tedy dvě, <code>check_sender_access</code> a <code>reject_rbl_client</code>. První z nich prověří místní databázi povolených nebo zakázaných odesílatelů, zatímco <code>reject_rbl_client</code> umožňuje napojení na některý z DNS blacklistů. Více viz dále.</p>
 
-<h5>check_sender_access</h5>
+<h3>check_sender_access</h3>
 
 <p>Toto pravidlo vyžaduje jako parametr soubor s dodatečnými pravidly (v příkladu výše <code>/etc/postfix/sender_access</code>). Tento soubor může vypadat třeba takto:</p>
 
@@ -892,9 +910,9 @@ spammer@               REJECT</pre>
 
 <pre>postmap /etc/postfix/sender_access</pre>
 
-<p>Existuje podobné pravidlo <code>check_recipient_access</code>, které umožňuje realizovat totéž na úrovni příjemců a pro každého příjemce (nebo skupinu příjemců) umí použít jinou politiku přístupu. Příklad využití naleznete <a href="http://www.postfix.org/RESTRICTION_CLASS_README.html">zde</a>.</p>
+<p>Existuje podobné pravidlo <code>check_recipient_access</code>, které umožňuje realizovat totéž na úrovni příjemců a pro každého příjemce (nebo skupinu příjemců) umí použít jinou politiku přístupu. Příklad využití naleznete v online dokumentaci k Postfixu.</p>
 
-<h5>reject_rbl_client a blacklisty</h5>
+<h4>reject_rbl_client a blacklisty</h4>
 
 TODO ref link
 
@@ -921,7 +939,9 @@ TODO ref link
 
 <p>Restrictions umožňují definovat komplexní pravidla přístupu, mnohem komplexnější, než co zde bylo probráno. Kupříkladu, řídit přístup lze i podle obsahu hlaviček e-mailu, které lze prověřovat prostřednictvím regulárních výrazů, a na jejich základě poštu odmítat nebo přijímat. A to je jen špička ledovce. Berte tedy tento článek pouze jako úvod do tématu s tím, že další možnosti řízení přístupu se dozvíte, pokud nahlédnete do dokumentace k Postfixu. Dokumentace k Postfixu je dobře strukturována, je dostatečně podrobná, jasná a v online podobě i vhodně prolinkovaná.</p>
 
-<h3>Uživatel a poštovní schránka</h3>
+http://www.postfix.org/RESTRICTION_CLASS_README.html Postfix restriction classes
+
+<h2>Uživatel, poštovní schránka, přijímání a odesílání pošty</h2>
 
 <p>Pro odesílání pošty slouží protokol SMTP, ovšem Postfix nastavený podle dosavadních instrukcí, které jste nalezli v této knize, vám umožní odesílat poštu, pouze jste-li přihlášeni na server (leda byste si do <code>mynetworks</code> přidali všechny externí počítače, ze kterých odesíláte poštu, což by však bylo krajně nepohodlné).</p>
 
@@ -1166,7 +1186,13 @@ Alias /roundcube /var/lib/roundcube</pre>
 
 <pre>service apache2 restart</pre>
 
-<h3>Antivirus a antispam</h3>
+http://en.wikipedia.org/wiki/Comparison_of_mail_servers Comparison of mail servers
+http://library.linode.com/email/postfix/dovecot-system-users-debian-6-squeeze Postfix, Dovecot, and System User Accounts on Debian 6 (Squeeze)
+http://www.postfix.org/postconf.5.html Přehled konfiguračních voleb Postfixu
+http://wiki.dovecot.org/SSL/DovecotConfiguration Dovecot SSL configuration
+http://wiki.dovecot.org/SSL Dovecot SSL
+
+<h2>Antivirus a antispam</h2>
 
 <p>Na většině linuxových poštovních serverů běží dva základní nástroje pro boj se spamem, a sice SpamAssassin v roli antispamu a ClamAV v roli antivirového řešení. V tomto díle se dozvíte, jak je nainstalovat a nastavit i na vašem poštovním serveru.</p>
 
@@ -1180,7 +1206,7 @@ Alias /roundcube /var/lib/roundcube</pre>
 
 <p>Skóre u jednotlivých pravidel nejsou navrhována náhodně, ale měla by při prahové hodnotě 5,0 bodů dosahovat jednoho falešného pozitiva (korektního e-mailu označeného jako spam) v dvou a půl tisících regulérních e-mailech (tzv. hamech).</p>
 
-<p>Prahovou hodnotu i skóre jednotlivých pravidel si můžete upravit. Dokonce si můžete tvořit i vlastní pravidla. Podstatnou informací je i to, že sada pravidel SpamAssassinu se podobně jako v případě antivirových databází časem mění a aktualizuje. Pokud chcete, můžete pomocí <a href="http://www.linuxexpres.cz/praxe/cron-spravca-uloh">cronu</a> aktualizovat nejenom antivirovou databázi, ale i pravidla pro SpamAssassin. Více v návodu níže.</p>
+<p>Prahovou hodnotu i skóre jednotlivých pravidel si můžete upravit. Dokonce si můžete tvořit i vlastní pravidla. Podstatnou informací je i to, že sada pravidel SpamAssassinu se podobně jako v případě antivirových databází časem mění a aktualizuje. Pokud chcete, můžete pomocí cronu aktualizovat nejenom antivirovou databázi, ale i pravidla pro SpamAssassin. Více v návodu níže.</p>
 
 <p>Pokud uživatelé vašeho serveru nepoužívají operační systém Microsoft Windows, v podstatě antivirus nepotřebujete. Máte-li však takové uživatele, je vhodné je chránit pomocí antivirového řešení, které bude hledat viry v poště a likvidovat je. Základním antivirovým nástrojem v GNU/Linuxu je <strong>ClamAV</strong>.</p>
 
@@ -1229,6 +1255,7 @@ Alias /roundcube /var/lib/roundcube</pre>
 <h3>Nastavení Amavisu</h3>
 
 <p>Ve výchozím nastavení Amavis neprovádí ani antispamovou, ani antivirovou kontrolu. Je tedy třeba mu říci, aby je prováděl, a to v souboru <code>/etc/amavis/conf.d/15-content_filter_mode</code>, kde je třeba odkomentovat následující dva bloky:</p>
+
 <pre>@bypass_virus_checks_maps = (
    \%bypass_virus_checks, \@bypass_virus_checks_acl, \$bypass_virus_checks_re);
 
@@ -1250,7 +1277,7 @@ $final_spam_destiny       = D_DISCARD;</pre>
 
 <pre>@local_domains_acl = ( ".$mydomain", "example.com", "example.org" );</pre>
 
-<p>Proměnná <code>@sa_tag_level_deflt</code> udává, od jakého skóre se do e-mailu budou přidávat hlavičky <code>X-Spam-*</code>. Hodnota –﻿999 zafunguje pro všechny e-maily. Pro úvodní ladění a testování je to více než vhodné, jelikož se sem vypisují i hodnoty jednotlivých testů, což vám pomůže identifikovat, proč byl e-mail označen jako spam. Proměnná <code>@sa_tag2_level_deflt</code> udává, od jakého skóre má být daný e-mail označen jako spam. A konečně proměnná <code>$sa_kill_level_deflt</code> udává, od jaké úrovně se má se spamem provést akce definovaná ve <code>$final_spam_destiny</code>.</p>
+<p>Proměnná <code>@sa_tag_level_deflt</code> udává, od jakého skóre se do e-mailu budou přidávat hlavičky <code>X-Spam-*</code>. Hodnota –999 zafunguje pro všechny e-maily. Pro úvodní ladění a testování je to více než vhodné, jelikož se sem vypisují i hodnoty jednotlivých testů, což vám pomůže identifikovat, proč byl e-mail označen jako spam. Proměnná <code>@sa_tag2_level_deflt</code> udává, od jakého skóre má být daný e-mail označen jako spam. A konečně proměnná <code>$sa_kill_level_deflt</code> udává, od jaké úrovně se má se spamem provést akce definovaná ve <code>$final_spam_destiny</code>.</p>
 
 <p>Výchozí nastavení Debianu Squeeze a Wheezy obsahuje v této proměnné <code>D_BOUNCE</code>, což je pro mne nepochopitelná hodnota – tato hodnota totiž způsobí, že se e-mail s vysokým skóre odmítne a vygeneruje se zpráva o nepřijetí, která se pošle odesílateli. Jak ale sami víte, odesílatel se dá snadno zfalšovat a u spamu bývá falšován téměř vždy. Pokud byste tuto hodnotu ponechali ve výchozím stavu, váš server by na spamy „odpovídal“, což by vyústilo v tzv. backscatter, tedy odesílání e-mailů o nepřijetí nevinným osobám. Doporučuji tedy nastavit buď na <code>D_DISCARD</code> (zahodit, popřípadě dle konfigurace poslat do karantény) nebo <code>D_PASS</code> (propustit).</p>
 
@@ -1306,13 +1333,21 @@ $final_spam_destiny       = D_DISCARD;</pre>
 
 <p>Amavis je komplexní nástroj, který toho umí poměrně hodně. Pokud jej na svůj server nasadíte, doporučuji vám projít si jeho dokumentaci (můžete začít u odkazů v závěru článku), zejména pak hodnoty v souboru <code>/etc/amavis/conf.d/20-debian_defaults</code>.</p>
 
-<h3>Poštovní server a více domén</h3>
+http://colekcolek.com/2012/02/25/install-spamassasin-clamav-amavis-ubuntu-debian-squeeze/ How to Install SpamAssasin, ClamAV, Amavis on Ubuntu / Debian Squeeze
+http://workaround.org/ispmail/lenny/amavis-filtering-spam-and-viruses AMaViS: Filtering spam and viruses
+http://gogs.info/books/debian-mail/chunked/antispam.amavis.html Fighting spam
+http://spamassassin.apache.org/gtube/ The GTUBE
+http://spamassassin.apache.org/ SpamAssassin (stránka projektu)
+http://www.clamav.net/ ClamAV (stránka projektu)
+http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)
+
+<h2>Poštovní server a více domén</h2>
 
 <p>Ve chvíli, kdy máte k dispozici více domén, vám už patrně ta nejjednodušší konfigurace poštovního serveru vázaná na unixové účty nebude stačit a začnete se poohlížet po možnostech tvorby virtuálních účtů pro jednotlivé domény. V tomto díle představíme jedno z takových řešení, postavené na webové aplikaci Postfixadmin.</p>
 
 <p>Dosavadní konfigurace poštovního serveru počítala výhradně s vazbou poštovní schránky na unixové účty. Toto řešení je sice velmi jednoduché na implementaci, ale má několik nevýhod. V první řadě je to nutnost vytvořit unixový účet všem majitelům poštovních schránek. Pokud byste takovému uživateli nechtěli poskytnout přístup k shellu nebo jiným službám vázaným na unixové účty (což je z bezpečnostních důvodů více než rozumné), museli byste to nějakým způsobem ošetřit všude tam, kde se unixové účty používají.</p>
 
-<p>Obsluhuje-li váš server více domén, mohli jste narazit na problém se stejnými jmény na různých doménách. Představte si, že máte unixového uživatele <code>michal</code> a domény <code>example.com</code> a <code>example.net</code>, přičemž poštovní schránky <code>michal@example.com</code> a <code>michal@example.net</code> mají mít jiné vlastníky. Ve výchozí konfiguraci Postfixu by pošta z obou adres směřovala do schránky uživatele <code>michal</code>. Jedno z řešení tohoto problému, spočívající ve vytvoření virtuálních aliasů, které ukazují na různé unixové účty (tedy např. <code>michal@example.com</code> by ukazoval na <code>michal1</code> a <code>michal@example.net</code> by ukazoval na účet <code>michal2</code>), bylo představeno v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-aliasy-a-zalozni-postovni-server">tomto</a> dílu. Takové řešení lze použít, dokud nemáte větší množství uživatelů nebo domén.</p>
+<p>Obsluhuje-li váš server více domén, mohli jste narazit na problém se stejnými jmény na různých doménách. Představte si, že máte unixového uživatele <em>michal</em> a domény <em>example.com</em> a <em>example.net</em>, přičemž poštovní schránky <code>michal@example.com</code> a <code>michal@example.net</code> mají mít jiné vlastníky. Ve výchozí konfiguraci Postfixu by pošta z obou adres směřovala do schránky uživatele <em>michal</em>. Jedno z řešení tohoto problému, spočívající ve vytvoření virtuálních aliasů, které ukazují na různé unixové účty (tedy např. <code>michal@example.com</code> by ukazoval na <em>michal1</em> a <code>michal@example.net</code> by ukazoval na účet <em>michal2</em>), bylo představeno v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-aliasy-a-zalozni-postovni-server">tomto</a> dílu. Takové řešení lze použít, dokud nemáte větší množství uživatelů nebo domén.</p>
 
 TODO ref link
 
@@ -1352,7 +1387,7 @@ TODO ref link
 
 <p>Nemáte-li výše uvedené komponenty nainstalované, učiňte tak před instalací Postfixadminu.</p>
 
-<p>Podstatnou informací je, že Postfixadmin není součástí repozitářů Debianu Squeeze. K dispozici je až pro Debian 7.0 s označením Wheezy. Používáte-li Debian Squeeze, stáhněte si <code>deb</code> balíček ze <a href="http://postfixadmin.sourceforge.net/">stránek projektu</a> a nainstalujte jej pomocí nástroje <code>dpkg</code>:</p>
+<p>Podstatnou informací je, že Postfixadmin není součástí repozitářů Debianu Squeeze. K dispozici je až pro Debian 7.0 s označením Wheezy. Používáte-li Debian Squeeze, stáhněte si <code>deb</code> balíček ze stránek Postfixadmina a nainstalujte jej pomocí nástroje <code>dpkg</code>:</p>
 
 <pre>dpkg -i balicek.deb</pre>
 
@@ -1584,45 +1619,8 @@ service postfix restart</pre>
 
 <p>Nyní vyzkoušejte odeslat e-mail z některé z virtuálních schránek. Připomínám, že jako login je třeba použít celý e-mail včetně doménového jména, heslo pak odpovídá heslu dané poštovní schránky.</p>
 
-<pre id="links">
-
-http://blog.tjitjing.com/index.php/2012/03/guide-to-install-opendkim-for-multiple-domains-with-postfix-and-debian.html Guide to Install OpenDKIM for multiple domains with Postfix and Debian
-http://www.dkim.org/ Oficiální web pro DKIM
-http://www.debiantutorials.com/setup-domainkeys-identified-mail-dkim-in-postfix/ Setup DomainKeys Identified Mail (DKIM) in Postfix
-http://blogs.cisco.com/security/common_errors_causing_dkim_verification_failures/ Common Errors Causing DKIM Verification Failures</pre>
-
-<pre id="links">http://en.wikipedia.org/wiki/Comparison_of_mail_servers Comparison of mail servers
-http://library.linode.com/email/postfix/dovecot-system-users-debian-6-squeeze Postfix, Dovecot, and System User Accounts on Debian 6 (Squeeze)
-http://www.postfix.org/postconf.5.html Přehled konfiguračních voleb Postfixu
-http://wiki.dovecot.org/SSL/DovecotConfiguration Dovecot SSL configuration
-http://wiki.dovecot.org/SSL Dovecot SSL</pre>
-<pre id="links">http://colekcolek.com/2012/02/25/install-spamassasin-clamav-amavis-ubuntu-debian-squeeze/ How to Install SpamAssasin, ClamAV, Amavis on Ubuntu / Debian Squeeze
-http://workaround.org/ispmail/lenny/amavis-filtering-spam-and-viruses AMaViS: Filtering spam and viruses
-http://gogs.info/books/debian-mail/chunked/antispam.amavis.html Fighting spam
-http://spamassassin.apache.org/gtube/ The GTUBE
-http://spamassassin.apache.org/ SpamAssassin (stránka projektu)
-http://www.clamav.net/ ClamAV (stránka projektu)
-http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)</pre>
-<pre id="links">http://postfixadmin.sourceforge.net/ Postfixadmin: web projektu
+http://postfixadmin.sourceforge.net/ Postfixadmin: web projektu
 http://codepoets.co.uk/2009/postfixadmin-setupinstall-guide-for-virtual-mail-users-on-postfix/ Postfixadmin – setup/install guide for virtual mail users on Postfix
 http://postfix.wiki.xs4all.nl/index.php?title=Virtual_Users_and_Domains_with_Courier-IMAP_and_MySQL Virtual Users and Domains with Courier-IMAP and MySQL
 http://wiki.dovecot.org/HowTo/DovecotLDAPostfixAdminMySQL Howto Setup a Mail Server with Virtual Users and Domains
-http://postfixmail.com/blog/index.php/postfixadmin-and-fetchmail/ PostfixAdmin and Fetchmail</pre>
-<pre id="links">https://en.wikipedia.org/wiki/Mail_user_agent Wikipedia, MUA
-https://en.wikipedia.org/wiki/Mbox Wikipedia, Mbox
-https://en.wikipedia.org/wiki/Maildir Wikipedia, Maildir
-https://en.wikipedia.org/wiki/Internet_Message_Access_Protocol Wikipedia, IMAP
-https://en.wikipedia.org/wiki/Post_Office_Protocol Wikipedia, POP
-https://en.wikipedia.org/wiki/Sieve_%28mail_filtering_language%29 Wikipedia, Sieve
-https://en.wikipedia.org/wiki/STARTTLS Wikipedia, STARTTLS
-https://en.wikipedia.org/wiki/Greylisting Wikipedia, Greylisting
-http://www.postfix.org/postconf.5.html Postfix, konfigurační volby</pre>
-<pre id="links">https://tools.ietf.org/html/rfc5321 RFC 5321: Simple Mail Transfer Protocol
-https://cs.wikipedia.org/wiki/SMTP Wikipedia (CZ), Protokol SMTP
-https://cs.wikipedia.org/wiki/MX_z%C3%A1znam Wikipedia (CZ), MX záznam
-https://cs.wikipedia.org/wiki/MTA Wikipedia (CZ), MTA</pre>
-<pre id="links">http://postfixadmin.sourceforge.net/ Postfixadmin: web projektu
-http://codepoets.co.uk/2009/postfixadmin-setupinstall-guide-for-virtual-mail-users-on-postfix/ Postfixadmin – setup/install guide for virtual mail users on Postfix
-http://postfix.wiki.xs4all.nl/index.php?title=Virtual_Users_and_Domains_with_Courier-IMAP_and_MySQL Virtual Users and Domains with Courier-IMAP and MySQL
-http://wiki.dovecot.org/HowTo/DovecotLDAPostfixAdminMySQL Howto Setup a Mail Server with Virtual Users and Domains
-http://postfixmail.com/blog/index.php/postfixadmin-and-fetchmail/ PostfixAdmin and Fetchmail</pre>
+http://postfixmail.com/blog/index.php/postfixadmin-and-fetchmail/ PostfixAdmin and Fetchmail
