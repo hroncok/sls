@@ -1,10 +1,10 @@
-<h1>Webový server Cherokee</h1>
+<h2>Webový server Cherokee</h2>
 
 <h3>Úvod</h3>
 
-<p>Cherokee zaujme hned v několika oblastech. V první řadě se jedná o server vyvíjený s velkým důrazem na výkon, měl by tedy být rychlejší než Apache, alespoň ve výchozím nastavení a v určitých situacích (jeden drobný benchmark naleznete v odkazech pod článkem). Webových serverů s důrazem na výkon existuje samozřejmě více, např. Lighttpd či Nginx. Cherokee má ovšem také vlastnost, která je u unixových webových serverů relativně unikátní – webové GUI. Cherokee tedy můžete nastavit pohodlně přes webové administrační rozhraní, alespoň z větší části. Díky tomu je možné uvažovat o Cherokee nejenom pro produkční server, ale také pro testovací stroje vývojářů, i když tam bude Cherokee soutěžit s balíkem <a href="http://www.apachefriends.org/en/xampp.html">XAMPP</a>, který obsahuje Apache, MySQL, PHP a Perl v jedné instalaci.</p>
+<p>Cherokee zaujme hned v několika oblastech. V první řadě se jedná o server vyvíjený s velkým důrazem na výkon, měl by tedy být rychlejší než Apache, alespoň ve výchozím nastavení a v určitých situacích (jeden drobný benchmark naleznete v odkazech pod článkem). Webových serverů s důrazem na výkon existuje samozřejmě více, např. Lighttpd či Nginx. Cherokee má ovšem také vlastnost, která je u unixových webových serverů relativně unikátní – webové GUI. Cherokee tedy můžete nastavit pohodlně přes webové administrační rozhraní, alespoň z větší části. Díky tomu je možné uvažovat o Cherokee nejenom pro produkční server, ale také pro testovací stroje vývojářů, i když tam bude Cherokee soutěžit s balíkem XAMPP, který obsahuje Apache, MySQL, PHP a Perl v jedné instalaci.</p>
 
-<p>Upozornění: Tato kapitola je psaná pro Debian Squeeze. V repositářích Debianu Wheezy bohužel Cherokee není, tudíž se budete muset poohlédnout po neoficiálním repositáři, který by s největší pravděpodobností byl zmíněn na <a href="http://www.cherokee-project.com/downloads.html">projektové stránce</a>. Je také možné smíchat repositáře Wheezy a Sidu (Debianu Unstable), kde Cherokee stále žije. Míchání stabilní a nestabilní větve ale nelze příliš doporučovat, a při ruční kompilaci Cherokee byste byli nuceni řešit aktualizace a bezpečnost.</p>
+<p>Upozornění: Tato kapitola je psaná pro Debian Squeeze. V repositářích Debianu Wheezy bohužel Cherokee není, tudíž se budete muset poohlédnout po neoficiálním repositáři, který by s největší pravděpodobností byl zmíněn na projektové stránce. Důvodem pro odstranění z Debianu je absence maintainera, člověka, který by se o integraci Cherokee do Debianu staral. Cherokee byl odstraněn i z větve unstable.</p>
 
 <h3>Instalace</h3>
 
@@ -53,7 +53,7 @@ iptables -I INPUT -p tcp --dport 9090 -s 1.2.3.4 -j ACCEPT</pre>
 
 <p>Jen pro informaci, každé z těchto pravidel se vždy přidá na začátek řetězu (parametr <code>-I</code>), proto jsou pravidla zapsána v „obráceném“ pořadí. První pravidlo, které skončí jako druhé, zakáže přístup na port 9090. Druhé pravidlo, které skončí jako první, povolí přístup na port 9090 z IP adresy <code>1.2.3.4</code>.</p>
 
-<p>Samotné konfiguraci se příliš věnovat nebudu, neboť s grafickým (resp. webovým) rozhraním by nastavení mělo být relativně intuitivní. Porty a IP adresy pro naslouchání specifikujete na kartě <strong>General | Ports to listen</strong>. Virtuální servery se konfigurují na kartě <strong>vServers</strong>. Pro každý virtuální server můžete mít vlastní <strong>D</strong><strong>ocument root</strong> (záložka <strong>Basics</strong> u zvoleného virtuálního serveru) a řadu pravidel pro zpracování obsahu (záložka <strong>Behaviour</strong>). To, který virtuální server se vám zobrazí za kterých okolností, nastavujete na kartě <strong>Host match</strong>. Můžete specifikovat jméno, wildcard (např. *.example.org), IP adresy či regulární výrazy.</p>
+<p>Samotné konfiguraci se příliš věnovat nebudu, neboť s grafickým (resp. webovým) rozhraním by nastavení mělo být relativně intuitivní. Porty a IP adresy pro naslouchání specifikujete na kartě <strong>General | Ports to listen</strong>. Virtuální servery se konfigurují na kartě <strong>vServers</strong>. Pro každý virtuální server můžete mít vlastní <strong>Document root</strong> (záložka <strong>Basics</strong> u zvoleného virtuálního serveru) a řadu pravidel pro zpracování obsahu (záložka <strong>Behaviour</strong>). To, který virtuální server se vám zobrazí za kterých okolností, nastavujete na kartě <strong>Host match</strong>. Můžete specifikovat jméno, wildcard (např. *.example.org), IP adresy či regulární výrazy.</p>
 
 TODO find image
 
@@ -79,7 +79,7 @@ TODO find image
 
 <h3>Cherokee a SSL</h3>
 
-<p>Konfigurace SSL v Cherokee přívětivá rozhodně není, alespoň v případě Debianu Squeeze. Správce očekávající jednoduché nastavení pak může skončit v <a href="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=607898">e-mailové konferenci</a> Debianu s domněnkou, že podpora pro SSL/TLS nebyla do balíčků Cherokee zakompilována, i když opak je pravdou.</p>
+<p>Konfigurace SSL v Cherokee přívětivá rozhodně není, alespoň v případě Debianu Squeeze. Správce očekávající jednoduché nastavení pak může skončit v e-mailové konferenci Debianu s domněnkou, že podpora pro SSL/TLS nebyla do balíčků Cherokee zakompilována, i když opak je pravdou.</p>
 
 <p>Jako první krok nainstalujte knihovnu <code>libssl</code> pro Cherokee. Ta není v závislostech Cherokee, takže nebyla nainstalována společně s ním. To můžete provést následujícím příkazem.</p>
 
@@ -89,16 +89,20 @@ TODO find image
 
 TODO ref links
 
-<p>V tuto chvíli zbývá už jen přiřadit certifikáty jednotlivým virtuálním serverům (karta <strong>Security</strong> u zvoleného virtuálního serveru). Práce s certifikáty již byla v tomto seriálu popsána, konkrétně <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">v článku o konfiguraci Apache</a>. Cherokee implicitně využívá SNI (<a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">Server Name Identification</a>), takže můžete hostovat více virtuálních serverů s různými certifikáty na jedné IP adrese. Problém s touto metodou je v (ne)podpoře ze strany některých prohlížečů na některých operačních systémech (viz <a href="http://en.wikipedia.org/wiki/Server_Name_Indication#Support">seznam na Wikipedii</a>). Pokud prohlížeč nepodporuje SNI, Cherokee mu pošle certifikát, který je přiřazen k výchozímu virtuálnímu serveru.</p>
+<p>V tuto chvíli zbývá už jen přiřadit certifikáty jednotlivým virtuálním serverům (karta <strong>Security</strong> u zvoleného virtuálního serveru). Práce s certifikáty již byla v tomto seriálu popsána, konkrétně <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">v článku o konfiguraci Apache</a>. Cherokee implicitně využívá SNI (Server Name Identification), takže můžete hostovat více virtuálních serverů s různými certifikáty na jedné IP adrese. Problém s touto metodou je v (ne)podpoře ze strany některých prohlížečů na některých operačních systémech. Pokud prohlížeč nepodporuje SNI, Cherokee mu pošle certifikát, který je přiřazen k výchozímu virtuálnímu serveru.</p>
 
-<p>Více informací o nastavení SSL/TLS v Cherokee <a href="http://www.cherokee-project.com/doc/cookbook_ssl.html">naleznete</a> na webu projektu.</p>
+<p>Více informací o nastavení SSL/TLS v Cherokee naleznete na webu projektu.</p>
 
 <h3>Paměťová náročnost a OpenVZ</h3>
 
-<p>Z mého testování vyplynula poměrně nepříjemná informace – i když je Cherokee paměťově nenáročný (z hlediska reálně zabrané paměti), rezervuje si velké hodnoty virtuální paměti (neboť spouští poměrně hodně vláken), což na fyzickém stroji nevadí, ale může to vadit u některých virtualizačních řešení, zejména u těch založených na kontejnerech (OpenVZ atd.). Tam se totiž tato paměť, byť nevyužitá, započítává do paměťové kvóty. Nejrychlejším řešením je minimalizovat počet vláken – v konfiguraci Cherokee je to karta <strong>Advanced | Resources</strong> a položka <strong>Thread Number</strong> (nastavte třeba na <strong>1</strong>). V <a href="http://www.lowendbox.com/blog/reduce-stack-limit-for-multi-thread-apps/">článku na lowendbox.com</a> je navrženo ještě jiné, možná trošku krkolomnější, nicméně také velmi účinné řešení. Dodám, že na Xenu či KVM tento problém není.</p>
+<p>Z mého testování vyplynula poměrně nepříjemná informace – i když je Cherokee paměťově nenáročný (z hlediska reálně zabrané paměti), rezervuje si velké hodnoty virtuální paměti (neboť spouští poměrně hodně vláken), což na fyzickém stroji nevadí, ale může to vadit u některých virtualizačních řešení, zejména u těch založených na kontejnerech (OpenVZ atd.). Tam se totiž tato paměť, byť nevyužitá, započítává do paměťové kvóty. Nejrychlejším řešením je minimalizovat počet vláken – v konfiguraci Cherokee je to karta <strong>Advanced | Resources</strong> a položka <strong>Thread Number</strong> (nastavte třeba na <strong>1</strong>). V jednom z článků pod kapitolou je navrženo ještě jiné, možná trošku krkolomnější, nicméně také velmi účinné řešení. Dodám, že na Xenu či KVM tento problém není.</p>
 
-<pre id="links">http://www.cherokee-project.com/ Web projektu
+http://www.cherokee-project.com/ Web projektu
 http://arnisoft.com/239/server-benchmark-apache-nginx-cherokee/ Server Benchmark: Apache, Nginx, Cherokee, Lighttp
 http://www.howtoforge.com/installing-cherokee-with-php5-and-mysql-support-on-debian-squeeze Installing Cherokee With PHP5 And MySQL Support On Debian Squeeze
 http://www.lowendbox.com/blog/reduce-stack-limit-for-multi-thread-apps/ Reduce Stack Limit for Multi-Thread Apps
-http://www.cherokee-project.com/doc/cookbook_ssl.html Cookbook: SSL, TLS and certificates</pre>
+http://www.cherokee-project.com/doc/cookbook_ssl.html Cookbook: SSL, TLS and certificates
+http://www.apachefriends.org/en/xampp.html Balík XAMPP
+http://www.lowendbox.com/blog/reduce-stack-limit-for-multi-thread-apps/ lowendbox.com, Reduce Stack Limit for Multi-Thread Apps
+http://en.wikipedia.org/wiki/Server_Name_Indication#Support Wikipédie, Server Name Indication Support
+http://cs.wikipedia.org/wiki/Server_Name_Indication Wikipédie (česká), Server Name Identification

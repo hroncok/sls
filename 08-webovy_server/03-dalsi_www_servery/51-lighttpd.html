@@ -1,8 +1,8 @@
-<h1>Správa linuxového serveru: Lighttpd a PHP přes FastCGI</h1>
+<h2>Lighttpd a PHP přes FastCGI</h2>
 
 <h3>Úvod</h3>
 
-<p>Lighttpd má sice na poli webových serverů relativně nízký podíl (zhruba 0,6 % <a href="http://www.linuxexpres.cz/co-je-noveho-na-scene-webserveru">dle Netcraftu</a>), avšak je používán některými velmi známými webovými službami jako např. Wikipedie nebo YouTube. Lighttpd nabízí vysoký výkon, minimální spotřebu paměti a architekturu vhodnou pro AJAXové (resp. Web 2.0) aplikace. Hodí se však nejenom do prostředí náročných webových aplikací s vysokou návštěvností, ale také třeba na osobní, domácí servery či VPS s málo RAM.</p>
+<p>Lighttpd má sice na poli webových serverů relativně nízký podíl (zhruba 0,6%), avšak je používán některými velmi známými webovými službami jako např. Wikipedie nebo YouTube. Lighttpd nabízí vysoký výkon, minimální spotřebu paměti a architekturu vhodnou pro AJAXové (resp. Web 2.0) aplikace. Hodí se však nejenom do prostředí náročných webových aplikací s vysokou návštěvností, ale také třeba na osobní, domácí servery či VPS s málo RAM.</p>
 
 <h3>PHP aplikace a webové servery</h3>
 
@@ -63,7 +63,7 @@ lighttpd-enable-mod fastcgi-php</pre>
 
 TODO ref links
 
-<p>Pokud chcete nasadit nějakou webovou aplikaci, budete nejspíše potřebovat ještě nějaký databázový server. Instalace databázového serveru byla již probrána v článcích <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-instalace-lamp">Instalace LAMP</a> (MySQL) a <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-postgresql-instalace-a-zprovozneni">PostgreSQL: Instalace a zprovoznění</a>. Jediné, co je potřeba zajistit kromě instalace databázového serveru, je propojení databáze s PHP interpretem, tedy dostupnost PHP knihoven pro práci s příslušnou databází (balíčky <code>php5-mysql</code> či <code>php5-pgsql</code>).</p>
+<p>Pokud chcete nasadit nějakou webovou aplikaci, budete nejspíše potřebovat ještě nějaký databázový server. Instalace databázového serveru byla již probrána v kapitolách <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-instalace-lamp">Instalace LAMP</a> (MySQL) a <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-postgresql-instalace-a-zprovozneni">PostgreSQL: Instalace a zprovoznění</a>. Jediné, co je potřeba zajistit kromě instalace databázového serveru, je propojení databáze s PHP interpretem, tedy dostupnost PHP knihoven pro práci s příslušnou databází (balíčky <code>php5-mysql</code> či <code>php5-pgsql</code>).</p>
 
 <h4>SSL</h4>
 
@@ -84,9 +84,10 @@ TODO ref link
 
 <h4>Rewrite</h4>
 
-<p>Jak už bylo řečeno výše, rewrite pravidla pro Apache nebo jiné servery mají jinou syntax než pravidla pro <code>lighttpd</code>, tudíž je třeba je přizpůsobit. Samotnou dokumentaci k modulu pro rewrite <code>lighttpd</code> naleznete na <a href="http://redmine.lighttpd.net/wiki/1/Docs:ModRewrite">wiki projektu</a>. Dodám jen, že modul pro rewrite není ve výchozí konfiguraci aktivní, musíte jej povolit v <code>/etc/lighttpd/lighttpd.conf</code>, konkrétně ve volbě <code>server.modules</code> odkomentováním řádky obsahující <code>"mod_rewrite"</code>.</p>
+<p>Jak už bylo řečeno výše, rewrite pravidla pro Apache nebo jiné servery mají jinou syntax než pravidla pro <code>lighttpd</code>, tudíž je třeba je přizpůsobit. Samotnou dokumentaci k modulu pro rewrite <code>lighttpd</code> naleznete na wiki projektu. Dodám jen, že modul pro rewrite není ve výchozí konfiguraci aktivní, musíte jej povolit v <code>/etc/lighttpd/lighttpd.conf</code>, konkrétně ve volbě <code>server.modules</code> odkomentováním řádky obsahující <code>"mod_rewrite"</code>.</p>
 
-<pre id="links">http://www.lighttpd.net/ Web projektu lighttpd
+http://www.lighttpd.net/ Web projektu lighttpd
 http://www.howtoforge.com/installing-lighttpd-with-php5-and-mysql-support-on-debian-squeeze Installing lighttpd with PHP5 and MySQL support on Debian Squeeze
 http://www.linuxexpres.cz/co-je-noveho-na-scene-webserveru Co je nového na scéně webserverů?
-http://redmine.lighttpd.net/wiki/1/Docs:ModRewrite URL Rewrites</pre>
+http://redmine.lighttpd.net/wiki/1/Docs:ModRewrite Lighttpd Wiki, URL Rewrites
+http://www.linuxexpres.cz/co-je-noveho-na-scene-webserveru LinuxEXPRES, Co je nového na scéně webserverů

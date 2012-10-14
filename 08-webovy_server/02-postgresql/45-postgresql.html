@@ -1,4 +1,4 @@
-<h1>Správa linuxového serveru: PostgreSQL: Instalace a zprovoznění</h1>
+<h2>PostgreSQL: Instalace a zprovoznění</h2>
 
 <h3>Úvod</h3>
 
@@ -6,7 +6,7 @@ TODO ref link
 
 <p>Databázových systémů (DBMS) je v GNU/Linuxu dostupných poměrně dost. Mezi ty nejznámější patří určitě MySQL, která se na webových serverech používá nejčastěji a jejíž základní zprovoznění bylo již v této knize <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-instalace-lamp">probráno</a>. Kromě MySQL existuje ovšem řada jiných možností, které mohou být pro různé typy použití lepší volbou, a zde nelze nepřehlédnout PostgreSQL, špičkovou open-source databázi šířenou pod BSD/MIT-like licencí, s dlouhou tradicí a velmi působivými vlastnostmi.</p>
 
-<p>Samotným porovnáním obou DBMS se tento článek zabývat nebude, nicméně v odkazech pod ním naleznete články, které oba DBMS velmi podrobně srovnávají. Aby to nevypadalo, že v GNU/Linuxu existují pouze MySQL a Postgres, dodám také, že kromě těchto dvou DBMS existuje řada dalších, ať již open-source nebo proprietárních, běžících pod GNU/Linuxem. Více viz odkazy pod kapitolou nebo viz článek <a href="http://www.linuxexpres.cz/software/srovnani-databazovych-serveru">Srovnání databázových serverů</a> na LinuxEXPRESu.</p>
+<p>Samotným porovnáním obou DBMS se tento článek zabývat nebude, nicméně v odkazech pod ním naleznete články, které oba DBMS velmi podrobně srovnávají. Aby to nevypadalo, že v GNU/Linuxu existují pouze MySQL a Postgres, dodám také, že kromě těchto dvou DBMS existuje řada dalších, ať již open-source nebo proprietárních, běžících pod GNU/Linuxem. Více viz odkazy pod kapitolou.</p>
 
 <h3>Instalace Postgresu</h3>
 
@@ -46,15 +46,15 @@ TODO ref link
 
 <h3>Postgres 9.0 v Debianu Squeeze</h3>
 
-<p>Pokud používáte již zastaralý Debian Squeeze, pak asi víte, že v repozitářích je k dispozici Postgres řady 8.4, nicméně „na trhu” je již dostupná řada 9.0, která přináší řadu zajímavých novinek (soupis je <a href="http://wiki.postgresql.org/wiki/Illustrated_9_0">zde</a>). Od toho tu máme projekt Debian Backports, nyní již oficiální součástí Debianu, který nabízí nové verze balíčků portované pro stabilní vydání. Více viz <a href="http://backports.debian.org/">stránky projektu</a>.</p>
+<p>Pokud používáte již zastaralý Debian Squeeze, pak asi víte, že v repozitářích je k dispozici Postgres řady 8.4, nicméně „na trhu” je již dostupná řada 9.0, která přináší řadu zajímavých novinek. Od toho tu máme projekt Debian Backports, nyní již oficiální součástí Debianu, který nabízí nové verze balíčků portované pro stabilní vydání. Více viz stránky projektu (odkaz naleznete pod kapitolou).</p>
 
 <h3>Vytváření uživatelů a databází</h3>
 
-<p>V MySQL je databázový administrátor „root“, stejně jako v unixových systémech. V Postgresu se účet správce jmenuje „postgres“. Jelikož tento účet vyžaduje po instalaci přístup s heslem, které nemáte k dispozici, musíte si pomoci jinak - staňte se systémovým, tedy unixovým uživatelem „postgres“, který má veškerá oprávnění k DBMS. Pokud máte práva roota, můžete tuto operaci provést následujícím příkazem:</p>
+<p>V MySQL je databázový administrátor <em>root</em>, stejně jako v unixových systémech. V Postgresu se účet správce jmenuje <em>postgres</em>. Jelikož tento účet vyžaduje po instalaci přístup s heslem, které nemáte k dispozici, musíte si pomoci jinak - staňte se systémovým, tedy unixovým uživatelem <em>postgres</em>, který má veškerá oprávnění k DBMS. Pokud máte práva roota, můžete tuto operaci provést následujícím příkazem:</p>
 
 <pre>su postgres -</pre>
 
-<p>Jako uživatel „postgres“ můžete nyní vytvářet databáze a uživatele pomocí příkazů <code>createuser</code> a <code>createdb</code>. Můžete začít vytvořením uživatele, který bude vlastnit následně vytvořenou databázi. Řekněme, že chcete vytvořit uživatele „michal“, takže zapíšete následující příkaz:</p>
+<p>Jako uživatel <em>postgres</em> můžete nyní vytvářet databáze a uživatele pomocí příkazů <code>createuser</code> a <code>createdb</code>. Můžete začít vytvořením uživatele, který bude vlastnit následně vytvořenou databázi. Řekněme, že chcete vytvořit uživatele <em>michal</em>, takže zapíšete následující příkaz:</p>
 
 <pre>createuser -P michal</pre>
 
@@ -64,7 +64,7 @@ TODO ref link
 
 <pre>createdb faktury -O michal</pre>
 
-<p>Tento příkaz vytvoří databázi „faktury“ s vlastníkem (<code>-O</code>) „michal“. Budete-li chtít jednoznačně specifikovat české porovnávání a kódování UTF-8, použijete o něco komplikovanější příkaz:</p>
+<p>Tento příkaz vytvoří databázi <em>faktury</em> s vlastníkem (<code>-O</code>) <em>michal</em>. Budete-li chtít jednoznačně specifikovat české porovnávání a kódování UTF-8, použijete o něco komplikovanější příkaz:</p>
 
 <pre>createdb faktury --locale cs_CZ.UTF8 -O michal -T template0</pre>
 
@@ -80,7 +80,7 @@ TODO ref link
 
 <h3>Řádkový klient psql a změna hesla uživatele</h3>
 
-<p>Po instalaci Postgresu na server budete mít k dispozici řádkového klienta <code>psql</code>. Pokud při jeho spuštění nepoužijete žádné parametry, pokusí se připojit k místní databázi jako uživatel, pod kterým jste přihlášeni. Uživatelem s administrátorskými právy je v případě Postgresu uživatel <code>postgres</code>, nikoliv „obvyklý“ uživatel <code>root</code>. Pokud jste uživateli <code>postgres</code> nenastavili vlastní heslo, budete muset získat přístup k DBMS bez hesla, a sice jako unixový uživatel <code>postgres</code>:</p>
+<p>Po instalaci Postgresu na server budete mít k dispozici řádkového klienta <code>psql</code>. Pokud při jeho spuštění nepoužijete žádné parametry, pokusí se připojit k místní databázi jako uživatel, pod kterým jste přihlášeni. Uživatelem s administrátorskými právy je v případě Postgresu uživatel <em>postgres</em>, nikoliv „obvyklý“ uživatel <em>root</em>. Pokud jste uživateli <em>postgres</em> nenastavili vlastní heslo, budete muset získat přístup k DBMS bez hesla, a sice jako unixový uživatel <em>postgres</em>:</p>
 
 <pre>su postgres -</pre>
 
@@ -92,15 +92,15 @@ Pro získání nápovědy napište "help".
 
 postgres=#</pre>
 
-<p>Chcete-li nastavit uživateli <code>postgres</code> nějaké heslo, abyste mohli k DBMS přistupovat jako databázový uživatel <code>postgres</code> bez nutnosti měnit unixového uživatele pomocí <code>su</code>, použijte buď interaktivní příkaz <code>\password</code>, nebo SQL příkaz <code>ALTER ROLE</code>:</p>
+<p>Chcete-li nastavit uživateli <em>postgres</em> nějaké heslo, abyste mohli k DBMS přistupovat jako databázový uživatel <em>postgres</em> bez nutnosti měnit unixového uživatele pomocí <code>su</code>, použijte buď interaktivní příkaz <code>\password</code>, nebo SQL příkaz <code>ALTER ROLE</code>:</p>
 
 <pre>postgres=# ALTER ROLE postgres WITH PASSWORD 'moje_dlouhe_a_bezpecne_heslo';</pre>
 
-<p>Budete-li chtít provádět administrátorské úkony třeba ze skriptů spuštěných s právy roota, můžete samozřejmě použít <code>su</code> mechanismu pro změnu efektivního uživatele na <code>postgres</code>, jen je třeba si dát pozor na to, že uživatel <code>postgres</code> má na rozdíl od roota právo zápisu pouze do některých adresářů (zejména <code>/var/lib/postgres</code>, kde sídlí konfigurační i datové soubory DBMS). Jinou možností je nastavit databázovému uživateli <code>postgres</code> heslo a přistupovat k němu pohodlně pod jakýmkoliv uživatelem. Zde ovšem přichází na řadu drobný problém, a sice jakým způsobem nástroji <code>psql</code> předat heslo, aby nebylo nutné jej pokaždé zadávat interaktivně. Za tímto účelem můžete použít soubor <code>.pgpass</code>, který vytvořte ve svém domovském adresáři se obsahem podle následujícího <a href="http://wiki.postgresql.org/wiki/Pgpass">vzoru</a>:</p>
+<p>Budete-li chtít provádět administrátorské úkony třeba ze skriptů spuštěných s právy roota, můžete samozřejmě použít <code>su</code> mechanismu pro změnu efektivního uživatele na <em>postgres</em>, jen je třeba si dát pozor na to, že uživatel <em>postgres</em> má na rozdíl od roota právo zápisu pouze do některých adresářů (zejména <code>/var/lib/postgres</code>, kde sídlí konfigurační i datové soubory DBMS). Jinou možností je nastavit databázovému uživateli <em>postgres</em> heslo a přistupovat k němu pohodlně pod jakýmkoliv uživatelem. Zde ovšem přichází na řadu drobný problém, a sice jakým způsobem nástroji <code>psql</code> předat heslo, aby nebylo nutné jej pokaždé zadávat interaktivně. Za tímto účelem můžete použít soubor <code>.pgpass</code>, který vytvořte ve svém domovském adresáři se obsahem podle následujícího vzoru:</p>
 
 <pre>jmeno_pocitace:port:databaze:uzivatel:heslo</pre>
 
-<p>Konkrétní příklad pro Postgres běžící na localhostu na standardním portu, uživatele <code>postgres</code> a libovolnou databázi by mohl vypadat třeba takto:</p>
+<p>Konkrétní příklad pro Postgres běžící na localhostu na standardním portu, uživatele <em>postgres</em> a libovolnou databázi by mohl vypadat třeba takto:</p>
 
 <pre>localhost:5432:*:postgres:moje_dlouhe_a_bezpecne_heslo</pre>
 
@@ -112,7 +112,7 @@ postgres=#</pre>
 
 <h4>Nouzový rychlokurz psql</h4>
 
-<p>Jste-li zvyklí převážně na MySQL a na příkazy typu <code>SHOW DATABASES</code> či <code>SHOW TABLES</code>, které vám v <code>psql</code> určitě fungovat nebudou, hodí se vám tento nouzový rychlokurz klienta <code>psql</code>. Dodávám, že samotný nástroj <code>psql</code> má velmi dobrou <a href="http://www.postgresql.org/docs/9.1/interactive/app-psql.html">dokumentaci</a>, kterou určitě doporučuji prostudovat.</p>
+<p>Jste-li zvyklí převážně na MySQL a na příkazy typu <code>SHOW DATABASES</code> či <code>SHOW TABLES</code>, které vám v <code>psql</code> určitě fungovat nebudou, hodí se vám tento nouzový rychlokurz klienta <code>psql</code>. Dodávám, že samotný nástroj <code>psql</code> má velmi dobrou dokumentaci, kterou určitě doporučuji prostudovat.</p>
 
 <p><strong>Globální operace</strong></p>
 <ul>
@@ -157,7 +157,7 @@ TODO find image
 
 <p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4406.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4406.jpg','phppgadmin: Uživatel postgres přihlášený ihned po instalaci','1678','918'); return false;"><img alt="phppgadmin: Uživatel postgres přihlášený ihned po instalaci" class="ph_detail" height="244" src="http://www.linuxexpres.cz/uploads/gallery/detail/4406.jpg" width="446" /></a> <span class="ph_title">phppgadmin: Uživatel postgres přihlášený ihned po instalaci</span></p>
 
-<p>Znáte-li MySQL, znáte také určitě vynikajícího webového klienta/správce <a href="http://www.phpmyadmin.net/">phpMyAdmin</a>. Ten je ovšem stavěn pouze pro MySQL a pro Postgres jej není možné použít. Existuje však jiný projekt, a sice <a href="http://phppgadmin.sourceforge.net/">phpPgAdmin</a>, který se snaží kráčet ve stejných šlépějích jako phpMyAdmin, přičemž je stavěn pro Postgres. Jeho instalace v Debianu je velmi jednoduchá, stačí nainstalovat příslušný balíček:</p>
+<p>Znáte-li MySQL, znáte také určitě vynikajícího webového klienta/správce phpMyAdmin. Ten je ovšem stavěn pouze pro MySQL a pro Postgres jej není možné použít. Existuje však jiný projekt, a sice phpPgAdmin, který se snaží kráčet ve stejných šlépějích jako phpMyAdmin, přičemž je stavěn pro Postgres. Jeho instalace v Debianu je velmi jednoduchá, stačí nainstalovat příslušný balíček:</p>
 
 <pre>aptitude install phppgadmin</pre>
 
@@ -177,7 +177,7 @@ TODO find image
 
 <h3>Desktopový GUI klient pgAdmin III</h3>
 
-<p><a href="http://www.pgadmin.org/">pgAdmin III</a> je patrně nejlepší dostupný FOSS nástroj určený pro správu Postgres DBMS. Jedná se o multiplatformní desktopovou aplikaci, která umožňuje připojení k místním i vzdáleným databázím, jejich pohodlnou správu i klasický SQL přístup. SQL dotazy je možné zadávat ručně nebo je sestavit graficky. Podporuje jak Postgres, tak některé jeho komerční a proprietární klony. Je schopen zobrazit a pracovat s veškerými Postgres objekty, ke kterým umí i zobrazit jejich SQL definice (což by mělo být vidět na screenshotu níže).</p>
+<p>pgAdmin III je patrně nejlepší dostupný FOSS nástroj určený pro správu Postgres DBMS. Jedná se o multiplatformní desktopovou aplikaci, která umožňuje připojení k místním i vzdáleným databázím, jejich pohodlnou správu i klasický SQL přístup. SQL dotazy je možné zadávat ručně nebo je sestavit graficky. Podporuje jak Postgres, tak některé jeho komerční a proprietární klony. Je schopen zobrazit a pracovat s veškerými Postgres objekty, ke kterým umí i zobrazit jejich SQL definice (což by mělo být vidět na screenshotu níže).</p>
 
 TODO find images
 
@@ -221,16 +221,23 @@ TODO ref link
 
 <h3>Optimalizace nastavení Postgresu</h3>
 
-<p>Pokud chcete hlouběji proniknout do konfigurace a správy Postgresu, přečtěte si <a href="http://www.linuxexpres.cz/praxe/optimalizace-databaze-postgresql">seriál o optimalizaci PostgreSQL</a> na LinuxEXPRESu.</p>
+<p>Pokud chcete hlouběji proniknout do konfigurace a správy Postgresu, přečtěte si třeba seriál o optimalizaci Postgresu na LinuxEXPRESu.</p>
 
 
-<pre id="links">http://postgres.cz Český portál/wiki o Postgresu
+http://postgres.cz Český portál/wiki o Postgresu
 http://www.wikivs.com/wiki/MySQL_vs_PostgreSQL MySQL vs PostgreSQL
 http://wiki.postgresql.org/wiki/Why_PostgreSQL_Instead_of_MySQL_2009 Why PostgreSQL Instead of MySQL 2009
 http://en.wikipedia.org/wiki/Comparison_of_relational_database_management_systems Wikipedia: Comparison of relational database management systems
 http://simononsoftware.com/postgresql-collation/ PostgreSQL Collation – part 1
 http://simononsoftware.com/postgresql-collation-2/ PostgreSQL Collation – part 2
-http://www.postgresql.org/docs/8.4/static/install-upgrading.html PostgreSQL manual - Upgrading</pre>
-<pre id="links">http://postgres.cz Český portál/wiki o Postgresu
+http://www.postgresql.org/docs/8.4/static/install-upgrading.html PostgreSQL manual - Upgrading
+http://postgres.cz Český portál/wiki o Postgresu
 http://www.postgresql.org/docs/8.4/interactive/app-psql.html psql
-http://www.postgresql.org/docs/8.4/static/backup.html Backup and Restore</pre>
+http://www.postgresql.org/docs/8.4/static/backup.html Backup and Restore
+http://www.linuxexpres.cz/software/srovnani-databazovych-serveru Srovnání databázových serverů
+http://www.linuxexpres.cz/praxe/optimalizace-databaze-postgresql Seriál o optimalizaci PostgreSQL
+http://www.postgresql.org/docs/9.1/interactive/app-psql.html PostgreSQL, Dokumentace k nástroji psql
+http://wiki.postgresql.org/wiki/Pgpass PostgreSQL Wiki, pgpass
+http://backports.debian.org/ Debian Backports, stránky projektu
+http://phppgadmin.sourceforge.net/ phpPgAdmin, stránky projektu
+http://www.pgadmin.org/ pgAdmin III, stránky projektu

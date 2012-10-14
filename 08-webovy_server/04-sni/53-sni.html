@@ -1,4 +1,4 @@
-<h1>SNI, webové servery a prohlížeče</h1>
+<h2>SNI, webové servery, prohlížeče a HTTPS</h2>
 
 <h3>Úvod</h3>
 
@@ -8,7 +8,7 @@
 
 <h3>Podpora v prohlížečích</h3>
 
-<p>Aby mohlo SNI fungovat, musí být podporováno na straně serveru, ale také na straně klienta. Jako správci serverů máte serverovou část pod kontrolou, tudíž hlavní problém spočívá v podpoře na straně klientů. V této oblasti se sice hnuly ledy a řada prohlížečů dnes SNI bez problémů podporuje, ale ani zdaleka ne všechny a ne na všech systémech. Problémy jsou zejména na Windows XP a mobilních zařízeních, ale i na Linuxu. Aktuální seznam naleznete <a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">na Wikipedii</a>. Dle tohoto zdroje SNI podporují následující verze prohlížečů:</p>
+<p>Aby mohlo SNI fungovat, musí být podporováno na straně serveru, ale také na straně klienta. Jako správci serverů máte serverovou část pod kontrolou, tudíž hlavní problém spočívá v podpoře na straně klientů. V této oblasti se sice hnuly ledy a řada prohlížečů dnes SNI bez problémů podporuje, ale ani zdaleka ne všechny a ne na všech systémech. Problémy jsou zejména na Windows XP a mobilních zařízeních, ale i na Linuxu. Aktuální seznam naleznete na Wikipédii. Dle tohoto zdroje SNI podporují následující verze prohlížečů:</p>
 
 <ul>
 <li>
@@ -30,11 +30,11 @@
 <p>Android – výchozí prohlížeč 	od verze Honeycomb</p>
 </li>
 <li>
-<p><a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">atd.</a></p>
+<p>atd.</p>
 </li>
 </ul>
 
-<p>SNI naopak nepodporuje třeba Konqueror, IE a Safari na XP, wget, Windows Mobile až po 6.5, Oracle Java JSSE <a href="http://cs.wikipedia.org/wiki/Server_Name_Indication">atd</a>. Co se Konqueroru týče, podpora SNI <a href="https://bugs.kde.org/show_bug.cgi?id=122433">snad</a> velmi brzy přibude (měla by být součástí verze 4.7), ale než se nový Konqueror dostane do distribucí, chvíli to ještě potrvá.</p>
+<p>SNI hodně slouho nepodporoval Konqueror (až verze KDE 4.7 podporu zavádí). SNI nepodporuje IE a Safari na XP, Windows Mobile až po 6.5, atd.</p>
 
 <p>Jak je vidět, není to sice úplně špatné, ale stejně tak to ještě pořád není to pravé ořechové. Pokud se tedy budete rozhodovat o nasazení SNI, určitě berte na vědomí, že ne všichni vaši klienti jej patrně podporují.</p>
 
@@ -59,7 +59,7 @@
 </li>
 </ul>
 
-<p>S výjimkou serveru Apache, kde zmiňuji i řešení pro starší systémy (Debian Lenny), by příklady uvedené níže měly fungovat až v Debianu Squeeze s tím, že na starších verzích Debianu jsem testování neprováděl.</p>
+<p>S výjimkou serveru Apache, kde zmiňuji i řešení pro starší systémy (Debian Lenny), by příklady uvedené níže měly fungovat až v Debianu Squeeze (a samozřejmě Wheezy) s tím, že na starších verzích Debianu jsem testování neprováděl.</p>
 
 <h4>SNI a Apache</h4>
 
@@ -136,9 +136,7 @@ $HTTP["host"] == "www.example2.cz" {
 
 <h4>SNI a Cherokee</h4>
 
-TODO ref link
-
-<p><a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-webovy-server-cherokee">Cherokee</a> používá SNI již ve výchozím nastavení jako mechanismus pro odlišení SSL virtuálních webů, takže zde není návod třeba. Jediné, na co byste si měli dát pozor, je přiřazení certifikátu výchozímu virtuálnímu serveru, jehož certifikát se použije v případě, že klient SNI nepodporuje.</p>
+<p>Cherokee používá SNI již ve výchozím nastavení jako mechanismus pro odlišení SSL virtuálních webů, takže zde není návod třeba. Jediné, na co byste si měli dát pozor, je přiřazení certifikátu výchozímu virtuálnímu serveru, jehož certifikát se použije v případě, že klient SNI nepodporuje.</p>
 
 <h4>SNI a Nginx</h4>
 
@@ -186,11 +184,11 @@ server {
 
 <p>V úvodu zmíněný problém s HTTPS řeší nejenom SNI, ale také svým způsobem protokol IPv6, i když přechod klientů na IPv6 bude možná podstatně pomalejší než přechod klientů na prohlížeče schopné používat SNI. Faktem nicméně je, že podpora SNI na straně klientů v tuto chvíli stále není bezproblémová a nějakou dobu ještě nebude, což celkem logicky brzdí nasazení SNI na produkční servery.</p>
 
-
-<pre id="links">http://en.wikipedia.org/wiki/Server_Name_Indication Server Name Indication (anglická Wikipedie)
+http://en.wikipedia.org/wiki/Server_Name_Indication Server Name Indication (anglická Wikipedie)
 http://cs.wikipedia.org/wiki/Server_Name_Indication Server Name Indication (česká Wikipedie)
 http://wiki.apache.org/httpd/NameBasedSSLVHostsWithSNI SSL with Virtual Hosts Using SNI (Apache wiki)
 http://www.outoforder.cc/projects/apache/mod_gnutls/docs/ mod_gnutls Documentation
 http://redmine.lighttpd.net/wiki/1/Docs:SSL#Server-Name-Indication-SNI Secure HTTP (Lighttpd wiki)
 http://www.cherokee-project.com/doc/cookbook_ssl.html Cookbook: SSL, TLS and certificates (Cherokee dokumentace)
-http://nginx.org/en/docs/http/configuring_https_servers.html Configuring HTTPS servers (Nginx dokumentace)</pre>
+http://nginx.org/en/docs/http/configuring_https_servers.html Configuring HTTPS servers (Nginx dokumentace)
+

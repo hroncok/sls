@@ -1,10 +1,10 @@
-<h1>Správa linuxového serveru: Webový server Nginx</h1>
+<h2>Webový server Nginx</h2>
 
 <h3>Úvod</h3>
 
-<p>Projekt Nginx pochází z Ruska, napsal jej Igor Sysoev a je dostupný pod velmi liberální BSD licencí. Nginx je dle <a href="http://news.netcraft.com/archives/2011/03/09/march-2011-web-server-survey.html">statistik</a> v současné době druhým nejpopulárnějším linuxovým webovým serverem (pokud počítáte webové servery obecně, pak je třetí, hned za IIS od Microsoftu). Pokud jste si prošli minulý díl, pak prakticky všechny základní charakteristiky sdílí s webovým serverem lighttpd, tj. je rychlý, výkonný a má minimální spotřebu paměti. Výborně se tedy hodí jak pro provoz náročných aplikací, tak pro provoz na menších serverech či osobních VPS.</p>
+<p>Projekt Nginx pochází z Ruska, napsal jej Igor Sysoev a je dostupný pod velmi liberální BSD licencí. Nginx je dle statistik v současné době druhým nejpopulárnějším linuxovým webovým serverem (pokud počítáte webové servery obecně, pak je třetí, hned za IIS od Microsoftu). Pokud jste si prošli minulý díl, pak prakticky všechny základní charakteristiky sdílí s webovým serverem lighttpd, tj. je rychlý, výkonný a má minimální spotřebu paměti. Výborně se tedy hodí jak pro provoz náročných aplikací, tak pro provoz na menších serverech či osobních VPS.</p>
 
-<p>Je schopen fungovat také jako reverzní proxy, tedy předávat požadavky jinému webserveru a vracet klientovi odpověď, čímž se výborně se hodí pro rozložení zátěže (load balancing) náročné aplikace na více fyzických (či virtuálních) webových serverů. Zde je třeba dodat, že projektů pro load balancing existuje více, a sice reverzní proxy <a href="http://www.apsis.ch/pound/">Pound</a> či <a href="http://haproxy.1wt.eu/">HAProxy</a> (toto jsou skutečně pouze reverzní proxy, nejsou schopny zastávat funkci webového serveru a nabízet nějaký obsah samy o sobě). Funkcionalitu reverzní proxy obsahují ovšem i jiné webové servery, např. Apache (v modulu <code>mod_proxy</code>) a lighttpd (opět modul <code>proxy</code>).</p>
+<p>Je schopen fungovat také jako reverzní proxy, tedy předávat požadavky jinému webserveru a vracet klientovi odpověď, čímž se výborně se hodí pro rozložení zátěže (load balancing) náročné aplikace na více fyzických (či virtuálních) webových serverů. Zde je třeba dodat, že projektů pro load balancing existuje více, a sice reverzní proxy Pound či HAproxy (toto jsou skutečně pouze reverzní proxy, nejsou schopny zastávat funkci webového serveru a nabízet nějaký obsah samy o sobě). Funkcionalitu reverzní proxy obsahují ovšem i jiné webové servery, např. Apache (v modulu <code>mod_proxy</code>) a lighttpd (opět modul <code>proxy</code>).</p>
 
 <p>Zajímavostí je, že Nginx je schopen pracovat i jako POP3/IMAP poštovní proxy s patřičnou podporou SSL a TLS.</p>
 
@@ -31,9 +31,7 @@
 <p>Základní chování Nginx se nastavuje mimo sekci <code>http</code>. Definují jej zejména následující volby (tento úsek pochází z výchozí konfigurace Debianu):</p>
 
 <pre>user www-data;
-worker_processes  1;
-
-error_log  /var/log/nginx/error.log;
+worker_processes  4;
 pid        /var/run/nginx.pid;
 
 events {
@@ -98,15 +96,13 @@ events {
 
 <h3>Který server vybrat?</h3>
 
-<p>V předchozích dílech byly představeny prakticky všechny nejpoužívanější webové servery, tj. Apache, Nginx, Lighttpd a Cherokee. Každý z těchto serverů má svoje přednosti a charakteristiky. Nemyslím si, že existuje obecná „kuchařka“, jak vybrat ten správný server, neboť výběr silně závisí na vlastnostech, které potřebujete, dále pak na tom, co na daném serveru chcete nasadit, jaký hardware máte k dispozici, a hlavně, jak velkou zátěž bude váš server generovat.</p>
+<p>V předchozích kapitolách byly představeny prakticky všechny nejpoužívanější webové servery, tj. Apache, Nginx, Lighttpd a Cherokee. Každý z těchto serverů má svoje přednosti a charakteristiky. Nemyslím si, že existuje obecná „kuchařka“, jak vybrat ten správný server, neboť výběr silně závisí na vlastnostech, které potřebujete, dále pak na tom, co na daném serveru chcete nasadit, jaký hardware máte k dispozici, a hlavně, jak velkou zátěž bude váš server generovat.</p>
 
-TODO ref link
-
-<p>Nakonec vám asi nezbude než si jednotlivé servery otestovat právě ve vašem prostředí a v případě projektů, které chcete nasadit, a na základě výsledků testování se pak rozhodnete. Pokud budete testovat s využitím jakéhokoliv benchmarku (např. nástroje <code>ab</code>, který byl představen v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-thttpd-a-benchmark-weboveho">tomto</a> díle), určitě neberte v úvahu pouze naměřené hodnoty, ale také zátěž CPU a obsazení paměti během testu. Může se totiž klidně stát, že server, který bude o pár milisekund pomalejší, bude zatěžovat CPU či paměť třeba jen z poloviny oproti svému konkurentovi.</p>
+<p>Nakonec vám asi nezbude než si jednotlivé servery otestovat právě ve vašem prostředí a v případě projektů, které chcete nasadit, a na základě výsledků testování se pak rozhodnete. Pokud budete testovat s využitím jakéhokoliv benchmarku (např. nástroje <code>ab</code>), určitě neberte v úvahu pouze naměřené hodnoty, ale také zátěž CPU a obsazení paměti během testu. Může se totiž klidně stát, že server, který bude o pár milisekund pomalejší, bude zatěžovat CPU či paměť třeba jen z poloviny oproti svému konkurentovi.</p>
 
 <p>Jak už jsem nakousl dříve, řada webových aplikací je stavěna s ohledem na provoz na nejrozšířenějším webovém serveru, tedy na Apachi. „Kompatibilita“ aplikace s jinými servery se pak odvíjí od toho, jak moc (a zdali vůbec) aplikace využívá soubory <code>.htaccess</code> a pravidla pro rewrite URL. To jsou dvě hlavní oblasti rozdílů mezi webovými servery, <code>.htaccess</code> je specifikum Apache, nicméně pravidla pro řízení přístupu v něm obsažená lze snadno přidat do konfigurace jiného webového serveru, jen bude potřeba zohlednit rozdíly v syntaxi. Přepis URL je o něco horší, neboť tam je syntax o něco složitější, ale ani to není neřešitelný úkol. U řady projektů je možné použít vyhledávač a s trochou štěstí se dostat přímo k pravidlům, která již někdo vámi zvolenému serveru přizpůsobil.</p>
 
-<pre id="links">http://nginx.org/ Web projektu Nginx
+http://nginx.org/ Web projektu Nginx
 http://wiki.nginx.org/ Wiki projektu
 http://nginx.org/en/docs/ Oficiální dokumentace
 http://blog.martinfjordvald.com/2010/07/nginx-primer/ Nginx primer (úvod do konfigurace Nginx)
@@ -116,4 +112,7 @@ http://mickeyben.com/2009/12/30/using-nginx-as-a-load-balancer.html Using Nginx 
 http://wiki.nginx.org/HttpRewriteModule Nginx rewrite modul (Nginx wiki)
 http://nginx.org/en/docs/http/converting_rewrite_rules.html Converting rewrite rules (Nginx dokumentace)
 http://wiki.nginx.org/VirtualHostExample Virtual Host Example (Nginx wiki)
-http://hostingfu.com/article/nginx-vs-lighttpd-for-a-small-vps  Nginx vs Lighttpd for a small VPS</pre>
+http://hostingfu.com/article/nginx-vs-lighttpd-for-a-small-vps  Nginx vs Lighttpd for a small VPS
+http://news.netcraft.com/archives/2011/03/09/march-2011-web-server-survey.html Netcraft, statistiky z března 2011
+http://www.apsis.ch/pound/ Pound: stránky projektu
+http://haproxy.1wt.eu/ HAProxy: stránky projektu
