@@ -1,7 +1,4 @@
-<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
-
-<h1>Správa linuxového serveru: Zprovoznění Ruby aplikací s RVM, Thin a Nginx</h1>
+<h2>Zprovoznění Ruby aplikací s RVM, Thin a Nginx</h2>
 
 <p>Ruby on Rails je jeden z mnoha frameworků jazyka Ruby určený pro tvorbu webových aplikací. Ačkoliv webových aplikací pro ně není tolik jako pro PHP, mnohé z nich určitě stojí za zvážení. Na rozdíl od PHP však jejich zprovoznění z pohledu správců serverů nemusí být úplně přímočaré. Tento článek osvětlí univerzální způsob nasazení Ruby (a zejména Rails) aplikací za pomoci RVM, Thin a Nginx.</p>
 
@@ -9,9 +6,9 @@
 
 <p>Na úvod musím předeslat, že nejsem Rails vývojář, tudíž se na tuto problematiku dívám primárně očima správce.</p>
 
-<p>Ruby on Rails není jediný framework postavený na jazyce Ruby, těch je více (viz např. <a href="http://accidentaltechnologist.com/ruby/10-alternative-ruby-web-frameworks/">tento</a> článek nebo příslušné <a href="https://en.wikipedia.org/wiki/Ruby_(programming_language)">heslo</a> Wikipedie) a řada z nich je velmi zajímavá. Jejich nasazení je však obvykle pro správce zvyklého na LAMP poněkud problematické, zejména v prostředí linuxových distribucí, kde se naráží na několik problémů.</p>
+<p>Ruby on Rails není jediný framework postavený na jazyce Ruby, těch je více a řada z nich je velmi zajímavá. Jejich nasazení je však obvykle pro správce zvyklého na LAMP poněkud problematické, zejména v prostředí linuxových distribucí, kde se naráží na několik problémů.</p>
 
-<p>Jedním kamenem úrazu je fakt, že jazyk Ruby má svůj vlastní balíčkovací systém s názvem <a href="https://en.wikipedia.org/wiki/RubyGems">RubyGems</a>, který, zcela přirozeně, koliduje s balíčkovacím systémem distribucí. Je sice možné instalovat pouze balíčky z distribuce, ale pokud vaše aplikace používá konkrétní verzi, která (pochopitelně) v repozitářích není, nastává problém. Použití balíčkovacího systému Ruby pak může přinášet jiné problémy (konflikty souborů, soubory nepatřící žádnému balíčku).</p>
+<p>Jedním kamenem úrazu je fakt, že jazyk Ruby má svůj vlastní balíčkovací systém s názvem RubyGems, který, zcela přirozeně, koliduje s balíčkovacím systémem distribucí. Je sice možné instalovat pouze balíčky z distribuce, ale pokud vaše aplikace používá konkrétní verzi, která (pochopitelně) v repozitářích není, nastává problém. Použití balíčkovacího systému Ruby pak může přinášet jiné problémy (konflikty souborů, soubory nepatřící žádnému balíčku).</p>
 
 <p>Druhým kamenem úrazu je skutečnost, že jazyk Ruby zaznamenal podstatné změny (přechod z řady 1.8 na řadu 1.9) a nové verze Ruby interpretů zatím ještě nejsou podporovány řadou na Ruby postavených komponent a aplikací. V Debianu je sice možné vedle sebe nainstalovat dvě různé verze Ruby interpretu, ale např. modul Passenger pro Apache, který mu umožňuje pracovat s Ruby aplikacemi, zatím není schopen použít více než jednu verzi interpretu najednou. Není tedy možné prostřednictvím něj zprovoznit dvě aplikace, kde jedna vyžaduje starší verzi interpretu a jedna novější.</p>
 
@@ -19,11 +16,11 @@
 
 <p>Výše uvedené problémy pomáhá řešit kombinace RVM a serverů Thin a Nginx. Nejprve představím jednotlivé komponenty.</p>
 
-<p><a href="https://rvm.io/">RVM</a> je zkratka pro Ruby Version Manager, tedy systém pro správu verzí Ruby. RVM můžete snadno využít k vytvoření optimálního prostředí pro běh Ruby aplikace. RVM nepotřebuje práva roota, poběží pod jakýmkoliv uživatelem a umožní vám nainstalovat jak konkrétní verzi Ruby interpretu, tak sadu „gemů“ (balíčků). Dokonce je možné nainstalovat více verzí interpretu a více „gemsetů“ (sad balíčků), přičemž pak se můžete mezi nimi přepínat. Má poměrně bohaté možnosti a také velmi dobrou dokumentaci.</p>
+<p>RVM je zkratka pro Ruby Version Manager, tedy systém pro správu verzí Ruby. RVM můžete snadno využít k vytvoření optimálního prostředí pro běh Ruby aplikace. RVM nepotřebuje práva roota, poběží pod jakýmkoliv uživatelem a umožní vám nainstalovat jak konkrétní verzi Ruby interpretu, tak sadu „gemů“ (balíčků). Dokonce je možné nainstalovat více verzí interpretu a více „gemsetů“ (sad balíčků), přičemž pak se můžete mezi nimi přepínat. Má poměrně bohaté možnosti a také velmi dobrou dokumentaci.</p>
 
-<p><a href="http://code.macournoyer.com/thin/">Thin</a> je webový server napsaný v Ruby, který by měl být rychlý, stabilní a bezpečný. Je dostupný jako Ruby „gem“ (balíček).</p>
+<p>Thin je webový server napsaný v Ruby, který by měl být rychlý, stabilní a bezpečný. Je dostupný jako Ruby „gem“ (balíček).</p>
 
-<p><a href="http://www.nginx.org/">Nginx</a> je webový server, který velmi pravděpodobně naleznete v repozitářích vámi používané distribuce. Tento webový server má malé nároky na paměť a vysoký výkon. Umí také fungovat jako reverzní proxy, což je přesně to, co od něj v tomto řešení potřebujete. Dá se snadno propojit se serverem Thin, dokonce dvěma způsoby (přes síť a přes socket). Více informací o Nginx naleznete v <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-webovy-server-nginx">jednom z předchozích dílů tohoto seriálu</a>.</p>
+<p>Nginx je webový server, který velmi pravděpodobně naleznete v repozitářích vámi používané distribuce. Tento webový server má malé nároky na paměť a vysoký výkon. Umí také fungovat jako reverzní proxy, což je přesně to, co od něj v tomto řešení potřebujete. Dá se snadno propojit se serverem Thin, dokonce dvěma způsoby (přes síť a přes socket).</p>
 
 <p>Postup řešení je následující – nejprve si vytvoříte uživatele, pod kterým bude aplikace běžet (nebo použijete nějakého existujícího). Následně zprovozníte RVM a nainstalujete potřebné verze Ruby interpretu a příslušných „gemů“, které vaše aplikace vyžaduje. Poté nainstalujete gem „thin“. Thin spustíte a dostanete buď sockety, nebo síťové porty, kde Thin běží. Ty pak vložíte do konfigurace Nginx a propojíte s ním konkrétní virtuální server (virtual host).</p>
 
@@ -45,7 +42,7 @@
 su uzivatel -
 cd</pre>
 
-<p>Nyní, s právy daného uživatele, je možné provést samotnou instalaci RVM. Konkrétní podobu příkazu raději získejte z oficiální <a href="http://beginrescueend.com/rvm/install/">dokumentace</a> a níže uvedený příkaz berte spíše jako ukázku (pro případ, že by se od vydání knihy něco změnilo):</p>
+<p>Nyní, s právy daného uživatele, je možné provést samotnou instalaci RVM. Konkrétní podobu příkazu raději získejte z oficiální dokumentace na webu projektu (odkaz naleznete pod kapitolou) a níže uvedený příkaz berte spíše jako ukázku (pro případ, že by se od vydání knihy něco změnilo):</p>
 
 <pre>curl -L https://get.rvm.io | bash -s stable --ruby</pre>
 
@@ -77,7 +74,7 @@ cd</pre>
 
 <pre>rvm use 1.8.7 --default</pre>
 
-<p>Ruby aplikace si mohou s sebou tahat řadu závislostí – na vás tedy pak zbude doinstalování toho, co není distribuováno spolu s aplikací (zde je opět třeba se obrátit na dokumentaci k aplikaci). Kupříkladu, vyžaduje-li aplikace Rails framework ve verzi <code>2.3.11</code>, nainstalovali byste jej takto:</p>
+<p>Ruby aplikace si mohou s sebou tahat řadu závislostí – na vás tedy pak zbude doinstalování toho, co není distribuováno spolu s aplikací (zde je opět třeba se obrátit na dokumentaci k aplikaci). Kupříkladu, vyžaduje-li aplikace Rails framework ve verzi 2.3.11, nainstalovali byste jej takto:</p>
 
 <pre>gem install rails -v=2.3.11</pre>
 
@@ -169,17 +166,22 @@ server {
 
 <p>Toto je poslední rewrite pravidlo, které nasměruje všechny ostatní požadavky na příslušný <code>upstream</code> zdroj, <code>nas_thin</code> zde odpovídá stejnojmennému zdroji specifikovanému v rámci direktivy <code>upstream</code>.</p>
 
-<pre id="links">http://beginrescueend.com/rvm/ Dokumentace RVM
+https://en.wikipedia.org/wiki/RubyGems Wikipédie, RubyGems
+https://rvm.io/ RVM: stránky projektu
+http://code.macournoyer.com/thin/ Thin: stránky projektu
+http://accidentaltechnologist.com/ruby/10-alternative-ruby-web-frameworks/ 10 alternative ruby frameworks
+https://en.wikipedia.org/wiki/Ruby_(programming_language) Wikipédie, Ruby programming language
 http://jsani.com/2011/09/ubuntu-10-xx-nginx-thin-rails-3-a-how-to/ Ubuntu 10.XX + Nginx + Thin + Rails 3: A HOW-TO
 https://gautamrege.wordpress.com/2009/11/10/capistrano-nginx-thin-deployment-on-linode/ Capistrano + Nginx + Thin deployment on Linode
-http://wiki.nginx.org/NginxHttpUpstreamModule Nginx HttpUpstreamModule</pre>
-<h1>Nasazení aplikace Redmine</h1>
+http://wiki.nginx.org/NginxHttpUpstreamModule Nginx HttpUpstreamModule
+
+<h2>Nasazení Ruby aplikace Redmine</h2>
 
 <h3>Redmine</h3>
 
-<p>Redmine je svobodný (GNU GPLv2) správce projektů, systém pro sledování chyb (bug tracker), wiki, diskusní fórum, kalendář, vše integrováno v jednom komplexním balíčku. Integrace <a href="http://en.wikipedia.org/wiki/Source_Code_Management" title="Source Code Management">SCM</a> je zde samozřejmostí. Lze jej použít pro usnadnění vývoje softwaru, ale také jako aplikaci pro správu projektů obecně, nikoliv nezbytně jen těch softwarových. Umí dobře zastoupit groupware nebo zastat funkci osobního managementu. Umí dokonce i generovat Ganttův diagram. Pokud byste měli zájem o osobní management dle oblíbené metodiky <a href="http://cs.wikipedia.org/wiki/Getting_Things_Done" title="Getting Things Done">GTD</a>, Redmine vám možná nebude úplně vyhovovat – v takovém případě se můžete podívat na jinou Ruby on Rails aplikaci – <a href="http://getontracks.org/">Tracks</a>. Ale zpět k Redmine. Redmine je modulární, je tedy možné vytvářet moduly rozšiřující jeho funkčnost nebo použít některé z již vytvořených modulů.</p>
+<p>Redmine je svobodný (GNU GPLv2) správce projektů, systém pro sledování chyb (bug tracker), wiki, diskusní fórum, kalendář, vše integrováno v jednom komplexním balíčku. Integrace SCM (Source Control Management) je zde samozřejmostí. Lze jej použít pro usnadnění vývoje softwaru, ale také jako aplikaci pro správu projektů obecně, nikoliv nezbytně jen těch softwarových. Umí dobře zastoupit groupware nebo zastat funkci osobního managementu. Umí dokonce i generovat Ganttův diagram. Pokud byste měli zájem o osobní management dle oblíbené metodiky GTD, Redmine vám možná nebude úplně vyhovovat – v takovém případě se můžete podívat na jinou Ruby on Rails aplikaci – Tracks. Ale zpět k Redmine. Redmine je modulární, je tedy možné vytvářet moduly rozšiřující jeho funkčnost nebo použít některé z již vytvořených modulů.</p>
 
-<p>Vývoj aplikace je spravován pomocí Redmine – chcete-li se tedy podívat na běžící instanci, stačí se podívat na <a href="http://www.redmine.org/">web projektu</a>. <a href="http://demo.redmine.org/">Demo k vyzkoušení</a> je pak k dispozici na subdoméně.</p>
+<p>Vývoj aplikace je spravován pomocí Redmine – chcete-li se tedy podívat na běžící instanci, stačí se podívat na web projektu (<code>redmine.org</code>). Zde naleznete i demo k vyzkoušení.</p>
 
 <h3>Vytvoření uživatelského účtu a zprovoznění RVM</h3>
 
@@ -200,7 +202,7 @@ cd</pre>
 
 <pre>touch ~/.bashrc</pre>
 
-<p>Náhledem do <a href="https://rvm.io/">dokumentace</a> se ujistěte, že následující příkaz pro instalaci RVM je správně (pozor, od vydání knihy se mohl změnit!), a proveďte jej:</p>
+<p>Náhledem do dokumentace k RVM se ujistěte, že následující příkaz pro instalaci RVM je správně (pozor, od vydání knihy se mohl změnit!), a proveďte jej:</p>
 
 <pre>curl -L https://get.rvm.io | bash -s stable --ruby</pre>
 
@@ -212,58 +214,56 @@ cd</pre>
 
 <pre>aptitude install build-essential openssl libreadline6 libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion pkg-config</pre>
 
-<p>Tyto balíčky je třeba nainstalovat před samotnou instalací (resp. kompilací) Ruby interpretu (viz níže), jinak vám instalace dalších komponent bude dělat problémy. V takovém případě proveďte opětovnou rekompilaci interpretu poté, co balíčky nainstalujete.</p>
+<p>Tyto balíčky je třeba nainstalovat před samotnou instalací (resp. kompilací) Ruby interpretu (viz níže), jinak vám instalace dalších komponent bude dělat problémy. V takovém případě proveďte opětovnou rekompilaci interpretu poté, co balíčky nainstalujete, takto:</p>
 
-<h4>Instalace Ruby interpretu a potřebných komponent</h4>
+<pre>rvm reinstall 1.9.3</pre>
 
-TODO zásadní revize?
+<h3>Instalace Ruby interpretu a potřebných komponent</h3>
 
-<p>Potřebnou verzi Ruby a příslušných komponent naleznete v přehledové tabulce v oficiálním <a href="http://www.redmine.org/projects/redmine/wiki/RedmineInstall">návodu</a> pro instalaci Redmine. V době psaní knihy byl potřebný Ruby interpret pro aktuální verzi Redmine (1.2.1) buď 1.8.6, nebo 1.8.7. Vyberte si tedy a nainstalujte příslušný interpret:</p>
+<p>Potřebnou verzi Ruby a příslušných komponent naleznete v přehledové tabulce v oficiálním návodu pro instalaci Redmine, který důrazně doporučuji si projít, jelikož má tendenci se měnit. V době psaní knihy byl potřebný Ruby interpret pro aktuální verzi Redmine (2.1.0) buď 1.8.7, 1.9.2 nebo 1.9.3. Vyberte si tedy a nainstalujte příslušný interpret:</p>
 
-<pre>rvm install 1.8.7</pre>
+<pre>rvm install 1.9.3</pre>
 
 <p>Tuto verzi interpretu „aktivujte“ a nastavte jako výchozí:</p>
 
-<pre>rvm use 1.8.7 --default</pre>
+<pre>rvm use 1.9.3 --default</pre>
 
-<p>Mezi další potřebné komponenty patří jednoznačně Ruby <a href="http://cs.wikipedia.org/wiki/Framework">framework</a> Ruby on Rails. Ten si ovšem Redmine tahá s sebou, pokud jej instalujete z oficiálního tarballu. Používáte-li verzi ze SCM, budete muset Ruby on Rails nainstalovat ručně. V opačném případě vám postačí nainstalovat Rack, i18n a RubyGems (viz níže):</p>
+<h3>Instalace Redmine a závislostí</h3>
 
-<pre>gem install rack -v=1.1.1
-gem install i18n -v=0.4.2</pre>
+<p>Stáhněte si aktuální verzi Redmine a přeneste ji na server (nebo použijte textový prohlížeč Lynx či wget přímo na serveru). Balíček následně rozbalte a vstupte do nově vytvořeného adresáře s aplikací:</p>
 
-<p>Nyní je třeba vyřešit problém s RubyGems, který musí odpovídat příslušné verzi Rails frameworku. Jestliže instalujete aktuální verzi (1.2.1), která vyžaduje Rails 2.3.11, pak nezapomeňte nainstalovat RubyGems verze nižší než 1.7.0:</p>
+<pre>tar xvf redmine-2.1.2.tar.gz
+cd redmine-2.1.2</pre>
 
-<pre>rvm rubygems 1.6.0</pre>
+<p>Pro zpracování závislostí Redmine v současné době používá Bundler, nainstalujte tedy Bundler:</p>
 
-<p>V případě, že používáte starší Rails 2.3.5, musí být verze RubyGems nižší než 1.5.0.</p>
+<pre>gem install bundler</pre>
 
-<p>Používáte-li Redmine ze SCM a nikoliv z oficiálního balíčku, nainstalujte Ruby on Rails v potřebné verzi. Potřebnou verzi zjistíte z přehledové tabulky, na kterou jsem vás odkázal výše. V době psaní knihy to byla verze 2.3.11, kterou byste nainstalovali takto:</p>
+<p>Instalace jednotlivých modulů (v terminologii jazyka Ruby je to "Gem") může vyžadovat příslušné hlavičkové soubory, např. gem <code>mysql2</code> vyžaduje hlavičkové soubory MySQL klienta, které naleznete v balíčku <code>libmysqlclient-dev</code>:</p>
 
-<pre>gem install rails -v=2.3.11</pre>
+<pre>aptitude install libmysqlclient-dev</pre>
 
-<p>Nezapomeňte zohlednit problém s RubyGems popsaný výše a nainstalujte jeho správnou verzi, jinak při inicializaci databáze uvidíte jen chybové hlášky.</p>
+<p>Pro gem <code>pg</code> je třeba mít nainstalovaný balíček s hlavičkovými soubory databázového systému PostgreSQL, který můžete nainstalovat takto:</p>
+
+<pre>aptitude install postgresql-server-dev-9.1</pre>
+
+<p>Poté můžete nainstalovat všechny závislosti Redmine, a to následujícím způsobem:</p>
+
+<pre>bundle install --without development test rmagick</pre>
 
 <p>Tím je instalace potřebných komponent hotová.</p>
 
 <h3>Zprovoznění databáze</h3>
 
-TODO ref link
+TODO ref links on DB articles
 
-<p>Redmine umí pracovat s MySQL, PostgreSQL a SQLite. Sami zvažte, jakou databázi chcete na server nasadit (pokud vůbec nějakou). Mám zkušenost, že výchozí instalace MySQL na Debianu zabírá díky výchozímu použití InnoDB přes 100 MB RAM. Používáte-li virtuální stroj s malou RAM, můžete si pomoci vypnutím enginu InnoDB, a sice úpravou <code>/etc/mysql/my.cnf</code>, kam přidejte řádku s direktivou <code>skip-innodb</code>. PostgreSQL je ve výchozím nastavení paměťově šetrnější. Oba DBMS je však možné dodatečně vyladit a přidělit jim tolik paměti, kolik chcete nebo kolik máte k dispozici. Pro optimalizaci nastavení PostgreSQL doporučuji seriál <a href="http://www.linuxexpres.cz/praxe/optimalizace-postgresql">Optimalizace PostgreSQL</a>. Postgresu jsem se věnoval po stránce instalace a základů jeho správy i já v tomto seriálu (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-postgresql-instalace-a-zprovozneni">první díl</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-postgresql-klienti-a-zalohovani">druhý díl</a>).</p>
+<p>Redmine umí pracovat s MySQL, PostgreSQL a SQLite. Sami zvažte, jakou databázi chcete na server nasadit (pokud vůbec nějakou).</p>
 
-<p>Osobně používám Redmine na Postgresu, avšak vzhledem k tomu, že oficiální dokumentace upřednostňuje MySQL, a také vzhledem k tomu, že MySQL jsem se v tomto seriálu věnoval spíše méně, v tomto návodu upřednostním MySQL. Ujistěte se tedy, že máte nainstalovaný MySQL server:</p>
+<p>Osobně používám Redmine na Postgresu, avšak vzhledem k tomu, že oficiální dokumentace upřednostňuje MySQL, a také vzhledem k tomu, že MySQL jsem se v této knize věnoval spíše méně, v tomto návodu upřednostním MySQL. Ujistěte se tedy, že máte nainstalovaný MySQL server:</p>
 
 <pre>aptitude install mysql-server</pre>
 
 <p>Pokud jej budete instalovat takto z balíčku, budete vyzváni k zadání rootovského hesla pro MySQL. I když je možné ponechat heslo prázdné, rozhodně jej <strong>důrazně doporučuji nastavit</strong>.</p>
-
-<p>Pro lepší a rychlejší interakci s databází MySQL je třeba nainstalovat příslušný Ruby balíček pro práci s MySQL. Ještě před tím, než se do jeho instalace pustíte, nainstalujte hlavičkové soubory MySQL klienta (bez toho se kompilace příslušného gemu nezdaří):</p>
-
-<pre>aptitude install libmysqlclient-dev</pre>
-
-<p>Poté jako uživatel <code>redmine</code> proveďte instalaci gemu MySQL:</p>
-
-<pre>gem install mysql</pre>
 
 <p>Chcete-li použít jiný databázový server, nahlédněte do instalační příručky Redmine, jsou tam podrobné informace, jak databázi nastavit.</p>
 
@@ -285,14 +285,11 @@ TODO ref link
 
 <pre>GRANT ALL PRIVILEGES ON  `redmine`.* TO  'redmine'@'localhost';</pre>
 
-<h3>Instalace Redmine</h3>
+<p>Nyní je třeba Redmine propojit s vámi používanou databází. Zkopírujte tedy šablonu konfiguračního souboru <code>config/database.yml</code>:
 
-<p><a href="http://www.redmine.org/projects/redmine/wiki/Download">Stáhněte si</a> aktuální verzi Redmine a přeneste ji na server (nebo použijte textový prohlížeč Lynx či wget přímo na serveru). Balíček následně rozbalte a vstupte do nově vytvořeného adresáře s aplikací:</p>
-
-<pre>tar xvf redmine-1.2.1.tar.gz
-cd redmine-1.2.1</pre>
-
-<p>Nyní je třeba Redmine propojit s vámi používanou databází. Vytvořte tedy konfigurační soubor <code>config/database.yml</code> s následujícím obsahem (kde samozřejmě upravíte název databáze, uživatelské jméno a heslo):</p>
+<pre>cp config/database.yml.example config/database.yml</pre>   
+   
+<p>V tomto souboru upravte sekci <code>production:</code> následujícím způsobem (kde si samozřejmě upravte název databáze, uživatelské jméno a heslo):</p>
 
 <pre>production:
   adapter: mysql
@@ -302,11 +299,25 @@ cd redmine-1.2.1</pre>
   username: redmine
   password: heslo</pre>
 
-<p>Můžete také použít šablonu <code>config/database.yml.example</code> a tu upravit.</p>
+<p>Nyní vygenerujte „secret token“:</p>
 
-<p>Nyní vygenerujte „session store secret“:</p>
+<pre>rake generate_secret_token</pre>
 
-<pre>rake generate_session_store</pre>
+<p>Následně opravte jednu chybku současné verze - přidejte do souboru <code>Gemfile</code> řádku <code>gem "mysql"</code> jak je naznačeno:</p>
+
+<pre>source 'http://rubygems.org'
+
+gem 'rails', '3.2.8'
+gem "jquery-rails", "~&gt; 2.0.2"
+gem "i18n", "~&gt; 0.6.0"
+gem "coderay", "~&gt; 1.0.6"
+gem "fastercsv", "~&gt; 1.5.0", :platforms =&gt; [:mri_18, :mingw_18, :jruby]
+gem "builder", "3.0.0"
+<strong>gem "mysql"</strong></pre>
+
+<p>A opakujte:</p>
+
+<pre>bundle install</pre>
 
 <p>A konečně, inicializujte databázi a nechte vytvořit příslušné tabulky v rámci databázové migrace:</p>
 
@@ -316,11 +327,14 @@ cd redmine-1.2.1</pre>
 
 <pre>RAILS_ENV=production rake redmine:load_default_data</pre>
 
+<pre>mkdir tmp public/plugin_assets
+chmod -R 755 files log tmp public/plugin_assets</pre>
+
 <p>V tuto chvíli můžete konečně ověřit funkčnost instalace Redmine spuštěním webového serveru Webrick:</p>
 
-<pre>ruby script/server webrick -e production</pre>
+<pre>ruby script/rails server webrick -e production</pre>
 
-<p>Server by se měl spustit na portu <code>3000</code> a konzolový výpis by měl vypadat takto:</p>
+<p>Server by se měl spustit na portu <code>3000</code> a konzolový výpis by měl vypadat nějak takto (hlavně by nemělo dojít k žádným chybám):</p>
 
 <pre>=&gt; Booting WEBrick
 =&gt; Rails 2.3.11 application starting on http://0.0.0.0:3000
@@ -333,6 +347,7 @@ cd redmine-1.2.1</pre>
 <p>Webový server běží na všech přidělených IP adresách, takže můžete Redmine vyzkoušet, jestli se nezobrazí jen „bílá obrazovka smrti“. Pokud Redmine běží, server shoďte a postupujte dál. Pokud ne, všimněte si chybové hlášky a pokuste se problém vyřešit. Zejména si znovu projděte výše uvedené instrukce, zda jste provedli opravdu vše, zda databáze funguje apod.</p>
 
 <p>Pokud byste se chtěli přihlásit, vězte, že výchozí uživatel je „admin“ a heslo je (překvapivě) také „admin“. Jako správcům vám, doufám, nemusím zdůrazňovat, abyste přinejmenším heslo urychleně změnili.</p>
+
 <h3>Webový server Thin</h3>
 
 <p>Webový server Webrick je vhodný pro základní otestování funkčnosti, ale nehodí se už pro produkční nasazení. Dalším krokem je tedy zprovoznění webového serveru Thin. Thin lze propojit s Nginx, což provedeme za chvíli. Získejte tedy oprávnění uživatele Redmine:</p>
@@ -340,9 +355,22 @@ cd redmine-1.2.1</pre>
 <pre>su redmine -
 cd</pre>
 
-<p>A následně nainstalujte Thin:</p>
+<p>A následně do <code>Gemfile</code> v adresáři s Redmine vložte řádku <code>gem "thin"</code> jak je naznačeno:</p>
 
-<pre>gem install thin</pre>
+<pre>source 'http://rubygems.org'
+
+gem 'rails', '3.2.8'
+gem "jquery-rails", "~&gt; 2.0.2"
+gem "i18n", "~&gt; 0.6.0"
+gem "coderay", "~&gt; 1.0.6"
+gem "fastercsv", "~&gt; 1.5.0", :platforms =&gt; [:mri_18, :mingw_18, :jruby]
+gem "builder", "3.0.0"
+gem "mysql"
+gem "thin"</pre>
+
+<p>Nyní proveďte:</p>
+
+<pre>bundle install</pre>
 
 <p>Pro samotné spouštění Thin můžete použít vlastní skript, který Thin nahodí (popř. podle potřeby shodí). Pokud budete používat pokročilejší vlastnosti RVM, můžete specifikovat konkrétní gemset před spuštěním Thinu. Pokud jste postupovali podle návodu, nemusíte si s touto informací dělat starosti.</p>
 
@@ -366,8 +394,8 @@ if [ -z "$1" ]; then
 fi
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] &amp;&amp; source "$HOME/.rvm/scripts/rvm"
-cd "$HOME/redmine-1.2.1"
-thin -e production $1 -s1 --socket "$HOME/redmine.sock" -d</pre>
+cd "$HOME/redmine-2.1.2"
+bundle exec thin -e production $1 -s1 --socket "$HOME/redmine.sock" -d</pre>
 
 <p>Tento skript si vylaďte podle libosti. Zejména parametry Thinu, jako např. počet serverů (parametr <code>-s</code>) či konkrétní soubor se socketem, přes který bude Thin komunikovat. Socket je rychlejší než komunikace přes síť, proto je lepší používat socket – v případě problémů se můžete vrátit k použití sítě a spustit Thin na nějakém portu na místní smyčce. Dodávám jen, že Thin mění pojmenování socketu, i když je nastaven pro běh jen jednoho serveru, přidává tam číslo (<code>redmine.0.sock</code>). Zohledněte to pak v konfiguraci Nginx.</p>
 
@@ -391,7 +419,7 @@ thin -e production $1 -s1 --socket "$HOME/redmine.sock" -d</pre>
 
 TODO ref link monit
 
-<p>Aby se tento skript spustil při startu serveru, nejjednodušší je přidat příkaz k jeho spuštění do <code>/etc/rc.local</code>, ale mnohem čistší řešení je vytvořit pro něj skript v <code>/etc/init.d</code> a zařadit ho do příslušné úrovně běhu pomocí <code>update-rc.d</code>. Abyste zajistili jeho nepřerušený běh, resp. jeho případný automatický restart, pokud by spadl, můžete použít nástroj Monit. Tento nástroj byl představen ve dvou dílech seriálu (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-hlidani-serveru-pomoci-nastroje-monit">1. díl</a>, <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-hlidani-pomoci-monitu-pokracovani">2. díl</a>).</p>
+<p>Aby se tento skript spustil při startu serveru, nejjednodušší je přidat příkaz k jeho spuštění do <code>/etc/rc.local</code>, ale mnohem čistší řešení je vytvořit pro něj skript v <code>/etc/init.d</code> a zařadit ho do příslušné úrovně běhu pomocí <code>update-rc.d</code>. Abyste zajistili jeho nepřerušený běh, resp. jeho případný automatický restart, pokud by spadl, můžete použít nástroj Monit.</p>
 
 <h3>Nginx</h3>
 
@@ -399,7 +427,7 @@ TODO ref link monit
 
 <pre>aptitude install nginx</pre>
 
-<p>Nginx je třeba nakonfigurovat. Ideální je, pokud vám Redmine bude běžet přes zabezpečený protokol HTTPS, k čemuž ovšem potřebujete certifikát, a to ideálně ne self-signed (na který jsou prohlížeče v dnešní době již silně alergické), ale certifikát podepsaný od nějaké důvěryhodné certifikační autority. Nechcete-li příliš utrácet, můžete použít např. <a href="https://www.startssl.com/">StartSSL</a> nebo <a href="https://www.cacert.org/">CACert.org</a>, které vám vydají certifikát zdarma.</p>
+<p>Nginx je třeba nakonfigurovat. Ideální je, pokud vám Redmine bude běžet přes zabezpečený protokol HTTPS, k čemuž ovšem potřebujete certifikát, a to ideálně ne self-signed (na který jsou prohlížeče v dnešní době již silně alergické), ale certifikát podepsaný od nějaké důvěryhodné certifikační autority. Nechcete-li příliš utrácet, můžete použít např. StartSSL či CACert.org, které vám vydají certifikát zdarma.</p>
 
 <p>Vytvořte tedy konfigurační soubor pro Nginx:</p>
 
@@ -426,7 +454,7 @@ server {
         ssl_session_timeout  3m;
 
         access_log  /var/log/nginx/redmine.access.log;
-        root /home/redmine/redmine-1.2.1/public;
+        root /home/redmine/redmine-2.1.2/public;
 
         location / {
                 proxy_set_header  X-Real-IP  $remote_addr;
@@ -466,7 +494,7 @@ server {
         client_body_buffer_size 128k;
 
         access_log  /var/log/nginx/redmine.access.log;
-        root /home/redmine/redmine-1.2.1/public;
+        root /home/redmine/redmine-2.1.2/public;
 
         location / {
                 proxy_set_header  X-Real-IP  $remote_addr;
@@ -513,7 +541,7 @@ server {
 <p>Na závěr zbývá doladit konfiguraci Redmine, a sice vyřešit rozesílání e-mailů. Redmine má velmi propracovaný systém e-mailových oznámení, a proto potřebuje přístup k poštovnímu serveru, aby mohl poštu rozesílat. Asi nejjednodušší je použít nástroj <code>sendmail</code> k odesílání pošty, ale můžete použít i klasický SMTP server. Získejte tedy oprávnění uživatele redmine a dostaňte se do adresáře s Redmine:</p>
 
 <pre>su redmine -
-cd ~/redmine-1.2.1</pre>
+cd ~/redmine-2.1.2</pre>
 
 <p>Můžete použít předlohu, <code>configuration.yml.example</code>, a zkopírovat ji do neexistujícího <code>configuration.yml</code>:</p>
 
@@ -523,17 +551,26 @@ cd ~/redmine-1.2.1</pre>
 
 <pre>production:
    email_delivery:
-   delivery_method: :sendmail</pre>
+      delivery_method: :sendmail</pre>
 
 <p>Stejně tak varianta s použitím místního poštovního serveru:</p>
 
 <pre>production:
    email_delivery:
-   delivery_method: :smtp
-   smtp_settings:
-   address: "localhost"
-   port: 25</pre>
+     delivery_method: :smtp
+     smtp_settings:
+       address: "localhost"
+       port: 25</pre>
 
 <p>K dispozici jsou i varianty s externím poštovním serverem s autentifikací. Pokud budete používat tento soubor jako předlohu, berte na vědomí, že je v něm již doručování e-mailů nastaveno (SMTP server s autentifikací), je tedy vhodné tuto konfiguraci najít a upravit (soubor je velký a klíčový odkomentovaný kousíček snadno přehlédnete). Tím je instalace a konfigurace Redmine hotová.</p>
 
 <p>Z bezpečnostního hlediska běží Thin a celé Redmine pod separátním, neprivilegovaným účtem <code>redmine</code>. Ke Thinu se pak připojuje Nginx, který také běží pod neprivilegovaným účtem, v Debianu pod účtem <code>www-data</code>. S MySQL, Thinem a Nginx jsem se na OpenVZ virtuálním stroji s 256 RAM vešel do 150 MB, i s poštovním serverem. Použil jsem jeden paralelní Thin server, jak jsem naznačil v návodu výše.</p>
+
+http://en.wikipedia.org/wiki/Source_Code_Management Wikipédie, SCM (Source Code Management)
+http://cs.wikipedia.org/wiki/Getting_Things_Done Wikipédie (česká), GTD
+http://getontracks.org/ Tracks
+http://www.redmine.org/ Redmine, stránky projektu
+http://demo.redmine.org/ Redmine, demo k vyzkoušení
+https://rvm.io/ RVM, stránky projektu
+http://www.redmine.org/projects/redmine/wiki/RedmineInstall Redmine, návod na instalaci
+http://cs.wikipedia.org/wiki/Framework Wikipedie (česky), Framework
