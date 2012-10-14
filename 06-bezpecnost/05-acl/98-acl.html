@@ -110,7 +110,7 @@ group::r--
 mask::rw-
 other::---</pre>
 
-<p>Není-li to z výpisu výše patrné, vězte, že ACL představuje rozšíření unixových práv. Unixová práva stále platí, ACL je pouze rozšiřuje. V příkladu výše tedy unixová práva stále umožňují členům skupiny <code>staff</code> číst daný soubor, vlastník (<code>michal</code>) má pak práva pro čtení a zápis, zatímco ostatní nemají žádná práva. V tomto příkladě byla pomocí ACL nastavena navíc práva uživateli <code>honza</code>, a to právo pro čtení a zápis do souboru <code>dokument.txt</code>.</p>
+<p>Není-li to z výpisu výše patrné, vězte, že ACL představuje rozšíření unixových práv. Unixová práva stále platí, ACL je pouze rozšiřuje. V příkladu výše tedy unixová práva stále umožňují členům skupiny <em>staff</em> číst daný soubor, vlastník (<em>michal</em>) má pak práva pro čtení a zápis, zatímco ostatní nemají žádná práva. V tomto příkladě byla pomocí ACL nastavena navíc práva uživateli <em>honza</em>, a to právo pro čtení a zápis do souboru <code>dokument.txt</code>.</p>
 
 <p>Práva se dají samozřejmě nastavit i skupině:</p>
 
@@ -126,7 +126,7 @@ group:www-data:r--
 mask::rw-
 other::---</pre>
 
-<p>V tomto příkladu bylo nastaveno právo pro čtení skupině <code>www-data</code> k souboru <code>dokument.txt</code>.</p>
+<p>V tomto příkladu bylo nastaveno právo pro čtení skupině <em>www-data</em> k souboru <code>dokument.txt</code>.</p>
 
 <p>Pokud budete chtít sdílet nějaké materiály v nějaké skupině, bývá vhodné k tomu vyhradit celý adresář. Pokud však nastavíte pouze práva k danému adresáři a někdo v něm vytvoří soubor nebo další adresář, jak se v rámci ACL zajistí, aby i tyto nově vytvořené soubory a adresáře byly přístupné dané skupině nebo uživateli s danými ACL právy? Pomocí výchozích práv, pro jejichž nastavení slouží prefix <strong>d:</strong>, takto:</p>
 
@@ -143,7 +143,7 @@ group::r-x                      #effective:r--
 group:vyvojari:r--
 other::---</pre>
 
-<p>Zde je patrné, že nově vytvořený soubor <code>dokument.txt</code> v adresáři s patřičně nastavenými výchozími ACL zahrnuje přidané právo pro čtení skupině <code>vyvojari</code>.</p>
+<p>Zde je patrné, že nově vytvořený soubor <code>dokument.txt</code> v adresáři s patřičně nastavenými výchozími ACL zahrnuje přidané právo pro čtení skupině <em>vyvojari</em>.</p>
 
 <p>ACL toho samozřejmě umí ještě o něco více, nicméně toto jsou základy, které je vhodné ovládat. Na zbytek se podívejte do manuálových stránek nástroje <code>setfacl</code>.</p>
 

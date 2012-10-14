@@ -78,7 +78,7 @@ AllowUsers michal honza
 
 <h4>PermitRootLogin</h4>
 
-<p>Další zajímavou volbou je <code>PermitRootLogin</code>, která určuje, zdali se k SSH smí přihlásit uživatel <code>root</code>. Obvykle se doporučuje vytvořit jiného, neprivilegovaného uživatele, a administrátorské úkony řešit přes <code>sudo</code>, popřípadě <code>su</code>. Je to dáno jednak všemocností uživatele root, a jednak tím, že v případě uživatelského účtu se musí případný útočník strefit jak do hesla, tak do uživatelského jména. V případě uživatele <code>root</code> potřebuje útočník pouze jediný údaj - heslo.</p>
+<p>Další zajímavou volbou je <code>PermitRootLogin</code>, která určuje, zdali se k SSH smí přihlásit uživatel <em>root</em>. Obvykle se doporučuje vytvořit jiného, neprivilegovaného uživatele, a administrátorské úkony řešit přes <code>sudo</code>, popřípadě <code>su</code>. Je to dáno jednak všemocností uživatele root, a jednak tím, že v případě uživatelského účtu se musí případný útočník strefit jak do hesla, tak do uživatelského jména. V případě uživatele <em>root</em> potřebuje útočník pouze jediný údaj - heslo.</p>
 
 <p>Volba <code>PermitRootLogin</code> má tři možné hodnoty, <code>yes</code>, <code>no</code> a <code>without-password</code>. Nejzajímavější je právě ona třetí hodnota, <code>without-password</code>, která způsobí, že se uživatel root nebude moci přihlásit heslem, ale pouze některou z jiných metod (tj. třeba SSH klíčem).</p>
 
@@ -152,7 +152,7 @@ sshd: 5.6.7.8</pre>
 - : ALL : ALL
 </pre>
 
-<p>Plus nebo mínus na začátku udává, zdali se má přístup povolit nebo zakázat. Oddělovačem je dvojtečka, následuje uživatel či skupina (skupina je uvozena zavináčem) a posledním parametrem je síť, doména nebo IP adresa, která je předmětem řízení přístupu. V prvních třech řádkách je povolen přístup uživateli root z localhostu, místního rozsahu <code>10.0.0.0/8</code> a vnější IP adresy <code>12.34.56.78</code>. Na čtvrtém řádku je pravidlo, které zamezí přístup k SSH uživateli root z jakéhokoliv jiného umístění. Následuje povolení přístupu uživateli <code>michal</code> z domény <code>example.com</code> a IP adresy <code>1.2.3.4</code>. Předposlední řádek povoluje přístup skupině <code>admini</code> z IP adresy <code>5.6.7.8</code>. Úplně poslední řádek pak funguje jako "vykopávač", zamezí jakýmkoliv jiným přístupům odjinud. Více informací viz manuálová stránka souboru <code>access.conf</code></p>
+<p>Plus nebo mínus na začátku udává, zdali se má přístup povolit nebo zakázat. Oddělovačem je dvojtečka, následuje uživatel či skupina (skupina je uvozena zavináčem) a posledním parametrem je síť, doména nebo IP adresa, která je předmětem řízení přístupu. V prvních třech řádkách je povolen přístup uživateli root z localhostu, místního rozsahu <code>10.0.0.0/8</code> a vnější IP adresy <code>12.34.56.78</code>. Na čtvrtém řádku je pravidlo, které zamezí přístup k SSH uživateli root z jakéhokoliv jiného umístění. Následuje povolení přístupu uživateli <em>michal</em> z domény <em>example.com</em> a IP adresy <code>1.2.3.4</code>. Předposlední řádek povoluje přístup skupině <em>admini</em> z IP adresy <code>5.6.7.8</code>. Úplně poslední řádek pak funguje jako "vykopávač", zamezí jakýmkoliv jiným přístupům odjinud. Více informací viz manuálová stránka souboru <code>access.conf</code></p>
 
 <h3>Pravidelná aktualizace</h3>
 
@@ -233,11 +233,11 @@ iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT</pre>
 
 <pre>DENY_THRESHOLD_INVALID = 5<br />DENY_THRESHOLD_VALID = 10<br />DENY_THRESHOLD_ROOT = 1</pre>
 
-<p>Toto jsou počty neúspěšných pokusů, které jsou třeba k zablokování dané IP adresy. <code>DENY_THRESHOLD_INVALID</code> udává počet pokusů pro neplatného uživatele, <code>DENY_THRESHOLD_VALID</code> udává počet pokusů u platného uživatele a <code>DENY_THRESHOLD_ROOT</code> udává počet pokusů pro uživatele <code>root</code>. Máte-li podobně "citlivé" účty jako <code>root</code>, u kterých byste chtěli specifikovat jiný počet pokusů než pro ostatní uživatele, podívejte se na dokumentaci k volbě <code>DENY_THRESHOLD_RESTRICTED</code>. Počítadla neúspěšných pokusů se po určité době vynulují. Tuto dobu je možné nastavit následujícími volbami:</p>
+<p>Toto jsou počty neúspěšných pokusů, které jsou třeba k zablokování dané IP adresy. <code>DENY_THRESHOLD_INVALID</code> udává počet pokusů pro neplatného uživatele, <code>DENY_THRESHOLD_VALID</code> udává počet pokusů u platného uživatele a <code>DENY_THRESHOLD_ROOT</code> udává počet pokusů pro uživatele <em>root</em>. Máte-li podobně "citlivé" účty jako <em>root</em>, u kterých byste chtěli specifikovat jiný počet pokusů než pro ostatní uživatele, podívejte se na dokumentaci k volbě <code>DENY_THRESHOLD_RESTRICTED</code>. Počítadla neúspěšných pokusů se po určité době vynulují. Tuto dobu je možné nastavit následujícími volbami:</p>
 
 <pre>AGE_RESET_VALID=5d<br />AGE_RESET_ROOT=25d<br />AGE_RESET_INVALID=10d</pre>
 
-<p>Zde uvedené hodnoty by znamenaly, že se počet neúspěšných pokusů pro platného uživatele vynuluje za pět dní, u neplatného uživatele za 10 dní a v případě uživatele <code>root</code> bude muset uběhnout 25 dní. Velmi podstatnou volbou je pak <code>RESET_ON_SUCCESS</code>, který příslušné počítadlo vynuluje při úspěšném přihlášení, je-li nastaven na "<code>yes</code>".</p>
+<p>Zde uvedené hodnoty by znamenaly, že se počet neúspěšných pokusů pro platného uživatele vynuluje za pět dní, u neplatného uživatele za 10 dní a v případě uživatele <em>root</em> bude muset uběhnout 25 dní. Velmi podstatnou volbou je pak <code>RESET_ON_SUCCESS</code>, který příslušné počítadlo vynuluje při úspěšném přihlášení, je-li nastaven na "<code>yes</code>".</p>
 
 <p>Chcete-li dostávat zprávy o zablokovaných IP adresách e-mailem, zapište svůj e-mail jako hodnotu volby <code>ADMIN_EMAIL</code>. Nezapomeňte zkontrolovat nastavení SMTP (implicitní nastavení využívá místní SMTP server). Upozorňuji, že na jediném serveru dochází obvykle k zablokování několika IP adres denně. Můžete tedy spíše preferovat shrnutí za každý den, o což se vám postará třeba nástroj Logwatch (o tom se v tomto seriálu určitě ještě podrobněji zmíním).</p>
 

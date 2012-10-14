@@ -134,7 +134,7 @@ HiddenServicePort 22 127.0.0.2:22</pre>
 <pre>iptables -I OUTPUT -m owner --uid-owner uzivatel -j REJECT
 iptables -I OUTPUT -d 127.0.0.1 -p tcp --dport 9050 -m owner --uid-owner uzivatel -j ACCEPT</pre>
 
-<p>Výše uvedené příkazy zařadí dvě pravidla do firewallu, první z nich zakáže uživateli <code>uzivatel</code> odesílat pakety kamkoliv, včetně místních služeb. Druhé pravidlo pak povolí uživateli <code>uzivatel</code> přístup k Toru (<code>127.0.0.1:9050</code>). Tyto dva příkazy se hodí pro zařazení do běžícího firewallu (pravidla se díky parametru <code>-I</code> vkládají vždy na začátek řetězu <code>OUTPUT</code>, tudíž druhé pravidlo se stane prvním, jelikož se přidá na začátek). Pokud firewall stavíte, bude se vám hodit tato syntax (pravidla se přidají na konec řetězce <code>OUTPUT</code>):</p>
+<p>Výše uvedené příkazy zařadí dvě pravidla do firewallu, první z nich zakáže uživateli <em>uzivatel</em> odesílat pakety kamkoliv, včetně místních služeb. Druhé pravidlo pak povolí uživateli <em>uzivatel</em> přístup k Toru (<code>127.0.0.1:9050</code>). Tyto dva příkazy se hodí pro zařazení do běžícího firewallu (pravidla se díky parametru <code>-I</code> vkládají vždy na začátek řetězu <code>OUTPUT</code>, tudíž druhé pravidlo se stane prvním, jelikož se přidá na začátek). Pokud firewall stavíte, bude se vám hodit tato syntax (pravidla se přidají na konec řetězce <code>OUTPUT</code>):</p>
 
 <pre>iptables -A OUTPUT -d 127.0.0.1 -p tcp --dport 9050 -m owner --uid-owner uzivatel -j ACCEPT
 iptables -A OUTPUT -m owner --uid-owner uzivatel -j REJECT</pre>

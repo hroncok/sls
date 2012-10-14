@@ -82,7 +82,7 @@ nc postovni-server.example.org 25</pre>
 <pre>example.org mail is handled by 20 mail-backup.example.org.
 example.org mail is handled by 10 mail.example.org.</pre>
 
-<p>Z výpisu je patrné, že MX záznamy domény <code>example.org</code> jsou v tomto případě dva. Nejvyšší prioritu má server <code>mail.example.com</code>, nižší prioritu má pak <code>mail-backup.example.org</code>. To znamená, že pokud se MTA nepodaří doručit poštu serveru s nejvyšší prioritou, měl by zkusit server s nižší prioritou. V případě, že má několik serverů stejnou prioritu, vybere si z nich MTA náhodně.</p>
+<p>Z výpisu je patrné, že MX záznamy domény <em>example.org</em> jsou v tomto případě dva. Nejvyšší prioritu má server <em>mail.example.com</em>, nižší prioritu má pak <em>mail-backup.example.org</em>. To znamená, že pokud se MTA nepodaří doručit poštu serveru s nejvyšší prioritou, měl by zkusit server s nižší prioritou. V případě, že má několik serverů stejnou prioritu, vybere si z nich MTA náhodně.</p>
 
 <p>Pokud pro danou doménu neexistuje vůbec žádný MX záznam, použije se A záznam dané domény místo něj.</p>
 
@@ -270,7 +270,7 @@ http://www.linuxexpres.cz/praxe/bayesuv-filtr-1 LinuxEXPRES, Bayesův filtr
 
 <p>Nasazením SPF si také můžete pomoci u antispamu některých poštovních serverů, které mohou vašemu mailu přidat nějaké bodíky k dobru. SPF nastavení se umisťuje do TXT záznamu pro danou doménu.</p>
 
-<p>Informace o SPF můžete nalézt na webu <code>openspf.org</code> nebo na Wikipédii (viz odkazy pod kapitolou). Nejprostší nastavení může vypadat takto:</p>
+<p>Informace o SPF můžete nalézt na webu <em>openspf.org</em> nebo na Wikipédii (viz odkazy pod kapitolou). Nejprostší nastavení může vypadat takto:</p>
 
 <pre>v=spf1 a mx -all</pre>
 
@@ -293,7 +293,7 @@ http://www.linuxexpres.cz/praxe/bayesuv-filtr-1 LinuxEXPRES, Bayesův filtr
 </li>
 </ul>
 
-<p>Syntax SPF je velmi dobře popsána na <code>openspf.org</code>.</p>
+<p>Syntax SPF je velmi dobře popsána na <em>openspf.org</em>.</p>
 
 https://tools.ietf.org/html/rfc5321 RFC 5321
 http://www.openspf.org/Introduction OpenSPF, úvod do SPF
@@ -349,11 +349,11 @@ inet_protocols = all</pre>
 
 <pre>myhostname = mail.example.net</pre>
 
-<p>Toto by mělo být plně kvalifikované doménové jméno (FQDN) vašeho poštovního serveru, tedy v příkladě výše <code>mail.example.net</code>.</p>
+<p>Toto by mělo být plně kvalifikované doménové jméno (FQDN) vašeho poštovního serveru, tedy v příkladě výše <em>mail.example.net</em>.</p>
 
 <pre>mydomain = example.net</pre>
 
-<p>Proměnná <code>mydomain</code> by měla obsahovat doménovou část vašeho <code>myhostname</code>. V případě <code>mail.example.net</code> to bude <code>example.net</code>.</p>
+<p>Proměnná <code>mydomain</code> by měla obsahovat doménovou část vašeho <code>myhostname</code>. V případě <em>mail.example.net</em> to bude <em>example.net</em>.</p>
 
 <pre>myorigin = /etc/mailname</pre>
 
@@ -365,7 +365,7 @@ inet_protocols = all</pre>
 
 <pre>mydestination = example.net, example.org, localhost.localdomain, localhost</pre>
 
-<p><code>mydestination</code> obsahuje seznam domén, pro které bude Postfix poštu přijímat a doručovat do poštovních schránek. Pro tyto domény bude poštovní server cílovým bodem. Všimněte si, že v tomto případě je specifikováno více domén, konkrétně dvě (<code>example.net</code> a <code>example.org</code>).</p>
+<p><code>mydestination</code> obsahuje seznam domén, pro které bude Postfix poštu přijímat a doručovat do poštovních schránek. Pro tyto domény bude poštovní server cílovým bodem. Všimněte si, že v tomto případě je specifikováno více domén, konkrétně dvě (<em>example.net</em> a <em>example.org</em>).</p>
 
 <pre>relay_domains = $mydestination</pre>
 
@@ -596,7 +596,7 @@ opendkim-genkey -b 1024 -d example.com</pre>
 
 <p>Parametr <code>-s</code> určuje tzv. selektor, který vám umožňuje přiřadit více klíčů jedné doméně, pokaždé s odlišným selektorem). Výchozím selektorem je <em>default</em>. Klíč určený k podepisování (soukromý klíč) se uloží do souboru <code>selektor.private</code> v aktuálním adresáři, veřejný klíč pak do souboru <code>selektor.txt</code>. Není tedy od věci pro každou doménu vyhradit specifický podadresář, tak, jak je naznačeno výše.</p>
 
-<p>Pokud jste klíče vytvářeli pod rootem, pak u souborů s privátními klíči změňte vlastníka na uživatele <code>opendkim</code>.</p>
+<p>Pokud jste klíče vytvářeli pod rootem, pak u souborů s privátními klíči změňte vlastníka na uživatele <em>opendkim</em>.</p>
 
 <h4>Úprava DNS záznamů</h4>
 
@@ -703,7 +703,7 @@ http://blogs.cisco.com/security/common_errors_causing_dkim_verification_failures
 
 <pre>alias: schranka</pre>
 
-<p>Tento záznam doručí poštu směřující na <code>alias@domena.tld</code> do schránky uživatele <code>schranka</code>. Specifikovat můžete ale i více příjemců, takže pokud třeba server spravuje více správců, můžete poštu pro roota posílat každému z nich:</p>
+<p>Tento záznam doručí poštu směřující na <code>alias@domena.tld</code> do schránky uživatele <em>schranka</em>. Specifikovat můžete ale i více příjemců, takže pokud třeba server spravuje více správců, můžete poštu pro roota posílat každému z nich:</p>
 
 <pre>root: michal@example.org, pepa@example.org, radek@example.org</pre>
 
@@ -750,7 +750,7 @@ uzivatel2@example.org x</pre>
 
 <h2>Unixové a virtuální poštovní účty</h2>
 
-<p>Standardní nastavení Postfixu doručuje poštu všem lokálním unixovým účtům. Máte-li tedy uživatele <code>michal</code> a poštovní server na doméně <code>example.com</code>, bude se pošta směřující na <code>michal@example.com</code> doručovat do poštovní schránky uživatele <code>michal</code>. Obsluhuje-li server více domén, bude pošta ze všech domén směřovat na jediný unixový účet (tzn. pošta směřující na <code>michal@example.cz</code>, <code>michal@example.org</code> a <code>michal@example.com</code> bude doručena do schránky uživatele <code>michal</code>).</p>
+<p>Standardní nastavení Postfixu doručuje poštu všem lokálním unixovým účtům. Máte-li tedy uživatele <em>michal</em> a poštovní server na doméně <em>example.com</em>, bude se pošta směřující na <code>michal@example.com</code> doručovat do poštovní schránky uživatele <em>michal</em>. Obsluhuje-li server více domén, bude pošta ze všech domén směřovat na jediný unixový účet (tzn. pošta směřující na <code>michal@example.cz</code>, <code>michal@example.org</code> a <code>michal@example.com</code> bude doručena do schránky uživatele <em>michal</em>).</p>
 
 <p>U jedné domény nebo u osobního serveru je tato situace většinou tolerovatelná. Potřebujete-li však doručit poštu směřující na <code>info@example.com</code> a <code>info@example.org</code> do dvou různých schránek, musí přijít na řadu jiné řešení. Možnosti jsou zde v podstatě dvě:</p>
 
@@ -776,7 +776,7 @@ postmaster@example.com root
 postmaster@example.org root
 @example.com domenovykos</pre>
 
-<p>Zde je asi na první pohled vidět, co je jak nastaveno. Maily směřující na <code>info@example.org</code> budou doručeny uživateli <code>michal</code>, zatímco maily směřující na <code>info@example.com</code> budou doručeny uživateli <code>radek</code>. Je zde definován alias pro postmastera, který v případě obou domén doručí poštu rootovi. Příklad obsahuje i doménový koš, tedy zachytávání pošty pro všechny neexistující uživatele, a to v tomto případě do schránky uživatele <code>domenovykos</code>.</p>
+<p>Zde je asi na první pohled vidět, co je jak nastaveno. Maily směřující na <code>info@example.org</code> budou doručeny uživateli <em>michal</em>, zatímco maily směřující na <code>info@example.com</code> budou doručeny uživateli <em>radek</em>. Je zde definován alias pro postmastera, který v případě obou domén doručí poštu rootovi. Příklad obsahuje i doménový koš, tedy zachytávání pošty pro všechny neexistující uživatele, a to v tomto případě do schránky uživatele <em>domenovykos</em>.</p>
 
 <p>Nyní je třeba vygenerovat databázový soubor z <code>/etc/postfix/virtual</code>, což můžete provést nástrojem <code>postmap</code>:</p>
 
@@ -934,7 +934,7 @@ TODO ref link
      reject_rbl_client my_blacklist.example.org,
      permit</pre>
 
-<p>Je to asi naprosto jasné, ale pro úplnost dodám, že v tomto příkladu by se DNS dotazy vázaly na server <code>my_blacklist.example.org</code>.</p>
+<p>Je to asi naprosto jasné, ale pro úplnost dodám, že v tomto příkladu by se DNS dotazy vázaly na server <em>my_blacklist.example.org</em>.</p>
 
 <h3>Závěr</h3>
 
@@ -1428,10 +1428,6 @@ TODO ref link
 
 <p>Volitelně pak doplňte omezení k přístupu na daný web. Alias si samozřejmě můžete upravit a místo <code>/postfixadmin</code> zvolit něco jiného, kratšího.</pre>
 
-TODO ref links
-
-<p>Dodám, že nastavení Apache, tvorbě virtuálních webů, práci s aliasy, SSL a omezení přístupu k webům na základě IP adres se věnoval <em>Úvod do konfigurace Apache</em> (<a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache">1. díl</a> a <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-uvod-do-konfigurace-apache-1">2. díl</a>). Budete-li pracovat se SSL, hodí se vám ještě <a href="http://www.linuxexpres.cz/praxe/sprava-linuxoveho-serveru-sni-webove-servery-a-prohlizece">díl o SNI</a>.</p>
-
 <h3>Nastavení Postfixadminu</h3>
 
 <p>Webový server byste v tuto chvíli měli mít nastavený a k Postfixadminu byste měli být schopni se dostat prostřednictvím aliasu <code>/postfixadmin</code>. Jako první byste měli spustit <code>setup.php</code>:</p>
@@ -1597,7 +1593,7 @@ userdb {
 mail_access_groups = mail
 first_valid_uid = 8</pre>
 
-<p>Proměnná <code>mail_location</code> nastavuje cestu k poště, která se pro virtuální účty změnila. Proměnnou <code>mail_access_groups</code> můžete ponechat z předchozího nastavení Dovecotu. Povšimněte si části SQL dotazu <code>user_query</code> (viz výše), který obsahuje hodnoty UID a GID, pod kterými se má přistupovat k poště. Číslo 8 odpovídá uživateli a skupině <code>mail</code> v distribuci Debian. Aby Dovecot s takovým UID neodmítl pracovat, je třeba uvést stejné nebo nižší číslo v proměnné <code>first_valid_uid</code>.</p>
+<p>Proměnná <code>mail_location</code> nastavuje cestu k poště, která se pro virtuální účty změnila. Proměnnou <code>mail_access_groups</code> můžete ponechat z předchozího nastavení Dovecotu. Povšimněte si části SQL dotazu <code>user_query</code> (viz výše), který obsahuje hodnoty UID a GID, pod kterými se má přistupovat k poště. Číslo 8 odpovídá uživateli a skupině <em>mail</em> v distribuci Debian. Aby Dovecot s takovým UID neodmítl pracovat, je třeba uvést stejné nebo nižší číslo v proměnné <code>first_valid_uid</code>.</p>
 
 <h3>SMTP autentifikace a virtuální účty</h3>
 

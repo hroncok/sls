@@ -143,7 +143,7 @@ make install</pre>
 
 <pre>lynx http://httpd.apache.org/download.cgi</pre>
 
-<p>Jelikož je při instalaci na server vhodné dbát zvýšené opatrnosti, je třeba si po získání balíčku ověřit kontrolní součty či digitální podpisy. Opatřete si příslušné PGP klíče a ověřte podpis náležející příslušnému souboru. Zde je samozřejmě otázka, jak si opatřit PGP klíče vývojářů z opravdu důvěryhodného zdroje. Pokud se vám nechce hledat nejbližšího vývojáře, spojit se s ním, domluvit osobní setkání, ověřit jeho občanku a zaznamenat si otisk (fingerprint) jeho klíče, můžete zkusit méně bezpečnou metodu popsanou na stránkách projektu, a sice stáhnout soubor s PGP klíči vývojářů (doporučuji alespoň přes HTTPS a přímo ze serveru <code>apache.org</code>), importovat tyto klíče a ověřit podpis, takto:</p>
+<p>Jelikož je při instalaci na server vhodné dbát zvýšené opatrnosti, je třeba si po získání balíčku ověřit kontrolní součty či digitální podpisy. Opatřete si příslušné PGP klíče a ověřte podpis náležející příslušnému souboru. Zde je samozřejmě otázka, jak si opatřit PGP klíče vývojářů z opravdu důvěryhodného zdroje. Pokud se vám nechce hledat nejbližšího vývojáře, spojit se s ním, domluvit osobní setkání, ověřit jeho občanku a zaznamenat si otisk (fingerprint) jeho klíče, můžete zkusit méně bezpečnou metodu popsanou na stránkách projektu, a sice stáhnout soubor s PGP klíči vývojářů (doporučuji alespoň přes HTTPS a přímo ze serveru <em>apache.org</em>), importovat tyto klíče a ověřit podpis, takto:</p>
 
 <pre>gpg --import KEYS
 gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
@@ -240,7 +240,7 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <h4>Vanilla nebo distribuční kernel?</h4>
 
-<p>Kompilovat můžete jak distribuční jádro (zdrojáky bývají k dispozici jako samostatný balíček), tak vanilla jádro, které si stáhnete z <code>kernel.org</code>. Vývojáři udržují více stabilních verzí jádra, přičemž některé větve mají dokonce dlouhodobou podporu. Volba je v tomto případě samozřejmě na vás. Novější jádra obvykle vylepšují podporu hardwaru a opravují chyby, ale mohou obsahovat i regrese (což v programátorském žargonu znamená „<em>dříve nám to fungovalo, ale mezi tím to někdo rozbil“</em>).</p>
+<p>Kompilovat můžete jak distribuční jádro (zdrojáky bývají k dispozici jako samostatný balíček), tak vanilla jádro, které si stáhnete z <em>kernel.org</em>. Vývojáři udržují více stabilních verzí jádra, přičemž některé větve mají dokonce dlouhodobou podporu. Volba je v tomto případě samozřejmě na vás. Novější jádra obvykle vylepšují podporu hardwaru a opravují chyby, ale mohou obsahovat i regrese (což v programátorském žargonu znamená „<em>dříve nám to fungovalo, ale mezi tím to někdo rozbil“</em>).</p>
 
 <p>Použít distribuční verzi jádra může být v tomto směru výhodnější – jednak neobjevíte regrese (s největší pravděpodobností) a jednak se vám bude dostávat jeho oprav po dobu života distribuce.</p>
 
@@ -297,7 +297,7 @@ depmod -a</pre>
 
 <pre>aptitude install kernel-package libncurses5-dev fakeroot wget bzip2</pre>
 
-<p>Jako první je třeba, abyste si opatřili zdrojové kódy jádra. To můžete učinit buď prostřednictvím balíčkovacího systému (balíček <code>linux-source</code>), nebo si je stáhnout přímo ze zdroje na <code>kernel.org</code>.</p>
+<p>Jako první je třeba, abyste si opatřili zdrojové kódy jádra. To můžete učinit buď prostřednictvím balíčkovacího systému (balíček <code>linux-source</code>), nebo si je stáhnout přímo ze zdroje na <em>kernel.org</em>.</p>
 
 <p>Zdrojové kódy rozbalte:</p>
 

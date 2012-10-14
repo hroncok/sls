@@ -254,7 +254,7 @@ ip addr add 10.0.1.2/24 dev eth0</pre>
 
 <h3>Nastavení resolveru</h3>
 
-<p>Pro plně funkční připojení k internetu vám v tuto chvíli chybí ještě jedna věc. Přiřazení IP adres vašim rozhraním bylo probráno v minulém díle, nastavení výchozí brány bylo probráno kousek výše, zbývá tedy už jen nastavení DNS resolveru. Bez toho byste pro kontaktování jiných počítačů museli místo jmen (např. <code>linuxexpres.cz</code>) použít IP adresy. Resolver je DNS klient, vestavěný v operačních systémech, který se dotazuje resolvujících DNS serverů, jež vám obvykle přiřadí ISP. Ty mají tu charakteristiku, že pro vás realizují vyhledávání, pokud příslušné DNS záznamy nenajdou ve své cache nebo místní databázi.</p>
+<p>Pro plně funkční připojení k internetu vám v tuto chvíli chybí ještě jedna věc. Přiřazení IP adres vašim rozhraním bylo probráno v minulém díle, nastavení výchozí brány bylo probráno kousek výše, zbývá tedy už jen nastavení DNS resolveru. Bez toho byste pro kontaktování jiných počítačů museli místo jmen (např. <em>linuxexpres.cz</em>) použít IP adresy. Resolver je DNS klient, vestavěný v operačních systémech, který se dotazuje resolvujících DNS serverů, jež vám obvykle přiřadí ISP. Ty mají tu charakteristiku, že pro vás realizují vyhledávání, pokud příslušné DNS záznamy nenajdou ve své cache nebo místní databázi.</p>
 
 <p>Nastavení resolveru v Linuxu je velmi jednoduché, stačí upravit soubor <code>/etc/resolv.conf</code> a přidat do něj alespoň jeden záznam pro DNS server:</p>
 

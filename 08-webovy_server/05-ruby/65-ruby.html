@@ -181,7 +181,7 @@ http://wiki.nginx.org/NginxHttpUpstreamModule Nginx HttpUpstreamModule
 
 <p>Redmine je svobodný (GNU GPLv2) správce projektů, systém pro sledování chyb (bug tracker), wiki, diskusní fórum, kalendář, vše integrováno v jednom komplexním balíčku. Integrace SCM (Source Control Management) je zde samozřejmostí. Lze jej použít pro usnadnění vývoje softwaru, ale také jako aplikaci pro správu projektů obecně, nikoliv nezbytně jen těch softwarových. Umí dobře zastoupit groupware nebo zastat funkci osobního managementu. Umí dokonce i generovat Ganttův diagram. Pokud byste měli zájem o osobní management dle oblíbené metodiky GTD, Redmine vám možná nebude úplně vyhovovat – v takovém případě se můžete podívat na jinou Ruby on Rails aplikaci – Tracks. Ale zpět k Redmine. Redmine je modulární, je tedy možné vytvářet moduly rozšiřující jeho funkčnost nebo použít některé z již vytvořených modulů.</p>
 
-<p>Vývoj aplikace je spravován pomocí Redmine – chcete-li se tedy podívat na běžící instanci, stačí se podívat na web projektu (<code>redmine.org</code>). Zde naleznete i demo k vyzkoušení.</p>
+<p>Vývoj aplikace je spravován pomocí Redmine – chcete-li se tedy podívat na běžící instanci, stačí se podívat na web projektu (<em>redmine.org</em>). Zde naleznete i demo k vyzkoušení.</p>
 
 <h3>Vytvoření uživatelského účtu a zprovoznění RVM</h3>
 
@@ -206,7 +206,7 @@ cd</pre>
 
 <pre>curl -L https://get.rvm.io | bash -s stable --ruby</pre>
 
-<p>Nyní byste měli mít k dispozici RVM nainstalované pod vaším <code>redmine</code> uživatelským účtem. RVM je třeba obvykle ještě „aktivovat“ nastavením příslušných systémových proměnných, což lze provést příkazem, který vám RVM po instalaci vypíše, spolu s řadou informací, které vám doporučuji projít si. Tento příkaz si raději také ověřte:</p>
+<p>Nyní byste měli mít k dispozici RVM nainstalované pod vaším <em>redmine</em> uživatelským účtem. RVM je třeba obvykle ještě „aktivovat“ nastavením příslušných systémových proměnných, což lze provést příkazem, který vám RVM po instalaci vypíše, spolu s řadou informací, které vám doporučuji projít si. Tento příkaz si raději také ověřte:</p>
 
 <pre>source ~/.rvm/scripts/rvm</pre>
 
@@ -403,7 +403,7 @@ bundle exec thin -e production $1 -s1 --socket "$HOME/redmine.sock" -d</pre>
 
 <pre>chmod a+x bin/redmine-thin</pre>
 
-<p>Adresář <code>$HOME/bin</code> můžete zařadit do prohledávací cesty, tedy do proměnné <code>PATH</code>. Do <code>.bashrc</code> uživatele <code>redmine</code> tedy přidejte:</p>
+<p>Adresář <code>$HOME/bin</code> můžete zařadit do prohledávací cesty, tedy do proměnné <code>PATH</code>. Do <code>.bashrc</code> uživatele <em>redmine</em> tedy přidejte:</p>
 
 <pre>PATH="$PATH:$HOME/bin"</pre>
 
@@ -564,7 +564,7 @@ cd ~/redmine-2.1.2</pre>
 
 <p>K dispozici jsou i varianty s externím poštovním serverem s autentifikací. Pokud budete používat tento soubor jako předlohu, berte na vědomí, že je v něm již doručování e-mailů nastaveno (SMTP server s autentifikací), je tedy vhodné tuto konfiguraci najít a upravit (soubor je velký a klíčový odkomentovaný kousíček snadno přehlédnete). Tím je instalace a konfigurace Redmine hotová.</p>
 
-<p>Z bezpečnostního hlediska běží Thin a celé Redmine pod separátním, neprivilegovaným účtem <code>redmine</code>. Ke Thinu se pak připojuje Nginx, který také běží pod neprivilegovaným účtem, v Debianu pod účtem <code>www-data</code>. S MySQL, Thinem a Nginx jsem se na OpenVZ virtuálním stroji s 256 RAM vešel do 150 MB, i s poštovním serverem. Použil jsem jeden paralelní Thin server, jak jsem naznačil v návodu výše.</p>
+<p>Z bezpečnostního hlediska běží Thin a celé Redmine pod separátním, neprivilegovaným účtem <em>redmine</em>. Ke Thinu se pak připojuje Nginx, který také běží pod neprivilegovaným účtem, v Debianu pod účtem <em>www-data</em>. S MySQL, Thinem a Nginx jsem se na OpenVZ virtuálním stroji s 256 RAM vešel do 150 MB, i s poštovním serverem. Použil jsem jeden paralelní Thin server, jak jsem naznačil v návodu výše.</p>
 
 http://en.wikipedia.org/wiki/Source_Code_Management Wikipedie, SCM (Source Code Management)
 http://cs.wikipedia.org/wiki/Getting_Things_Done Wikipedie (česká), GTD

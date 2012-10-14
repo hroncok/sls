@@ -197,7 +197,7 @@ TODO ref link
 
 <h3>Zálohování Postgresu</h3>
 
-<p>K zálohování konkrétní databáze se používá nástroj <code>pg_dump</code>, který má stejné parametry jako interaktivní klient <code>psql</code>. Zálohování databáze <code>postfix</code> dostupné na místním serveru a na standardním portu by se tedy s použitím uživatele <code>postgres</code> provedlo takto:</p>
+<p>K zálohování konkrétní databáze se používá nástroj <code>pg_dump</code>, který má stejné parametry jako interaktivní klient <code>psql</code>. Zálohování databáze <code>postfix</code> dostupné na místním serveru a na standardním portu by se tedy s použitím uživatele <em>postgres</em> provedlo takto:</p>
 
 <pre>pg_dump -U postgres -h localhost -p 5432 postfix &gt; zaloha_postfix.sql</pre>
 

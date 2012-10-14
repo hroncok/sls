@@ -65,7 +65,7 @@ DocumentRoot /var/www/domena1
 
 &lt;/VirtualHost&gt;</pre>
 
-<p>Uvnitř direktivy <code>VirtualHost</code> je dobré specifikovat příslušné doménové jméno v direktivě <code>ServerName</code>. <code>ServerAlias</code> obsahuje všechna alternativní doménová jména společná pro daný virtuální web. V tomto případě se ke stejnému webu dostanete, i pokud zadáte jen „domena1.tld“ bez „www“, nebo zadáte jinou doménu třetího řádu, např. „test.domena1.tld“.</p>
+<p>Uvnitř direktivy <code>VirtualHost</code> je dobré specifikovat příslušné doménové jméno v direktivě <code>ServerName</code>. <code>ServerAlias</code> obsahuje všechna alternativní doménová jména společná pro daný virtuální web. V tomto případě se ke stejnému webu dostanete, i pokud zadáte jen <em>domena1.tld</em> bez <em>www</em>, nebo zadáte jinou doménu třetího řádu, např. <em>test.domena1.tld</em>.</p>
 
 <p>Umístění kořenu webové prezentace daného virtuálního webu je lze zadat jako parametr direktivy <code>DocumentRoot</code>. Pokud ji nezadáte, použije se výchozí, definovaná mimo všechny <code>VirtualHost</code> direktivy (čili např. v <code>httpd.conf</code>). Tato „dědičnost“ funguje i v případě dalších direktiv. V případě, že není hodnota definovaná nikde, použije se hodnota výchozí.</p>
 
@@ -81,14 +81,14 @@ DocumentRoot /var/www/domena2
 
 &lt;/VirtualHost&gt;</pre>
 
-<p>Poté byste použili obdobný postup pro „aktivaci“ daného webu (nástroj <code>a2ensite</code>). Tímto postupem byste získali dva virtuální weby, jeden s doménou <code>domena1.tld</code> a vlastním obsahem webu dostupným ve <code>/var/www/domena1</code>, druhý s doménou <code>domena2.tld</code> a obsahem webu v <code>/var/www/domena2</code>. Oba by mohly běžet v rámci jedné instance Apache třeba na jedné veřejné IP adrese.</p>
+<p>Poté byste použili obdobný postup pro „aktivaci“ daného webu (nástroj <code>a2ensite</code>). Tímto postupem byste získali dva virtuální weby, jeden s doménou <em>domena1.tld</em> a vlastním obsahem webu dostupným ve <code>/var/www/domena1</code>, druhý s doménou <em>domena2.tld</em> a obsahem webu v <code>/var/www/domena2</code>. Oba by mohly běžet v rámci jedné instance Apache třeba na jedné veřejné IP adrese.</p>
 
 <h4>Plně kvalifikované doménové jméno</h4>
 
 <p>Jeden z nejčastějších problémů řešeným v souvislosti s konfigurací Apache je varování, které říká, že Apache nemohl spolehlivě zjistit plně kvalifikované doménové jméno serveru. Tato hláška může vypadat třeba takto:</p>
 <pre>apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.0.1 for ServerName</pre>
 
-<p>Aby mohl Apache správně fungovat, potřebuje o každém virtuálním webu znát dvě věci - jméno serveru a alespoň jednu jemu příslušnou IP adresu. Kromě toho ovšem Apache potřebuje znát IP adresu a doménové jméno samotného serveru. Toto hledá v globální definici <code>ServerName</code> (tj. definici mimo všechny direktivy <code>VirtualHost</code>, v Debianu nejspíše v <code>/etc/apache2/httpd.conf</code>). Pokud ji nenajde, pokusí se použít <code>hostname</code> daného serveru (v Debianu se hostname nastavuje v <code>/etc/hostname</code>). To se nejspíše povede, ale ne vždy je jako hostname použito plně kvalifikované doménové jméno (FQDN), a to je podstata problému. V řadě případů je jako hostname použito jen obyčejné slovo, popřípadě „localhost“, a to FQDN není. V zásadě - FQDN musí obsahovat alespoň jednu tečku (např. <code>example.org</code>). Nejčastěji se za tímto účelem upravuje <code>/etc/hosts</code>, kde se přidává příslušný záznam, který může vypadat třeba takto:</p>
+<p>Aby mohl Apache správně fungovat, potřebuje o každém virtuálním webu znát dvě věci - jméno serveru a alespoň jednu jemu příslušnou IP adresu. Kromě toho ovšem Apache potřebuje znát IP adresu a doménové jméno samotného serveru. Toto hledá v globální definici <code>ServerName</code> (tj. definici mimo všechny direktivy <code>VirtualHost</code>, v Debianu nejspíše v <code>/etc/apache2/httpd.conf</code>). Pokud ji nenajde, pokusí se použít <code>hostname</code> daného serveru (v Debianu se hostname nastavuje v <code>/etc/hostname</code>). To se nejspíše povede, ale ne vždy je jako hostname použito plně kvalifikované doménové jméno (FQDN), a to je podstata problému. V řadě případů je jako hostname použito jen obyčejné slovo, popřípadě „localhost“, a to FQDN není. V zásadě - FQDN musí obsahovat alespoň jednu tečku (např. <em>example.org</em>). Nejčastěji se za tímto účelem upravuje <code>/etc/hosts</code>, kde se přidává příslušný záznam, který může vypadat třeba takto:</p>
 
 <pre>1.2.3.4 example.org</pre>
 

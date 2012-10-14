@@ -76,7 +76,7 @@ git commit -m 'Popis změny souboru soubor.txt'</pre>
 
 <p>V tomto dílu vám představím to nejjednodušší řešení centralizovaného Git repozitáře, které existuje. Na serveru vám k tomu stačí pouze běžící SSH server. Toto řešení je vhodné pro soukromé repozitáře, které nechcete nikde vystavovat a kde nepotřebujete přístup více osob. Na komplikovanější řešení se zaměřím v dalších dílech.</p>
 
-<p>Nacházíte-li se v adresáři s Git repozitářem, jako první krok exportujte repozitář do správného „formátu“ a překopírujte jej na server. Předpokladem je, že v domovském adresáři vzdáleného uživatele <code>uzivatel</code> existuje adresář <code>git</code>.</p>
+<p>Nacházíte-li se v adresáři s Git repozitářem, jako první krok exportujte repozitář do správného „formátu“ a překopírujte jej na server. Předpokladem je, že v domovském adresáři vzdáleného uživatele <em>uzivatel</em> existuje adresář <code>git</code>.</p>
 
 <pre>git clone --bare .git /tmp/muj_repozitar.git
 scp -r /tmp/muj_repozitar.git uzivatel@server.example.cz:/home/uzivatel/git/muj_repozitar.git</pre>
@@ -155,7 +155,7 @@ ln -s /cesta/k/repozitar.git /var/cache/git/repozitar.git</pre>
 
 <h3>Prohlížení Git repozitáře online pomocí nástroje Gitweb</h3>
 
-<p>Gitweb je nástroj pro prohlížení Git repozitářů prostřednictvím webového prohlížeče. Můžete si procházet historii, stahovat snapshoty, prohlížet změny atd., a samozřejmě to také umožnit návštěvníkům vašeho webu. Nástroj si můžete prohlédnout v akci na <code>git.kernel.org</code>.</p>
+<p>Gitweb je nástroj pro prohlížení Git repozitářů prostřednictvím webového prohlížeče. Můžete si procházet historii, stahovat snapshoty, prohlížet změny atd., a samozřejmě to také umožnit návštěvníkům vašeho webu. Nástroj si můžete prohlédnout v akci na <em>git.kernel.org</em>.</p>
 
 <p>Instalace Gitwebu je poměrně jednoduchá, stačí nainstalovat příslušný balíček:</p>
 
@@ -277,7 +277,7 @@ $strict_export = "true";</pre>
 writable = gitosis-admin
 members = docekal</pre>
 
-<p>Pokud byste chtěli vytvořit skupinu <code>skupina</code> obsahující uživatele <em>milan</em> a <em>jan</em> s přístupem k repozitářům <em>mujprojekt1</em>, <em>mujprojekt2</em> a <em>mujprojekt3</em> tak, aby uživatelé skupiny měli přístup k repozitářům <em>mujprojekt1</em> a <em>mujprojekt2</em> pouze pro čtení a k repozitáři <em>mujprojekt3</em> i se zápisem, vypadala by konfigurace takto:</p>
+<p>Pokud byste chtěli vytvořit skupinu <em>skupina</em> obsahující uživatele <em>milan</em> a <em>jan</em> s přístupem k repozitářům <em>mujprojekt1</em>, <em>mujprojekt2</em> a <em>mujprojekt3</em> tak, aby uživatelé skupiny měli přístup k repozitářům <em>mujprojekt1</em> a <em>mujprojekt2</em> pouze pro čtení a k repozitáři <em>mujprojekt3</em> i se zápisem, vypadala by konfigurace takto:</p>
 
 <pre>[group skupina]
 writable = mujprojekt3
@@ -336,9 +336,9 @@ http://book.git-scm.com/ The Git Community Book
 
 <pre>aptitude install gitolite</pre>
 
-<p>Pokud při instalaci nedojde k vytvoření správcovského repozitáře, což se alespoň v mém případě nestalo, je třeba jej inicializovat ručně. Naštěstí je k tomu připraven nástroj <code>gl-setup</code>. Ten musíte spustit s právy uživatele <code>gitolite</code>, pod kterým bude Gitolite pracovat. Tento nástroj vyžaduje jeden parametr, a tím je cesta k souboru s veřejným SSH klíčem, který bude využíván pro přístup ke správcovskému repozitáři.</p>
+<p>Pokud při instalaci nedojde k vytvoření správcovského repozitáře, což se alespoň v mém případě nestalo, je třeba jej inicializovat ručně. Naštěstí je k tomu připraven nástroj <code>gl-setup</code>. Ten musíte spustit s právy uživatele <em>gitolite</em>, pod kterým bude Gitolite pracovat. Tento nástroj vyžaduje jeden parametr, a tím je cesta k souboru s veřejným SSH klíčem, který bude využíván pro přístup ke správcovskému repozitáři.</p>
 
-<p>Tady pozor – jelikož tento nástroj musí běžet s právy uživatele <code>gitolite</code>, je třeba, aby k umístění souboru s klíčem měl tento uživatel přístup, čehož lze docílit např. zkopírováním souboru s veřejným SSH klíčem do <code>/tmp</code>. Následně stačí provést:</p>
+<p>Tady pozor – jelikož tento nástroj musí běžet s právy uživatele <em>gitolite</em>, je třeba, aby k umístění souboru s klíčem měl tento uživatel přístup, čehož lze docílit např. zkopírováním souboru s veřejným SSH klíčem do <code>/tmp</code>. Následně stačí provést:</p>
 
 <pre>su gitolite -c 'gl-setup /tmp/uzivatel.pub'</pre>
 
@@ -425,7 +425,7 @@ http://book.git-scm.com/ The Git Community Book
     RW  master$             =  michal @spravci
     RW  refs/heads/master$  =  michal @spravci</pre>
 
-<p>Mezi oprávněním a rovnítkem může být regulární výraz, který definuje konkrétní referenci, k níž má dotyčný daný přístup. Neuvedete-li na začátku výrazu <code>refs/</code>, doplní si Gitolite interně na začátek <code>refs/heads/</code> – oba zápisy oprávnění v příkladu výše jsou tedy ekvivalentní. Znalci regulárních výrazů určitě tuší, že dolar na konci značí konec řádku, tj. výše uvedený zápis povolí uživateli <code>michal</code> zápis do větve <code>master</code>, ale už ne do větve nazvané např. <code>mastermind</code>. Pokud by tam dolar na konci nebyl, měl by právo zápisu i k větvi <code>mastermind</code>. Pokud vám regulární výrazy nic neříkají, bylo by dobré se na ně podívat. Pod kapitolou naleznete několik odkazů, které by vám měly tuto problematiku osvětlit.</p>
+<p>Mezi oprávněním a rovnítkem může být regulární výraz, který definuje konkrétní referenci, k níž má dotyčný daný přístup. Neuvedete-li na začátku výrazu <code>refs/</code>, doplní si Gitolite interně na začátek <code>refs/heads/</code> – oba zápisy oprávnění v příkladu výše jsou tedy ekvivalentní. Znalci regulárních výrazů určitě tuší, že dolar na konci značí konec řádku, tj. výše uvedený zápis povolí uživateli <em>michal</em> zápis do větve <code>master</code>, ale už ne do větve nazvané např. <code>mastermind</code>. Pokud by tam dolar na konci nebyl, měl by právo zápisu i k větvi <code>mastermind</code>. Pokud vám regulární výrazy nic neříkají, bylo by dobré se na ně podívat. Pod kapitolou naleznete několik odkazů, které by vám měly tuto problematiku osvětlit.</p>
 
 <p>Pokud mezi oprávněním a rovnítkem nic neuvedete, bude se příslušné oprávnění vztahovat na celý repozitář se všemi větvemi.</p>
 
@@ -436,7 +436,7 @@ http://book.git-scm.com/ The Git Community Book
     -   refs/tags/rc[0-9] = ludek
     RW  refs/tags         = ludek</pre>
 
-<p>Zde je uživateli <code>michal</code> uděleno právo vytvářet tagy ve tvaru <code>rc[číslo]</code>, je tedy možné vytvořit tag <code>rc1</code>, <code>rc10</code>, ale také <code>rc1a</code>. Uživatel <code>ludek</code> má oprávnění vytvářet libovolně pojmenované tagy, ovšem s výjimkou tagů začínajících na <code>rc[číslo]</code>. Budete-li zacházet s oprávněním pro odepření přístupu (mínusem), mějte na paměti, že záleží na pořadí prováděných pravidel. Kdybyste příklad výše otočili a dali prostřední řádek na konec, uživatel <code>ludek</code> by mohl vytvářet jakékoliv tagy a přístup by mu nikdy odepřen nebyl.</p>
+<p>Zde je uživateli <em>michal</em> uděleno právo vytvářet tagy ve tvaru <code>rc[číslo]</code>, je tedy možné vytvořit tag <code>rc1</code>, <code>rc10</code>, ale také <code>rc1a</code>. Uživatel <em>ludek</em> má oprávnění vytvářet libovolně pojmenované tagy, ovšem s výjimkou tagů začínajících na <code>rc[číslo]</code>. Budete-li zacházet s oprávněním pro odepření přístupu (mínusem), mějte na paměti, že záleží na pořadí prováděných pravidel. Kdybyste příklad výše otočili a dali prostřední řádek na konec, uživatel <em>ludek</em> by mohl vytvářet jakékoliv tagy a přístup by mu nikdy odepřen nebyl.</p>
 
 <p>Tolik k základům konfigurace Gitolite. Mnohé pokročilé vlastnosti Gitolite zde nezazněly, a (nejen) proto vám doporučuji podívat se na oficiální dokumentaci ke Gitolite, která je velmi podrobná a přívětivá, čtivě psaná a plná užitečných příkladů. Uživatelům Gitolite důrazně doporučuji si ji projít.</p>
 
@@ -663,7 +663,7 @@ http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí sy
 
 <h4>Girocco</h4>
 
-<p>Girocco je Git hosting, který lze označit jako GitWeb na steroidech. Girocco je na Gitwebu založeno a ovládá se stejně. Obsahuje samozřejmě potřebné vlastnosti pro Git hosting, jako registraci uživatelů/projektů apod., a některé vlastnosti navíc. Autorem je Petr Baudiš a software je provozován na známém repozitáři <code>repo.or.cz</code>. Pro svou funkci potřebuje webový server, Git a GitWeb. Lze ho propojit s Git démonem. Podporuje zrcadlení repozitářů (můžete jej tedy používat jako záložní úložiště pro některé své repozitáře hostované jinde) a forkování projektů.</p>
+<p>Girocco je Git hosting, který lze označit jako GitWeb na steroidech. Girocco je na Gitwebu založeno a ovládá se stejně. Obsahuje samozřejmě potřebné vlastnosti pro Git hosting, jako registraci uživatelů/projektů apod., a některé vlastnosti navíc. Autorem je Petr Baudiš a software je provozován na známém repozitáři <em>repo.or.cz</em>. Pro svou funkci potřebuje webový server, Git a GitWeb. Lze ho propojit s Git démonem. Podporuje zrcadlení repozitářů (můžete jej tedy používat jako záložní úložiště pro některé své repozitáře hostované jinde) a forkování projektů.</p>
 
 <h4>Gitorious</h4>
 
