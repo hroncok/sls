@@ -252,9 +252,7 @@ iptables -P FORWARD DROP</pre>
 
 <p>Na řetězec <code>ssh</code> je odkázáno na řádku 14, kde je uživatelsky    definovaný řetězec předán parametru <code>-j</code>, který určuje, co se má    s paketem vyhovujícím danému pravidlu provést. Příchozí pakety tedy v    případě takto definovaného firewallu dorazí nejprve do řetězce    <code>INPUT</code>, tedy na řádek č. 11, a teprve pakety, které vyhoví    pravidlu na řádku č. 14, budou poslány do řetězce <code>ssh</code>.</p>
 
-TODO ref link
-
-<p>Na další příklad užití vlastních řetězců (a o něco lepší metodu zabezpečení SSH na úrovni firewallu) se můžete podívat ve <a href="http://www.linuxexpres.cz/praxe/debian-server-prakticke-rady-pro-zabezpeceni-ssh-4">čtvrtém dílu</a> miniseriálu o zabezpečení SSH.</p>
+<p>Na další příklad užití vlastních řetězců (a o něco lepší metodu zabezpečení SSH na úrovni firewallu) se můžete podívat v kapitole o <em>Zabezpečení SSH</em>{link:"Bezpečnost":"Zabezpečení SSH: praktické rady":"Aktivní zabezpečení SSH na úrovni firewallu"}.</p>
 
 <p>Pokud potřebujete paket z řetězu propustit, aniž by byl přijat, odmítnut nebo zahozen, tedy aby se vrátil zpět do původního řetězu, odkud byl do daného uživatelem definovaného řetězu vyslán, použijte <code>RETURN</code> jako parametr pro <code>-j</code>, takto:</p>
 

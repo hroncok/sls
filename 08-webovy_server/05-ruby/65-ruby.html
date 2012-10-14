@@ -255,8 +255,6 @@ cd redmine-2.1.2</pre>
 
 <h3>Zprovoznění databáze</h3>
 
-TODO ref links on DB articles
-
 <p>Redmine umí pracovat s MySQL, PostgreSQL a SQLite. Sami zvažte, jakou databázi chcete na server nasadit (pokud vůbec nějakou).</p>
 
 <p>Osobně používám Redmine na Postgresu, avšak vzhledem k tomu, že oficiální dokumentace upřednostňuje MySQL, a také vzhledem k tomu, že MySQL jsem se v této knize věnoval spíše méně, v tomto návodu upřednostním MySQL. Ujistěte se tedy, že máte nainstalovaný MySQL server:</p>
@@ -417,9 +415,7 @@ bundle exec thin -e production $1 -s1 --socket "$HOME/redmine.sock" -d</pre>
 
 <pre>su redmine -c '/home/redmine/bin/redmine-thin start'</pre>
 
-TODO ref link monit
-
-<p>Aby se tento skript spustil při startu serveru, nejjednodušší je přidat příkaz k jeho spuštění do <code>/etc/rc.local</code>, ale mnohem čistší řešení je vytvořit pro něj skript v <code>/etc/init.d</code> a zařadit ho do příslušné úrovně běhu pomocí <code>update-rc.d</code>. Abyste zajistili jeho nepřerušený běh, resp. jeho případný automatický restart, pokud by spadl, můžete použít nástroj Monit.</p>
+<p>Aby se tento skript spustil při startu serveru, nejjednodušší je přidat příkaz k jeho spuštění do <code>/etc/rc.local</code>, ale mnohem čistší řešení je vytvořit pro něj skript v <code>/etc/init.d</code> a zařadit ho do příslušné úrovně běhu pomocí <code>update-rc.d</code>. Abyste zajistili jeho nepřerušený běh, resp. jeho případný automatický restart, pokud by spadl, můžete použít nástroj Monit, který vám představí kapitola <em>Hlídání serverů pomocí nástroje Monit</em>{link:"Údržba systému":"Monitorování a logy":"Hlídání serverů pomocí nástroje Monit"}.</p>
 
 <h3>Nginx</h3>
 

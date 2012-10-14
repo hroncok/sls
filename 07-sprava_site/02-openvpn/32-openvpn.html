@@ -8,9 +8,7 @@
 
 <h3>K čemu je to dobré?</h3>
 
-TODO link na kapitolu
-
-<p>VPN může být použito k mnoha účelům, z nichž velmi časté je zabezpečené připojení klientů k intranetu firmy či jiné organizace. Jinou možností je pohodlný zabezpečený přístup ke službám serveru, které jsou zvnějšku nepřístupné (z VPN pak třeba můžete k databázi nebo čemukoliv jinému přistupovat přímo, pokud to ve firewallu povolíte). Obvyklým použitím VPN může být i možnost dostat se zvnějšku do domácí sítě, která je třeba za NATem. Pro úplnost dodávám, že některá použití VPN se kryjí s možnostmi SSH - v rámci SSH je totiž také možné vytvářet šifrované tunely (viz předchozí díly seriálu).</p>
+<p>VPN může být použito k mnoha účelům, z nichž velmi časté je zabezpečené připojení klientů k intranetu firmy či jiné organizace. Jinou možností je pohodlný zabezpečený přístup ke službám serveru, které jsou zvnějšku nepřístupné (z VPN pak třeba můžete k databázi nebo čemukoliv jinému přistupovat přímo, pokud to ve firewallu povolíte). Obvyklým použitím VPN může být i možnost dostat se zvnějšku do domácí sítě, která je třeba za NATem. Pro úplnost dodávám, že některá použití VPN se kryjí s možnostmi SSH - v rámci SSH je totiž také možné vytvářet šifrované tunely, což bylo probráno v kapitole o SSH{link:"Vzdálená správa přes SSH":"Přehled možností SSH"}.</p>
 
 <h3>Jednoduché propojení dvou počítačů</h3>
 
@@ -318,9 +316,7 @@ push "dhcp-option DNS 10.45.42.1"</pre>
 
 <p>Jako parametr pro volbu <code>route-gateway</code> zadejte IP adresu serveru v rámci VPN, tedy IP adresu, kterou jste zadali jako parametr volby <code>ifconfig</code>. První řádka zajistí, že se klientovi pošle specifikovaná IP adresa brány. Druhá volba zajistí, že se klientovi nařídí, aby přesměroval veškerou svou komunikaci přes VPN. Parametr <code>def1</code> zajistí, aby se neodstranila původní brána z konfigurace sítě klienta.</p>
 
-TODO ref link na DNS
-
-<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď OpenDNS, nebo Google DNS. Stavba vlastního DNS serveru je mimo zaměření tohoto článku, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>.</p>
+<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď OpenDNS, nebo Google DNS. Stavba vlastního DNS serveru je mimo zaměření tohoto článku, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>, který je probrán v závěru knihy v části o DNS{link:"DNS":"Jednoduchý DNS a DHCP server v jednom: dnsmasq"}.</p>
 
 <h4>Úprava konfigurace OpenVPN klientů</h4>
 

@@ -1,4 +1,4 @@
-<h1>Úvod do SSH</h1>
+<h1>Vzdálená správa přes SSH</h1>
 
 <p>Každý administrátor unixových serverů by měl být seznámen se SSH a jeho
 schopnostmi a možnostmi. SSH lze z pohledu administrátora chápat jako šifrovaný
@@ -10,7 +10,7 @@ Prostřednictvím <code>sshfs</code>
 je dokonce možné připojit vzdálený souborový systém přes FUSE na místní
 adresář.</p>
 
-<h4>Přehled možností SSH</h4>
+<h2>Přehled možností SSH</h2>
 
 <p>Přihlášení se ke vzdálenému shellu (všimněte si parametru <code>-p</code>, který umožňuje zvolit jiný než standardní port 22 na cílovém serveru):</p>
 
@@ -65,7 +65,7 @@ adresář.</p>
 
 <p>Tolik k nouzovému rychlokurzu Screenu. Pokud vás Screen zaujal, můžete se o něm dozvědět více v odkazech pod kapitolou.</p>
 
-<h4>sshfs</h4>
+<h2>sshfs</h2>
 
 <p><code>sshfs</code> je FUSE modul, který umožňuje připojovat vzdálené souborové systémy prostřednictvím SSH/SCP:</p>
 
@@ -77,21 +77,21 @@ adresář.</p>
 
 <p>Na tomto příkladu je patrné, že <code>sshfs</code> není úplně bezproblémová záležitost a neměl by být brán jako plný ekvivalent lokálně připojeného souborového systému.</p>
 
-<h4>fish</h4>
+<h2>fish</h2>
 
 <p>V KDE aplikacích je možné využít pro přístup k vzdálenému souborovému systému protokol "fish", který umí pohodlně připojit vzdálený souborový systém přes SSH, a to prostřednictvím URL ve tvaru <code>fish://uzivatel@server</code>.</p>
 
-<h4>SSH servery</h4>
+<h2>SSH servery</h2>
 
 <p>Nejznámějším SSH serverem je OpenSSH, vyvinut původně jako součást unixového operačního systému OpenBSD. Tento nástroj převzaly díky jeho licenci prakticky všechny linuxové distribuce. OpenSSH ale není jediným SSH serverem, těch je dokonce celá řada. Kromě komerčních a proprietárních variant máme pro GNU/Linux k dispozici Dropbear, který vyniká především svou lehkostí, pro kterou se výborně hodí jak na embedded zařízení, tak třeba na virtuální servery s hodně omezenou pamětí (obvykle ty levnější tarify), kde vám ušetří nějaký kus paměti. Na ostatní SSH servery se můžete podívat na Wikipédii. Dodávám, že některé funkce SSH, které jsem tu popsal, nemusí být k dispozici ve všech SSH serverech.</p>
 
-<h4>SSH klienti</h4>
+<h2>SSH klienti</h2>
 
 <p>SSH klientů je také celá řada. Kromě klasického <code>ssh</code> klienta z balíku OpenSSH vás upozorním na grafického klienta Putty, který je velmi známý zejména v prostředí MS Windows. Umí toho celou řadu a nehodí se ani zdaleka jenom k přihlašování přes SSH. Podpora SSH klíčů je samozřejmostí, i když klíče je třeba před použitím konvertovat (Putty nepodporuje klasické klíče generované v rámci OpenSSH, tedy ne přímo). Putty funguje dokonce i nativně v Linuxu, i když v Linuxu nám stačí emulátor terminálu a řádkový klient. Něco málo o klíčích v Putty se dozvíte v odkazech pod kapitolou.</p>
 
 <p>Pro kopírování souborů (scp/sftp) je možné použít řádkového klienta <code>scp</code>, výše zmíněného "protokolu" fish v KDE aplikacích nebo <code>sshfs</code>. V prostředí MS Windows lze použít grafický nástroj WinSCP, který se podobá klasickému dvoupanelovému diskovému manažeru.</p>
 
-<h3>SSH klíče</h3>
+<h2>SSH klíče</h2>
 
 <p>SSH klíče fungují na bázi asymetrického šifrování, podobně jako GnuPG a jiné aplikace. Vygenerujete si pár klíčů, jeden soukromý (chráněný heslem, obvykle <code>$HOME/.ssh/id_rsa</code>) a jeden veřejný (obvykle <code>$HOME/.ssh/id_rsa.pub</code>). Veřejný klíč nahrajete do souboru <code>.ssh/authorized_keys</code> v domovském adresáři vzdáleného uživatelského účtu, a poté se můžete na server hlásit pomocí svého soukromého SSH klíče. Soukromý klíč není nutné chránit heslem, avšak pak je jasné, že případné zcizení souboru s klíčem může útočník přistupovat ke všem účtům na serverech, kde je umístěn veřejný klíč v <code>authorized_keys</code>. Chránění soukromého klíče heslem je proto vhodné bezpečnostní opatření.</p>
 
@@ -117,7 +117,7 @@ uzivatel@server$ chmod 700 .ssh</pre>
 
 <pre>ssh -i .ssh/soukromy_klic uzivatel@server</pre>
 
-<h4>SSH Agent a Keychain</h4>
+<h2>SSH Agent a Keychain</h2>
 
 <p>Pokud se přihlašujete na servery přes SSH často, popřípadě chcete své klíče chránit heslem, ale současně nechcete být obtěžováni neustálým zadáváním hesla k danému klíči, můžete využít nástroj ssh-agent, který si jedno nebo více hesel ke klíčům zapamatuje, a pak už se vás ssh klient na hesla ptát nebude. Více informací o ssh-agentovi se dozvíte v odkazech pod kapitolou.</p>
 
@@ -131,11 +131,9 @@ source $HOME/.keychain/$HOSTNAME-sh
 
 <pre>/usr/bin/keychain -Q -q --nogui ~/.ssh/id_rsa</pre>
 
-<h3>Závěr</h3>
+<h2>Závěr</h2>
 
-<p>SSH je velmi mocný nástroj, který umí mnohé. Proto je vhodné vnímat SSH z pohledu správce nikoliv jako nástroj pro vzdálenou práci se shellem, ale jako komplexní nástroj umožňující vytvářet šifrované, zabezpečené tunely mezi dvěma nebo více počítači, a posílat přes ně nejrůznější data a přistupovat k nejrůznějším službám. SSH je samozřejmě pouze nástroj, jehož faktická bezpečnost záleží na správcích i uživatelích. Na bezpečnost SSH, zejména pak z pohledu správců serverů, se podíváme v části Bezpečnost.</p>
-
-TODO ref link
+<p>SSH je velmi mocný nástroj, který umí mnohé. Proto je vhodné vnímat SSH z pohledu správce nikoliv jako nástroj pro vzdálenou práci se shellem, ale jako komplexní nástroj umožňující vytvářet šifrované, zabezpečené tunely mezi dvěma nebo více počítači, a posílat přes ně nejrůznější data a přistupovat k nejrůznějším službám. SSH je samozřejmě pouze nástroj, jehož faktická bezpečnost záleží na správcích i uživatelích. Na bezpečnost SSH, zejména pak z pohledu správců serverů, se můžete podívat v kapitole <em>Bezpečnost</em>{link:"Bezpečnost":"Zabezpečení SSH: praktické rady"}.</p>
 
 http://cs.wikipedia.org/wiki/OpenSSH Wikipedie, OpenSSH
 http://www.cyberciti.biz/faq/ssh-passwordless-login-with-keychain-for-scripts/ keychain: Set Up Secure Passwordless SSH Access For Backup Scripts

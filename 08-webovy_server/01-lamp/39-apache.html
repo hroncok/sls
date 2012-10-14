@@ -195,9 +195,7 @@ SSLCertificateKeyFile /cesta/ke/klici.key</pre>
 
 <h4>Omezení HTTPS a možnost jeho řešení pomocí SNI</h4>
 
-<p>Jak už zde bylo zmíněno, certifikát je specifický už z podstaty HTTPS protokolu pro danou IP adresu. Pokud chcete použít více certifikátů pro různé weby, musíte nakonfigurovat příslušné virtuální weby podle IP adres a každému virtuálnímu webu přiřadit jinou IP adresu. Pokud si říkáte, že takové řešení je nešťastné, máte pravdu. Měli byste vědět, že existuje ještě jeden mechanismus pro vytváření HTTPS spojení, a sice SNI (Server Name Indication), kde je zmíněný problém odstraněn, a pomocí kterého je možné na jedné IP adrese provozovat více webů chráněných různými certifikáty.</p>
-
-TODO link na článek o SNI?
+<p>Jak už zde bylo zmíněno, certifikát je specifický už z podstaty HTTPS protokolu pro danou IP adresu. Pokud chcete použít více certifikátů pro různé weby, musíte nakonfigurovat příslušné virtuální weby podle IP adres a každému virtuálnímu webu přiřadit jinou IP adresu. Pokud si říkáte, že takové řešení je nešťastné, máte pravdu. Měli byste vědět, že existuje ještě jeden mechanismus pro vytváření HTTPS spojení, a sice SNI (Server Name Indication), kde je zmíněný problém odstraněn, a pomocí kterého je možné na jedné IP adrese provozovat více webů chráněných různými certifikáty. SNI je podrobně rozebráno v kapitole <em>SNI, webové servery, prohlížeče a HTTPS</em>{link:"Webový server a databáze":"SNI, webové servery, prohlížeče a HTTPS"}.</p>
 
 <h3><code>mod_rewrite</code> aneb pěkná URL</h3>
 
