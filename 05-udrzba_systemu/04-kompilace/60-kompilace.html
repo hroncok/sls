@@ -24,7 +24,7 @@
 
 <p>Tento systém má svůj dobrý důvod – nové verze komponent obsahují změny, které nemusí být vždy zpětně kompatibilní. U serverového softwaru se může měnit syntax konfiguračních souborů i chování samotných démonů, čímž může vzniknout jak potenciální bezpečnostní zranitelnost, tak nepříjemný stav, kdy se po aktualizaci démon odmítne znovu spustit. Nehledě na to, že nové verze obsahují zpravidla kromě nových zajímavých vlastností i nové chyby.</p>
 
-<p>Dlužno dodat, že tento problém se netýká distribucí, které používají tzv. rolling release model vývoje (Arch Linux, Gentoo, <a href="http://www.linuxexpres.cz/distro/source-mage-zacarovany-linux">Source Mage GNU/Linux</a> apod.), kde se nové verze (po otestování) rovnou zařazují do hlavních repozitářů, a distribuce jsou tak vlastně ve stádiu neustálého vývoje. Tyto distribuce obecně nebývají doporučovány pro produkční servery, i když jsou na některých používány. Jistě, záleží v první řadě na tom, co a jak má na serveru běžet a která distribuce je pro to nejvhodnější (nehledě na to, že velkou roli hraje i to, kterou distribuci správce dobře ovládá).</p>
+<p>Dlužno dodat, že tento problém se netýká distribucí, které používají tzv. rolling release model vývoje (Arch Linux, Gentoo, Source Mage GNU/Linux apod.), kde se nové verze (po otestování) rovnou zařazují do hlavních repozitářů, a distribuce jsou tak vlastně ve stádiu neustálého vývoje. Tyto distribuce obecně nebývají doporučovány pro produkční servery, i když jsou na některých používány. Jistě, záleží v první řadě na tom, co a jak má na serveru běžet a která distribuce je pro to nejvhodnější (nehledě na to, že velkou roli hraje i to, kterou distribuci správce dobře ovládá).</p>
 
 <h4>Úskalí kompilace</h4>
 
@@ -105,7 +105,7 @@ apt-cache search závislost</pre>
 make
 make install</pre>
 
-<p>První příkaz spouští skript <code>configure</code> v aktuálním adresáři. Předpokládá se, že se nacházíte v adresáři s rozbalenými zdrojovými kódy. Tento skript je generován obvykle vývojářem, pomocí nástroje <code>autoconf</code> (více viz <a href="http://en.wikipedia.org/wiki/GNU_build_system">GNU build system</a>), a distribuován spolu se zdrojovými kódy. V některých případech (často při kompilaci softwaru získaného pomocí SCM) se můžete setkat s tím, že tento skript chybí a vy si jej musíte vygenerovat sami.</p>
+<p>První příkaz spouští skript <code>configure</code> v aktuálním adresáři. Předpokládá se, že se nacházíte v adresáři s rozbalenými zdrojovými kódy. Tento skript je generován obvykle vývojářem, pomocí nástroje <code>autoconf</code> (více viz <em>GNU build system</em> heslo na Wikipédii), a distribuován spolu se zdrojovými kódy. V některých případech (často při kompilaci softwaru získaného pomocí SCM) se můžete setkat s tím, že tento skript chybí a vy si jej musíte vygenerovat sami.</p>
 
 <p>Skript <code>configure</code> analyzuje váš systém a vygeneruje soubor <code>Makefile</code>, který pak řídí proces kompilace. Pokud vám chybí nějaká závislost, nebo váš systém neodpovídá požadavkům daného softwaru, měl by tento skript skončit a vyprodukovat chybovou hlášku. Ta by vám měla osvětlit, co vám chybí nebo co musíte udělat.</p>
 
@@ -396,7 +396,7 @@ dpkg -i linux-headers-verze_jadra.deb</pre>
 
 http://wiki.debian.org/ModuleAssistant Debian Wiki: Module assistant
 http://www.howtoforge.com/kernel_compilation_debian_etch How To Compile A Kernel - Debian Etch
-http://en.wikipedia.org/wiki/Software_release_life_cycle Wikipédie, Software release life cycle
+http://en.wikipedia.org/wiki/Software_release_life_cycle Wikipedie, Software release life cycle
 http://asic-linux.com.mx/~izto/checkinstall/ Web projektu Checkinstall
 http://httpd.apache.org/docs/2.0/install.html Compiling and installing Apache
 http://wiki.debian.org/apt-src Apt-src
@@ -409,3 +409,5 @@ http://www.debian.org/security/2008/dsa-1571 Zranitelnost vzniklá úpravou Open
 http://httpd.apache.org/docs/2.0/programs/configure.html Článek o konfiguračních volbách Apache
 http://en.wikipedia.org/wiki/Distcc distcc
 http://tomoyo.sourceforge.jp/ TOMOYO
+http://www.linuxexpres.cz/distro/source-mage-zacarovany-linux Source Mage: Začarovaný Linux
+http://en.wikipedia.org/wiki/GNU_build_system Wikipedie, GNU build system

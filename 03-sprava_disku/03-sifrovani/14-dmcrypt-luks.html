@@ -104,7 +104,7 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související "plausible deniability" aneb možnost "hodnověrného popření" - skryté svazky využívají steganografii, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco "nápadnější" než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s linuxovými souborovými systémy.</p>
 
-<p>Je nutné dodat, že licence Truecryptu je mnohými distribucemi (Debian, Fedora a další) považována za nesvobodnou a mj. pro distributory potenciálně problematickou. Proto třeba nenajdete Truecrypt v oficiálních repositářích Debianu.</p>
+<p>Je nutné dodat, že licence Truecryptu je mnohými distribucemi (Debian, Fedora a další) považována za nesvobodnou a mj. pro distributory potenciálně problematickou. Proto třeba nenajdete Truecrypt v oficiálních repozitářích Debianu.</p>
 
 <h4>encfs</h4>
 
@@ -165,7 +165,7 @@ zbytečným.</p>
 <h3>Vytvoření šifrovaného svazku</h3>
 
 <p>Ke všem operacím se šifrovanými svazky budete využívat nástroje
-<code>cryptsetup</code>. Ten byste měli mít k dispozici v repositářích vaší
+<code>cryptsetup</code>. Ten byste měli mít k dispozici v repozitářích vaší
 distribuce (v případě Debianu se tento nástroj nachází ve stejnojmeném
 balíčku). Vytvoření šifrovaného svazku provedete s použitím šifrovacího
 algoritmu AES a módu XTS takto:</p>
@@ -403,14 +403,13 @@ http://en.wikipedia.org/wiki/Disk_encryption_theory Wikipedia, Disk encryption t
 http://www.root.cz/serialy/diskove-sifrovani-pomoci-dm-cryptluks/  Root.cz, Michal Dočekal, Diskové šifrování pomocí dm-crypt/LUKS
 http://wiki.archlinux.org/index.php/System_Encryption_with_LUKS_for_dm-crypt System Encryption with LUKS for dm-crypt (Arch Linux Wiki)
 http://www.debian-administration.org/article/Encrypting_an_existing_Debian_lenny_installation Encrypting an existing Debian Lenny Installation
-http://www.saout.de/tikiwiki/tiki-index.php?page=LUKSFaq LUKS FAQ
 http://matt.ucc.asn.au/dropbear/dropbear.html Dropbear
 http://www.debian-administration.org/articles/579 Unlocking a LUKS encrypted root partition via ssh
-http://cs.wikipedia.org/wiki/Steganografie Wikipédie (česká), Steganografie
+http://cs.wikipedia.org/wiki/Steganografie Wikipedie (česká), Steganografie
 http://lists.debian.org/debian-legal/2006/06/msg00295.html Výhrady Debianu k Truecryptu
 http://fedoraproject.org/wiki/ForbiddenItems#TrueCrypt Výhrady Fedory k Truecryptu
 http://www.arg0.net/encfs Encfs
 http://www.nongnu.org/duplicity/ Duplicity
 http://www.linuxexpres.cz/distro/system-rescue-cd Článek o System Rescue CD
 http://xkcd.com/538/ XKCD: o šifrování
-http://en.wikipedia.org/wiki/Deniable_encryption Wikipédie, Popiratelné šifrování
+http://en.wikipedia.org/wiki/Deniable_encryption Wikipedie, Popiratelné šifrování

@@ -22,7 +22,7 @@
 
 <p>V případě produkčních systémů bývá vhodné aktualizaci provést pro jistotu "nanečisto" na podobném systému nebo na kopii produkčního systému postavené třeba ze záloh, výsledek důkladně zkontrolovat a otestovat, a teprve pak aktualizovat ostrý server. Samotnou aktualizaci bývá velmi vhodné naplánovat v čase, kdy je server minimálně vytížen, resp. minimálně využíván. Zálohování (nejen) těsně před aktualizací je v tomto případě, jak pevně doufám, samozřejmost.</p>
 
-<p>Rolling release distribuce mají dost specifický charakter - do repositářů se dostávají rovnou nové verze programů (obvykle po otestování), což znamená, že každá aktualizace v sobě skrývá nebezpečí, že něco přestane fungovat. Z tohoto důvodu nebývají tyto typy distribucí příliš doporučovány na produkční servery, i když svědomitý a schopný správce jistě dokáže s jistou dávkou úsilí většině problémů úspěšně předejít. Jen to asi dá trošku více námahy.</p>
+<p>Rolling release distribuce mají dost specifický charakter - do repozitářů se dostávají rovnou nové verze programů (obvykle po otestování), což znamená, že každá aktualizace v sobě skrývá nebezpečí, že něco přestane fungovat. Z tohoto důvodu nebývají tyto typy distribucí příliš doporučovány na produkční servery, i když svědomitý a schopný správce jistě dokáže s jistou dávkou úsilí většině problémů úspěšně předejít. Jen to asi dá trošku více námahy.</p>
 
 <h4>Aktualizace v Debianu</h4>
 
@@ -30,13 +30,13 @@
 
 <pre>aptitude update &amp;&amp; aptitude full-upgrade</pre>
 
-<p>První část příkazu aktualizuje databázi balíčků (a stav balíčků v repositářích), druhá část provede vlastní aktualizaci. Tento příkaz by měl pokrýt i situace, kdy se mění závislostní vazby a kdy vyvstane nutnost nějaký balíček odstranit, aby bylo možné zaktualizovat úplně všechno. Bezpečnou alternativou, v rámci které se aktualizace omezí pouze na případnou instalaci nového balíčku, ale nikoliv už na odstranění některého nainstalovaného, je <code>safe-upgrade</code>:</p>
+<p>První část příkazu aktualizuje databázi balíčků (a stav balíčků v repozitářích), druhá část provede vlastní aktualizaci. Tento příkaz by měl pokrýt i situace, kdy se mění závislostní vazby a kdy vyvstane nutnost nějaký balíček odstranit, aby bylo možné zaktualizovat úplně všechno. Bezpečnou alternativou, v rámci které se aktualizace omezí pouze na případnou instalaci nového balíčku, ale nikoliv už na odstranění některého nainstalovaného, je <code>safe-upgrade</code>:</p>
 
 <pre>aptitude update &amp;&amp; aptitude safe-upgrade</pre>
 
 <p>Samotný <code>safe-upgrade</code> má nepovinný parametr <code>--no-new-installs</code>, který zabrání i instalaci nových balíčků v rámci aktualizace.</p>
 
-<p>Domnívám se, že největší nebezpečí spojené s <code>full-upgrade</code> spočívá spíše v situaci, kdy máte buď přidané některé neoficiální repositáře (kde se mohou tlouci balíčky s oficiálními repositáři), nebo když se pokoušíte aktualizovat na novější verzi distribuce. U aktualizací v rámci stabilní větve Debianu by ke konfliktům docházet nemělo.</p>
+<p>Domnívám se, že největší nebezpečí spojené s <code>full-upgrade</code> spočívá spíše v situaci, kdy máte buď přidané některé neoficiální repozitáře (kde se mohou tlouci balíčky s oficiálními repozitáři), nebo když se pokoušíte aktualizovat na novější verzi distribuce. U aktualizací v rámci stabilní větve Debianu by ke konfliktům docházet nemělo.</p>
 
 <p>Pokud dojde k nějakému konfliktu, a je potřeba nějaký balíček odstranit, nabídne vám Aptitude řešení. V každé takové situaci byste měli zbystřit a dávat pozor, s čím souhlasíte.</p>
 

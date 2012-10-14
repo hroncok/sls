@@ -197,7 +197,7 @@ Michal Do=C4=8Dekal</pre>
 
 <p>Základním prostředkem pro boj se spamem je antispamový filtr, který prohlíží e-maily a hledá typické znaky spamu. Každý znak má obvykle přiřazeno určité skóre. Po sečtení skóre všech znaků se výsledná hodnota porovná s prahovou hodnotou. Překročí-li skóre e-mailu prahovou hodnotu, je e-mail klasifikován jako spam. Co se s takovým e-mailem stane, závisí na správci. Může být zahozen, doručen do schránky s modifikovaným předmětem nebo doručen do speciální složky pro spam.</p>
 
-<p>Typickým nástrojem tohoto typu je spamassassin. Kromě výše uvedeného umí využívat i Bayesův filtr, který využívá teorie pravděpodobnosti a dokáže se „učit“. Před jeho použitím je dokonce velmi vhodné ho „naučit“. Více o něm si můžete přečíst třeba v článku <a href="http://www.linuxexpres.cz/praxe/bayesuv-filtr-1">Bayesův filtr</a>.</p>
+<p>Typickým nástrojem tohoto typu je spamassassin. Kromě výše uvedeného umí využívat i Bayesův filtr, který využívá teorie pravděpodobnosti a dokáže se „učit“. Před jeho použitím je dokonce velmi vhodné ho „naučit“. Více o něm si můžete přečíst v odkazech pod kapitolou.</p>
 
 <p>Stejně jako jiné nástroje pro boj se spamem může spamassassin klasifikovat i běžnou zprávu jako spam. Proto bývá vhodné jej pečlivě nastavit a po nějakou dobu sledovat, jak poštu klasifikuje.</p>
 
@@ -252,6 +252,7 @@ https://en.wikipedia.org/wiki/Sieve_%28mail_filtering_language%29 Wikipedia, Sie
 https://en.wikipedia.org/wiki/STARTTLS Wikipedia, STARTTLS
 https://en.wikipedia.org/wiki/Greylisting Wikipedia, Greylisting
 http://www.postfix.org/postconf.5.html Postfix, konfigurační volby
+http://www.linuxexpres.cz/praxe/bayesuv-filtr-1 LinuxEXPRES, Bayesův filtr
 
 <h2>Nastavení DNS a SPF</h2>
 
@@ -269,7 +270,7 @@ http://www.postfix.org/postconf.5.html Postfix, konfigurační volby
 
 <p>Nasazením SPF si také můžete pomoci u antispamu některých poštovních serverů, které mohou vašemu mailu přidat nějaké bodíky k dobru. SPF nastavení se umisťuje do TXT záznamu pro danou doménu.</p>
 
-<p>Informace o SPF můžete nalézt na webu <code>openspf.org</code> nebo na Wikipédii (viz odkazy pod kapitolou)<a href="http://en.wikipedia.org/wiki/Sender_Policy_Framework">Wikipedii</a>. Nejprostší nastavení může vypadat takto:</p>
+<p>Informace o SPF můžete nalézt na webu <code>openspf.org</code> nebo na Wikipédii (viz odkazy pod kapitolou). Nejprostší nastavení může vypadat takto:</p>
 
 <pre>v=spf1 a mx -all</pre>
 
@@ -570,7 +571,7 @@ apropos postfix</pre>
 
 <pre>aptitude install opendkim</pre>
 
-<p>Pokud ještě používáte Debian Squeeze, <code>opendkim</code> v repositářích nebude, nainstalujte tedy tento balíček:</p>
+<p>Pokud ještě používáte Debian Squeeze, <code>opendkim</code> v repozitářích nebude, nainstalujte tedy tento balíček:</p>
 
 <pre>aptitude install dkim-filter</pre>
 
@@ -1064,7 +1065,7 @@ ssl = required</pre>
 
 <pre>mail_location = mbox:~/mail:INBOX=/var/mail/%u</pre>
 
-<p>Ještě jeden malý detail pro zprovoznění tohoto typu konfigurace - opět v <code>/etc/dovecot/conf.d/10-mail.conf</code>, který řeší <a href="http://wiki2.dovecot.org/Errors/ChgrpNoPerm">tento</a> problém:</p>
+<p>Ještě jeden malý detail pro zprovoznění tohoto typu konfigurace - opět v <code>/etc/dovecot/conf.d/10-mail.conf</code>, který řeší jeden problém:</p>
 
 <pre>mail_access_groups = mail</pre>
 
@@ -1191,6 +1192,7 @@ http://library.linode.com/email/postfix/dovecot-system-users-debian-6-squeeze Po
 http://www.postfix.org/postconf.5.html Přehled konfiguračních voleb Postfixu
 http://wiki.dovecot.org/SSL/DovecotConfiguration Dovecot SSL configuration
 http://wiki.dovecot.org/SSL Dovecot SSL
+http://wiki2.dovecot.org/Errors/ChgrpNoPerm Dovecot Wiki, Operation Not Permitted
 
 <h2>Antivirus a antispam</h2>
 
@@ -1395,7 +1397,7 @@ TODO ref link
 
 <pre>aptitude install postfixadmin</pre>
 
-<p>Pozor – budete-li využívat Postfixadmin na Debianu Squeeze, budete muset řešit aktualizace Postfixadminu ručně, jelikož jste pro instalaci nepoužili repositáře, kde by se vám o aktualizaci starali jejich správci. Používáte-li Debian Wheezy, můžete tento odstavec ignorovat.</p>
+<p>Pozor – budete-li využívat Postfixadmin na Debianu Squeeze, budete muset řešit aktualizace Postfixadminu ručně, jelikož jste pro instalaci nepoužili repozitáře, kde by se vám o aktualizaci starali jejich správci. Používáte-li Debian Wheezy, můžete tento odstavec ignorovat.</p>
 
 <p>Během instalace vás Debconf vyzve, abyste vybrali webový server pro automatickou konfiguraci a abyste vybrali databázový server. Následující text bude předpokládat MySQL jako databázový server. Chcete-li používat PostgreSQL, nahlédněte do dokumentace (některé databázové dotazy se budou lišit, nestačí tedy jen přepsat <code>mysql</code> za <code>pgsql</code>). Návod pro PostgreSQL naleznete i v odkazech pod článkem.</p>
 

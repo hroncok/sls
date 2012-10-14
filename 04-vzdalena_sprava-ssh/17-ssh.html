@@ -71,7 +71,7 @@ adresář.</p>
 
 <pre>sshfs uzivatel@server:/cesta /kam/pripojit</pre>
 
-<p>Souborový systém sshfs má celou řadu konfiguračních voleb, které se dozvíte z manuálové stránky. Já si dovolím upozornit na jednu věc, se kterou jsem se setkal, a sice problém s připojením Git repositáře přes <code>sshfs</code>. Pokud se provede připojení s výchozím nastavením, Git mi odmítal poslušnost. Pokud na takový problém narazíte, zkuste použít následující volbu:</p>
+<p>Souborový systém sshfs má celou řadu konfiguračních voleb, které se dozvíte z manuálové stránky. Já si dovolím upozornit na jednu věc, se kterou jsem se setkal, a sice problém s připojením Git repozitáře přes <code>sshfs</code>. Pokud se provede připojení s výchozím nastavením, Git mi odmítal poslušnost. Pokud na takový problém narazíte, zkuste použít následující volbu:</p>
 
 <pre>sshfs <strong>-o workaround=rename</strong> uzivatel@server:/cesta /kam/pripojit</pre>
 
@@ -137,14 +137,14 @@ source $HOME/.keychain/$HOSTNAME-sh
 
 TODO ref link
 
-http://cs.wikipedia.org/wiki/OpenSSH Wikipédie, OpenSSH
+http://cs.wikipedia.org/wiki/OpenSSH Wikipedie, OpenSSH
 http://www.cyberciti.biz/faq/ssh-passwordless-login-with-keychain-for-scripts/ keychain: Set Up Secure Passwordless SSH Access For Backup Scripts
 http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh SSHFS - súborový systém v bezpečných vodách SSH
 http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-1 SSH receptem na bezpečnost 1
 http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-2 SSH receptem na bezpečnost 2
 http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu Screen - správce sezení v terminálu
 https://git.wiki.kernel.org/index.php/GitFaq#Why_does_git_clone.2C_git_pull.2C_etc._fail_when_run_on_a_partition_mounted_with_sshfs_.28FUSE.29.3F Git FAQ: problém s Gitem na sshfs
-http://en.wikipedia.org/wiki/Comparison_of_SSH_servers Wikipédie, Porovnání SSH serverů
+http://en.wikipedia.org/wiki/Comparison_of_SSH_servers Wikipedie, Porovnání SSH serverů
 http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html Putty
 http://www.linuxexpres.cz/okenko-do-oken/autentizace-pomoci-klicu LinuxEXPRES, Autentizace pomocí klíčů 
 http://winscp.net/eng/docs/lang:cs WinSCP

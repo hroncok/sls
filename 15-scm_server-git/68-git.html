@@ -78,12 +78,12 @@ git commit -m 'Popis změny souboru soubor.txt'</pre>
 
 <p>Nacházíte-li se v adresáři s Git repozitářem, jako první krok exportujte repozitář do správného „formátu“ a překopírujte jej na server. Předpokladem je, že v domovském adresáři vzdáleného uživatele <code>uzivatel</code> existuje adresář <code>git</code>.</p>
 
-<pre>git clone --bare .git /tmp/muj_repositar.git
-scp -r /tmp/muj_repositar.git uzivatel@server.example.cz:/home/uzivatel/git/muj_repositar.git</pre>
+<pre>git clone --bare .git /tmp/muj_repozitar.git
+scp -r /tmp/muj_repozitar.git uzivatel@server.example.cz:/home/uzivatel/git/muj_repozitar.git</pre>
 
 <p>Nyní je repozitář na serveru vytvořen. Stačí tedy Gitu říci, že tento vzdálený repozitář existuje:</p>
 
-<pre>git remote add origin ssh://uzivatel@server.example.cz/home/uzivatel/git/muj_repositar.git</pre>
+<pre>git remote add origin ssh://uzivatel@server.example.cz/home/uzivatel/git/muj_repozitar.git</pre>
 
 <p>V tuto chvíli máte možnost commitnuté změny poslat na server, popřípadě si změny z centrálního repozitáře stáhnout, a samozřejmě máte možnost vzdálený repozitář naklonovat třeba na nový počítač. Samotné publikování změn na server provedete takto:</p>
 
@@ -95,7 +95,7 @@ scp -r /tmp/muj_repositar.git uzivatel@server.example.cz:/home/uzivatel/git/muj_
 
 <p>No a konečně, pokud se ocitnete na novém počítači, kde daný repozitář není k dispozici, můžete jeho aktuální stav naklonovat pomocí <code>git clone,</code> tímto způsobem:</p>
 
-<pre>git clone ssh://root@lucifer.krkavec.net/root/git/muj_repositar.git</pre>
+<pre>git clone ssh://root@lucifer.krkavec.net/root/git/muj_repozitar.git</pre>
 
 <p>Toto řešení je velmi jednoduché, ale v zásadě pokrývá pouze ty nejprostší potřeby. Máte-li více lidí a potřebujete-li definovat k repozitáři třeba read-only přístup, potřebujete mírně sofistikovanější řešení, kterým se budu zabývat v příštím dílu seriálu.</p>
 
@@ -138,8 +138,8 @@ no changes added to commit (use "git add" and/or "git commit -a")</pre>
 
 <p>Git démon v Debianu pracuje s repozitáři umístěnými ve <code>/var/cache/git</code>, kde je samozřejmě nejspíše nemáte. Je tedy třeba si dopomoci symbolickými odkazy. Dávám zde k dispozici dva příklady podle typu umístění repozitáře, vyberte si ten, který odpovídá vašemu repozitáři:</p>
 
-<pre>ln -s /cesta/k/repositar/.git /var/cache/git/repositar.git
-ln -s /cesta/k/repositar.git /var/cache/git/repositar.git</pre>
+<pre>ln -s /cesta/k/repozitar/.git /var/cache/git/repozitar.git
+ln -s /cesta/k/repozitar.git /var/cache/git/repozitar.git</pre>
 
 <p>Pokud se v tuto chvíli pokusíte repozitář naklonovat, obdržíte suchou chybovou hlášku:</p>
 
@@ -147,7 +147,7 @@ ln -s /cesta/k/repositar.git /var/cache/git/repositar.git</pre>
 
 <p>Kdybyste někdy řešili problém, proč se toto děje, podívejte se na server do <code>/var/log/git-daemon/current</code>, dozvíte se konkrétní příčinu. V tomto případě ohlásí Git chybu „repository not exported“, což znamená, že danému repozitáři nebyl povolen export Git démonem. Proto je třeba ještě vytvořit následující soubor, kterým export povolíte:</p>
 
-<pre>touch /var/cache/git/repositar.git/git-daemon-export-ok</pre>
+<pre>touch /var/cache/git/repozitar.git/git-daemon-export-ok</pre>
 
 <p>Repozitář pak můžete naklonovat tímto způsobem:</p>
 
@@ -175,9 +175,9 @@ ln -s /cesta/k/repositar.git /var/cache/git/repositar.git</pre>
 
 <p>Soubor s projekty (repozitáři) může mít následující obsah:</p>
 
-<pre>repositar1.git vlastnik1@example.org</span>
+<pre>repozitar1.git vlastnik1@example.org</span>
 
-repositar2.git vlastnik2@example.org</pre>
+repozitar2.git vlastnik2@example.org</pre>
 
 <p>Cesta k repozitářům může být relativní nebo absolutní, v příkladu výše je cesta relativní (resp. cesta vypadá neuvedená, jelikož soubor se seznamem projektů je ve stejném adresáři jako repozitáře).</p>
 
@@ -291,7 +291,7 @@ members = milan jan</pre>
 <p>U uživatelů se předpokládá existence souborů s jejich SSH klíči. Uživatel <em>milan</em> by měl mít klíč v <code>keydir/milan.pub</code>. Po nastavení a přidání klíčů změny commitněte a nahrajte na server:</p>
 
 <pre>git add gitosis.conf keydir
-git commit -m 'nastaveni repositaru'
+git commit -m 'nastaveni repozitaru'
 git push</pre>
 
 <h3>Workflow pro jednotlivé repozitáře</h3>
@@ -444,7 +444,7 @@ http://book.git-scm.com/ The Git Community Book
 
 <p>Styl práce s Gitolite je velice podobný práci s Gitosis. Jakmile vytvoříte vhodnou půdu pro nový repozitář úpravou konfiguračních souborů, jejich commitem a nahráním (push) na server, stačí u místního repozitáře přidat vzdálený server:</p>
 
-<pre>git remote add origin gitolite@server.example.org:repositar.git</pre>
+<pre>git remote add origin gitolite@server.example.org:repozitar.git</pre>
 
 <p>A následně provést push na server:</p>
 

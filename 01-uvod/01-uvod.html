@@ -8,7 +8,7 @@
 
 <h2>Linuxové distribuce pro server</h2>
 
-<p>Při výběru distribuce pro server je třeba se odrazit od požadavků - jaký server chcete postavit (jaký software má mít v repositářích), preferujete-li aktuálnost balíčků před stabilitou nebo naopak (obojí mít nejde - viz dále), ale také třeba jaké máte zkušenosti - jaké distribuce znáte a jste schopni hladce spravovat (nasadit na server distribuci, ve které se nevyznáte, není nejlepší nápad).</p>
+<p>Při výběru distribuce pro server je třeba se odrazit od požadavků - jaký server chcete postavit (jaký software má mít v repozitářích), preferujete-li aktuálnost balíčků před stabilitou nebo naopak (obojí mít nejde - viz dále), ale také třeba jaké máte zkušenosti - jaké distribuce znáte a jste schopni hladce spravovat (nasadit na server distribuci, ve které se nevyznáte, není nejlepší nápad).</p>
 
 <h2>Vývojové cykly distribucí</h2>
 
@@ -32,7 +32,7 @@
 
 <h2>Ostatní faktory</h2>
 
-<p>Při výběru distribuce pro server vás bude zajímat ještě pár věcí. Předně to bude počet vývojářů a rychlost reakcí na problémy (u menších distribucí může být v tomto směru problém). A určitě vás bude zajímat i množství softwaru v repositářích - kupříkladu, mně osobně v základu RHEL/CentOS citelně chyběl OpenVPN server. Takový nedostatek sice někdy lze vyřešit přidáním dalšího repositáře s požadovaným softwarem, ale v takovém případě si musíte uvědomit, že závisíte nejenom na distributorovi, ale i správci daného repositáře. Od něj potřebujete nejenom řádné testování, ale i reakce na případné nalezené chyby a bezpečnostní problémy. Bude je řešit podobně jako distribuce (patchováním a nikoliv změnou verze), nebo do repositářů hodí verzi novou, kde se třeba změnila syntaxe konfiguračních souborů?</p>
+<p>Při výběru distribuce pro server vás bude zajímat ještě pár věcí. Předně to bude počet vývojářů a rychlost reakcí na problémy (u menších distribucí může být v tomto směru problém). A určitě vás bude zajímat i množství softwaru v repozitářích - kupříkladu, mně osobně v základu RHEL/CentOS citelně chyběl OpenVPN server. Takový nedostatek sice někdy lze vyřešit přidáním dalšího repozitáře s požadovaným softwarem, ale v takovém případě si musíte uvědomit, že závisíte nejenom na distributorovi, ale i správci daného repozitáře. Od něj potřebujete nejenom řádné testování, ale i reakce na případné nalezené chyby a bezpečnostní problémy. Bude je řešit podobně jako distribuce (patchováním a nikoliv změnou verze), nebo do repozitářů hodí verzi novou, kde se třeba změnila syntaxe konfiguračních souborů?</p>
 
 <h2>Debian GNU/Linux</h2>
 
@@ -42,9 +42,9 @@
 
 <p>Aktuální verze Debianu v době vydání knihy by měla být 7.0 s kódovým označením Wheezy. Vývoj probíhá tak, že v určitou dobu je rozhodnuto o zmražení testovací větve, kam do té doby putují nové verze balíčků po tom, co se ohřejí v "nestabilní" větvi. Po zmražení je dovoleno pouze provádět opravy chyb, ale už ne povýšení verze balíčku. Ve chvíli, kdy je testovací větev připravena a odladěna, stává se z ní nová, stabilní větev. Bezpečnostní aktualizace pro starou verzi vycházejí ještě rok po vydání nové verze, což dává správcům dostatek času pro upgrade na aktuální verzi. </p>
 
-<p>Z hlediska nasazení na server vyniká Debian svou stabilitou a relativně dlouhým (i když nepravidelným) vývojovým cyklem, který představuje jistý kompromis mezi distribucemi s dlouhou podporou jako CentOS nebo Ubuntu LTS, a distribucemi, které vycházejí každých 6-12 měsíců (Fedora, apod.). Jak už bylo zmíněno, Debian je jednou z nejrozsáhlejších distribucí - jeho repositáře čítají desítky tisíc balíčků, což nám dává ohromnou paletu pro výběr serverového softwaru k nasazení, o jehož aktualizaci se postará distribuce.</p>
+<p>Z hlediska nasazení na server vyniká Debian svou stabilitou a relativně dlouhým (i když nepravidelným) vývojovým cyklem, který představuje jistý kompromis mezi distribucemi s dlouhou podporou jako CentOS nebo Ubuntu LTS, a distribucemi, které vycházejí každých 6-12 měsíců (Fedora, apod.). Jak už bylo zmíněno, Debian je jednou z nejrozsáhlejších distribucí - jeho repozitáře čítají desítky tisíc balíčků, což nám dává ohromnou paletu pro výběr serverového softwaru k nasazení, o jehož aktualizaci se postará distribuce.</p>
 
-<p>Delší vývojový cyklus může u Debianu naopak vadit tam, kde záleží na tom, aby byl software aktuální. Tohle do jisté míry řeší repositář Debian-backports, který obsahuje novější verze vybraného softwaru pro stabilní větev Debianu. V případě, že je aktuálnost softwaru důležitá, může být nicméně přesto vhodnější zvolit distribuci s kratším vývojovým cyklem (Fedora, apod.) nebo s kontinuálním vývojem (Gentoo, apod.).</p>
+<p>Delší vývojový cyklus může u Debianu naopak vadit tam, kde záleží na tom, aby byl software aktuální. Tohle do jisté míry řeší repozitář Debian-backports, který obsahuje novější verze vybraného softwaru pro stabilní větev Debianu. V případě, že je aktuálnost softwaru důležitá, může být nicméně přesto vhodnější zvolit distribuci s kratším vývojovým cyklem (Fedora, apod.) nebo s kontinuálním vývojem (Gentoo, apod.).</p>
 
 http://www.debian.org/ Debian.org - web distribuce
 http://www.debian.org/social_contract Společenská smlouva Debianu
