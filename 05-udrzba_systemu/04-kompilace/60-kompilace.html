@@ -44,7 +44,7 @@
 
 <h5>Debian backports</h5>
 
-<p>Jelikož se tento seriál zaměřuje na distribuci Debian, nelze nezmínit nyní již oficiální projekt Debian Backports. Tento projekt tvoří repozitář, který lze zkombinovat se standardními repozitáři Debianu, a získat tak možnost instalace vybraného novějšího softwaru, který byl zkompilován pro stabilní vydání. Kupříkladu, kdybyste bývali nebyli spokojeni s Postgresem 8.4 v Debianu Squeeze a chtěli Postgresql 9.0, který vyšel nedávno po jeho vypuštění, nemuseli byste bývali sáhnout ke kompilaci – stačilo by vám použít backporty, ze kterých byste verzi 9.0 nainstalovali.</p>
+<p>Jelikož se tato kniha zaměřuje na distribuci Debian, nelze nezmínit nyní již oficiální projekt Debian Backports. Tento projekt tvoří repozitář, který lze zkombinovat se standardními repozitáři Debianu, a získat tak možnost instalace vybraného novějšího softwaru, který byl zkompilován pro stabilní vydání. Kupříkladu, kdybyste bývali nebyli spokojeni s Postgresem 8.4 v Debianu Squeeze a chtěli Postgresql 9.0, který vyšel nedávno po jeho vypuštění, nemuseli byste bývali sáhnout ke kompilaci – stačilo by vám použít backporty, ze kterých byste verzi 9.0 nainstalovali.</p>
 
 <h5>Neoficiální repozitáře</h5>
 
@@ -117,7 +117,7 @@ make install</pre>
 
 <h4>Stabilní, vývojová a SCM verze</h4>
 
-<p>Ještě před samotnou kompilací zmíním jednu věc, kterou jsem dostatečně neosvětlil v minulých dvou dílech, a sice, jaké verze softwaru jsou obvykle k dispozici a jaký je mezi nimi rozdíl. Většina FOSS projektů má něco jako stabilní vývojovou větev. Stabilní větev by měla obsahovat dostatečně otestovaný, časem ověřený kód s minimem chyb. Na server je to určitě dobrá volba.</p>
+<p>Ještě před samotnou kompilací zmíním jednu věc, kterou jsem dostatečně neosvětlil v předchozích kapitolách, a sice, jaké verze softwaru jsou obvykle k dispozici a jaký je mezi nimi rozdíl. Většina FOSS projektů má něco jako stabilní vývojovou větev. Stabilní větev by měla obsahovat dostatečně otestovaný, časem ověřený kód s minimem chyb. Na server je to určitě dobrá volba.</p>
 
 <p>Často je ovšem k dispozici i testovací či vývojová verze. Ta obsahuje obvykle novější vlastnosti, které zatím ještě do stabilní verze nepronikly, neboť nebyly dostatečně otestovány. Vývojové verze obsahují zpravidla řádově více chyb než jejich stabilní protějšky, přičemž některé vlastnosti ve vývojových verzích nemusí být ještě zcela funkční (nebyly zcela implementovány), popřípadě se mohou časem i zásadně měnit – na to je třeba si dávat obzvlášť pozor, zejména při aktualizacích. Vývojovým verzím je vhodné se vyhnout, pokud to jde.</p>
 
@@ -131,7 +131,7 @@ make install</pre>
 
 <h4>Kompilace zvoleného softwaru</h4>
 
-<p>Software, který bude sloužit jako pokusný králík pro kompilaci, je webový server Apache, kterému se tento seriál věnoval v několika dílech. Je to pouze příklad, na kterém bude demonstrována kompilace. V žádném případě se nejedná o doporučený způsob kompilace Apache. Kromě toho, Apache určitě naleznete v repozitářích vámi používané distribuce. Budete-li chtít kompilovat právě Apache, určitě se primárně řiďte oficiální dokumentací, na kterou kapitola pro úplnost odkazuje.</p>
+<p>Software, který bude sloužit jako pokusný králík pro kompilaci, je webový server Apache, kterému se tato kniha věnovala v několika kapitolách počínaje <em>Instalace LAMP</em>{link:"Webový server a databáze":"Instalace LAMP"}. Je to pouze příklad, na kterém bude demonstrována kompilace. V žádném případě se nejedná o doporučený způsob kompilace Apache. Kromě toho, Apache určitě naleznete v repozitářích vámi používané distribuce. Budete-li chtít kompilovat právě Apache, určitě se primárně řiďte oficiální dokumentací, na kterou kapitola pro úplnost odkazuje.</p>
 
 <h4>Nahlédnutí do dokumentace</h4>
 
@@ -160,7 +160,7 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <pre>apt-get build-dep apache2</pre>
 
-<p>Chcete-li pouze rekompilovat balíček dostupný z repozitářů (nechcete jinou verzi), popřípadě chcete-li si sestavit vlastní balíček a hledáte vhodný vzor, můžete použít <code>apt-src</code>, postup je naznačen v odkazech pod článkem.</p>
+<p>Chcete-li pouze rekompilovat balíček dostupný z repozitářů (nechcete jinou verzi), popřípadě chcete-li si sestavit vlastní balíček a hledáte vhodný vzor, můžete použít <code>apt-src</code>, postup je naznačen v odkazech pod kapitolou.</p>
 
 <h4>configure</h4>
 

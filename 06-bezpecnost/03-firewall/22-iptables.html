@@ -1,8 +1,8 @@
 <h2>Linuxový firewall</h2>
 
-<p>Firewall v Linuxu je tvořen projektem Netfilter, který pracuje na úrovni jádra a umožňuje filtrovat pakety na základě mnoha kritérií. Základním nástrojem pro nastavení paketového filtru je známý řádkový nástroj iptables. Předesílám, že existuje řada projektů, která se snaží práci s iptables usnadnit, popřípadě generovat vlastní pravidla a uživatele od tohoto nástroje co nejvíce odstínit. Některé z těchto nástrojů časem představím, nicméně v tomto článku se budu zabývat samotným nástrojem iptables a principy, na jakých jeho funkce stojí.</p>
+<p>Firewall v Linuxu je tvořen projektem Netfilter, který pracuje na úrovni jádra a umožňuje filtrovat pakety na základě mnoha kritérií. Základním nástrojem pro nastavení paketového filtru je známý řádkový nástroj iptables. Předesílám, že existuje řada projektů, která se snaží práci s iptables usnadnit, popřípadě generovat vlastní pravidla a uživatele od tohoto nástroje co nejvíce odstínit. Na některé z těchto nástrojů sice odkážu, nicméně v knize se budu zabývat zejména samotným nástrojem iptables a principy, na jakých jeho funkce stojí.</p>
 
-<p>Je nutné rovněž předeslat, že Netfilter není pouze firewall, je to především paketový filtr, který umožňuje provádět řadu věcí, z nichž jedna možnost je vytvořit pravidla, která budou zastávat funkci firewallu. Některé z funkcí, které nejsou typické pro firewall, nýbrž pro paketový filtr jako takový, vám v průběhu tohoto seriálu také představím, i když se budu zaměřovat primárně na užití Netfiltru pro konstrukci firewallu.</p>
+<p>Je nutné rovněž předeslat, že Netfilter není pouze firewall, je to především paketový filtr, který umožňuje provádět řadu věcí, z nichž jedna možnost je vytvořit pravidla, která budou zastávat funkci firewallu. Některé z funkcí, které nejsou typické pro firewall, nýbrž pro paketový filtr jako takový, vám v průběhu této kapitoly také představím, i když se budu zaměřovat primárně na užití Netfiltru pro konstrukci firewallu.</p>
 
 <h3>Varování</h3>
 
@@ -155,7 +155,7 @@ iptables -P FORWARD DROP</pre>
 9   iptables -A INPUT -p icmp -j ACCEPT
 10. iptables -A INPUT -j REJECT --reject-with icmp-admin-prohibited</pre>
 
-<p>První tři řádky specifikují politiku (viz minulý díl), čtvrtý řádek povoluje všechna příchozí spojení z místní smyčky (local loopback). Toto pravidlo je nesmírně důležité, neboť bez možnosti síťové komunikace po místní smyčce nebude ledacos správně fungovat, včetně třeba X serveru). Je tedy třeba explicitně povolit provoz místní smyčky všude tam, kde je politika pro řetěz <code>INPUT</code> či <code>OUTPUT</code> nastavena na <code>DROP</code>. Jen pro úplnost, pro řetěz <code>OUTPUT</code> by příslušné pravidlo vypadalo takto:</p>
+<p>První tři řádky specifikují politiku, čtvrtý řádek povoluje všechna příchozí spojení z místní smyčky (local loopback). Toto pravidlo je nesmírně důležité, neboť bez možnosti síťové komunikace po místní smyčce nebude ledacos správně fungovat, včetně třeba X serveru). Je tedy třeba explicitně povolit provoz místní smyčky všude tam, kde je politika pro řetěz <code>INPUT</code> či <code>OUTPUT</code> nastavena na <code>DROP</code>. Jen pro úplnost, pro řetěz <code>OUTPUT</code> by příslušné pravidlo vypadalo takto:</p>
 
 <pre>iptables -A OUTPUT -o lo -j ACCEPT</pre>
 
@@ -348,7 +348,7 @@ sysctl -w net.ipv6.conf.all.forwarding=1
 
 <h4>Alternativy k iptables</h4>
 
-<p>Nastavovat firewall je komplikovaná záležitost, což je patrně z dosavadních dílů o základech <code>iptables</code> více než jasné. Proto existuje řada projektů, které si kladou za cíl stavbu firewallu zjednodušit. Existují dokonce i jisté ekvivalenty "osobních" firewallů, které se snaží být uživatelsky přívětivé a zaměřují se na běžné uživatele. Tím je třeba nástroj Firestarter.</p>
+<p>Nastavovat firewall je komplikovaná záležitost, což jste asi zjistili, pokud jste četli od začátku kapitoly až sem. Proto existuje řada projektů, které si kladou za cíl stavbu firewallu zjednodušit. Existují dokonce i jisté ekvivalenty "osobních" firewallů, které se snaží být uživatelsky přívětivé a zaměřují se na běžné uživatele. Tím je třeba nástroj Firestarter.</p>
 
 <p>Jiné typy nástrojů se pokouší usnadnit vytváření pravidel, ať již snahou o usnadnění návrhu komplikovaného firewallu (fwbuilder), nebo značným zjednodušením syntaxe (ufw, FireHOL, atd.).</p>
 
@@ -360,7 +360,7 @@ sysctl -w net.ipv6.conf.all.forwarding=1
 
 <p>Pokud v rámci použití nástroje <code>iptables</code> nezadáte název tabulky, se kterou chcete pracovat, využije se výchozí tabulka <code>filter</code>, v rámci které probíhá samotné filtrování paketů. Kromě tabulky <code>filter</code> existují ještě tři další - tabulka <code>nat</code>, tabulka <code>mangle</code> a tabulka <code>raw</code>. V každé z těchto tabulek jsou různé výchozí řetězy, se kterými můžete pracovat. Tabulka  <code>mangle</code> slouží k modifikování nebo značkování paketů (užívá se  např. v rámci QoS). Tabulka <code>nat</code> se používá pro překlad adres a  tabulka <code>raw</code> se používá pro označení paketů, které se mají vyhnout  sledování spojení (connection tracking).</p>
 
-<p>Jelikož tento miniseriál je spíše orientován na základy linuxového paketového filtru, nebudu probírat všechny tabulky se všemi řetězy, které se v nich nachází. Místo toho se zaměřím na tabulku <code>nat</code> a dva řetězy v  ní, které nám trošku rozšíří schéma procházení paketů Netfiltrem. Pokud se  chcete o jednotlivých tabulkách dozvědět více, podívejte se na odkazy pod  článkem.</p>
+<p>Jelikož tato kapitola je spíše orientována na základy linuxového paketového filtru, nebudu probírat všechny tabulky se všemi řetězy, které se v nich nachází. Místo toho se zaměřím na tabulku <code>nat</code> a dva řetězy v  ní, které nám trošku rozšíří schéma procházení paketů Netfiltrem. Pokud se  chcete o jednotlivých tabulkách dozvědět více, podívejte se na odkazy v závěru kapitoly.</p>
 
 TODO find image
 
@@ -413,7 +413,7 @@ iptables -A FORWARD -i eth1 -o eth2 -d 10.0.2.200 -p tcp --dport 8080 -j ACCEPT
 
 <h3>Některé další moduly Netfiltru</h3>
 
-<p>Netfilter nabízí celou řadu modulů, které umožňují filtrovat pakety dle řady doplňujících kritérií. Na závěr miniseriálu o Netfiltru ještě představím tři z nich.</p>
+<p>Netfilter nabízí celou řadu modulů, které umožňují filtrovat pakety dle řady doplňujících kritérií. Na závěr kapitoly o Netfiltru ještě představím tři z nich.</p>
 
 <h4>Vlastník paketu (owner)</h4>
 

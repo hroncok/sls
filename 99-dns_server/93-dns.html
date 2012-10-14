@@ -26,7 +26,7 @@ dns_levels.svg Ilustrace stromového charakteru jmenných prostorů DNS
 server.example.org
 my.server.example.org</pre>
 
-<p>Registrace domén probíhá přes tzv. registrátory. Ti za vás vyřídí nejenom registraci dané domény, ale také zpravidla umožňují vytvořit a spravovat vaši doménu na jejich DNS serverech. Děje se tak obvykle přes webové rozhraní. Můžete si samozřejmě vytvořit vlastní DNS server a svoje domény spravovat na něm (jak, to se dozvíte v dalších dílech seriálu).</p>
+<p>Registrace domén probíhá přes tzv. registrátory. Ti za vás vyřídí nejenom registraci dané domény, ale také zpravidla umožňují vytvořit a spravovat vaši doménu na jejich DNS serverech. Děje se tak obvykle přes webové rozhraní. Můžete si samozřejmě vytvořit vlastní DNS server a svoje domény spravovat na něm (jak, to se dozvíte dále).</p>
 
 <h4>Protokol DNS</h4>
 
@@ -128,7 +128,7 @@ nameserver 4.3.2.1</pre>
 
 <p>Teď už určitě víte, že pomocí DNS můžete získat ke jménu (např. <em>wikipedia.org</em>) konkrétní IP adresu (např. <code>208.80.152.201</code>). DNS ale také podporuje „obrácené“, rekurzivní dotazy, tedy takové dotazy, které vám vrátí jméno ke konkrétní IP adrese. Využívají se k tomu záznamy typu PTR a speciální doména <em>in-addr.arpa</em> pro IPv4, <em>ip6.arpa</em> pro IPv6.</p>
 
-<p>Zkuste si to na nějakém příkladu. Můžete využít nástroj <code>dig</code>, který byl představen v minulém díle. Nejprve získejte IP adresu k nějakému jménu (tedy A záznam), třeba <em>wikipedia.org</em>:</p>
+<p>Zkuste si to na nějakém příkladu. Můžete využít nástroj <code>dig</code>, který byl představen výše. Nejprve získejte IP adresu k nějakému jménu (tedy A záznam), třeba <em>wikipedia.org</em>:</p>
 
 <pre>dig wikipedia.org
 
@@ -259,7 +259,7 @@ http://en.wikipedia.org/wiki/Reverse_DNS_lookup Anglická Wikipedie: Rekurzivní
 
 <p>DNS je velmi starý protokol, který nebyl navržen s ohledem na bezpečnost (což samozřejmě neplatí jen o DNS). Existuje možnost podvržení DNS záznamů, které není možné spolehlivě zabránit, což otevírá prostor pro známý man-in-the-middle útok. Podaří-li se útočníkovi podvrhnout odpověď na váš DNS dotaz, dojde k „otrávení“ vaší DNS keše podvrženým záznamem (proto se tyto útoky označují jako DNS cache poisoning). Snad nemusím zdůrazňovat, jaké důsledky může mít podvržení DNS záznamů – místo komunikace se svou bankou můžete komunikovat s útočníkem, který pak může zaútočit přímo na vaše bankovní konto.</p>
 
-<p>Obranou vůči těmto útokům je DNSSEC, což je systém, který DNS záznamy digitálně podepisuje (používá se asymetrické šifrování), a DNS resolvery podpisy kontrolují. Digitální podpisy mají svou hierarchii (tzv. chain of trust model), která začíná u kořenové zóny (počáteční bod hierarchie se označuje jako „trust anchor“, kotva důvěry – její podpis byste měli pečlivě ověřit, jelikož s jeho důvěryhodností stojí a padá důvěryhodnost celého ověřování). Tento systém je poměrně komplexní a komplikovaný – více o principech fungování DNSSEC se dozvíte v odkazech pod článkem.</p>
+<p>Obranou vůči těmto útokům je DNSSEC, což je systém, který DNS záznamy digitálně podepisuje (používá se asymetrické šifrování), a DNS resolvery podpisy kontrolují. Digitální podpisy mají svou hierarchii (tzv. chain of trust model), která začíná u kořenové zóny (počáteční bod hierarchie se označuje jako „trust anchor“, kotva důvěry – její podpis byste měli pečlivě ověřit, jelikož s jeho důvěryhodností stojí a padá důvěryhodnost celého ověřování). Tento systém je poměrně komplexní a komplikovaný – více o principech fungování DNSSEC se dozvíte v odkazech v závěru kapitoly.</p>
 
 <p>DNSSEC je třeba implementovat na straně resolvujících DNS serverů, které využíváte. Nepodporuje-li tedy váš ISP DNSSEC, můžete si postavit vlastní resolver se zprovozněným DNSSECem. Zda váš ISP používá DNSSEC (resp. zda vámi použité resolvující DNS servery používají DNSSEC), zjistíte dotazem na špatně podepsanou doménu, kterou je např. <em>rhybar.cz</em>:</p>
 
@@ -312,7 +312,7 @@ http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)
 
 <h3>Unbound</h3>
 
-<p>Unbound je především rekurzivní a kešující DNS server. Je schopen provádět DNSSEC validaci, ale neprovádí ji ve výchozím stavu (alespoň v Debianu). Problematikou DNSSEC se zabýval minulý díl seriálu.</p>
+<p>Unbound je především rekurzivní a kešující DNS server. Je schopen provádět DNSSEC validaci, ale neprovádí ji ve výchozím stavu (alespoň v Debianu). Problematikou DNSSEC se zabývala minulá kapitola{link:"DNS":"DNSSEC"}.</p>
 
 <p>Instalaci serveru Unbound realizujete velmi jednoduše:</p>
 
@@ -783,7 +783,7 @@ my             A     1.2.3.5
 *.my           A     1.2.3.5
 www            CNAME example.cz.</pre>
 
-<p>SOA záznam ani záznam ostatních snad již nemusím popisovat (minulý díl prakticky vše zmínil a vysvětlil).</p>
+<p>SOA záznam ani záznam ostatních snad již nemusím popisovat.</p>
 
 <p>Nastavení Knotu uvedené výše je osekané na kost – Knot umožňuje mnohem komplexnější nastavení, zejména v oblasti zónových souborů a transferu zón z primárních na sekundární DNS servery. Tato nastavení jsou i s příklady popsány v dokumentaci, kterou doporučuji si projít.</p>
 

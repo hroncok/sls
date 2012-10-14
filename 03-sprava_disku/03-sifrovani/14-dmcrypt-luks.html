@@ -36,7 +36,7 @@
 infrastrukturu device mapperu a linuxového CryptoAPI, a vytváří transparentní
 vrstvu pro online šifrování a dešifrování blokových zařízení. Dodávám, že
 <code>dm-crypt</code> je možné využívat samostatně, bez LUKS nadstavby, a to
-prostřednictvím stejného nástroje - <code>cryptsetup</code>. V tomto článku se
+prostřednictvím stejného nástroje - <code>cryptsetup</code>. V této knize se
 však plně zaměřím právě na LUKS.</p>
 
 <p>LUKS je nadstavba dm-cryptu, která, vezmu-li to zjednodušeně, přidává
@@ -339,7 +339,7 @@ chome /dev/sda3 none luks</pre>
 
 <p>Samotná příprava a vytvoření šifrovaného svazku byla probrána výše. Varoval bych vás snad jen před různými návody na rychlé zašifrování nešifrovaného oddílu pomocí nástroje <code>dd</code>. Uvědomte si, že operace <code>luksFormat</code> přepíše začátek daného oddílu a samotná LUKS hlavička oddíl o něco zmenší (tj. souborovému systému by to uřízlo konec).</p>
 
-<p>Druhým krokem může být zašifrování všech ostatních svazků s výjimkou kořenového. Bohužel mi není známa spolehlivá metoda zašifrování nešifrovaného svazku (alespoň ne, jedná-li se o LUKS svazek). Z tohoto důvodu se asi nevyhnete přesunům dat mimo budoucí šifrovaný svazek a pak zpět, což ovšem není z hlediska bezpečnosti vůbec ideální, jelikož citlivá data se během tohoto procesu přesouvají na další médium - toto médium, stejně jako i původní svazek, je třeba ošetřit tak, aby citlivá data již nebylo možné obnovit (viz bezpečné mazání v závěru článku).</p>
+<p>Druhým krokem může být zašifrování všech ostatních svazků s výjimkou kořenového. Bohužel mi není známa spolehlivá metoda zašifrování nešifrovaného svazku (alespoň ne, jedná-li se o LUKS svazek). Z tohoto důvodu se asi nevyhnete přesunům dat mimo budoucí šifrovaný svazek a pak zpět, což ovšem není z hlediska bezpečnosti vůbec ideální, jelikož citlivá data se během tohoto procesu přesouvají na další médium - toto médium, stejně jako i původní svazek, je třeba ošetřit tak, aby citlivá data již nebylo možné obnovit (viz bezpečné mazání kousek níže).</p>
 
 <p>Třetím krokem je příprava zašifrovaného kořenového svazku. Ideální je, pokud máte možnost budoucí šifrovaný svazek připojit přímo za běhu (moduly do iniciálního ramdisku se pak načtou automaticky). Pokud tuto možnost nemáte, je třeba přidat všechny potřebné moduly (viz výše) do konfiguračního souboru <code>/etc/initramfs-tools/modules</code>. Předpokladem je nainstalovaný balíček <code>initramfs-tools</code>.</p>
 

@@ -4,7 +4,7 @@
 
 <h3>Úvod</h3>
 
-<p>Ztráta dat bývá v oblasti správy serverů jedním z nejfatálnějších problémů. Ačkoliv se můžeme snažit pravděpodobnost ztráty minimalizovat, nikdy nelze zcela eliminovat její riziko. S tím je svázána často přehnaná důvěra k diskovým polím, které, jak už bylo v tomto seriálu několikrát zmíněno, nemohou být náhradou za pravidelné zálohování, neboť ke ztrátě dat může dojít nejenom vlivem selhání pevného disku, ale také následkem omylu uživatele či správce, činnosti útočníka, softwarové nebo hardwarové chyby atd.</p>
+<p>Ztráta dat bývá v oblasti správy serverů jedním z nejfatálnějších problémů. Ačkoliv se můžeme snažit pravděpodobnost ztráty minimalizovat, nikdy nelze zcela eliminovat její riziko. S tím je svázána často přehnaná důvěra k diskovým polím, které, jak už bylo v tého knize několikrát zmíněno, nemohou být náhradou za pravidelné zálohování, neboť ke ztrátě dat může dojít nejenom vlivem selhání pevného disku, ale také následkem omylu uživatele či správce, činnosti útočníka, softwarové nebo hardwarové chyby atd.</p>
 
 <p>Ztráta dat ale není jediným problémem. Kromě samotných dat je třeba uvažovat i o softwarové infrastruktuře, která je s nimi propojena. Tím mám na mysli nakonfigurovaný server s řadou služeb, které k datům přistupují a manipulují s nimi. Do katastrofických scénářů je tak třeba přidat i situace, kdy sice nedojde ke ztrátě samotných dat, ale kdy dojde k omezení fungování serveru (např. ztráta funkčnosti důležité služby vlivem chyby při povýšení na novou verzi distribuce atd.) či ztrátě dlouho vylepšované konfigurace. Zálohovat je tedy třeba tak, aby bylo možné a snadné obnovit nejenom samotná data, ale také služby, které k nim zprostředkovávají přístup.</p>
 
@@ -90,7 +90,7 @@
 
 <p>Ačkoliv je <code>rdiff-backup</code> schopen pracovat vzdáleně, doporučuje se, je-li to možné, použít stejnou verzi nástroje na obou počítačích. V případě nesouladu verzí vypíše nástroj varování.</p>
 
-<p><code>Rdiff-backup</code> umí využívat přenosové pásmo podobně efektivně jako nástroj <code>rsync</code> (více o tomto nástroji se dozvíte v odkazech pod článkem), takže při následných zálohách se vždy přenáší pouze rozdíly a nikoliv znovu veškerá data.</p>
+<p><code>Rdiff-backup</code> umí využívat přenosové pásmo podobně efektivně jako nástroj <code>rsync</code> (více o tomto nástroji se dozvíte v odkazech pod kapitolou), takže při následných zálohách se vždy přenáší pouze rozdíly a nikoliv znovu veškerá data.</p>
 
 <h4>Archfs</h4>
 

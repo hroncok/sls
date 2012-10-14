@@ -138,7 +138,7 @@ To create this file containing all output from today's run, do (as root)
 
 <p>Zotavení napadeného systému je třeba přizpůsobit situaci. Máte-li soukromý server, na kterém veskrze nic důležitého neběží, můžete si dovolit jej odstavit i na delší čas. Jedná-li se ovšem o server, na kterém stojí vaše podnikání nebo přežití vaší firmy, je třeba postupovat opatrně a s rozmyslem.</p>
 
-<p>Pěkný článek rozebírající toto téma dopodrobna naleznete v odkazech pod článkem.</p>
+<p>Pěkný článek rozebírající toto téma dopodrobna naleznete v odkazech v závěru kapitoly.</p>
 
 <h3>Závěr</h3>
 
@@ -217,7 +217,7 @@ To create this file containing all output from today's run, do (as root)
 
 <p>Nepochybně zjistíte, že AIDE v Debianu prohledává kdeco a budete tedy chtít některé soubory či adresáře z prohledávání vyřadit. Rovnou předešlu, že úprava nastavení není úplně triviální, jelikož Debian nabízí opravdu značné množství konfiguračních souborů i skriptů v <code>/etc/aide/aide.conf.d</code>, které se pak spouští, spojují a kompletují do jediného velkého konfiguračního souboru.</p>
 
-<p>Zde doporučuji prostudovat manuál k AIDE (a ještě manuál k aide.conf: <code>man aide.conf</code>), jelikož obsahuje příslušnou syntax a potřebné informace. Zásadní informace je, že jednotlivá pravidla jsou de facto regulární výrazy, čemuž byste měli přizpůsobit psaní pravidel, zejména si dejte pozor na tečky (tečka odpovídá jednomu libovolnému znaku), které raději escapujte (umístěním zpětného lomítka před tečku, takto: <code>\.</code>). Regulárními výrazy se zde zabývat nebudu, avšak pod článkem jsem vám připravil odkazy na česky psané materiály, ze kterých se příslušnou syntaxi můžete snadno a rychle naučit.</p>
+<p>Zde doporučuji prostudovat manuál k AIDE (a ještě manuál k aide.conf: <code>man aide.conf</code>), jelikož obsahuje příslušnou syntax a potřebné informace. Zásadní informace je, že jednotlivá pravidla jsou de facto regulární výrazy, čemuž byste měli přizpůsobit psaní pravidel, zejména si dejte pozor na tečky (tečka odpovídá jednomu libovolnému znaku), které raději escapujte (umístěním zpětného lomítka před tečku, takto: <code>\.</code>). Regulárními výrazy se zde zabývat nebudu, avšak v závěru kapitoly jsem vám připravil odkazy na česky psané materiály, ze kterých se příslušnou syntaxi můžete snadno a rychle naučit.</p>
 
 <p>Co se týká pořadí pravidel (opět odkazuji na manuál), je vhodné obecnější pravidla umisťovat níže a specifičtější pravidla výše. Asi nejčastější úpravou konfigurace bude specifikace souborů, které nechcete, aby se do databáze zařadily. V takovém případě si vytvořte vhodný soubor v <code>/etc/aide/aide.conf.d</code>, ale jelikož záleží na pořadí, zařaďte jej do struktury pomocí úvodního čísla, tzn. např. <code>50_aide_moje-pravidla</code>. Do tohoto souboru pak přidejte příslušná pravidla - pro ignorování určitého souboru zapište příslušný regulární výraz z vykřičníkem na začátku, jak už bylo naznačeno výše, tj. např. takto:</p>
 

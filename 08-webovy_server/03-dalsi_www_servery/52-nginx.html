@@ -2,7 +2,7 @@
 
 <h3>Úvod</h3>
 
-<p>Projekt Nginx pochází z Ruska, napsal jej Igor Sysoev a je dostupný pod velmi liberální BSD licencí. Nginx je dle statistik v současné době druhým nejpopulárnějším linuxovým webovým serverem (pokud počítáte webové servery obecně, pak je třetí, hned za IIS od Microsoftu). Pokud jste si prošli minulý díl, pak prakticky všechny základní charakteristiky sdílí s webovým serverem lighttpd, tj. je rychlý, výkonný a má minimální spotřebu paměti. Výborně se tedy hodí jak pro provoz náročných aplikací, tak pro provoz na menších serverech či osobních VPS.</p>
+<p>Projekt Nginx pochází z Ruska, napsal jej Igor Sysoev a je dostupný pod velmi liberální BSD licencí. Nginx je dle statistik v současné době druhým nejpopulárnějším linuxovým webovým serverem (pokud počítáte webové servery obecně, pak je třetí, hned za IIS od Microsoftu). Pokud znáte Lighttpd, pak prakticky všechny základní charakteristiky sdílí Nginx právě s webovým serverem lighttpd, tj. je rychlý, výkonný a má minimální spotřebu paměti. Výborně se tedy hodí jak pro provoz náročných aplikací, tak pro provoz na menších serverech či osobních VPS.</p>
 
 <p>Je schopen fungovat také jako reverzní proxy, tedy předávat požadavky jinému webserveru a vracet klientovi odpověď, čímž se výborně se hodí pro rozložení zátěže (load balancing) náročné aplikace na více fyzických (či virtuálních) webových serverů. Zde je třeba dodat, že projektů pro load balancing existuje více, a sice reverzní proxy Pound či HAproxy (toto jsou skutečně pouze reverzní proxy, nejsou schopny zastávat funkci webového serveru a nabízet nějaký obsah samy o sobě). Funkcionalitu reverzní proxy obsahují ovšem i jiné webové servery, např. Apache (v modulu <code>mod_proxy</code>) a lighttpd (opět modul <code>proxy</code>).</p>
 
@@ -55,7 +55,7 @@ events {
 
 <p>Nastavení IP adresy a portu pro naslouchání by mělo být jasné, stejně jako jméno serveru. Všimněte si, že kořenový adresář (document root v Apachi) se nastavuje pomocí <code>location</code>.</p>
 
-<p>Pokročilejší konfigurace je velmi dobře popsána na wiki Nginx (viz odkazy v závěru článku), včetně příkladů pro virtuální servery, load balancing i použití SSL (to je už dokonce v konfiguraci výchozího virtuálního serveru v Debianu připraveno, tedy pouze zakomentováno) apod.</p>
+<p>Pokročilejší konfigurace je velmi dobře popsána na wiki Nginx (viz odkazy v závěru kapitoly), včetně příkladů pro virtuální servery, load balancing i použití SSL (to je už dokonce v konfiguraci výchozího virtuálního serveru v Debianu připraveno, tedy pouze zakomentováno) apod.</p>
 
 <h4>Moduly a Nginx</h4>
 

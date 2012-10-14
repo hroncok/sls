@@ -68,11 +68,11 @@ git commit -m 'Popis změny souboru soubor.txt'</pre>
 
 <p>Existují také grafické nadstavby Gitu, které vám usnadní získání informací o změnách, popřípadě samotnou správu repozitáře, například gitk (měl by být součástí distribuce Gitu).</p>
 
-<p>Chcete-li se o používání Gitu dozvědět více, podívejte se do závěru článku, kde je řada odkazů na zdroje o Gitu, a to i v češtině. Nechybí ani jedna velice užitečná kniha přeložená do češtiny.</p>
+<p>Chcete-li se o používání Gitu dozvědět více, podívejte se na závěr kapitoly, kde je řada odkazů na zdroje o Gitu, a to i v češtině. Nechybí ani jedna velice užitečná kniha přeložená do češtiny.</p>
 
 <h3>Git přes SSH</h3>
 
-<p>V tomto dílu vám představím to nejjednodušší řešení centralizovaného Git repozitáře, které existuje. Na serveru vám k tomu stačí pouze běžící SSH server. Toto řešení je vhodné pro soukromé repozitáře, které nechcete nikde vystavovat a kde nepotřebujete přístup více osob. Na komplikovanější řešení se zaměřím v dalších dílech.</p>
+<p>Nejprve vám představím to nejjednodušší řešení centralizovaného Git repozitáře, které existuje. Na serveru vám k tomu stačí pouze běžící SSH server. Toto řešení je vhodné pro soukromé repozitáře, které nechcete nikde vystavovat a kde nepotřebujete přístup více osob. Na komplikovanější řešení se zaměřím v dalších kapitolách.</p>
 
 <p>Nacházíte-li se v adresáři s Git repozitářem, jako první krok exportujte repozitář do správného „formátu“ a překopírujte jej na server. Předpokladem je, že v domovském adresáři vzdáleného uživatele <em>uzivatel</em> existuje adresář <code>git</code>.</p>
 
@@ -95,7 +95,7 @@ scp -r /tmp/muj_repozitar.git uzivatel@server.example.cz:/home/uzivatel/git/muj_
 
 <pre>git clone ssh://root@lucifer.krkavec.net/root/git/muj_repozitar.git</pre>
 
-<p>Toto řešení je velmi jednoduché, ale v zásadě pokrývá pouze ty nejprostší potřeby. Máte-li více lidí a potřebujete-li definovat k repozitáři třeba read-only přístup, potřebujete mírně sofistikovanější řešení, kterým se budu zabývat v příštím dílu seriálu.</p>
+<p>Toto řešení je velmi jednoduché, ale v zásadě pokrývá pouze ty nejprostší potřeby. Máte-li více lidí a potřebujete-li definovat k repozitáři třeba read-only přístup, potřebujete mírně sofistikovanější řešení, kterým se budu zabývat v příští kapitole.</p>
 
 <h3>Základy práce s Gitem: Ignorování souborů</h3>
 
@@ -161,7 +161,7 @@ ln -s /cesta/k/repozitar.git /var/cache/git/repozitar.git</pre>
 
 <p>Máte-li nainstalovaný webový server Apache, Gitweb by měl začít fungovat okamžitě – vytvoří se alias <code>/gitweb</code>, tudíž zadejte URL následujícího typu: <code>http://server.example.org/gitweb</code>. Konfiguraci Gitwebu naleznete v <code>/etc/apache2/conf.d/gitweb</code>. Pokud tedy chcete změnit daný alias nebo si Gitweb zpřístupnit jen na určitém virtuálním serveru (virtual host), soubor upravte nebo přesuňte jinam a jeho obsah vložte tam, kde ho mít chcete.</p>
 
-<p>Používáte-li jiný webový server, budete muset upravit jeho nastavení pro Gitweb. Aplikaci Gitweb naleznete v <code>/usr/share/gitweb</code>, je napsaná v Perlu a patrně budete využívat CGI nebo FastCGI. Návod pro zprovoznění Gitwebu pomocí webového serveru Nginx naleznete v odkazech pod článkem.</p>
+<p>Používáte-li jiný webový server, budete muset upravit jeho nastavení pro Gitweb. Aplikaci Gitweb naleznete v <code>/usr/share/gitweb</code>, je napsaná v Perlu a patrně budete využívat CGI nebo FastCGI. Návod pro zprovoznění Gitwebu pomocí webového serveru Nginx naleznete v odkazech v závěru kapitoly.</p>
 
 <p>Gitweb má konfigurační soubor umístěný v <code>/etc/gitweb.conf</code>, je poměrně strohý, ale přesto obsahuje pár věcí, které můžete chtít změnit, jako logo, odkaz na každé stránce (vedoucí třeba zpět na váš web) atd.</p>
 

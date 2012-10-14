@@ -14,7 +14,7 @@
 
 <p>Tato komponenta je patrně tou nejzásadnější částí celého mechanismu – MTA je služba zodpovědná za přenos pošty z jednoho počítače na druhý, a to prostřednictvím klient–server architektury (server poštu přijímá, klient posílá). Poštu k odeslání může MTA získat buď z jiného MTA (pak se jedná o tzv. „relay“, tedy předání zprávy jinému „poštovnímu serveru“), nebo od MUA (pod čímž si zatím představte např. Thunderbird).</p>
 
-<p>V GNU/Linuxu je k dispozici řada MTA. Tento seriál se bude zabývat Postfixem, nicméně existuje celá řada dalších jako sendmail, Exim, qmail atd.</p>
+<p>V GNU/Linuxu je k dispozici řada MTA. Tato kniha se bude zabývat Postfixem, nicméně existuje celá řada dalších jako sendmail, Exim, qmail atd.</p>
 
 <h3>SMTP</h3>
 
@@ -149,7 +149,7 @@ Michal Do=C4=8Dekal</pre>
 
 <p>Doručování zpráv může být řízeno i přizpůsobováno jednotlivým uživatelům, a to obvykle právě na úrovni MDA. Kupříkladu, <em>maildrop</em> má svůj hlavní konfigurační soubor v <code>/etc/maildroprc</code>, ale je také možné poštu filtrovat na úrovni jednotlivých uživatelů, a sice v souboru <code>.mailfilter</code> v jejich domovském adresáři. Můžete tak vytvářet pravidla pro přesměrování nebo přesun mailů do příslušných složek.</p>
 
-<p>K dispozici je dokonce specifický jazyk pro pokročilé filtrování e-mailů s názvem Sieve (více viz odkazy pod článkem). Konfigurace MTA obvykle odkazuje na konkrétní MDA, který má být použit (v Postfixu k tomu slouží konfigurační direktiva <code>mailbox_command</code>, která udává, jaký program se má použít k doručování pošty).</p>
+<p>K dispozici je dokonce specifický jazyk pro pokročilé filtrování e-mailů s názvem Sieve (více viz odkazy v závěru kapitoly). Konfigurace MTA obvykle odkazuje na konkrétní MDA, který má být použit (v Postfixu k tomu slouží konfigurační direktiva <code>mailbox_command</code>, která udává, jaký program se má použít k doručování pošty).</p>
 
 <h3>Poštovní schránka</h3>
 
@@ -229,7 +229,7 @@ Michal Do=C4=8Dekal</pre>
 
 <p>Greylisting je z praktického hlediska velmi účinnou metodou, přitom jeho princip je velmi jednoduchý. V rámci něj se kontroluje tzv. triplet, tedy kombinace IP adresy doručovatele e-mailu, odesílatele a příjemce (dle SMTP). Byl-li tento triplet viděn dříve, server e-mail akceptuje. Pokud se objevil poprvé, server e-mail dočasně odmítne převzít (např. po dobu 5 minut). Teprve po opětovném doručení po uplynutí této doby jej převezme a daný triplet uloží do databáze.</p>
 
-<p>Greylisting vychází z toho, že normální SMTP server by se měl pokusit zprávu doručit znovu, zatímco nástroje spammerů tak obvykle nečiní. Nevýhodou Greylistingu je související prodleva – ta může trvat různě dlouho, 15 minut i čtyři hodiny (nebo déle). Špatně nakonfigurované SMTP servery vám třeba nemusí daný e-mail znovu doručit vůbec – po prvním pokusu to vzdají. Může také dojít k jiným problémům v závislosti na okolnostech (viz odkazy pod článkem). Greylisting je však v dnešní době natolik používanou metodou, že by na ni <em>měly</em> SMTP servery brát ohled.</p>
+<p>Greylisting vychází z toho, že normální SMTP server by se měl pokusit zprávu doručit znovu, zatímco nástroje spammerů tak obvykle nečiní. Nevýhodou Greylistingu je související prodleva – ta může trvat různě dlouho, 15 minut i čtyři hodiny (nebo déle). Špatně nakonfigurované SMTP servery vám třeba nemusí daný e-mail znovu doručit vůbec – po prvním pokusu to vzdají. Může také dojít k jiným problémům v závislosti na okolnostech (viz odkazy v závěru kapitoly). Greylisting je však v dnešní době natolik používanou metodou, že by na ni <em>měly</em> SMTP servery brát ohled.</p>
 
 <h4>Akce</h4>
 
@@ -331,7 +331,7 @@ http://www.openspf.org/Introduction OpenSPF, úvod do SPF
 
 <h3>Základní nastavení Postfixu</h3>
 
-<p>Konfigurace Postfixu je uložena v <code>/etc/postfix</code>, přičemž hlavní konfigurační soubor je <code>/etc/postfix/main.cf</code>. V dalších dílech vás provedu pokročilejší konfigurací, během které se patrně dostaneme i k řadě jiných souborů, ale pro základní nastavení vám stačí výše uvedený hlavní konfigurační soubor.</p>
+<p>Konfigurace Postfixu je uložena v <code>/etc/postfix</code>, přičemž hlavní konfigurační soubor je <code>/etc/postfix/main.cf</code>. V dalších kapitolách vás provedu pokročilejší konfigurací, během které se patrně dostaneme i k řadě jiných souborů, ale pro základní nastavení vám stačí výše uvedený hlavní konfigurační soubor.</p>
 
 <p>Základní nastavení Postfixu může vypadat nějak takto:</p>
 
@@ -399,7 +399,7 @@ inet_protocols = all</pre>
 
 <p>Připomínám, že byste měli určitě otestovat, zda váš server není open relay (viz výše).</p>
 
-<p>Postfix je velmi komplexní nástroj a má široké možnosti nastavení. V odkazech pod článkem naleznete jak odkazy na dokumentaci Postfixu, tak odkazy na wiki různých distribucí, ve kterých existují záznamy o Postfixu.</p>
+<p>Postfix je velmi komplexní nástroj a má široké možnosti nastavení. V odkazech v závěru kapitoly naleznete jak odkazy na dokumentaci Postfixu, tak odkazy na wiki různých distribucí, ve kterých existují záznamy o Postfixu.</p>
 
 <h2>Pár slov o nastavení Postfixu a nástroji postconf</h2>
 
@@ -443,7 +443,7 @@ apropos postfix</pre>
 
 <h2>Řízení fronty Postfixu a Postfix na více portech</h2>
 
-<p>Ne všechny maily se nutně musí podařit doručit okamžitě, a to nikoliv nezbytně proto, že je cílový poštovní server nedostupný. Pokud jste četli předchozí díly, možná si vzpomínáte na techniku zvanou greylisting, která spočívá v odmítání doručení po určitou dobu.</p>
+<p>Ne všechny maily se nutně musí podařit doručit okamžitě, a to nikoliv nezbytně proto, že je cílový poštovní server nedostupný. Pokud jste četli předchozí kapitoly, možná si vzpomínáte na techniku zvanou greylisting, která spočívá v odmítání doručení po určitou dobu.</p>
 
 <p>Poštovní server se v případě nedostupnosti cílového serveru podívá, jestli nejsou k dispozici nějaké jiné poštovní servery v MX záznamech pro danou doménu. Pokud ne, e-mail zůstane ve frontě a Postfix se ho časem pokusí znovu doručit. Po určité době (5 dní ve výchozím stavu) to vzdá úplně a pošle odesílateli zprávu o nedoručení. Tuto dobu je možné ovlivnit konfigurační volbou <code>maximal_queue_lifetime</code> (výchozí hodnota je „<code>5d</code>“ (<code>d</code> jako <em>day</em>, tedy den).</p>
 
@@ -502,7 +502,7 @@ apropos postfix</pre>
 
 <pre>/etc/init.d/postgrey restart</pre>
 
-<p>Integrace s Postfixem se provádí přes volbu <code>smtpd_recipient_restrictions</code>, která umožňuje klást požadavky na příjemce a odmítat poštu, která jim nevyhovuje. Více o restrikcích se dozvíte v příštím díle. Výchozí hodnotou této volby je řetězec dvou parametrů oddělených čárkou:</p>
+<p>Integrace s Postfixem se provádí přes volbu <code>smtpd_recipient_restrictions</code>, která umožňuje klást požadavky na příjemce a odmítat poštu, která jim nevyhovuje. Více o restrikcích se dozvíte v příští kapitole. Výchozí hodnotou této volby je řetězec dvou parametrů oddělených čárkou:</p>
 
 <ul>
 <li>
@@ -757,7 +757,7 @@ uzivatel2@example.org x</pre>
 <li>vytvořit pro uživatele pošty virtuální účty, nesvázané s unixovými</li>
 </ul>
 
-<p>Druhá z variant se často realizuje ve spolupráci s nějakou databází (MySQL, PostgreSQL), kde se uchovávají informace o účtech, zatímco pošta se směruje buď do souborů, nebo také do databáze. Jedná se o komplexní řešení, které bude probráno v jednom z následujících dílů.</p>
+<p>Druhá z variant se často realizuje ve spolupráci s nějakou databází (MySQL, PostgreSQL), kde se uchovávají informace o účtech, zatímco pošta se směruje buď do souborů, nebo také do databáze. Jedná se o komplexní řešení, které bude probráno dále.</p>
 
 <p>První varianta je oproti druhé velmi jednoduchá. Přidejte do <code>/etc/postfix/main.cf</code> následující řádky:</p>
 
@@ -948,7 +948,7 @@ http://www.postfix.org/RESTRICTION_CLASS_README.html Postfix restriction classes
 
 <h4>Webová rozhraní</h4>
 
-<p>Kromě výše uvedených metod ještě přicházejí v úvahu webová rozhraní. Přímo v distribuci Debianu naleznete jednodušší Squirrelmail a komplexnější a „hezčí“ Roundcube. Ta budou představena a zprovozněna v některém z dalších dílů.</p>
+<p>Kromě výše uvedených metod ještě přicházejí v úvahu webová rozhraní. Přímo v distribuci Debianu naleznete jednodušší Squirrelmail a komplexnější a „hezčí“ Roundcube. Ta budou představena dále.</p>
 
 <h3>Odesílání pošty, SMTP AUTH a TLS</h3>
 
@@ -997,7 +997,7 @@ smtpd_sasl_authenticated_header = yes</pre>
         by server.example.net (Postfix) with ESMTPSA id 2A0D62970025
         for &lt;michal@server.example.net&gt;; Thu, 31 May 2012 22:43:24 +0200 (CEST)</pre>
 
-<p>Výše uvedené nastavení řeklo Postfixu, aby podporoval TLS a SASL autentifikaci. Vy ale chcete uživatelům autentifikovaným přes SASL umožnit odesílat poštu. Za tímto účelem je ještě třeba upravit proměnnou <code>smtpd_recipient_restrictions</code> (viz minulý díl seriálu, kde byla tato problematika podrobně popsána). Na správné místo je třeba přidat <code>permit_sasl_authenticated</code>, obvykle za <code>permit_mynetworks</code>:</p>
+<p>Výše uvedené nastavení řeklo Postfixu, aby podporoval TLS a SASL autentifikaci. Vy ale chcete uživatelům autentifikovaným přes SASL umožnit odesílat poštu. Za tímto účelem je ještě třeba upravit proměnnou <code>smtpd_recipient_restrictions</code> (viz předchozí kapitola{link:"Poštovní server":"Restrictions"}, kde byla tato problematika podrobně popsána). Na správné místo je třeba přidat <code>permit_sasl_authenticated</code>, obvykle za <code>permit_mynetworks</code>:</p>
 
 <pre>smtpd_recipient_restrictions =
    reject_unauth_pipelining,
@@ -1109,7 +1109,7 @@ service pop3-login {
 
 <h4>Bez IMAP serveru to nejde</h4>
 
-<p>Obě webová rozhraní využívají pro přístup k poštovní schránce protokol IMAP, je tedy nutné mít IMAP server zprovozněný (návod, jak na to, naleznete v minulém díle). Nechcete-li nabízet přístup přes IMAP celému světu, nakonfigurujte IMAP server tak, aby naslouchal jen na localhostu. Pokud neomezujete odchozí SMTP pocházející přímo ze serveru (localhost), není třeba žádná speciální konfigurace pro odesílání pošty.</p>
+<p>Obě webová rozhraní využívají pro přístup k poštovní schránce protokol IMAP, je tedy nutné mít IMAP server zprovozněný. Nechcete-li nabízet přístup přes IMAP celému světu, nakonfigurujte IMAP server tak, aby naslouchal jen na localhostu. Pokud neomezujete odchozí SMTP pocházející přímo ze serveru (localhost), není třeba žádná speciální konfigurace pro odesílání pošty.</p>
 
 <h3>Squirrelmail</h3>
 
@@ -1192,7 +1192,7 @@ http://wiki2.dovecot.org/Errors/ChgrpNoPerm Dovecot Wiki, Operation Not Permitte
 
 <h2>Antivirus a antispam</h2>
 
-<p>Na většině linuxových poštovních serverů běží dva základní nástroje pro boj se spamem, a sice SpamAssassin v roli antispamu a ClamAV v roli antivirového řešení. V tomto díle se dozvíte, jak je nainstalovat a nastavit i na vašem poštovním serveru.</p>
+<p>Na většině linuxových poštovních serverů běží dva základní nástroje pro boj se spamem, a sice SpamAssassin v roli antispamu a ClamAV v roli antivirového řešení. V této kapitole se dozvíte, jak je nainstalovat a nastavit i na vašem poštovním serveru.</p>
 
 <p>Dříve se kniha věnovala řešením, které by měly pomoci omezit množství spamu, které váš server propustí. Za jedno z nejúčinnějších řešení je považován greylisting, ale není to jediná technika, která může pomoci.</p>
 
@@ -1329,7 +1329,7 @@ $final_spam_destiny       = D_DISCARD;</pre>
 
 <h3>Slovo závěrem</h3>
 
-<p>Amavis je komplexní nástroj, který toho umí poměrně hodně. Pokud jej na svůj server nasadíte, doporučuji vám projít si jeho dokumentaci (můžete začít u odkazů v závěru článku), zejména pak hodnoty v souboru <code>/etc/amavis/conf.d/20-debian_defaults</code>.</p>
+<p>Amavis je komplexní nástroj, který toho umí poměrně hodně. Pokud jej na svůj server nasadíte, doporučuji vám projít si jeho dokumentaci (můžete začít u odkazů v závěru kapitoly), zejména pak hodnoty v souboru <code>/etc/amavis/conf.d/20-debian_defaults</code>.</p>
 
 http://colekcolek.com/2012/02/25/install-spamassasin-clamav-amavis-ubuntu-debian-squeeze/ How to Install SpamAssasin, ClamAV, Amavis on Ubuntu / Debian Squeeze
 http://workaround.org/ispmail/lenny/amavis-filtering-spam-and-viruses AMaViS: Filtering spam and viruses
@@ -1341,13 +1341,13 @@ http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)
 
 <h2>Poštovní server a více domén</h2>
 
-<p>Ve chvíli, kdy máte k dispozici více domén, vám už patrně ta nejjednodušší konfigurace poštovního serveru vázaná na unixové účty nebude stačit a začnete se poohlížet po možnostech tvorby virtuálních účtů pro jednotlivé domény. V tomto díle představíme jedno z takových řešení, postavené na webové aplikaci Postfixadmin.</p>
+<p>Ve chvíli, kdy máte k dispozici více domén, vám už patrně ta nejjednodušší konfigurace poštovního serveru vázaná na unixové účty nebude stačit a začnete se poohlížet po možnostech tvorby virtuálních účtů pro jednotlivé domény. V této knize představím řešení založené na aplikaci <em>Postfixadmin</em></p>
 
 <p>Dosavadní konfigurace poštovního serveru počítala výhradně s vazbou poštovní schránky na unixové účty. Toto řešení je sice velmi jednoduché na implementaci, ale má několik nevýhod. V první řadě je to nutnost vytvořit unixový účet všem majitelům poštovních schránek. Pokud byste takovému uživateli nechtěli poskytnout přístup k shellu nebo jiným službám vázaným na unixové účty (což je z bezpečnostních důvodů více než rozumné), museli byste to nějakým způsobem ošetřit všude tam, kde se unixové účty používají.</p>
 
 <p>Obsluhuje-li váš server více domén, mohli jste narazit na problém se stejnými jmény na různých doménách. Představte si, že máte unixového uživatele <em>michal</em> a domény <em>example.com</em> a <em>example.net</em>, přičemž poštovní schránky <code>michal@example.com</code> a <code>michal@example.net</code> mají mít jiné vlastníky. Ve výchozí konfiguraci Postfixu by pošta z obou adres směřovala do schránky uživatele <em>michal</em>. Jedno z řešení tohoto problému, spočívající ve vytvoření virtuálních aliasů, které ukazují na různé unixové účty (tedy např. <code>michal@example.com</code> by ukazoval na <em>michal1</em> a <code>michal@example.net</code> by ukazoval na účet <em>michal2</em>), bylo představeno v kapitole <em>Aliasy a záložní poštovní server</em>{link:"Poštovní server":"Aliasy a záložní poštovní server}. Takové řešení lze použít, dokud nemáte větší množství uživatelů nebo domén.</p>
 
-<p>Jinou možností řešení tohoto problému jsou plně virtuální účty, tzn. zcela izolované účty pro poštu, s vlastním heslem (nezávislým na unixovém) pro každou schránku. Existuje mnoho způsobů, jak takové řešení implementovat. Často se jako úložiště nepoužívají textové soubory, nýbrž databáze (což bude i případ tohoto návodu). Postavíte-li si vlastní řešení, budete si muset ošetřit zakládání, rušení a nastavování účtů. V tomto díle bude uvedeno připravené řešení s využitím Postfixadminu, který správu účtů a domén usnadňuje.</p>
+<p>Jinou možností řešení tohoto problému jsou plně virtuální účty, tzn. zcela izolované účty pro poštu, s vlastním heslem (nezávislým na unixovém) pro každou schránku. Existuje mnoho způsobů, jak takové řešení implementovat. Často se jako úložiště nepoužívají textové soubory, nýbrž databáze (což bude i případ tohoto návodu). Postavíte-li si vlastní řešení, budete si muset ošetřit zakládání, rušení a nastavování účtů. V této kapitole bude uvedeno připravené řešení s využitím Postfixadminu, který správu účtů a domén usnadňuje.</p>
 
 <h3>Postfixadmin</h3>
 
@@ -1355,7 +1355,7 @@ http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)
 
 <h3>Virtuální účty, Postfix a Postfixadmin</h3>
 
-<p>Možnosti Postfixu a jeho nastavení jsou nepřeberné, což by mělo jít částečně poznat i na tomto seriálu, jelikož poštovnímu serveru se věnovalo předchozích deset dílů, což je mnohem více, než bylo věnováno jakémukoliv jinému tématu, a to byly probírány stále spíše jen základy. Řešení popsané v tomto dílu lze také považovat za základní řešení, od kterého se můžete odrazit, přičemž pokročilejší funkce typu kvót či automatické odpovědi v případě nepřítomnosti jsou ponechány na vašem dalším zkoumání Postfixadminu a Postfixu.</p>
+<p>Možnosti Postfixu a jeho nastavení jsou nepřeberné, což by mělo jít částečně poznat i na této knize, jelikož poštovnímu serveru se věnovalo nejvíce textu ze všech témat, a to byly probírány stále spíše jen základy. Řešení popsané v této kapitole lze považovat za základní řešení, od kterého se můžete odrazit, přičemž pokročilejší funkce typu kvót či automatické odpovědi v případě nepřítomnosti jsou ponechány na vašem dalším zkoumání Postfixadminu a Postfixu.</p>
 
 <p>Zatímco nastavit Postfixadmin je relativně jednoduché, ke zprovoznění celého řešení bude třeba upravit konfiguraci Postfixu a IMAP/POP3 démona, které nejsou úplně triviální a není těžké v nich udělat chybu. Proto tentokrát více než kdy jindy důrazně nedoporučuji provádět podobné úpravy na produkčních serverech. Doporučuji si toto řešení vyzkoušet někde nanečisto před nasazením.</p>
 
@@ -1393,7 +1393,7 @@ http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)
 
 <p>Pozor – budete-li využívat Postfixadmin na Debianu Squeeze, budete muset řešit aktualizace Postfixadminu ručně, jelikož jste pro instalaci nepoužili repozitáře, kde by se vám o aktualizaci starali jejich správci. Používáte-li Debian Wheezy, můžete tento odstavec ignorovat.</p>
 
-<p>Během instalace vás Debconf vyzve, abyste vybrali webový server pro automatickou konfiguraci a abyste vybrali databázový server. Následující text bude předpokládat MySQL jako databázový server. Chcete-li používat PostgreSQL, nahlédněte do dokumentace (některé databázové dotazy se budou lišit, nestačí tedy jen přepsat <code>mysql</code> za <code>pgsql</code>). Návod pro PostgreSQL naleznete i v odkazech pod článkem.</p>
+<p>Během instalace vás Debconf vyzve, abyste vybrali webový server pro automatickou konfiguraci a abyste vybrali databázový server. Následující text bude předpokládat MySQL jako databázový server. Chcete-li používat PostgreSQL, nahlédněte do dokumentace (některé databázové dotazy se budou lišit, nestačí tedy jen přepsat <code>mysql</code> za <code>pgsql</code>). Návod pro PostgreSQL naleznete i v odkazech v závěru kapitoly.</p>
 
 <h3>Integrace s webovým serverem</h3>
 
@@ -1457,7 +1457,7 @@ http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)
 
 <p>Operace realizované v prostředí Postfixadminu se logují a jak hlavní správce, tak správci domén mají přehled, které operace byly kdy provedeny.</p>
 
-<p>Postfixadmin umožňuje také nadefinovat automatické stahování pošty z cizích POP3/IMAP serverů do konkrétních poštovních schránek. Tato funkčnost je však vázána na příslušná nastavení, která v tomto seriálu probrána nebudou. V odkazech pod článkem však naleznete návod, jak tuto funkčnost zprovoznit.</p>
+<p>Postfixadmin umožňuje také nadefinovat automatické stahování pošty z cizích POP3/IMAP serverů do konkrétních poštovních schránek. Tato funkčnost je však vázána na příslušná nastavení, která v této knize probrána nebudou. V odkazech pod kapitolou však naleznete návod, jak tuto funkčnost zprovoznit.</p>
 
 <h3>Propojení s Postfixem</h3>
 
@@ -1591,7 +1591,7 @@ first_valid_uid = 8</pre>
 
 <h3>SMTP autentifikace a virtuální účty</h3>
 
-<p>Jelikož pro SMTP autentifikaci nejspíše využíváte SASL a povolujete vzdálený přístup k SMTP serveru prostřednictvím <code>permit_sasl_authenticated</code> v nastavení Postfixu (viz dřívější díly), výše uvedené úpravy vám neumožní odesílat poštu z virtuálních účtů (autentifikace vám selže). I pro tuto záležitost existuje řada možných řešení. Já uvedu řešení spočívající v autentifikaci prostřednictvím lokálního IMAP serveru. Upravte <code>/etc/default/saslauthd</code> následujícím způsobem:</p>
+<p>Jelikož pro SMTP autentifikaci nejspíše využíváte SASL a povolujete vzdálený přístup k SMTP serveru prostřednictvím <code>permit_sasl_authenticated</code> v nastavení Postfixu (viz dřívější kapitoly), výše uvedené úpravy vám neumožní odesílat poštu z virtuálních účtů (autentifikace vám selže). I pro tuto záležitost existuje řada možných řešení. Já uvedu řešení spočívající v autentifikaci prostřednictvím lokálního IMAP serveru. Upravte <code>/etc/default/saslauthd</code> následujícím způsobem:</p>
 
 <pre>MECHANISMS="rimap"
 MECH_OPTIONS="localhost"

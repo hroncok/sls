@@ -106,7 +106,7 @@ DocumentRoot /var/www/domena2
 
 <h3>Konfigurace v rámci virtuálních webů</h3>
 
-<p>Konfigurační možnosti Apache v rámci jednotlivých virtuálních webů jsou velice široké. Zde doporučuji podívat se do dokumentace, kde je vše dopodrobna popsáno. V tomto článku budou představeny pouze ty nejpoužívanější a nejzásadnější volby. Jednou z nejobvyklejších oblastí v rámci konfigurace virtuálních webů je řízení přístupu. To se obvykle specifikuje na úrovni adresářů, jejichž konfigurační volby se „obalí“ do příslušného tagu, takto:</p>
+<p>Konfigurační možnosti Apache v rámci jednotlivých virtuálních webů jsou velice široké. Zde doporučuji podívat se do dokumentace, kde je vše dopodrobna popsáno. V této kapitole budou představeny pouze ty nejpoužívanější a nejzásadnější volby. Jednou z nejobvyklejších oblastí v rámci konfigurace virtuálních webů je řízení přístupu. To se obvykle specifikuje na úrovni adresářů, jejichž konfigurační volby se „obalí“ do příslušného tagu, takto:</p>
 
 <pre>&lt;Directory /var/www/example.com/&gt;
     Order deny,allow
@@ -222,7 +222,7 @@ SSLCertificateKeyFile /cesta/ke/klici.key</pre>
 
 <p>Poté je možné použít ostatních direktiv. Při nasazení webových aplikací na server budete patrně nastavovat hodnotu direktivy <code>RewriteBase</code>, která upraví výchozí URL pro samotný přepis. Kupříkladu, pokud budete instalovat aplikaci do <code>/appl</code> na web (tzn. URL aplikace bude např. <code>http://www.example.org/appl</code>), specifikujete jako hodnotu v <code>RewriteBase</code> právě <code>/appl</code>. Toto umístění pak bude tvořit základnu pro všechny přepisy, které specifikujete pomocí <code>RewriteCond</code> a <code>RewriteRule</code>.</p>
 
-<p>Samotný přepis URL je realizován pomocí určité podmínky (nebo podmínek), za kterých přepis nastane (ty jsou specifikovány pomocí direktivy <code>RewriteCond</code>), a jednoho nebo více pravidel pro samotný přepis (k tomu slouží direktiva <code>RewriteRule</code>). Syntax a možnosti obou direktiv jsou velice bohaté, já se omezím pouze na jediný příklad a odkážu vás v odkazech pod článkem na další zdroje, kde se dozvíte více.</p>
+<p>Samotný přepis URL je realizován pomocí určité podmínky (nebo podmínek), za kterých přepis nastane (ty jsou specifikovány pomocí direktivy <code>RewriteCond</code>), a jednoho nebo více pravidel pro samotný přepis (k tomu slouží direktiva <code>RewriteRule</code>). Syntax a možnosti obou direktiv jsou velice bohaté, já se omezím pouze na jediný příklad a odkážu vás na odkazy umístěné v závěru kapitoly, kde se dozvíte více.</p>
 
 <pre>RewriteCond  %{HTTP_HOST}  ^([^.]+)\.([^.]+)$
 RewriteRule  ^(.*)$ http://www.%{HTTP_HOST}$1 [L,R=301,QSA]</pre>

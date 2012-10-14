@@ -30,7 +30,7 @@
 
 <h3>Hrozby spojené s Torem</h3>
 
-<p>Jelikož Tor je jeden z nejpoužívanějších anonymizačních nástrojů, čelí celé řadě hrozeb. Ačkoliv se uživatelské stránce věci nechci příliš věnovat vzhledem k povaze seriálu, přesto si dovolím hlavní body hrozeb použití Toru rozebrat, a to včetně hrozeb z pohledu uživatele (některé z nich jsou relevantní i pro správce serverů, zejména pak správce nějaké „skryté služby“).</p>
+<p>Jelikož Tor je jeden z nejpoužívanějších anonymizačních nástrojů, čelí celé řadě hrozeb. Ačkoliv se uživatelské stránce věci nechci příliš věnovat vzhledem k povaze knihy, přesto si dovolím hlavní body hrozeb použití Toru rozebrat, a to včetně hrozeb z pohledu uživatele (některé z nich jsou relevantní i pro správce serverů, zejména pak správce nějaké „skryté služby“).</p>
 
 <h4>Hrozby z pohledu uživatele</h4>
 
@@ -70,7 +70,7 @@
 
 <p>Jako úplně první krok, ještě před samotnou anonymizací nějaké služby, bych doporučoval zvážit, čeho se snažíte dosáhnout, zda je použití Toru skutečně vhodné, jaké jsou jeho nevýhody a slabiny apod. Můžete samozřejmě prostřednictvím Toru zpřístupnit nějakou všeobecně dostupnou službu jako svůj osobní blog (pak vás případná ztráta anonymity nemusí trápit), nebo vytvořit nějakou službu dostupnou jen prostřednictvím Toru.</p>
 
-<p>Když už jsem se dotkl ztráty anonymity, doporučuji se také pečlivě zamyslet nad tím, jaký dopad by na vás tato ztráta měla, a zařídit se podle toho. Nechci se vzhledem k minulému dílu příliš opakovat, ale tvůrci Toru jej v současné době stále považují za experimentální software, u kterého byste se neměli vyloženě spoléhat na zachování anonymity.</p>
+<p>Když už jsem se dotkl ztráty anonymity, doporučuji se také pečlivě zamyslet nad tím, jaký dopad by na vás tato ztráta měla, a zařídit se podle toho. Nechci se vzhledem k předchozí kapitole příliš opakovat, ale tvůrci Toru jej v současné době stále považují za experimentální software, u kterého byste se neměli vyloženě spoléhat na zachování anonymity.</p>
 
 <h3>Volba softwaru pro skrytý server</h3>
 
@@ -152,8 +152,6 @@ iptables -A OUTPUT -m owner --uid-owner uzivatel -j REJECT</pre>
 <p>Na závěr nemohu nezopakovat dvě podstatné věci z úvodu. V první řadě doporučuji promyslet, co budete přes Tor nabízet, jak, komu a jaké to pro vás bude mít důsledky. Druhým mým doporučením je zařadit do vašich krizových scénářů nejenom možnost, že server jako takový bude kompromitován, ale že bude kompromitována i jeho identita.</p>
 
 <h2>Tvorba Tor relaye</h2>
-
-<p>Minulé dva díly představily anonymizační nástroj Tor a jeho možné nasazení při tvorbě anonymizovaného serveru. Dnes vám ukážu, jak vytvořit vlastní Tor relay (resp. Tor server).</p>
 
 <h3>Úvod</h3>
 
@@ -272,13 +270,13 @@ ExitPolicy reject *:25,reject *:465,accept *:*</pre>
 
 <ul>
 <li>
-<p>server pečlivě zabezpečte (bezpečnost byla v tomto seriálu podrobně probírána)</p>
+<p>server pečlivě zabezpečte (bezpečnost byla v této knize podrobně probírána{link:"Bezpečnost"})</p>
 </li>
 <li>
 <p>serverový software i Tor pravidelně aktualizujte</p>
 </li>
 <li>
-<p>šifrujte swap a pokud možno šifrujte celý systém (jak na to v Linuxu viz dřívější díly seriálu)</p>
+<p>šifrujte swap a pokud možno šifrujte celý systém (jak na to v Linuxu viz kapitola<em>Šifrování s dm-crypt/LUKS</em>{link:"Správa disků":"Šifrování s dm-crypt/LUKS"})</p>
 </li>
 <li>
 <p>zálohujte a chraňte obsah <code>/var/lib/tor/keys</code> – kompromitace souborů s klíči umožní útočníkům dešifrovat komunikaci procházející vaším serverem</p>

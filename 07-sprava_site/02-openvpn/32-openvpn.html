@@ -2,7 +2,7 @@
 
 <h3>Úvod do OpenVPN</h3>
 
-<p>OpenVPN je F/OSS nástroj dostupný snad v každé běžné linuxové distribuci, pomocí kterého je možné vytvářet šifrované tunely mezi dvěma (a více) počítači. OpenVPN může fungovat jako klient nebo jako server, podporuje řadu možností zabezpečení a má širokou škálu nastavení. Z tohoto důvodu bývá obtížné sestavit návod pro zprovoznění OpenVPN, neboť možností, co lze s OpenVPN provádět, je nepřeberně mnoho. V tomto seriálu budou prezentovány dvě alternativy, počínaje tou úplně nejjednodušší s obyčejným sdíleným klíčem, která je předmětem tohoto dílu, a konče pokročilejším řešením s certifikáty, více uživateli a směrováním veškeré komunikace přes šifrovaný tunel, které bude předmětem příštího dílu.</p>
+<p>OpenVPN je F/OSS nástroj dostupný snad v každé běžné linuxové distribuci, pomocí kterého je možné vytvářet šifrované tunely mezi dvěma (a více) počítači. OpenVPN může fungovat jako klient nebo jako server, podporuje řadu možností zabezpečení a má širokou škálu nastavení. Z tohoto důvodu bývá obtížné sestavit návod pro zprovoznění OpenVPN, neboť možností, co lze s OpenVPN provádět, je nepřeberně mnoho. V této knize budou prezentovány dvě alternativy, počínaje tou úplně nejjednodušší s obyčejným sdíleným klíčem a konče pokročilejším řešením s certifikáty, více uživateli a směrováním veškeré komunikace přes šifrovaný tunel.</p>
 
 <p>Pokud budete chtít zprovozňovat OpenVPN na svém virtuálním serveru, předesílám, že je nutné mít k dispozici jaderný modul "tun".</p>
 
@@ -316,7 +316,7 @@ push "dhcp-option DNS 10.45.42.1"</pre>
 
 <p>Jako parametr pro volbu <code>route-gateway</code> zadejte IP adresu serveru v rámci VPN, tedy IP adresu, kterou jste zadali jako parametr volby <code>ifconfig</code>. První řádka zajistí, že se klientovi pošle specifikovaná IP adresa brány. Druhá volba zajistí, že se klientovi nařídí, aby přesměroval veškerou svou komunikaci přes VPN. Parametr <code>def1</code> zajistí, aby se neodstranila původní brána z konfigurace sítě klienta.</p>
 
-<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď OpenDNS, nebo Google DNS. Stavba vlastního DNS serveru je mimo zaměření tohoto článku, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>, který je probrán v závěru knihy v části o DNS{link:"DNS":"Jednoduchý DNS a DHCP server v jednom: dnsmasq"}.</p>
+<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď OpenDNS, nebo Google DNS. Stavba vlastního DNS serveru je mimo zaměření této kapitoly, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>, který je probrán v závěru knihy v části o DNS{link:"DNS":"Jednoduchý DNS a DHCP server v jednom: dnsmasq"}.</p>
 
 <h4>Úprava konfigurace OpenVPN klientů</h4>
 

@@ -4,7 +4,7 @@
 
 <p>Databázových systémů (DBMS) je v GNU/Linuxu dostupných poměrně dost. Mezi ty nejznámější patří určitě MySQL, která se na webových serverech používá nejčastěji a jejíž základní zprovoznění bylo již v této knize probráno, a to v kapitole <em>Instalace LAMP</em>{link:"Webový server a databáze":"Instalace LAMP"}. Kromě MySQL existuje ovšem řada jiných možností, které mohou být pro různé typy použití lepší volbou, a zde nelze nepřehlédnout PostgreSQL, špičkovou open-source databázi šířenou pod BSD/MIT-like licencí, s dlouhou tradicí a velmi působivými vlastnostmi.</p>
 
-<p>Samotným porovnáním obou DBMS se tento článek zabývat nebude, nicméně v odkazech pod ním naleznete články, které oba DBMS velmi podrobně srovnávají. Aby to nevypadalo, že v GNU/Linuxu existují pouze MySQL a Postgres, dodám také, že kromě těchto dvou DBMS existuje řada dalších, ať již open-source nebo proprietárních, běžících pod GNU/Linuxem. Více viz odkazy pod kapitolou.</p>
+<p>Samotným porovnáním obou DBMS se tato kapitola zabývat nebude, nicméně v odkazech pod ní naleznete články, které oba DBMS velmi podrobně srovnávají. Aby to nevypadalo, že v GNU/Linuxu existují pouze MySQL a Postgres, dodám také, že kromě těchto dvou DBMS existuje řada dalších, ať již open-source nebo proprietárních, běžících pod GNU/Linuxem. Více viz odkazy pod kapitolou.</p>
 
 <h3>Instalace Postgresu</h3>
 
@@ -70,7 +70,7 @@
 
 <h3>Postgres a webové aplikace</h3>
 
-<p>Na závěr článku jen zmíním, jak je to s Postgresem a webovými aplikacemi, které byste chtěli nasadit. Velká rozšířenost MySQL v této oblasti, spolu s rozdíly mezi oběma DBMS, má za následek řadu projektů, které fungují pouze s MySQL, a ne s Postgresem. Z velmi známých CMS je to třeba Joomla!, naopak její velký konkurent Drupal na Postgresu funguje. Jak jsem sám procházel seznamy CMS a webových aplikací, podpora Postgresu není ani mizivá, ale ani široká.</p>
+<p>Na závěr kapitoly jen zmíním, jak je to s Postgresem a webovými aplikacemi, které byste chtěli nasadit. Velká rozšířenost MySQL v této oblasti, spolu s rozdíly mezi oběma DBMS, má za následek řadu projektů, které fungují pouze s MySQL, a ne s Postgresem. Z velmi známých CMS je to třeba Joomla!, naopak její velký konkurent Drupal na Postgresu funguje. Jak jsem sám procházel seznamy CMS a webových aplikací, podpora Postgresu není ani mizivá, ale ani široká.</p>
 
 <p>Aby Postgres s webovými aplikacemi pracoval, budete nejspíše potřebovat příslušný databázový adaptér pro jazyk, ve kterém je příslušná webová aplikace napsána. V případě PHP je potřeba nainstalovat balíček <code>php5-pgsql</code>:</p>
 
@@ -207,7 +207,7 @@ TODO find image
 
 <h3>Obnova ze záloh</h3>
 
-<p>Tento článek začal představením klienta <code>psql</code> a tímto nástrojem také skončí. Jelikož záloha DB/DBMS má podobu sady SQL příkazů uložených v určitém souboru, není nic jednoduššího než vzít klienta <code>psql</code> a všechny SQL příkazy postupně provést, takto:</p>
+<p>Tato kapitola začala představením klienta <code>psql</code> a tímto nástrojem také skončí. Jelikož záloha DB/DBMS má podobu sady SQL příkazů uložených v určitém souboru, není nic jednoduššího než vzít klienta <code>psql</code> a všechny SQL příkazy postupně provést, takto:</p>
 
 <pre>psql -U postgres -h localhost -p 5432 &lt; zaloha.sql</pre>
 

@@ -254,7 +254,7 @@ ip addr add 10.0.1.2/24 dev eth0</pre>
 
 <h3>Nastavení resolveru</h3>
 
-<p>Pro plně funkční připojení k internetu vám v tuto chvíli chybí ještě jedna věc. Přiřazení IP adres vašim rozhraním bylo probráno v minulém díle, nastavení výchozí brány bylo probráno kousek výše, zbývá tedy už jen nastavení DNS resolveru. Bez toho byste pro kontaktování jiných počítačů museli místo jmen (např. <em>linuxexpres.cz</em>) použít IP adresy. Resolver je DNS klient, vestavěný v operačních systémech, který se dotazuje resolvujících DNS serverů, jež vám obvykle přiřadí ISP. Ty mají tu charakteristiku, že pro vás realizují vyhledávání, pokud příslušné DNS záznamy nenajdou ve své cache nebo místní databázi.</p>
+<p>Pro plně funkční připojení k internetu vám v tuto chvíli chybí ještě jedna věc. Přiřazení IP adres vašim rozhraním a nastavení výchozí brány bylo probráno výše, zbývá tedy už jen nastavení DNS resolveru. Bez toho byste pro kontaktování jiných počítačů museli místo jmen (např. <em>linuxexpres.cz</em>) použít IP adresy. Resolver je DNS klient, vestavěný v operačních systémech, který se dotazuje resolvujících DNS serverů, jež vám obvykle přiřadí ISP. Ty mají tu charakteristiku, že pro vás realizují vyhledávání, pokud příslušné DNS záznamy nenajdou ve své cache nebo místní databázi.</p>
 
 <p>Nastavení resolveru v Linuxu je velmi jednoduché, stačí upravit soubor <code>/etc/resolv.conf</code> a přidat do něj alespoň jeden záznam pro DNS server:</p>
 
@@ -304,7 +304,7 @@ počítač2 ~# ip route del 10.0.0.0/24 via 10.0.1.1</pre>
 
 <p>Nástroj <code>ip</code> (a potažmo linuxové jádro) toho umí mnohem více. Řekněme, že máte k dispozici dvě brány a chcete nějakou komunikaci směrovat přes jednu a jinou komunikaci přes druhou bránu. Něco takového je také možné, a to pomocí směrovacích pravidel (<code>ip rule</code>).</p>
 
-<p>V minulém díle jste viděli příklady směrování. To, co jsem vám zamlčel, je skutečnost, že směrovacích tabulek může být více. Nemusíte tedy mít všechna směrovací pravidla pohromadě, ale můžete je rozdělit. Pomocí <code>ip rule</code> pak můžete definovat, kdy se použije jaká tabulka.</p>
+<p>Příklady směrování jste již viděli. To, co jsem vám zamlčel, je skutečnost, že směrovacích tabulek může být více. Nemusíte tedy mít všechna směrovací pravidla pohromadě, ale můžete je rozdělit. Pomocí <code>ip rule</code> pak můžete definovat, kdy se použije jaká tabulka.</p>
 
 <p>Příkladem může být následující situace. Máte směrovač, který má čtyři síťová rozhraní, přičemž dvě vedou do dvou místních sítí (192.168.0.0/24 a 192.168.1.0/24) a druhá dvě vedou ke dvěma poskytovatelům připojení. Vy chcete pakety z jedné sítě směrovat přes jednoho ISP a pakety z druhé sítě přes druhého ISP. Pro představu doplňuji malý ASCII „obrázek“:</p>
 
@@ -355,7 +355,7 @@ ip route show table 102</pre>
 <pre>iptables -t POSTROUTING -o eth0 -j MASQUERADE
 iptables -t POSTROUTING -o eth1 -j MASQUERADE</pre>
 
-<p>Snad nemusím dodávat, že všechno výše uvedené bude fungovat, pouze pokud bude v jádře povoleno předávání paketů (pokud nevíte, jak na to, mrkněte na poslední dva díly, kde je to popsáno). Pokud povoleno nebude, router nebude fungovat jako router a nebude pakety předávat.</p>
+<p>Snad nemusím dodávat, že všechno výše uvedené bude fungovat, pouze pokud bude v jádře povoleno předávání paketů. Pokud povoleno nebude, router nebude fungovat jako router a nebude pakety předávat.</p>
 
 <h3>Protokol IPv6 a nástroj ip</h3>
 
@@ -465,7 +465,7 @@ https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers Wikipedie (anglicky), 
 
 <pre>aptitude install zenmap</pre>
 
-<p>GUI Nmapu může být poměrně užitečné, jelikož umí značně zpřehlednit výsledky skenování. Umí také kombinovat informace získané z různých skenů, dokonce zvládne i skenované sítě vizualizovat. Určitě tedy doporučuji se na něj podívat, i když v tomto článku se jím zabývat nebudu. Jeho ovládání není nijak komplikované, a pochopíte-li základy práce s Nmapem, měli byste být schopni bez problémů zvládnout práci s jeho GUI.</p>
+<p>GUI Nmapu může být poměrně užitečné, jelikož umí značně zpřehlednit výsledky skenování. Umí také kombinovat informace získané z různých skenů, dokonce zvládne i skenované sítě vizualizovat. Určitě tedy doporučuji se na něj podívat, i když se jím v této knize zabývat nebudu. Jeho ovládání není nijak komplikované, a pochopíte-li základy práce s Nmapem, měli byste být schopni bez problémů zvládnout práci s jeho GUI.</p>
 
 <h3>Základní použití</h3>
 
@@ -477,7 +477,7 @@ https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers Wikipedie (anglicky), 
 
 <pre>nmap localhost</pre>
 
-<p>Přirozeně, sken zevnitř a sken zvenčí budou dávat odlišné výsledky, jelikož skenování sebe sama jde přes místní smyčku (local loopback, localhost), kde obvykle běží řada služeb, které ze sítě nemusí být vůbec dostupné. Pokud si vzpomenete na díly o bezpečnosti, zdůrazňoval jsem v nich možnost nakonfigurovat démony tak, aby naslouchaly pouze na místní smyčce a nikde jinde. Např. MySQL je tak (přinejmenším v Debianu) po čerstvé instalaci již nastaven. Dodám, že pro skenování sebe sama nemusí být Nmap vhodným nástrojem, osobně bych doporučil použít <code>netstat</code>:</p>
+<p>Přirozeně, sken zevnitř a sken zvenčí budou dávat odlišné výsledky, jelikož skenování sebe sama jde přes místní smyčku (local loopback, localhost), kde obvykle běží řada služeb, které ze sítě nemusí být vůbec dostupné. Pokud si vzpomenete na kapitolu <em>Úvod do bezpečnosti</em>{link:"Bezpečnost":"Úvod do bezpečnosti"}, zdůrazňoval jsem možnost nakonfigurovat démony tak, aby naslouchaly pouze na místní smyčce a nikde jinde. Např. MySQL je tak (přinejmenším v Debianu) po čerstvé instalaci již nastaven. Dodám, že pro skenování sebe sama nemusí být Nmap vhodným nástrojem, osobně bych doporučil použít <code>netstat</code>:</p>
 
 <pre>netstat -tulpn</pre>
 
