@@ -14,9 +14,7 @@
 
 <p>Jedna z dřívějších verzí nástroje <code>iptables</code> se jmenovala <code>ipchains</code>, a jsou to právě řetězy (chains), které tvoří pilíř fungování paketového filtru v Linuxu. Jejich funkci ilustruje následující obrázek:</p>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/3257.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/3257.jpg','Schéma funkce řetězu v linuxovém paketovém filtru','248','215'); return false;"><img alt="Schéma funkce řetězu v linuxovém paketovém filtru" class="ph_detail" height="215" src="http://www.linuxexpres.cz/uploads/gallery/detail/3257.jpg" width="248" /></a><span class="ph_title">Schéma funkce řetězu v linuxovém paketovém filtru</span></p>
+iptables1.svg Schéma funkce řetězu v linuxovém paketovém filtru
 
 <p>Jak je patrné z obrázku, tyto řetězy jsou tvořeny jednotlivými pravidly. Paket, který je zachycen v některém z řetězů, putuje od prvního pravidla k následujícímu, dokud některému z pravidel nevyhoví. Pokud některému z pravidel vyhoví, provede se některá z možných akcí, v rámci které může být paket zahozen (DROP), odmítnut (REJECT), přijat (ACCEPT) nebo předán jinému řetězu.</p>
 
@@ -26,9 +24,7 @@ TODO find image
 
 <p>Základní vestavěné řetězy, primární řetězy, které tvoří základ fungování Netfiltru. Mezi tyto řetězy patří řetěz INPUT, řetěz FORWARD a řetěz OUTPUT. Jejich význam vám osvětlí následující obrázek:</p>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/3258.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/3258.jpg','Schéma funkce řetězu v linuxovém paketovém filtru','561','207'); return false;"><img alt="Schéma funkce řetězu v linuxovém paketovém filtru" class="ph_detail" height="165" src="http://www.linuxexpres.cz/uploads/gallery/detail/3258.jpg" width="446" /></a><span class="ph_title">Schéma funkce řetězu v linuxovém paketovém filtru</span></p>
+iptables2.svg Princip funkce vestavěných řetězů
 
 <p>Jak je z obrázku patrné, jakmile paket dorazí na některé ze síťových rozhraní a je předán přes ovladač jádru, je provedeno směrovací rozhodnutí. Je-li paket určen místnímu počítači, směřuje do řetězu INPUT. Je-li určen nějakému jinému počítači, směřuje do řetězu FORWARD. Dlužno dodat, že předávání paketů (tj. funkcionalita směrovače/routeru) je třeba explicitně povolit v jádře. Bez tohoto povolení pakety předávány nebudou, a průchozí pakety budou zahozeny. K tomu se ale ještě dostaneme. V tuto chvíli je pro nás podstatný řetěz INPUT, kam směřují pakety určené pro tento počítač. Pokud tyto pakety projdou řetězem INPUT a budou povoleny (ať již explicitně pravidlem nebo politikou), budou předány příslušné aplikaci.</p>
 
@@ -362,9 +358,7 @@ sysctl -w net.ipv6.conf.all.forwarding=1
 
 <p>Jelikož tato kapitola je spíše orientována na základy linuxového paketového filtru, nebudu probírat všechny tabulky se všemi řetězy, které se v nich nachází. Místo toho se zaměřím na tabulku <code>nat</code> a dva řetězy v  ní, které nám trošku rozšíří schéma procházení paketů Netfiltrem. Pokud se  chcete o jednotlivých tabulkách dozvědět více, podívejte se na odkazy v závěru kapitoly.</p>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/3479.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/3479.jpg','Jak procházejí pakety linuxovým paketovým filtrem','387','516'); return false;"><img alt="Jak procházejí pakety linuxovým paketovým filtrem" class="ph_detail" height="446" src="http://www.linuxexpres.cz/uploads/gallery/detail/3479.jpg" width="335" /></a><span class="ph_title">Jak procházejí pakety linuxovým paketovým filtrem</span></p>
+iptables3.svg Jak procházejí pakety linuxovým paketovým filtrem
 
 <p>Na tomto obrázku jsou vidět dva další výchozí řetězce, které patří tabulce  <code>nat</code> (vyznačené zeleně). Jsou jimi řetězy <code>PREROUTING</code> a  <code>POSTROUTING</code>. Řetěz <code>PREROUTING</code> v tabulce  <code>nat</code> zachytává pakety ještě před směrovacím rozhodnutím, a řetěz  <code>POSTROUTING</code> zachytává pakety těsně před tím, než opustí  daný počítač. Tyto dva řetězy využijete, pokud si chcete postavit nějakou formu NATu (viz níže).</p>
 

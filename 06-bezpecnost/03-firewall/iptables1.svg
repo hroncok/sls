@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   inkscape:label="Pozadí"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="Nový dokument 7">
+  <defs
+     id="defs3119">
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lend"
+       style="overflow:visible;">
+      <path
+         id="path4115"
+         style="fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path4097"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="529.70473"
+     inkscape:cy="557.14103"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1676"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="18"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata3122">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Vrstva 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="132.63293"
+       y="202.35832"
+       id="text3273"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3275"
+         x="132.63293"
+         y="202.35832">řetěz</tspan><tspan
+         sodipodi:role="line"
+         x="132.63293"
+         y="252.35832"
+         id="tspan3277">(chain)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="200.65509"
+       y="316.00049"
+       id="text3279"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3281"
+         x="200.65509"
+         y="316.00049">první pravidlo</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="555.01245"
+       y="425.60202"
+       id="text3283"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3285"
+         x="555.01245"
+         y="425.60202">směr zpracování</tspan><tspan
+         sodipodi:role="line"
+         x="555.01245"
+         y="475.60202"
+         id="tspan3287">pravidel</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="200.65509"
+       y="612.98535"
+       id="text3289"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3291"
+         x="200.65509"
+         y="612.98535">poslední pravidlo</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="241.56622"
+       y="737.23407"
+       id="text3293"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3295"
+         x="241.56622"
+         y="737.23407">politika / návrat zpět</tspan></text>
+    <g
+       id="g3304"
+       transform="translate(-763.28301,85.902468)">
+      <path
+         id="path3301"
+         d="m 815.03125,623.5625 c -1.0358,0 -1.84375,0.8392 -1.84375,1.875 l 0,53.15625 c -0.0191,0.25126 0,0.52846 0,0.78125 0,0.25279 -0.0191,0.49874 0,0.75 l 0,0.90625 c 0,0.42926 0.13355,0.81008 0.375,1.125 4.22726,14.86593 41.79561,26.5 87.5,26.5 45.70439,0 83.27274,-11.63407 87.5,-26.5 0.24145,-0.31492 0.375,-0.69574 0.375,-1.125 l 0,-1.65625 0,-53.9375 c 0,-1.0358 -0.8392,-1.875 -1.875,-1.875 l -172.03125,0 z"
+         style="fill:#6a5252;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         inkscape:connector-curvature="0" />
+      <path
+         transform="translate(509.11689,522.24886)"
+         d="m 479.82245,101.80864 c 0,16.17886 -39.34668,29.29442 -87.88327,29.29442 -48.53659,0 -87.88327,-13.11556 -87.88327,-29.29442 0,-16.178864 39.34668,-29.294425 87.88327,-29.294425 48.53659,0 87.88327,13.115561 87.88327,29.294425 z"
+         sodipodi:ry="29.294424"
+         sodipodi:rx="87.88327"
+         sodipodi:cy="101.80864"
+         sodipodi:cx="391.93918"
+         id="path3297"
+         style="fill:#c7b7b7;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+         sodipodi:type="arc" />
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow2Lend)"
+       d="m 352.683,358.93196 0,175.26147"
+       id="path4534"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g4731"
+       transform="translate(-760,74.285714)">
+      <rect
+         ry="1.8696795"
+         y="202.8239"
+         x="844.74005"
+         height="50.507626"
+         width="106.06602"
+         id="rect3308"
+         style="fill:#ffd5d6;fill-opacity:1;stroke:#000000;stroke-width:2" />
+      <rect
+         style="fill:#ffd5d6;fill-opacity:1;stroke:#000000;stroke-width:2"
+         id="rect3310"
+         width="106.06602"
+         height="50.507626"
+         x="844.74005"
+         y="261.91782"
+         ry="1.8696795" />
+      <rect
+         ry="1.8696795"
+         y="321.26428"
+         x="844.74005"
+         height="50.507626"
+         width="106.06602"
+         id="rect3312"
+         style="fill:#ffd5d6;fill-opacity:1;stroke:#000000;stroke-width:2" />
+      <rect
+         style="fill:#ffd5d6;fill-opacity:1;stroke:#000000;stroke-width:2"
+         id="rect3314"
+         width="106.06602"
+         height="50.507626"
+         x="844.74005"
+         y="380.35822"
+         ry="1.8696795" />
+      <rect
+         ry="1.8696795"
+         y="439.95721"
+         x="844.74005"
+         height="50.507626"
+         width="106.06602"
+         id="rect3316"
+         style="fill:#ffd5d6;fill-opacity:1;stroke:#000000;stroke-width:2" />
+      <rect
+         style="fill:#ffd5d6;fill-opacity:1;stroke:#000000;stroke-width:2"
+         id="rect3318"
+         width="106.06602"
+         height="50.507626"
+         x="844.74005"
+         y="499.30368"
+         ry="1.8696795" />
+      <path
+         sodipodi:nodetypes="cc"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow2Lend)"
+         d="m 900.04589,549.8113 0,91.92388"
+         id="path4722"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>
