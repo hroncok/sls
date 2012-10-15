@@ -151,9 +151,7 @@ postgres=#</pre>
 
 <h3>Webový klient phppgadmin</h3>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4406.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4406.jpg','phppgadmin: Uživatel postgres přihlášený ihned po instalaci','1678','918'); return false;"><img alt="phppgadmin: Uživatel postgres přihlášený ihned po instalaci" class="ph_detail" height="244" src="http://www.linuxexpres.cz/uploads/gallery/detail/4406.jpg" width="446" /></a> <span class="ph_title">phppgadmin: Uživatel postgres přihlášený ihned po instalaci</span></p>
+screenshot-phppgadmin1.png phppgadmin: Uživatel postgres přihlášený ihned po instalaci
 
 <p>Znáte-li MySQL, znáte také určitě vynikajícího webového klienta/správce phpMyAdmin. Ten je ovšem stavěn pouze pro MySQL a pro Postgres jej není možné použít. Existuje však jiný projekt, a sice phpPgAdmin, který se snaží kráčet ve stejných šlépějích jako phpMyAdmin, přičemž je stavěn pro Postgres. Jeho instalace v Debianu je velmi jednoduchá, stačí nainstalovat příslušný balíček:</p>
 
@@ -163,9 +161,7 @@ TODO find image
 
 <pre>allow from 1.2.3.4</pre>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4407.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4407.jpg','phppgadmin: Pohled na nově vytvořené databáze','1678','918'); return false;"><img alt="phppgadmin: Pohled na nově vytvořené databáze" class="ph_detail" height="244" src="http://www.linuxexpres.cz/uploads/gallery/detail/4407.jpg" width="446" /></a> <span class="ph_title">phppgadmin: Pohled na nově vytvořené databáze</span></p>
+screenshot-phppgadmin2.png phppgadmin: Pohled na nově vytvořené databáze
 
 <p>Samotné přihlášení administrátora je v <code>phppgadmin</code> rovněž zakázáno. To má na svědomí volba <code>extra_login_security</code> v <code>/etc/phppgadmin/config.inc.php</code>:</p>
 
@@ -177,17 +173,13 @@ TODO find image
 
 <p>pgAdmin III je patrně nejlepší dostupný FOSS nástroj určený pro správu Postgres DBMS. Jedná se o multiplatformní desktopovou aplikaci, která umožňuje připojení k místním i vzdáleným databázím, jejich pohodlnou správu i klasický SQL přístup. SQL dotazy je možné zadávat ručně nebo je sestavit graficky. Podporuje jak Postgres, tak některé jeho komerční a proprietární klony. Je schopen zobrazit a pracovat s veškerými Postgres objekty, ke kterým umí i zobrazit jejich SQL definice (což by mělo být vidět na screenshotu níže).</p>
 
-TODO find images
+screenshot-pgadmin3a.png Pohled na jednu z tabulek v pgAdmin III
 
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4403.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4403.jpg','Pohled na jednu z tabulek v pgAdmin III','1679','1028'); return false;"><img alt="Pohled na jednu z tabulek v pgAdmin III" class="ph_detail" height="273" src="http://www.linuxexpres.cz/uploads/gallery/detail/4403.jpg" width="446" /></a> <span class="ph_title">Pohled na jednu z tabulek v pgAdmin III</span></p>
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4404.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4404.jpg','Jednoduchý SQL dotaz v pgAdmin III','1678','1027'); return false;"><img alt="Jednoduchý SQL dotaz v pgAdmin III" class="ph_detail" height="273" src="http://www.linuxexpres.cz/uploads/gallery/detail/4404.jpg" width="446" /></a> <span class="ph_title">Jednoduchý SQL dotaz v pgAdmin III</span></p>
+screenshot-pgadmin3b.png Jednoduchý SQL dotaz v pgAdmin III
 
 <p>Tento nástroj je běžně dostupný v repozitářích linuxových distribucí, v Debianu se jedná o balíček <code>pgadmin3</code>.</p>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4405.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4405.jpg','Grafické sestavení dotazu v pgAdmin III','1678','1027'); return false;"><img alt="Grafické sestavení dotazu v pgAdmin III" class="ph_detail" height="273" src="http://www.linuxexpres.cz/uploads/gallery/detail/4405.jpg" width="446" /></a> <span class="ph_title">Grafické sestavení dotazu v pgAdmin III</span></p>
+screenshot-pgadmin3c.png Grafické sestavení dotazu v pgAdmin III
 
 <p>Samotné připojení ke vzdálené databázi je možné provést řadou způsobů. Pro správce je patrně nejrychlejší použít SSH tunel, jehož vytvoření je popsáno v kapitole <em>Vzdálená správa pomocí SSH</em>{link:"Vzdálená správa pomocí SSH"}. Je samozřejmě také možné nastavit Postgres, aby přijímal spojení ze sítě a umožňoval přihlášení uživatele či uživatelů z určité IP adresy. K tomu slouží konfigurační soubor <code>pg_hba.conf</code>, který v Debianu Wheezy s Postgresem 9.1 naleznete v <code>/etc/postgresql/9.1/main/</code>.</p>
 

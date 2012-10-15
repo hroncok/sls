@@ -35,9 +35,7 @@ connections, caching I/O, single thread</pre>
 
 <p>Jak je patrné, webové rozhraní běží na portu 9090 místní smyčky (localhost). Stejně tak je patrné, že vám byly přiděleny jednorázové přihlašovací údaje, které můžete použít k přihlášení do webového rozhraní (to je chráněno klasickou HTTP autentikací).</p>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4538.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4538.jpg','Úvodní obrazovka administračního webového rozhraní Cherokee','1000','548'); return false;"><img alt="Úvodní obrazovka administračního webového rozhraní Cherokee" class="ph_detail" height="244" src="http://www.linuxexpres.cz/uploads/gallery/detail/4538.jpg" width="446" /></a> <span class="ph_title">Úvodní obrazovka administračního webového rozhraní Cherokee</span></p>
+cherokee-admin.png Úvodní obrazovka administračního webového rozhraní Cherokee
 
 <p>Pokud vám server běží na localhostu místního počítače, není to problém, stačí spustit prohlížeč a zadat URL <code>http://127.0.0.1:9090/</code>. Běží-li vám server na vzdáleném počítači, máte dvě možnosti. Buď použijete SSH tunel a namapujete si vzdálený port 9090 na místní port, nebo webové rozhraní pustíte na síť, ale v takovém případě by bylo vhodné jej nějakým způsobem ochránit. Zmíněný SSH tunel můžete vytvořit takto:</p>
 <pre>ssh -N -f user@server -L 9090:127.0.0.1:9090</pre>
@@ -55,9 +53,7 @@ iptables -I INPUT -p tcp --dport 9090 -s 1.2.3.4 -j ACCEPT</pre>
 
 <p>Samotné konfiguraci se příliš věnovat nebudu, neboť s grafickým (resp. webovým) rozhraním by nastavení mělo být relativně intuitivní. Porty a IP adresy pro naslouchání specifikujete na kartě <strong>General | Ports to listen</strong>. Virtuální servery se konfigurují na kartě <strong>vServers</strong>. Pro každý virtuální server můžete mít vlastní <strong>Document root</strong> (záložka <strong>Basics</strong> u zvoleného virtuálního serveru) a řadu pravidel pro zpracování obsahu (záložka <strong>Behaviour</strong>). To, který virtuální server se vám zobrazí za kterých okolností, nastavujete na kartě <strong>Host match</strong>. Můžete specifikovat jméno, wildcard (např. *.example.org), IP adresy či regulární výrazy.</p>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4540.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4540.jpg','Konfigurace virtuálních serverů v Cherokee','1000','730'); return false;"><img alt="Konfigurace virtuálních serverů v Cherokee" class="ph_detail" height="326" src="http://www.linuxexpres.cz/uploads/gallery/detail/4540.jpg" width="446" /></a> <span class="ph_title">Konfigurace virtuálních serverů v Cherokee</span></p>
+cherokee-vserver.png Konfigurace virtuálních serverů v Cherokee
 
 <p>Po jakékoliv změně nezapomeňte konfiguraci uložit klepnutím na <strong>Save</strong> vpravo nahoře. Pokud bude potřeba restart, nabídne vám Cherokee několik možností – nerestartovat, provést bezpečný restart a restartovat natvrdo. Určitě zkuste nejdříve <strong>Graceful restart</strong>.</p>
 
@@ -71,9 +67,7 @@ TODO find image
 
 <pre>&lt;?php phpinfo(); ?&gt;</pre>
 
-TODO find image
-
-<p class="ph_center"><a href="http://www.linuxexpres.cz/uploads/gallery/original/4539.jpg" onclick="myPopImage('http://www.linuxexpres.cz/uploads/gallery/original/4539.jpg','Průvodce pro konfiguraci PHP interpretu v Cherokee','994','560'); return false;"><img alt="Průvodce pro konfiguraci PHP interpretu v Cherokee" class="ph_detail" height="251" src="http://www.linuxexpres.cz/uploads/gallery/detail/4539.jpg" width="446" /></a> <span class="ph_title">Průvodce pro konfiguraci PHP interpretu v Cherokee</span></p>
+cherokee-behaviour-php.png Průvodce pro konfiguraci PHP interpretu v Cherokee
 
 <p>Dodám, že webové rozhraní Cherokee se poměrně dost měnilo mezi jednotlivými verzemi. Tento návod je určen pro Debian Squeeze a Cherokee 1.0.8. U jiných verzí může být rozvržení webového rozhraní Cherokee mírně odlišné.</p>
 
