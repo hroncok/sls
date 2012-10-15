@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   inkscape:label="Pozadí"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="iptables-simple.svg">
+  <defs
+     id="defs3">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path3870"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective9" />
+    <inkscape:perspective
+       id="perspective3610"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3610-0"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3610-7"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3686"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3686-8"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="376.49234"
+     inkscape:cy="920.59994"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1676"
+     inkscape:window-height="1012"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:snap-bbox="false"
+     inkscape:snap-bbox-midpoints="true"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata6">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Vrstva 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g5420"
+       inkscape:export-filename="/home/pax/iptables-chain.png"
+       inkscape:export-xdpi="58.810001"
+       inkscape:export-ydpi="58.810001">
+      <rect
+         y="493.5491"
+         x="54.758366"
+         height="27.626127"
+         width="55.793941"
+         id="rect5146"
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#000000;stroke-width:1.51672864;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <rect
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#000000;stroke-width:1.51672864;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect5148"
+         width="55.793941"
+         height="27.626127"
+         x="54.758366"
+         y="525.47766" />
+      <rect
+         y="557.40625"
+         x="54.758366"
+         height="27.626127"
+         width="55.793941"
+         id="rect5150"
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#000000;stroke-width:1.51672864;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <rect
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#000000;stroke-width:1.51672864;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect5152"
+         width="55.793941"
+         height="27.626127"
+         x="54.758366"
+         y="589.33478" />
+      <rect
+         y="621.26337"
+         x="54.758366"
+         height="27.626127"
+         width="55.793941"
+         id="rect5154"
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#000000;stroke-width:1.51672864;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         transform="matrix(0.99937833,0,0,1.0000104,-111.44132,-29.497212)"
+         d="m 246.47721,779.11591 a 48.992397,14.647212 0 1 1 -97.98479,0 48.992397,14.647212 0 1 1 97.98479,0 z"
+         sodipodi:ry="14.647212"
+         sodipodi:rx="48.992397"
+         sodipodi:cy="779.11591"
+         sodipodi:cx="197.48482"
+         id="path5372"
+         style="fill:#6c5353;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="arc" />
+      <rect
+         y="721.0705"
+         x="36.991821"
+         height="28.575827"
+         width="97.859772"
+         id="rect5376"
+         style="fill:#6c5353;fill-opacity:1;stroke:#000000;stroke-width:0.99875849;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         transform="translate(-111.5,-58.025892)"
+         sodipodi:type="arc"
+         style="fill:#c8b7b7;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="path5374"
+         sodipodi:cx="197.48482"
+         sodipodi:cy="779.11591"
+         sodipodi:rx="48.992397"
+         sodipodi:ry="14.647212"
+         d="m 246.47721,779.11591 a 48.992397,14.647212 0 1 1 -97.98479,0 48.992397,14.647212 0 1 1 97.98479,0 z" />
+      <path
+         sodipodi:nodetypes="cc"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow1Lend)"
+         d="m 84.095199,672.84787 0,50.50762"
+         id="path5408" />
+      <rect
+         style="fill:#ffd5d5;fill-opacity:1;stroke:#000000;stroke-width:1.51672864;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect5156"
+         width="55.793941"
+         height="27.626127"
+         x="54.758366"
+         y="653.19189" />
+      <text
+         id="text5158"
+         y="451.59271"
+         x="82.478004"
+         style="font-size:25.18322372px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="451.59271"
+           x="82.478004"
+           id="tspan5160"
+           sodipodi:role="line">řetěz</tspan><tspan
+           id="tspan5162"
+           y="483.07175"
+           x="82.478004"
+           sodipodi:role="line">(chain)</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:25.18322372px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         x="201.67599"
+         y="514.81384"
+         id="text5164"><tspan
+           sodipodi:role="line"
+           x="201.67599"
+           y="514.81384"
+           id="tspan5168">první pravidlo</tspan></text>
+      <text
+         id="text5172"
+         y="674.45667"
+         x="221.87904"
+         style="font-size:25.18322372px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           id="tspan5174"
+           y="674.45667"
+           x="221.87904"
+           sodipodi:role="line">poslední pravidlo</tspan></text>
+      <path
+         id="path5184"
+         d="m 199.00005,532.13362 0,107.07617"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Lend)" />
+      <rect
+         style="fill:#6c5353;fill-opacity:1;stroke:#6c5353;stroke-width:0.26738328;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect5378"
+         width="96.586395"
+         height="2.0750782"
+         x="37.628662"
+         y="748.48401" />
+      <text
+         xml:space="preserve"
+         style="font-size:25.18322372px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         x="182.28105"
+         y="743.04602"
+         id="text5404"><tspan
+           sodipodi:role="line"
+           x="182.28105"
+           y="743.04602"
+           id="tspan5406">politika</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:25.18322372px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         x="316.63135"
+         y="573.34039"
+         id="text5414"><tspan
+           sodipodi:role="line"
+           x="316.63135"
+           y="573.34039"
+           id="tspan5416">směr zpracování</tspan><tspan
+           id="tspan5418"
+           sodipodi:role="line"
+           x="316.63135"
+           y="604.8194">pravidel</tspan></text>
+    </g>
+    <g
+       id="g5500">
+      <rect
+         y="263.40869"
+         x="274.4646"
+         height="62.880192"
+         width="159.76195"
+         id="rect2815-2"
+         style="fill:#ffda49;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         id="text3642"
+         y="286.54367"
+         x="354.25934"
+         style="font-size:25.23569489px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="286.54367"
+           x="354.25934"
+           id="tspan3644"
+           sodipodi:role="line">Místní</tspan><tspan
+           id="tspan3646"
+           y="318.08829"
+           x="354.25934"
+           sodipodi:role="line">aplikace</tspan></text>
+      <g
+         transform="translate(47.814791,-39.59798)"
+         id="g3747">
+        <rect
+           style="fill:#f9e9c3;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           id="rect2815"
+           width="159.76195"
+           height="62.880192"
+           x="12.54799"
+           y="174.87291" />
+        <text
+           xml:space="preserve"
+           style="font-size:25.23569489px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+           x="91.159782"
+           y="215.33279"
+           id="text3642-9"><tspan
+             sodipodi:role="line"
+             x="91.159782"
+             y="215.33279"
+             id="tspan3646-2">INPUT</tspan></text>
+      </g>
+      <g
+         transform="translate(52.309969,-157.12514)"
+         id="g3760">
+        <rect
+           style="fill:#f9e9c3;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           id="rect2815-5"
+           width="159.76195"
+           height="62.880192"
+           x="222.15465"
+           y="169.36349" />
+        <text
+           xml:space="preserve"
+           style="font-size:25.23569489px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+           x="301.53659"
+           y="209.98973"
+           id="text3642-97"><tspan
+             sodipodi:role="line"
+             x="301.53659"
+             y="209.98973"
+             id="tspan3646-6">FORWARD</tspan></text>
+      </g>
+      <g
+         transform="translate(48.521905,-34.088565)"
+         id="g3765">
+        <rect
+           style="fill:#f9e9c3;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           id="rect2815-23"
+           width="159.76195"
+           height="62.880192"
+           x="439.33743"
+           y="169.36349" />
+        <text
+           id="text3737"
+           y="209.98973"
+           x="518.47906"
+           style="font-size:25.23569489px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+           xml:space="preserve"><tspan
+             id="tspan3739"
+             y="209.98973"
+             x="518.47906"
+             sodipodi:role="line">OUTPUT</tspan></text>
+      </g>
+      <path
+         id="path3840"
+         d="m -1.884457,43.678446 79.285714,0"
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" />
+      <path
+         sodipodi:nodetypes="ccc"
+         id="path3862"
+         d="m 138.87904,198.29812 0,96.189 132.85714,0"
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+         d="m 435.62904,294.52283 125.35714,0 0,-93.69644"
+         id="path4312"
+         sodipodi:nodetypes="ccc" />
+      <path
+         sodipodi:nodetypes="cc"
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+         d="m 434.61824,43.678446 233.78854,0"
+         id="path4513" />
+      <path
+         transform="translate(-70.427937,-86.809984)"
+         d="m 68.185296,130.59799 a 5.0507627,5.0507627 0 1 1 -10.101526,0 5.0507627,5.0507627 0 1 1 10.101526,0 z"
+         sodipodi:ry="5.0507627"
+         sodipodi:rx="5.0507627"
+         sodipodi:cy="130.59799"
+         sodipodi:cx="63.134533"
+         id="path5067"
+         style="fill:#f9e9c3;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="arc" />
+      <text
+         id="text5073"
+         y="36.080452"
+         x="-61.125706"
+         style="font-size:20.70192719px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         xml:space="preserve"><tspan
+           y="36.080452"
+           x="-61.125706"
+           id="tspan5075"
+           sodipodi:role="line">příchozí</tspan><tspan
+           id="tspan5077"
+           y="61.957863"
+           x="-61.125706"
+           sodipodi:role="line">pakety</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:20.70192719px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         x="717.8692"
+         y="36.080452"
+         id="text5079"><tspan
+           sodipodi:role="line"
+           id="tspan5081"
+           x="717.8692"
+           y="36.080452">odchozí</tspan><tspan
+           sodipodi:role="line"
+           x="717.8692"
+           y="61.957863"
+           id="tspan5083">pakety</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:20.70192719px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         x="352.12753"
+         y="100.65006"
+         id="text5085"><tspan
+           sodipodi:role="line"
+           id="tspan5087"
+           x="352.12753"
+           y="100.65006">průchozí</tspan><tspan
+           sodipodi:role="line"
+           x="352.12753"
+           y="126.52747"
+           id="tspan5089">pakety</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-size:20.70192719px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+         x="140.39973"
+         y="36.080441"
+         id="text5484"><tspan
+           sodipodi:role="line"
+           x="140.39973"
+           y="36.080441"
+           id="tspan5488">směrovací</tspan><tspan
+           id="tspan5492"
+           sodipodi:role="line"
+           x="140.39973"
+           y="61.957848">rozhodnutí</tspan></text>
+      <path
+         sodipodi:nodetypes="cc"
+         id="path5494"
+         d="m 138.82731,70.20857 0,62.41135"
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" />
+      <path
+         sodipodi:nodetypes="cc"
+         id="path5496"
+         d="m 202.15689,43.678446 69.73977,0"
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+         d="m 560.99856,134.94664 0,-89.02072"
+         id="path5498"
+         sodipodi:nodetypes="cc" />
+    </g>
+  </g>
+</svg>
