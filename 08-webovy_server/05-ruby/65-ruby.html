@@ -239,7 +239,7 @@ cd redmine-2.1.2</pre>
 
 <pre>gem install bundler</pre>
 
-<p>Instalace jednotlivých modulů (v terminologii jazyka Ruby je to "Gem") může vyžadovat příslušné hlavičkové soubory, např. gem <code>mysql2</code> vyžaduje hlavičkové soubory MySQL klienta, které naleznete v balíčku <code>libmysqlclient-dev</code>:</p>
+<p>Instalace jednotlivých modulů (v terminologii jazyka Ruby je to „Gem“) může vyžadovat příslušné hlavičkové soubory, např. gem <code>mysql2</code> vyžaduje hlavičkové soubory MySQL klienta, které naleznete v balíčku <code>libmysqlclient-dev</code>:</p>
 
 <pre>aptitude install libmysqlclient-dev</pre>
 
@@ -301,7 +301,7 @@ cd redmine-2.1.2</pre>
 
 <pre>rake generate_secret_token</pre>
 
-<p>Následně opravte jednu chybku současné verze - přidejte do souboru <code>Gemfile</code> řádku <code>gem "mysql"</code> jak je naznačeno:</p>
+<p>Následně opravte jednu chybku současné verze – přidejte do souboru <code>Gemfile</code> řádku <code>gem "mysql"</code> jak je naznačeno:</p>
 
 <pre>source 'http://rubygems.org'
 
@@ -311,7 +311,7 @@ gem "i18n", "~&gt; 0.6.0"
 gem "coderay", "~&gt; 1.0.6"
 gem "fastercsv", "~&gt; 1.5.0", :platforms =&gt; [:mri_18, :mingw_18, :jruby]
 gem "builder", "3.0.0"
-<strong>gem "mysql"</strong></pre>
+<strong>gem „mysql“</strong></pre>
 
 <p>A opakujte:</p>
 
@@ -415,7 +415,7 @@ bundle exec thin -e production $1 -s1 --socket "$HOME/redmine.sock" -d</pre>
 
 <pre>su redmine -c '/home/redmine/bin/redmine-thin start'</pre>
 
-<p>Aby se tento skript spustil při startu serveru, nejjednodušší je přidat příkaz k jeho spuštění do <code>/etc/rc.local</code>, ale mnohem čistší řešení je vytvořit pro něj skript v <code>/etc/init.d</code> a zařadit ho do příslušné úrovně běhu pomocí <code>update-rc.d</code>. Abyste zajistili jeho nepřerušený běh, resp. jeho případný automatický restart, pokud by spadl, můžete použít nástroj Monit, který vám představí kapitola <em>Hlídání serverů pomocí nástroje Monit</em>{link:"Údržba systému":"Monitorování a logy":"Hlídání serverů pomocí nástroje Monit"}.</p>
+<p>Aby se tento skript spustil při startu serveru, nejjednodušší je přidat příkaz k jeho spuštění do <code>/etc/rc.local</code>, ale mnohem čistší řešení je vytvořit pro něj skript v <code>/etc/init.d</code> a zařadit ho do příslušné úrovně běhu pomocí <code>update-rc.d</code>. Abyste zajistili jeho nepřerušený běh, resp. jeho případný automatický restart, pokud by spadl, můžete použít nástroj Monit, který vám představí kapitola <em>Hlídání serverů pomocí nástroje Monit</em>{link:“Údržba systému“:“Monitorování a logy“:“Hlídání serverů pomocí nástroje Monit“}.</p>
 
 <h3>Nginx</h3>
 
@@ -522,7 +522,7 @@ server {
    server   unix:/home/redmine/redmine.3.sock;
 }</pre>
 
-<p>Posledním krokem je "aktivace" konfigurace, resp. vytvoření symbolického odkazu v adresáři <code>/etc/nginx/sites-enabled</code>:</p>
+<p>Posledním krokem je „aktivace“ konfigurace, resp. vytvoření symbolického odkazu v adresáři <code>/etc/nginx/sites-enabled</code>:</p>
 
 <pre>ln -s /etc/nginx/sites-available/redmine /etc/nginx/sites-enabled/redmine</pre>
 
@@ -530,7 +530,7 @@ server {
 
 <pre>/etc/init.d/nginx start</pre>
 
-<p>Nyní se přihlaste do Redmine a konfigurujte, vytvářejte projekty, uživatelské účty apod. Připomínám, že výchozím uživatelem je "admin" a heslo k němu je "admin". Opět dodávám, že by bylo vhodné toto heslo urychleně změnit.</p>
+<p>Nyní se přihlaste do Redmine a konfigurujte, vytvářejte projekty, uživatelské účty apod. Připomínám, že výchozím uživatelem je „admin“ a heslo k němu je „admin“. Opět dodávám, že by bylo vhodné toto heslo urychleně změnit.</p>
 
 <h3>Doladění konfigurace Redmine</h3>
 

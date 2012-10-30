@@ -4,27 +4,27 @@
 
 <p>OpenVPN je F/OSS nástroj dostupný snad v každé běžné linuxové distribuci, pomocí kterého je možné vytvářet šifrované tunely mezi dvěma (a více) počítači. OpenVPN může fungovat jako klient nebo jako server, podporuje řadu možností zabezpečení a má širokou škálu nastavení. Z tohoto důvodu bývá obtížné sestavit návod pro zprovoznění OpenVPN, neboť možností, co lze s OpenVPN provádět, je nepřeberně mnoho. V této knize budou prezentovány dvě alternativy, počínaje tou úplně nejjednodušší s obyčejným sdíleným klíčem a konče pokročilejším řešením s certifikáty, více uživateli a směrováním veškeré komunikace přes šifrovaný tunel.</p>
 
-<p>Pokud budete chtít zprovozňovat OpenVPN na svém virtuálním serveru, předesílám, že je nutné mít k dispozici jaderný modul "tun".</p>
+<p>Pokud budete chtít zprovozňovat OpenVPN na svém virtuálním serveru, předesílám, že je nutné mít k dispozici jaderný modul „tun“.</p>
 
 <h3>K čemu je to dobré?</h3>
 
-<p>VPN může být použito k mnoha účelům, z nichž velmi časté je zabezpečené připojení klientů k intranetu firmy či jiné organizace. Jinou možností je pohodlný zabezpečený přístup ke službám serveru, které jsou zvnějšku nepřístupné (z VPN pak třeba můžete k databázi nebo čemukoliv jinému přistupovat přímo, pokud to ve firewallu povolíte). Obvyklým použitím VPN může být i možnost dostat se zvnějšku do domácí sítě, která je třeba za NATem. Pro úplnost dodávám, že některá použití VPN se kryjí s možnostmi SSH - v rámci SSH je totiž také možné vytvářet šifrované tunely, což bylo probráno v kapitole o SSH{link:"Vzdálená správa přes SSH":"Přehled možností SSH"}.</p>
+<p>VPN může být použito k mnoha účelům, z nichž velmi časté je zabezpečené připojení klientů k intranetu firmy či jiné organizace. Jinou možností je pohodlný zabezpečený přístup ke službám serveru, které jsou zvnějšku nepřístupné (z VPN pak třeba můžete k databázi nebo čemukoliv jinému přistupovat přímo, pokud to ve firewallu povolíte). Obvyklým použitím VPN může být i možnost dostat se zvnějšku do domácí sítě, která je třeba za NATem. Pro úplnost dodávám, že některá použití VPN se kryjí s možnostmi SSH – v rámci SSH je totiž také možné vytvářet šifrované tunely, což bylo probráno v kapitole o SSH{link:“Vzdálená správa přes SSH“:“Přehled možností SSH“}.</p>
 
 <h3>Jednoduché propojení dvou počítačů</h3>
 
-<p>Předesílám, že aby bylo propojení dvou počítačů možné, musí na sebe "vidět". To znamená, že alespoň jeden z nich musí mít veřejnou IP adresu nebo musí být oba ve stejné síti. Pokud jsou oba dva za NATem, ale každý v jiné síti, nebude vám tento návod fungovat. Pokud chcete OpenVPN využívat k přístupu do domácí sítě, která je za NATem, jde to samozřejmě také, ale pouze pokud máte k dispozici nějaký stroj s veřejnou (a pokud možno i statickou) IP adresou. Serverem je vždy stroj s veřejnou a statickou IP adresou. Klientem pak může být i stroj za NATem, na tom nezáleží.</p>
+<p>Předesílám, že aby bylo propojení dvou počítačů možné, musí na sebe „vidět“. To znamená, že alespoň jeden z nich musí mít veřejnou IP adresu nebo musí být oba ve stejné síti. Pokud jsou oba dva za NATem, ale každý v jiné síti, nebude vám tento návod fungovat. Pokud chcete OpenVPN využívat k přístupu do domácí sítě, která je za NATem, jde to samozřejmě také, ale pouze pokud máte k dispozici nějaký stroj s veřejnou (a pokud možno i statickou) IP adresou. Serverem je vždy stroj s veřejnou a statickou IP adresou. Klientem pak může být i stroj za NATem, na tom nezáleží.</p>
 
 <p>Jako úplně první krok si po instalaci OpenVPN na oba počítače nechte vygenerovat statický klíč, který bude sloužit k zabezpečení vaší komunikace. To můžete učinit následujícím příkazem:</p>
 
 <pre>openvpn --genkey --secret klic.key</pre>
 
-<p>Tento klíč je nutné zabezpečeně přenést na druhý počítač. Zde zdůrazňuji slovíčko "zabezpečeně", tedy rozhodně ne přes internet v nešifrované podobě. Následně je třeba vytvořit dva konfigurační soubory, jeden pro server, jeden pro klienta. Server by měl mít následující konfigurační soubor:</p>
+<p>Tento klíč je nutné zabezpečeně přenést na druhý počítač. Zde zdůrazňuji slovíčko „zabezpečeně“, tedy rozhodně ne přes internet v nešifrované podobě. Následně je třeba vytvořit dva konfigurační soubory, jeden pro server, jeden pro klienta. Server by měl mít následující konfigurační soubor:</p>
 
 <pre>dev tun
 ifconfig 192.168.15.1 192.168.15.2
 secret klic.key</pre>
 
-<p>Toto je nejjednodušší nastavení, ve kterém jsou zadány pouze nezbytné parametry, přičemž ostatní parametry spojení budou nastaveny dle výchozích hodnot, mj. včetně portu, který má výchozí hodnotu 1194 UDP (tento port musíte povolit na firewallu serveru, alespoň z IP adresy klienta). Parametr <code>ifconfig</code> určuje místní a vzdálenou IP adresu v rámci tunelu (v tomto pořadí). To znamená, že server bude mít v tomto tunelu IP adresu <code>192.168.15.1</code> a klient <code>192.168.15.2</code>. Všimněte si parametru <code>secret</code>, který označuje, kde má OpenVPN hledat soubor se statickým klíčem (ideální je zadat absolutní cestu ke klíči - pokud zadáte relativní cestu, musíte OpenVPN spustit ve správném adresáři, jinak soubor s klíčem nenajde).</p>
+<p>Toto je nejjednodušší nastavení, ve kterém jsou zadány pouze nezbytné parametry, přičemž ostatní parametry spojení budou nastaveny dle výchozích hodnot, mj. včetně portu, který má výchozí hodnotu 1194 UDP (tento port musíte povolit na firewallu serveru, alespoň z IP adresy klienta). Parametr <code>ifconfig</code> určuje místní a vzdálenou IP adresu v rámci tunelu (v tomto pořadí). To znamená, že server bude mít v tomto tunelu IP adresu <code>192.168.15.1</code> a klient <code>192.168.15.2</code>. Všimněte si parametru <code>secret</code>, který označuje, kde má OpenVPN hledat soubor se statickým klíčem (ideální je zadat absolutní cestu ke klíči – pokud zadáte relativní cestu, musíte OpenVPN spustit ve správném adresáři, jinak soubor s klíčem nenajde).</p>
 
 <p>Parametr <code>dev</code> označuje typ zařízení pro virtuální síť. Zde máte dvě možnosti: buď zařízení typu <code>tun,</code> nebo zařízení typu <code>tap</code>. Zařízení <code>tun</code> obaluje protokol IP verze 4 nebo 6 (třetí vrstva OSI modelu), zařízení <code>tap</code> pracuje na druhé vrstvě, chová se tedy jako klasický Ethernet.</p>
 
@@ -59,13 +59,13 @@ secret klic.key</pre>
 <p>pokud se nedaří spuštění 	OpenVPN klienta nebo serveru, přečtěte si chybovou hlášku a 	pokuste se problém napravit (nejčastější budou asi problémy s 	cestou ke klíči),</p>
 </li>
 <li>
-<p>ověřte dostupnost spojení z 	klienta na reálnou IP adresu serveru specifikovanou v konfiguračním 	souboru klienta u parametru <code>remote</code> - 	tato adresa musí být dosažitelná,</p>
+<p>ověřte dostupnost spojení z 	klienta na reálnou IP adresu serveru specifikovanou v konfiguračním 	souboru klienta u parametru <code>remote</code> – 	tato adresa musí být dosažitelná,</p>
 </li>
 <li>
-<p>ověřte dostupnost UDP portu 1194 	na serveru - port musí být otevřený (zkontrolujte nastavení 	firewallu příkazem <code>iptables -L -n -v</code>),</p>
+<p>ověřte dostupnost UDP portu 1194 	na serveru – port musí být otevřený (zkontrolujte nastavení 	firewallu příkazem <code>iptables -L -n -v</code>),</p>
 </li>
 <li>
-<p>ověřte politiku firewallu k nově vzniklým virtuálním 	síťovým rozhraním (nejspíše <code>tun0</code>) 	na obou počítačích - pokud máte nastavenou výchozí politiku 	řetězce <code>INPUT</code> na <code>DROP</code>, 	přidejte výjimku pro toto rozhraní.</p>
+<p>ověřte politiku firewallu k nově vzniklým virtuálním 	síťovým rozhraním (nejspíše <code>tun0</code>) 	na obou počítačích – pokud máte nastavenou výchozí politiku 	řetězce <code>INPUT</code> na <code>DROP</code>, 	přidejte výjimku pro toto rozhraní.</p>
 </li>
 </ul>
 
@@ -97,9 +97,9 @@ ping-timer-rem
 persist-tun
 persist-key</pre>
 
-<p>Volba <code>keepalive</code> má dva parametry, které pracují následovně. Tím prvním je doba v sekundách, za kterou se pošle na druhou stranu tunelu "ping", je-li spojení v nečinnosti. Pokud tedy OpenVPN neobdrží žádný paket z druhé strany po tuto dobu (v příkladu výše by to bylo deset sekund), pošle na druhou stranu "ping". Druhým parametrem je "timeout", tzn. doba, za kterou se OpenVPN začne pokoušet spojení restartovat, pokud neobdrží žádnou odezvu z druhé strany (tzn. buď "ping", nebo jakýkoliv jiný paket).</p>
+<p>Volba <code>keepalive</code> má dva parametry, které pracují následovně. Tím prvním je doba v sekundách, za kterou se pošle na druhou stranu tunelu „ping“, je-li spojení v nečinnosti. Pokud tedy OpenVPN neobdrží žádný paket z druhé strany po tuto dobu (v příkladu výše by to bylo deset sekund), pošle na druhou stranu „ping“. Druhým parametrem je „timeout“, tzn. doba, za kterou se OpenVPN začne pokoušet spojení restartovat, pokud neobdrží žádnou odezvu z druhé strany (tzn. buď „ping“, nebo jakýkoliv jiný paket).</p>
 
-<p>Pokud se OpenVPN pokusí spojení restartovat (stejného výsledku lze dosáhnout ručně zasláním signálu <code>SIGUSR1</code> běžícímu procesu OpenVPN), nemusí už mít potřebná oprávnění k vytvoření virtuálního síťového rozhraní či k opětovnému přečtení klíče. Z tohoto důvodu lze OpenVPN instruovat, aby zařízení ani klíč nezahazoval, ale nechal je "přežít" restart - to zajišťují volby <code>persist-tun</code> a <code>persist-key</code>.</p>
+<p>Pokud se OpenVPN pokusí spojení restartovat (stejného výsledku lze dosáhnout ručně zasláním signálu <code>SIGUSR1</code> běžícímu procesu OpenVPN), nemusí už mít potřebná oprávnění k vytvoření virtuálního síťového rozhraní či k opětovnému přečtení klíče. Z tohoto důvodu lze OpenVPN instruovat, aby zařízení ani klíč nezahazoval, ale nechal je „přežít“ restart – to zajišťují volby <code>persist-tun</code> a <code>persist-key</code>.</p>
 
 <p>Poslední volbou zde je <code>ping-timer-rem</code>, který u serveru zařídí, že nebude brát v úvahu parametry volby <code>keepalive</code> v případě, kdy není připojený žádný klient.</p>
 
@@ -133,7 +133,7 @@ cd easy-rsa/2.0</pre>
 
 <pre>./build-key-server server</pre>
 
-<p>Za slovo <code>server</code> si dosaďte libovolné jméno. Zde budete opět vyzváni k zadání řady informací. Ujistěte se, že na konci odpovíte na dotaz "y", tedy opravdu podepsat daný certifikát.</p>
+<p>Za slovo <code>server</code> si dosaďte libovolné jméno. Zde budete opět vyzváni k zadání řady informací. Ujistěte se, že na konci odpovíte na dotaz „y“, tedy opravdu podepsat daný certifikát.</p>
 
 <h4>Vygenerování certifikátů a klíčů pro uživatele</h4>
 
@@ -149,7 +149,7 @@ cd easy-rsa/2.0</pre>
 
 <h4>Umístění jednotlivých souborů</h4>
 
-<p>Až budete mít vygenerované všechny soubory, bude potřeba je vhodně rozmístit. Obecně, soubory s příponami <code>.key</code> obsahují privátní klíče a měly by být pečlivě střeženy (doporučuji jim nastavit práva <code>400</code>), ostatní být střeženy nemusí. Přípona <code>.crt</code> označuje jednotlivé certifikáty - certifikát certifikační autority, certifikát serveru a certifikáty klientů. Diffie Hellman parametry se pak nacházejí v souboru <code>dh*.pem</code>, kde hvězdička bude odpovídat velikosti klíče - výchozí hodnota je <code>1024</code>, ale je samozřejmě možné vygenerovat větší.</p>
+<p>Až budete mít vygenerované všechny soubory, bude potřeba je vhodně rozmístit. Obecně, soubory s příponami <code>.key</code> obsahují privátní klíče a měly by být pečlivě střeženy (doporučuji jim nastavit práva <code>400</code>), ostatní být střeženy nemusí. Přípona <code>.crt</code> označuje jednotlivé certifikáty – certifikát certifikační autority, certifikát serveru a certifikáty klientů. Diffie Hellman parametry se pak nacházejí v souboru <code>dh*.pem</code>, kde hvězdička bude odpovídat velikosti klíče – výchozí hodnota je <code>1024</code>, ale je samozřejmě možné vygenerovat větší.</p>
 
 <h5>Soubory pro klienta</h5>
 
@@ -157,13 +157,13 @@ cd easy-rsa/2.0</pre>
 
 <ul>
 <li>
-<p><code>ca.crt</code> - kořenový certifikát certifikační autority</p>
+<p><code>ca.crt</code> – kořenový certifikát certifikační autority</p>
 </li>
 <li>
-<p><code>klient1.crt</code> - odpovídající certifikát klienta</p>
+<p><code>klient1.crt</code> – odpovídající certifikát klienta</p>
 </li>
 <li>
-<p><code>klient1.key</code> - odpovídající 	privátní klíč klienta</p>
+<p><code>klient1.key</code> – odpovídající 	privátní klíč klienta</p>
 </li>
 </ul>
 
@@ -176,19 +176,19 @@ cd easy-rsa/2.0</pre>
 <p><code>ca.crt - viz 	výše</code></p>
 </li>
 <li>
-<p><code>server.crt</code> - serverový certifikát</p>
+<p><code>server.crt</code> – serverový certifikát</p>
 </li>
 <li>
-<p><code>server.key</code> - soukromý klíč k serverovému certifikátu</p>
+<p><code>server.key</code> – soukromý klíč k serverovému certifikátu</p>
 </li>
 <li>
-<p><code>dh*.pem</code> - Diffie Hellman 	parametry</p>
+<p><code>dh*.pem</code> – Diffie Hellman 	parametry</p>
 </li>
 </ul>
 
 <h5>Ostatní soubory</h5>
 
-<p>Jediným souborem, který jste vygenerovali a nebyl popsán výše, je soubor <code>ca.key</code> s klíčem pro kořenový certifikát certifikační autority. Ten není nutné mít přímo na serveru - je totiž nutný pouze k podepisování certifikátů. Z bezpečnostních důvodů je dokonce vhodné, aby byl někde v bezpečí mimo server.</p>
+<p>Jediným souborem, který jste vygenerovali a nebyl popsán výše, je soubor <code>ca.key</code> s klíčem pro kořenový certifikát certifikační autority. Ten není nutné mít přímo na serveru – je totiž nutný pouze k podepisování certifikátů. Z bezpečnostních důvodů je dokonce vhodné, aby byl někde v bezpečí mimo server.</p>
 
 <h4>Konfigurace OpenVPN serveru</h4>
 
@@ -220,16 +220,16 @@ max-clients 100</pre>
 
 <ul>
 <li>
-<p><code>tls-server</code> - zapíná TLS v režimu serveru</p>
+<p><code>tls-server</code> – zapíná TLS v režimu serveru</p>
 </li>
 <li>
-<p><code>duplicate-cn</code> - umožní, aby se připojilo více klientů se stejným 	certifikátem</p>
+<p><code>duplicate-cn</code> – umožní, aby se připojilo více klientů se stejným 	certifikátem</p>
 </li>
 <li>
-<p><code>client-to-client</code> - umožní klientům, aby na sebe "viděli" a mohli spolu 	komunikovat</p>
+<p><code>client-to-client</code> – umožní klientům, aby na sebe „viděli“ a mohli spolu 	komunikovat</p>
 </li>
 <li>
-<p><code>max-clients 100</code> - limit počtu 	současně připojených klientů</p>
+<p><code>max-clients 100</code> – limit počtu 	současně připojených klientů</p>
 </li>
 </ul>
 
@@ -257,16 +257,16 @@ verb 3</pre>
 
 <ul>
 <li>
-<p><code>tls-client</code> - zapíná TLS v režimu klienta</p>
+<p><code>tls-client</code> – zapíná TLS v režimu klienta</p>
 </li>
 <li>
-<p><code>ns-cert-type server</code> - ověřuje 	serverový certifikát (pomáhá zabránit man-in-the-middle útokům, 	kdy by se útočník vydával za server)</p>
+<p><code>ns-cert-type server</code> – ověřuje 	serverový certifikát (pomáhá zabránit man-in-the-middle útokům, 	kdy by se útočník vydával za server)</p>
 </li>
 </ul>
 
 <h4>Extra zabezpečení pomocí sdíleného klíče</h4>
 
-<p>Ačkoliv infrastruktura založená na certifikátech nevyžaduje použití sdílených klíčů (což je ostatně jejím účelem), můžete pro zvýšení bezpečnosti sdílený klíč přeci jen vytvořit a používat jako bezpečnostní vrstvu navíc - server pak bude kontrolovat HMAC podpisy paketů a bude ignorovat pakety, které nebudou mít správný podpis. Klíč vytvoříte následujícím příkazem:</p>
+<p>Ačkoliv infrastruktura založená na certifikátech nevyžaduje použití sdílených klíčů (což je ostatně jejím účelem), můžete pro zvýšení bezpečnosti sdílený klíč přeci jen vytvořit a používat jako bezpečnostní vrstvu navíc – server pak bude kontrolovat HMAC podpisy paketů a bude ignorovat pakety, které nebudou mít správný podpis. Klíč vytvoříte následujícím příkazem:</p>
 
 <pre>openvpn --genkey --secret klic</pre>
 
@@ -280,7 +280,7 @@ verb 3</pre>
 
 <h3>Směrování komunikace přes VPN</h3>
 
-<p>OpenVPN umožňuje, aby klienti směrovali veškerou svou komunikaci přes VPN tunel, což umožňuje vytvářet různé "anonymizační" služby založené na této technologii. Tato vlastnost se hodí mj. i k tomu, abyste zabezpečili svou komunikaci, pokud se třeba připojujete přes nešifrovanou wifi, kde vás může kdokoliv ve vaší blízkosti šmírovat (alespoň vaši nezabezpečenou komunikaci).</p>
+<p>OpenVPN umožňuje, aby klienti směrovali veškerou svou komunikaci přes VPN tunel, což umožňuje vytvářet různé „anonymizační“ služby založené na této technologii. Tato vlastnost se hodí mj. i k tomu, abyste zabezpečili svou komunikaci, pokud se třeba připojujete přes nešifrovanou wifi, kde vás může kdokoliv ve vaší blízkosti šmírovat (alespoň vaši nezabezpečenou komunikaci).</p>
 
 <h4>Směrování paketů</h4>
 
@@ -300,7 +300,7 @@ verb 3</pre>
 
 <pre>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</pre>
 
-<p>Toto nastavení bude fungovat pouze do příštího restartu serveru. Permanentní nastavení je v Debianu možné zařídit pomocí balíčku <code>iptables-persistent</code> a funkce "save":</p>
+<p>Toto nastavení bude fungovat pouze do příštího restartu serveru. Permanentní nastavení je v Debianu možné zařídit pomocí balíčku <code>iptables-persistent</code> a funkce „save“:</p>
 
 <pre>service iptables-persistent save</pre>
 
@@ -316,11 +316,11 @@ push "dhcp-option DNS 10.45.42.1"</pre>
 
 <p>Jako parametr pro volbu <code>route-gateway</code> zadejte IP adresu serveru v rámci VPN, tedy IP adresu, kterou jste zadali jako parametr volby <code>ifconfig</code>. První řádka zajistí, že se klientovi pošle specifikovaná IP adresa brány. Druhá volba zajistí, že se klientovi nařídí, aby přesměroval veškerou svou komunikaci přes VPN. Parametr <code>def1</code> zajistí, aby se neodstranila původní brána z konfigurace sítě klienta.</p>
 
-<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď OpenDNS, nebo Google DNS. Stavba vlastního DNS serveru je mimo zaměření této kapitoly, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>, který je probrán v závěru knihy v části o DNS{link:"DNS":"Jednoduchý DNS a DHCP server v jednom: dnsmasq"}.</p>
+<p>Parametr <code>dhcp-option DNS</code> zajišťuje zaslání informace o DNS serverech klientovi. Tento parametr samozřejmě předpokládá dostupný funkční resolvující DNS server. Pokud se vám nechce nastavovat vlastní DNS server na serveru s OpenVPN, můžete použít buď OpenDNS, nebo Google DNS. Stavba vlastního DNS serveru je mimo zaměření této kapitoly, ale mohu vám v této souvislosti pro tuto konkrétní potřebu doporučit balíček <code>dnsmasq</code>, který je probrán v závěru knihy v části o DNS{link:“DNS“:“Jednoduchý DNS a DHCP server v jednom: dnsmasq“}.</p>
 
 <h4>Úprava konfigurace OpenVPN klientů</h4>
 
-<p>U linuxových OpenVPN klientů se ovšem nastavení DNS pomocí <code>dhcp-option</code> neprojeví - je nutné jej odchytit z proměnných prostředí a zpracovat skriptem. Tento skript si naštěstí nemusíte psát sami - měl by být součástí OpenVPN balíku a měl by sídlit v <code>/etc/openvpn/update-resolv-conf</code>. Ke své činnosti vyžaduje balík <code>resolvconf</code>, takže se raději ujistěte, že jej máte nainstalovaný. Pak už jen postačí upravit konfiguraci klienta přidáním následujících řádků do konfiguračního souboru OpenVPN:</p>
+<p>U linuxových OpenVPN klientů se ovšem nastavení DNS pomocí <code>dhcp-option</code> neprojeví – je nutné jej odchytit z proměnných prostředí a zpracovat skriptem. Tento skript si naštěstí nemusíte psát sami – měl by být součástí OpenVPN balíku a měl by sídlit v <code>/etc/openvpn/update-resolv-conf</code>. Ke své činnosti vyžaduje balík <code>resolvconf</code>, takže se raději ujistěte, že jej máte nainstalovaný. Pak už jen postačí upravit konfiguraci klienta přidáním následujících řádků do konfiguračního souboru OpenVPN:</p>
 
 <pre>up /etc/openvpn/update-resolv-conf
 down /etc/openvpn/update-resolv-conf

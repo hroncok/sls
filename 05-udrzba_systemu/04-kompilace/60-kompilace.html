@@ -28,7 +28,7 @@
 
 <h4>Úskalí kompilace</h4>
 
-<p>Balíčkovací systém šetří (nejen) správcům práci. Umožňuje snadnou instalaci, odinstalaci i aktualizaci softwaru. Aktualizace se týká veškerého softwaru dostupného z repozitářů (pokud distribuce nestanoví jinak). Ve chvíli, kdy se pustíte do kompilace, o tyto výhody přijdete. Pokud si nesestavíte vlastní balíček obsahující vámi zkompilovaný software, nebude moci brát balíčkovací systém v úvahu soubory, které tomuto softwaru v souborovému systému patří - odinstalování tedy může být problematické. Ale i když si vlastní balíček postavíte a nainstalujete jej přes správce balíčků, zůstane na vás stále to nejdůležitější - jeho aktualizace.</p>
+<p>Balíčkovací systém šetří (nejen) správcům práci. Umožňuje snadnou instalaci, odinstalaci i aktualizaci softwaru. Aktualizace se týká veškerého softwaru dostupného z repozitářů (pokud distribuce nestanoví jinak). Ve chvíli, kdy se pustíte do kompilace, o tyto výhody přijdete. Pokud si nesestavíte vlastní balíček obsahující vámi zkompilovaný software, nebude moci brát balíčkovací systém v úvahu soubory, které tomuto softwaru v souborovému systému patří – odinstalování tedy může být problematické. Ale i když si vlastní balíček postavíte a nainstalujete jej přes správce balíčků, zůstane na vás stále to nejdůležitější – jeho aktualizace.</p>
 
 <h5>Závislosti</h5>
 
@@ -131,7 +131,7 @@ make install</pre>
 
 <h4>Kompilace zvoleného softwaru</h4>
 
-<p>Software, který bude sloužit jako pokusný králík pro kompilaci, je webový server Apache, kterému se tato kniha věnovala v několika kapitolách počínaje <em>Instalace LAMP</em>{link:"Webový server a databáze":"Instalace LAMP"}. Je to pouze příklad, na kterém bude demonstrována kompilace. V žádném případě se nejedná o doporučený způsob kompilace Apache. Kromě toho, Apache určitě naleznete v repozitářích vámi používané distribuce. Budete-li chtít kompilovat právě Apache, určitě se primárně řiďte oficiální dokumentací, na kterou kapitola pro úplnost odkazuje.</p>
+<p>Software, který bude sloužit jako pokusný králík pro kompilaci, je webový server Apache, kterému se tato kniha věnovala v několika kapitolách počínaje <em>Instalace LAMP</em>{link:“Webový server a databáze“:“Instalace LAMP“}. Je to pouze příklad, na kterém bude demonstrována kompilace. V žádném případě se nejedná o doporučený způsob kompilace Apache. Kromě toho, Apache určitě naleznete v repozitářích vámi používané distribuce. Budete-li chtít kompilovat právě Apache, určitě se primárně řiďte oficiální dokumentací, na kterou kapitola pro úplnost odkazuje.</p>
 
 <h4>Nahlédnutí do dokumentace</h4>
 
@@ -182,7 +182,7 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <pre>make -j9</pre>
 
-<p>V době vícejádrových a vícevláknových procesorů by byla škoda kompilovat na jednom jádře, tedy velmi, velmi pomalu v porovnání s možnostmi stroje. Na serveru, který obsluhuje klienty, je však vhodné ještě upravit prioritu kompilace. V unixových systémech se priorita nastavuje jako „niceness“ (ohleduplnost), tzn. vyšší číslo znamená nižší prioritu (větší ohleduplnost k okolí). V Linuxu má priorita meze od -20 (nejvyšší priorita) do 19 (nejnižší priorita). Pokud na kompilaci nespěcháte, devatenáctka je asi nejvhodnější:</p>
+<p>V době vícejádrových a vícevláknových procesorů by byla škoda kompilovat na jednom jádře, tedy velmi, velmi pomalu v porovnání s možnostmi stroje. Na serveru, který obsluhuje klienty, je však vhodné ještě upravit prioritu kompilace. V unixových systémech se priorita nastavuje jako „niceness“ (ohleduplnost), tzn. vyšší číslo znamená nižší prioritu (větší ohleduplnost k okolí). V Linuxu má priorita meze od –20 (nejvyšší priorita) do 19 (nejnižší priorita). Pokud na kompilaci nespěcháte, devatenáctka je asi nejvhodnější:</p>
 
 <pre>nice -n 19 make -j9</pre>
 
@@ -192,7 +192,7 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <p>Pokud kompilace proběhne bez chyb, zbývá software nainstalovat. Dosud bylo možné všechny kroky (s výjimkou používání správce balíčků) vykonávat bez práv superuživatele. K instalaci je ovšem jeho oprávnění potřeba. Výjimkou může být situace, kdy jste použili <code>-- prefix</code> k tomu, abyste software mohli nainstalovat do adresáře, který patří aktuálnímu uživateli. V takovém případě bez obav instalujte.</p>
 
-<p>Pokud software nainstalujete přímo, pomocí <code>make install</code>, správce balíčků o těchto souborech nebude nic vědět a nebude je moci odstranit nebo vám říci, kde jsou. Můžete si samozřejmě vytvořit balíček, který nainstalujete pomocí <code>dpkg</code>, ale to obvykle představuje hodně práce. Existuje však i jiná možnost - nástroj <code>checkinstall</code>, který se používá místo <code>make install</code>. Tento nástroj vám balíček na počkání balíček vytvoří:</p>
+<p>Pokud software nainstalujete přímo, pomocí <code>make install</code>, správce balíčků o těchto souborech nebude nic vědět a nebude je moci odstranit nebo vám říci, kde jsou. Můžete si samozřejmě vytvořit balíček, který nainstalujete pomocí <code>dpkg</code>, ale to obvykle představuje hodně práce. Existuje však i jiná možnost – nástroj <code>checkinstall</code>, který se používá místo <code>make install</code>. Tento nástroj vám balíček na počkání balíček vytvoří:</p>
 
 <pre>checkinstall</pre>
 
@@ -341,7 +341,7 @@ make oldconfig</pre>
 
 <h5>Pojmenování vámi upravené verze jádra</h5>
 
-<p>Abyste odlišili svou verzi jádra od jádra, které máte nainstalované, v nastavení jádra <strong>General setup</strong> - <strong>local version</strong> vyplňte příponu, kterou chcete použít, např. <code>-custom</code>. Pokud tak neučiníte a jádro budete instalovat ručně bez správce balíčků, hrozí, že si přepíšete distribuční jádro!</p>
+<p>Abyste odlišili svou verzi jádra od jádra, které máte nainstalované, v nastavení jádra <strong>General setup</strong> – <strong>local version</strong> vyplňte příponu, kterou chcete použít, např. <code>-custom</code>. Pokud tak neučiníte a jádro budete instalovat ručně bez správce balíčků, hrozí, že si přepíšete distribuční jádro!</p>
 
 <h4>Sestavení jádra</h4>
 
@@ -386,7 +386,7 @@ make oldconfig</pre>
 <pre>make-kpkg clean
 fakeroot make-kpkg --initrd --append-to-version=-custom kernel_image kernel_headers</pre>
 
-<p>V příkazu výše upravte parametr <code>--append-to-version</code> podle toho, jakou příponu pro název vámi sestaveného jádra chcete použít. Až kompilace skončí, podívejte se do nadřazeného adresáře - tam naleznete balíčky se zkompilovaným jádrem. Pokud jste kompilovali jádro v <code>/usr/src/linux-x.y.z</code>, naleznete balíčky v <code>/usr/src</code>. Ty pak nainstalujte pomocí <code>dpkg</code>:</p>
+<p>V příkazu výše upravte parametr <code>--append-to-version</code> podle toho, jakou příponu pro název vámi sestaveného jádra chcete použít. Až kompilace skončí, podívejte se do nadřazeného adresáře – tam naleznete balíčky se zkompilovaným jádrem. Pokud jste kompilovali jádro v <code>/usr/src/linux-x.y.z</code>, naleznete balíčky v <code>/usr/src</code>. Ty pak nainstalujte pomocí <code>dpkg</code>:</p>
 
 <pre>cd /usr/src
 dpkg -i linux-image-verze_jadra.deb
@@ -395,13 +395,13 @@ dpkg -i linux-headers-verze_jadra.deb</pre>
 <p>Iniciální ramdisk by se měl vygenerovat automaticky, totéž by mělo platit o nastavení zavaděče. Tím by měla být instalace nového jádra hotova.</p>
 
 http://wiki.debian.org/ModuleAssistant Debian Wiki: Module assistant
-http://www.howtoforge.com/kernel_compilation_debian_etch How To Compile A Kernel - Debian Etch
+http://www.howtoforge.com/kernel_compilation_debian_etch How To Compile A Kernel – Debian Etch
 http://en.wikipedia.org/wiki/Software_release_life_cycle Wikipedie, Software release life cycle
 http://asic-linux.com.mx/~izto/checkinstall/ Web projektu Checkinstall
 http://httpd.apache.org/docs/2.0/install.html Compiling and installing Apache
 http://wiki.debian.org/apt-src Apt-src
 http://www.h-online.com/open/news/item/Linux-kernel-with-long-term-support-1148154.html Linux kernel with long-term support
-http://www.kroah.com/log/linux/longterm-proposal-08-2011.html Future of the -longterm kernel releases.
+http://www.kroah.com/log/linux/longterm-proposal-08-2011.html Future of the –longterm kernel releases.
 http://en.wikipedia.org/wiki/Linux_kernel Wikipedia: Linux kernel
 http://grsecurity.net/ grsecurity
 http://backports.debian.org/ Debian backports

@@ -6,7 +6,7 @@
 
 <p>Řada komunikačních služeb a protokolů je uzavřená, centralizovaná a podléhá restriktivním licenčním podmínkám či ještě navíc nutnosti instalovat proprietární software, který komunikaci zajišťuje (v některých případech nemusí být takový software pro Linux ani dostupný). XMPP je protokol, který je decentralizovaný a otevřený. Jednou z jeho stěžejních vlastností je i rozšiřitelnost, která umožňuje na Jabberu stavět další služby a činit jej tak pro uživatele atraktivnější.</p>
 
-<p>Otevřenost protokolu a související možnost jej použít volně, dle libosti, dala vzniknout řadě implementací XMPP serverů i klientů. Oproti řadě jiných protokolů a podobných služeb má Jabber ještě jednu zásadní odlišnost – je decentralizovaný. To znamená, že nemá žádný centrální bod, na kterém by komunikační síť závisela a bez kterého by nikdo s nikým nemohl komunikovat. Jabber se z tohoto pohledu podobá e-mailu - serverů je celá řada, mohou spolu navzájem komunikovat, přičemž uživatelé se mohou rozhodnout, jaký server si zvolí, popřípadě mají možnost si založit vlastní Jabber server (viz dále), a stále mají možnost komunikovat s uživateli ostatních serverů.</p>
+<p>Otevřenost protokolu a související možnost jej použít volně, dle libosti, dala vzniknout řadě implementací XMPP serverů i klientů. Oproti řadě jiných protokolů a podobných služeb má Jabber ještě jednu zásadní odlišnost – je decentralizovaný. To znamená, že nemá žádný centrální bod, na kterém by komunikační síť závisela a bez kterého by nikdo s nikým nemohl komunikovat. Jabber se z tohoto pohledu podobá e-mailu – serverů je celá řada, mohou spolu navzájem komunikovat, přičemž uživatelé se mohou rozhodnout, jaký server si zvolí, popřípadě mají možnost si založit vlastní Jabber server (viz dále), a stále mají možnost komunikovat s uživateli ostatních serverů.</p>
 
 <p>Jabber nebo XMPP? Dříve se protokol XMPP jmenoval Jabber. Nyní se toto označení používá spíše pro službu, zatímco novější XMPP se používá pro samotný protokol. Vztah mezi výrazy Jabber a XMPP je tak podobný jako mezi výrazy e-mail a SMTP.</p>
 
@@ -106,7 +106,7 @@ _xmpp-client._tcp.example.cz.  IN SRV   0 0 5222   hostname.</pre>
 
 <h4>SSL/TLS nastavení</h4>
 
-<p>Jabber komunikaci je velmi vhodné šifrovat, nejlépe platným certifikátem, kterému budou vaši klienti věřit. Problematika certifikátů a možnosti získání důvěryhodného certifikátu zdarma byly probrány v kapitole <em>Úvod do konfigurace Apache</em>{link:"Webový server a databáze":"Úvod do konfigurace Apache"}. Zde už předpokládám, že certifikát k dispozici máte. Specifikace certifikátu by měla přijít do nastavení příslušného virtual hostu, konkrétně do sekce <code>ssl</code>:</p>
+<p>Jabber komunikaci je velmi vhodné šifrovat, nejlépe platným certifikátem, kterému budou vaši klienti věřit. Problematika certifikátů a možnosti získání důvěryhodného certifikátu zdarma byly probrány v kapitole <em>Úvod do konfigurace Apache</em>{link:“Webový server a databáze“:“Úvod do konfigurace Apache“}. Zde už předpokládám, že certifikát k dispozici máte. Specifikace certifikátu by měla přijít do nastavení příslušného virtual hostu, konkrétně do sekce <code>ssl</code>:</p>
 
 <pre>VirtualHost "example.cz"
 
@@ -119,10 +119,10 @@ _xmpp-client._tcp.example.cz.  IN SRV   0 0 5222   hostname.</pre>
 
 <ul>
 <li>
-<p><code>c2s_require_encryption</code> - komunikace klienta se serverem (c2s) vyžaduje šifrování</p>
+<p><code>c2s_require_encryption</code> – komunikace klienta se serverem (c2s) vyžaduje šifrování</p>
 </li>
 <li>
-<p><code>s2s_require_encryption</code> - komunikace mezi servery (s2s) vyžaduje šifrování</p>
+<p><code>s2s_require_encryption</code> – komunikace mezi servery (s2s) vyžaduje šifrování</p>
 </li>
 </ul>
 

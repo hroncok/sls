@@ -2,7 +2,7 @@
 
 <h3>Úvod</h3>
 
-<p>Databázových systémů (DBMS) je v GNU/Linuxu dostupných poměrně dost. Mezi ty nejznámější patří určitě MySQL, která se na webových serverech používá nejčastěji a jejíž základní zprovoznění bylo již v této knize probráno, a to v kapitole <em>Instalace LAMP</em>{link:"Webový server a databáze":"Instalace LAMP"}. Kromě MySQL existuje ovšem řada jiných možností, které mohou být pro různé typy použití lepší volbou, a zde nelze nepřehlédnout PostgreSQL, špičkovou open-source databázi šířenou pod BSD/MIT-like licencí, s dlouhou tradicí a velmi působivými vlastnostmi.</p>
+<p>Databázových systémů (DBMS) je v GNU/Linuxu dostupných poměrně dost. Mezi ty nejznámější patří určitě MySQL, která se na webových serverech používá nejčastěji a jejíž základní zprovoznění bylo již v této knize probráno, a to v kapitole <em>Instalace LAMP</em>{link:“Webový server a databáze“:“Instalace LAMP“}. Kromě MySQL existuje ovšem řada jiných možností, které mohou být pro různé typy použití lepší volbou, a zde nelze nepřehlédnout PostgreSQL, špičkovou open-source databázi šířenou pod BSD/MIT-like licencí, s dlouhou tradicí a velmi působivými vlastnostmi.</p>
 
 <p>Samotným porovnáním obou DBMS se tato kapitola zabývat nebude, nicméně v odkazech pod ní naleznete články, které oba DBMS velmi podrobně srovnávají. Aby to nevypadalo, že v GNU/Linuxu existují pouze MySQL a Postgres, dodám také, že kromě těchto dvou DBMS existuje řada dalších, ať již open-source nebo proprietárních, běžících pod GNU/Linuxem. Více viz odkazy pod kapitolou.</p>
 
@@ -48,7 +48,7 @@
 
 <h3>Vytváření uživatelů a databází</h3>
 
-<p>V MySQL je databázový administrátor <em>root</em>, stejně jako v unixových systémech. V Postgresu se účet správce jmenuje <em>postgres</em>. Jelikož tento účet vyžaduje po instalaci přístup s heslem, které nemáte k dispozici, musíte si pomoci jinak - staňte se systémovým, tedy unixovým uživatelem <em>postgres</em>, který má veškerá oprávnění k DBMS. Pokud máte práva roota, můžete tuto operaci provést následujícím příkazem:</p>
+<p>V MySQL je databázový administrátor <em>root</em>, stejně jako v unixových systémech. V Postgresu se účet správce jmenuje <em>postgres</em>. Jelikož tento účet vyžaduje po instalaci přístup s heslem, které nemáte k dispozici, musíte si pomoci jinak – staňte se systémovým, tedy unixovým uživatelem <em>postgres</em>, který má veškerá oprávnění k DBMS. Pokud máte práva roota, můžete tuto operaci provést následujícím příkazem:</p>
 
 <pre>su postgres -</pre>
 
@@ -56,7 +56,7 @@
 
 <pre>createuser -P michal</pre>
 
-<p>Budete vyzváni k zadání hesla, a poté budete dotázáni na tři podstatné věci - zdali má mít nově vytvořená role (tj. uživatel) administrátorská oprávnění (doporučuji odpovědět ne), zdali má mít právo vytvářet databáze (opět doporučuji odpovědět ne) a konečně, zdali má mít právo vytvářet nové role (rovněž doporučuji odpovědět ne).</p>
+<p>Budete vyzváni k zadání hesla, a poté budete dotázáni na tři podstatné věci – zdali má mít nově vytvořená role (tj. uživatel) administrátorská oprávnění (doporučuji odpovědět ne), zdali má mít právo vytvářet databáze (opět doporučuji odpovědět ne) a konečně, zdali má mít právo vytvářet nové role (rovněž doporučuji odpovědět ne).</p>
 
 <p>Nyní zbývá vytvořit databázi, kterou bude vlastnit nově vytvořený uživatel. Řekněme, že tato databáze se bude jmenovat „faktury“. K vytvoření databáze využijete příkaz <code>createdb</code>:</p>
 
@@ -115,37 +115,37 @@ postgres=#</pre>
 <p><strong>Globální operace</strong></p>
 <ul>
 <li>
-<p><code>\l</code> - 	vypíše seznam databází a základních informací o nich</p>
+<p><code>\l</code> – 	vypíše seznam databází a základních informací o nich</p>
 </li>
 <li>
-<p><code>\db</code> - 	vypíše seznam tablespaces</p>
+<p><code>\db</code> – 	vypíše seznam tablespaces</p>
 </li>
 <li>
-<p><code>\dg</code> - 	vypíše seznam rolí</p>
+<p><code>\dg</code> – 	vypíše seznam rolí</p>
 </li>
 <li>
-<p><code>\dn</code> - 	vypíše seznam schémat</p>
+<p><code>\dn</code> – 	vypíše seznam schémat</p>
 </li>
 <li>
-<p><code>\password 	[uzivatel]</code> - interaktivní nastavení hesla uživatele 	<code>uzivatel</code>; pokud nebude zadán uživatel, 	změna se bude týkat aktuálně přihlášeného uživatele</p>
+<p><code>\password 	[uzivatel]</code> – interaktivní nastavení hesla uživatele 	<code>uzivatel</code>; pokud nebude zadán uživatel, 	změna se bude týkat aktuálně přihlášeného uživatele</p>
 </li>
 <li>
-<p><code>\c [databaze] [uzivatel] [pocitac] 	[port]</code> - připojí se k databázi</p>
+<p><code>\c [databaze] [uzivatel] [pocitac] 	[port]</code> – připojí se k databázi</p>
 </li>
 </ul>
 <p><strong>Operace nad konkrétní databází</strong></p>
 <ul>
 <li>
-<p><code>\di</code> - 	vypíše seznam indexů</p>
+<p><code>\di</code> – 	vypíše seznam indexů</p>
 </li>
 <li>
-<p><code>\ds</code> - 	vypíše seznam sekvencí</p>
+<p><code>\ds</code> – 	vypíše seznam sekvencí</p>
 </li>
 <li>
-<p><code>\dt</code> - 	vypíše seznam tabulek</p>
+<p><code>\dt</code> – 	vypíše seznam tabulek</p>
 </li>
 <li>
-<p><code>\dv</code> - vypíše seznam pohledů 	(views)</p>
+<p><code>\dv</code> – vypíše seznam pohledů 	(views)</p>
 </li>
 </ul>
 
@@ -181,7 +181,7 @@ screenshot-pgadmin3b.png Jednoduchý SQL dotaz v pgAdmin III
 
 screenshot-pgadmin3c.png Grafické sestavení dotazu v pgAdmin III
 
-<p>Samotné připojení ke vzdálené databázi je možné provést řadou způsobů. Pro správce je patrně nejrychlejší použít SSH tunel, jehož vytvoření je popsáno v kapitole <em>Vzdálená správa pomocí SSH</em>{link:"Vzdálená správa pomocí SSH"}. Je samozřejmě také možné nastavit Postgres, aby přijímal spojení ze sítě a umožňoval přihlášení uživatele či uživatelů z určité IP adresy. K tomu slouží konfigurační soubor <code>pg_hba.conf</code>, který v Debianu Wheezy s Postgresem 9.1 naleznete v <code>/etc/postgresql/9.1/main/</code>.</p>
+<p>Samotné připojení ke vzdálené databázi je možné provést řadou způsobů. Pro správce je patrně nejrychlejší použít SSH tunel, jehož vytvoření je popsáno v kapitole <em>Vzdálená správa pomocí SSH</em>{link:“Vzdálená správa pomocí SSH“}. Je samozřejmě také možné nastavit Postgres, aby přijímal spojení ze sítě a umožňoval přihlášení uživatele či uživatelů z určité IP adresy. K tomu slouží konfigurační soubor <code>pg_hba.conf</code>, který v Debianu Wheezy s Postgresem 9.1 naleznete v <code>/etc/postgresql/9.1/main/</code>.</p>
 
 <h3>Zálohování Postgresu</h3>
 
@@ -218,7 +218,7 @@ http://wiki.postgresql.org/wiki/Why_PostgreSQL_Instead_of_MySQL_2009 Why Postgre
 http://en.wikipedia.org/wiki/Comparison_of_relational_database_management_systems Wikipedia: Comparison of relational database management systems
 http://simononsoftware.com/postgresql-collation/ PostgreSQL Collation – part 1
 http://simononsoftware.com/postgresql-collation-2/ PostgreSQL Collation – part 2
-http://www.postgresql.org/docs/8.4/static/install-upgrading.html PostgreSQL manual - Upgrading
+http://www.postgresql.org/docs/8.4/static/install-upgrading.html PostgreSQL manual – Upgrading
 http://postgres.cz Český portál/wiki o Postgresu
 http://www.postgresql.org/docs/8.4/interactive/app-psql.html psql
 http://www.postgresql.org/docs/8.4/static/backup.html Backup and Restore

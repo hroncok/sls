@@ -40,13 +40,13 @@
 200 Multi_Zone_Error_Rate   0x0009   200   200   051    Pre-fail  Offline      -       0
 </pre>
 
-<p>Tento výpis vypadá sice na první pohled značně komplikovaně, ale jeho čtení není až tak těžké. Vlevo je název atributu, ten je ve většině případů samovysvětlující. Konkrétní hodnota daného atributu je zobrazena ve sloupci <code>RAW_VALUE</code> ("surová" hodnota). Surová hodnota není u některých atributů vždy zcela reprezentativní, protože disky od různých výrobců mohou zaznamenávat trošku jiná čísla (bohužel, technologie S.M.A.R.T. není standardizována, takže z části platí "každý pes, jiná ves").</p>
+<p>Tento výpis vypadá sice na první pohled značně komplikovaně, ale jeho čtení není až tak těžké. Vlevo je název atributu, ten je ve většině případů samovysvětlující. Konkrétní hodnota daného atributu je zobrazena ve sloupci <code>RAW_VALUE</code> („surová“ hodnota). Surová hodnota není u některých atributů vždy zcela reprezentativní, protože disky od různých výrobců mohou zaznamenávat trošku jiná čísla (bohužel, technologie S.M.A.R.T. není standardizována, takže z části platí „každý pes, jiná ves“).</p>
 
-<p>Kupříkladu, výše uvedený výpis pochází z disku od firmy Western Digital. Povšimněte si, že první atribut (raw read error rate) má nulovou "surovou" hodnotu. Naopak jiný disk od firmy Seagate mi hlásí hodnotu <code>177587740</code>, která je nepoměrně vyšší, což ale neznačí, že by disk měl nějakou poruchu – pro disky od tohoto výrobce je to běžné a neznamená to nic znepokojivého. Podobně vysoká hodnota je u Seagatu běžná i u atributu hardware ECC recovered (jak je patrné z výpisu, tento disk od Western Digital tento atribut nemá). Samsungy hlásí podobně vysoké hodnoty u hardware ECC recovered, ale už ne u raw read error rate. Řada důležitých údajů má však reprezentativní a porovnatelnou hodnotu napříč disky od různých výrobců.</p>
+<p>Kupříkladu, výše uvedený výpis pochází z disku od firmy Western Digital. Povšimněte si, že první atribut (raw read error rate) má nulovou „surovou“ hodnotu. Naopak jiný disk od firmy Seagate mi hlásí hodnotu <code>177587740</code>, která je nepoměrně vyšší, což ale neznačí, že by disk měl nějakou poruchu – pro disky od tohoto výrobce je to běžné a neznamená to nic znepokojivého. Podobně vysoká hodnota je u Seagatu běžná i u atributu hardware ECC recovered (jak je patrné z výpisu, tento disk od Western Digital tento atribut nemá). Samsungy hlásí podobně vysoké hodnoty u hardware ECC recovered, ale už ne u raw read error rate. Řada důležitých údajů má však reprezentativní a porovnatelnou hodnotu napříč disky od různých výrobců.</p>
 
 <p>V některých případech se může hodit pro referenci použít interpretované hodnoty (value, worst, treshold). Interpretovaná hodnota funguje následovně: Firmware disku umí každý atribut přepočítat do reprezentativní, normalizované hodnoty. Pro každý atribut je určen práh (treshold), jehož přetečení indikuje vážný problém. Tento problém může být dvojího rázu, a to podle typu atributu – jedná-li se o atribut pre-fail, pak překročení daného prahu značí hrozící akutní selhání disku. Jedná-li se o atribut old age, pak přetečení prahu značí, že disk je již příliš starý a opotřebovaný.</p>
 
-<p>Aktuální interpretovaná hodnota se nachází ve sloupci "value", ve sloupci "worst" naleznete nejhorší dosaženou hodnotu (nejblíže prahu) za celý život pevného disku, a samotný práh naleznete ve sloupci "tresh" (jako treshold – práh).</p>
+<p>Aktuální interpretovaná hodnota se nachází ve sloupci „value“, ve sloupci „worst“ naleznete nejhorší dosaženou hodnotu (nejblíže prahu) za celý život pevného disku, a samotný práh naleznete ve sloupci „tresh“ (jako treshold – práh).</p>
 
 <h3>Klíčové údaje</h3>
 
@@ -58,7 +58,7 @@
 
 <p><strong>Reallocation event count</strong> je počet úspěšných i neúspěšných pokusů přesunout data do rezervní oblasti.</p>
 
-<p><strong>Current pending sector count</strong> označuje počet "problémových" sektorů, kde došlo k chybě čtení (takový sektor není přemapován, neboť se následné čtení ještě může podařit). Pokud se následný zápis nebo čtení tohoto sektoru podaří, tato hodnota se sníží.</p>
+<p><strong>Current pending sector count</strong> označuje počet „problémových“ sektorů, kde došlo k chybě čtení (takový sektor není přemapován, neboť se následné čtení ještě může podařit). Pokud se následný zápis nebo čtení tohoto sektoru podaří, tato hodnota se sníží.</p>
 
 <p><strong>Uncorrectable sector count</strong> je počet neopravitelných chyb při čtení nebo zápisu. Zvýšení této hodnoty indikuje problém s povrchem disku.</p>
 
@@ -66,7 +66,7 @@
 
 <p>Další atributy jsou popsány podrobně v anglické Wikipedii, nicméně výše uvedené mají obvykle dostatečnou vypovídací schopnost.</p>
 
-<p>Hodnoty jednotlivých atributů je třeba vhodně interpretovat, a k tomu vám bohužel přímé vodítko neposkytnu. Zvyšující se hodnoty klíčových atributů uvedených výše značí možný problém, tedy možné selhání disku v blízké budoucnosti, ale pouze s jistou pravděpodobností. To, že máte na disku třeba jeden realokovaný sektor, ještě nemusí vylučovat možnost, že disk bude spolehlivě fungovat ještě roky. Stejně tak fakt, že veškeré "klíčové" atributy mají nulové hodnoty, neznamená, že disk nemůže během hodiny katastrofálně selhat.</p>
+<p>Hodnoty jednotlivých atributů je třeba vhodně interpretovat, a k tomu vám bohužel přímé vodítko neposkytnu. Zvyšující se hodnoty klíčových atributů uvedených výše značí možný problém, tedy možné selhání disku v blízké budoucnosti, ale pouze s jistou pravděpodobností. To, že máte na disku třeba jeden realokovaný sektor, ještě nemusí vylučovat možnost, že disk bude spolehlivě fungovat ještě roky. Stejně tak fakt, že veškeré „klíčové“ atributy mají nulové hodnoty, neznamená, že disk nemůže během hodiny katastrofálně selhat.</p>
 
 <p>Mohu vás nicméně odkázat na studii o poruchovosti disků (viz odkazy pod kapitolou), kterou provedl Google, a která zohledňuje některé S.M.A.R.T. atributy a jejich vztah k pravděpodobnosti selhání disku. Tato studie je poměrně komplexní a zahrnuje i další faktory, jako je například teplota.</p>
 
@@ -107,7 +107,7 @@ Error 36 occurred at disk power-on lifetime: 27 hours (1 days + 3 hours)
   ef 03 42 00 00 00 a0 0a      00:28:29.400  SET FEATURES [Set transfer mode]
   27 00 00 00 00 00 e0 08      00:28:29.400  READ NATIVE MAX ADDRESS EXT</pre>
 
-<p>Povšimněte si údajů o celkovém počtu chyb (druhý řádek výpisu). Samotná chyba je popsána poměrně detailně, včetně série příkazů, které vedly k chybovému stavu, a časového údaje, ze kterého je možné v tomto případě vyčíst, že k poslední chybě (chybě č. 36) došlo ve 27. hodině fungování pevného disku. S.M.A.R.T. logy je nicméně nutné brát v kontextu k ostatním údajům – teprve pak mají vhodnou vypovídací schopnost. Časovou značku chyby (27 hodin) lze porovnat se S.M.A.R.T. údajem "power on hours", který udává celkovou dobu fungování disku:</p>
+<p>Povšimněte si údajů o celkovém počtu chyb (druhý řádek výpisu). Samotná chyba je popsána poměrně detailně, včetně série příkazů, které vedly k chybovému stavu, a časového údaje, ze kterého je možné v tomto případě vyčíst, že k poslední chybě (chybě č. 36) došlo ve 27. hodině fungování pevného disku. S.M.A.R.T. logy je nicméně nutné brát v kontextu k ostatním údajům – teprve pak mají vhodnou vypovídací schopnost. Časovou značku chyby (27 hodin) lze porovnat se S.M.A.R.T. údajem „power on hours“, který udává celkovou dobu fungování disku:</p>
 
 <pre>ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED  WHEN_FAILED RAW_VALUE
   9 Power_On_Hours          0x0012   100   100   000    Old_age   Always       -       4339</pre>
@@ -156,7 +156,7 @@ Error 36 occurred at disk power-on lifetime: 27 hours (1 days + 3 hours)
 <pre>=== START OF READ SMART DATA SECTION ===
 SMART overall-health self-assessment test result: PASSED</pre>
 
-<p>Co tato hodnota znamená? V podstatě pouze to, že nebyl překročen práh (treshold) žádného ze S.M.A.R.T. atributů. To je samozřejmě důležitá hodnota a ve chvíli, kdy bude udávat "FAILED", je vhodné data zálohovat a disk co nejdříve vyřadit. Naneštěstí to, že tato hodnota udává "PASSED", ještě neznamená, že nelze bližším studiem konkrétních hodnot S.M.A.R.T. atributů odhadnout blížící se potenciální problém dlouho před tím, než se tato hodnota změní.</p>
+<p>Co tato hodnota znamená? V podstatě pouze to, že nebyl překročen práh (treshold) žádného ze S.M.A.R.T. atributů. To je samozřejmě důležitá hodnota a ve chvíli, kdy bude udávat „FAILED“, je vhodné data zálohovat a disk co nejdříve vyřadit. Naneštěstí to, že tato hodnota udává „PASSED“, ještě neznamená, že nelze bližším studiem konkrétních hodnot S.M.A.R.T. atributů odhadnout blížící se potenciální problém dlouho před tím, než se tato hodnota změní.</p>
 
 <h3>S.M.A.R.T. a firmware disku</h3>
 
@@ -168,7 +168,7 @@ SMART overall-health self-assessment test result: PASSED</pre>
 
 <p>Třetí a poslední funkcionalitou, kterou S.M.A.R.T. poskytuje, je testování pevného disku (tedy jakási samodiagnostika). Tyto testy probíhají na pozadí, lze je tedy použít i na běžícím systému. Je jasné, že intenzivní práce s diskem průběh příslušného testu pozdrží.</p>
 
-<p>Testy jsou celkem tři, krátký (short), dlouhý (long) a "přepravní" (conveyance). Každý z těchto testů dělá něco malinko jiného, krátký testuje základní funkčnost disku, dlouhý provádí totéž, ale trošku důkladněji (a kromě toho testuje i povrch disku) a conveyance test je schopen určit poškození disku způsobené přepravou (ne všechny pevné disky jej ale umí provést).</p>
+<p>Testy jsou celkem tři, krátký (short), dlouhý (long) a „přepravní“ (conveyance). Každý z těchto testů dělá něco malinko jiného, krátký testuje základní funkčnost disku, dlouhý provádí totéž, ale trošku důkladněji (a kromě toho testuje i povrch disku) a conveyance test je schopen určit poškození disku způsobené přepravou (ne všechny pevné disky jej ale umí provést).</p>
 
 <p>Délka testů se liší model od modelu, přičemž očekávanou délku testu se dozvíte už z celkového výpisu (<code>smartctl -a /dev/disk</code>):</p>
 
@@ -211,7 +211,7 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
 # 7  Extended offline    Completed: read failure       90%        26         14566144
 </pre>
 
-<p>Zde vidíte celkem sedm testů, jsou seřazeny inverzně dle doby, kdy byly provedeny. Všechny typy testů kromě třetího jsou "dlouhé" (long), čtyři naposledy prováděné testy (1-4) nevykazují žádný problém, pátý test byl přerušen restartem počítače zhruba v 60% průběhu, přičemž šestý a sedmý skončil s chybou. U těchto dvou testů vidíte i číslo bloku (14566144), kde k chybě došlo.</p>
+<p>Zde vidíte celkem sedm testů, jsou seřazeny inverzně dle doby, kdy byly provedeny. Všechny typy testů kromě třetího jsou „dlouhé“ (long), čtyři naposledy prováděné testy (1-4) nevykazují žádný problém, pátý test byl přerušen restartem počítače zhruba v 60% průběhu, přičemž šestý a sedmý skončil s chybou. U těchto dvou testů vidíte i číslo bloku (14566144), kde k chybě došlo.</p>
 
 <p>Tento výpis náleží disku Hitachi, kterého se týkal onen problém s výpadkem napájení a následné nekonzistenci mezi ECC záznamem a daty v osmi sektorech, která vyvolala chybu čtení. Srovnejme to nyní s výpisem ze S.M.A.R.T. logu:</p>
 
@@ -226,7 +226,7 @@ Num  Test_Description    Status                  Remaining  LifeTime(hours)  LBA
   ...
 </pre>
 
-<p>Jak je vidět, číslo bloku se shoduje (14566144). Z výpisu testů je jasně patrné, že tato chyba byla odstraněna (pozdější testy proběhly bez chyby) a nulová hodnota S.M.A.R.T. atributu "reallocated sectors count" potvrzuje, že se nejednalo o špatné sektory, které by bylo nutné přemapovat. Tento disk je tedy zcela v pořádku.</p>
+<p>Jak je vidět, číslo bloku se shoduje (14566144). Z výpisu testů je jasně patrné, že tato chyba byla odstraněna (pozdější testy proběhly bez chyby) a nulová hodnota S.M.A.R.T. atributu „reallocated sectors count“ potvrzuje, že se nejednalo o špatné sektory, které by bylo nutné přemapovat. Tento disk je tedy zcela v pořádku.</p>
 
 <h3>S.M.A.R.T. monitorování</h3>
 

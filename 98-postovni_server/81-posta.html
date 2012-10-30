@@ -393,7 +393,7 @@ inet_protocols = all</pre>
 
 <pre>/etc/init.d/postfix restart</pre>
 
-<p>Funkčnost serveru můžete otestovat pomocí znalostí z kapitoly <em>Úvod do poštovního server</em>{link:"Poštovní server":"Úvod do poštovního serveru"}:</p>
+<p>Funkčnost serveru můžete otestovat pomocí znalostí z kapitoly <em>Úvod do poštovního server</em>{link:“Poštovní server“:“Úvod do poštovního serveru“}:</p>
 
 <pre>telnet server.example.org 25</pre>
 
@@ -473,7 +473,7 @@ apropos postfix</pre>
 
 <p>Greylisting je v boji se spamem jednou z nejúčinnějších metod, i když skýtá jistá rizika a nevýhody. Hlavním problémem je zpoždění doručení pošty, které vyvolává. To se může v praxi pohybovat od několika minut až po hodiny. Některé špatně nastavené poštovní servery nemusí být schopny poštu doručit vůbec (to by měly být ale opravdu výjimky).</p>
 
-<p>Greylisting byl zmíněn v úvodu do poštovního serveru, takže jen velmi stručně – tato technika spočívá v tom, že poštovní server odmítá přijmout e-mail z neznámého zdroje po určitou dobu. Standardně by se poštovní servery měly pokusit -e-mail doručit znovu, až se jim to nakonec podaří, zatímco spammeři obvykle e-maily dvakrát neposílají.</p>
+<p>Greylisting byl zmíněn v úvodu do poštovního serveru, takže jen velmi stručně – tato technika spočívá v tom, že poštovní server odmítá přijmout e-mail z neznámého zdroje po určitou dobu. Standardně by se poštovní servery měly pokusit –e-mail doručit znovu, až se jim to nakonec podaří, zatímco spammeři obvykle e-maily dvakrát neposílají.</p>
 
 <p>Démonů zajišťujících tuto funkcionalitu existuje více. Patrně nejčastěji se setkáte s nástrojem Postgrey, napsaným v Perlu a určeným pro Postfix. Nainstalujete jej jako obvykle, pomocí správce balíčků:</p>
 
@@ -784,7 +784,7 @@ postmaster@example.org root
 
 <pre>service postfix reload</pre>
 
-<p>Doporučuji poté toto nastavení otestovat zasláním testovacích e-mailů. To, jak byla pošta doručována a kam, si můžete ověřit z logů - v Debianu je to <code>/var/log/mail.log</code>.</p>
+<p>Doporučuji poté toto nastavení otestovat zasláním testovacích e-mailů. To, jak byla pošta doručována a kam, si můžete ověřit z logů – v Debianu je to <code>/var/log/mail.log</code>.</p>
 
 <h2>Restrictions</h2>
 
@@ -913,7 +913,7 @@ spammer@               REJECT</pre>
 
 <h4>reject_rbl_client a blacklisty</h4>
 
-<p>Blacklisty byly představeny již v kapitole <em>Úvod do poštovního server</em>{link:"Poštovní server":"Úvod do poštovního serveru"}, zopakuji tedy jen to nejdůležitější. Blacklist je služba, která sdružuje na základě nějaké politiky IP adresy nebo IP rozsahy a umožňuje poštovním serverům prostřednictvím specifických DNS dotazů zkontrolovat, zda se IP adresa SMTP klienta v této databázi vyskytuje, či nikoliv.</p>
+<p>Blacklisty byly představeny již v kapitole <em>Úvod do poštovního server</em>{link:“Poštovní server“:“Úvod do poštovního serveru“}, zopakuji tedy jen to nejdůležitější. Blacklist je služba, která sdružuje na základě nějaké politiky IP adresy nebo IP rozsahy a umožňuje poštovním serverům prostřednictvím specifických DNS dotazů zkontrolovat, zda se IP adresa SMTP klienta v této databázi vyskytuje, či nikoliv.</p>
 
 <p>Blacklisty na této úrovni v Postfixu je možné využít pouze k odmítání pošty, což nebývá vždy ten nejlepší nápad. Řada správců poštovních serverů raději blacklisty zařazuje až do fáze kontroly antispamem (např. spamassassin), kde je příslušným e-mailům pouze zvýšeno skóre, ale nejsou natvrdo odmítány.</p>
 
@@ -997,7 +997,7 @@ smtpd_sasl_authenticated_header = yes</pre>
         by server.example.net (Postfix) with ESMTPSA id 2A0D62970025
         for &lt;michal@server.example.net&gt;; Thu, 31 May 2012 22:43:24 +0200 (CEST)</pre>
 
-<p>Výše uvedené nastavení řeklo Postfixu, aby podporoval TLS a SASL autentifikaci. Vy ale chcete uživatelům autentifikovaným přes SASL umožnit odesílat poštu. Za tímto účelem je ještě třeba upravit proměnnou <code>smtpd_recipient_restrictions</code> (viz předchozí kapitola{link:"Poštovní server":"Restrictions"}, kde byla tato problematika podrobně popsána). Na správné místo je třeba přidat <code>permit_sasl_authenticated</code>, obvykle za <code>permit_mynetworks</code>:</p>
+<p>Výše uvedené nastavení řeklo Postfixu, aby podporoval TLS a SASL autentifikaci. Vy ale chcete uživatelům autentifikovaným přes SASL umožnit odesílat poštu. Za tímto účelem je ještě třeba upravit proměnnou <code>smtpd_recipient_restrictions</code> (viz předchozí kapitola{link:“Poštovní server“:“Restrictions“}, kde byla tato problematika podrobně popsána). Na správné místo je třeba přidat <code>permit_sasl_authenticated</code>, obvykle za <code>permit_mynetworks</code>:</p>
 
 <pre>smtpd_recipient_restrictions =
    reject_unauth_pipelining,
@@ -1061,7 +1061,7 @@ ssl = required</pre>
 
 <pre>mail_location = mbox:~/mail:INBOX=/var/mail/%u</pre>
 
-<p>Ještě jeden malý detail pro zprovoznění tohoto typu konfigurace - opět v <code>/etc/dovecot/conf.d/10-mail.conf</code>, který řeší jeden problém:</p>
+<p>Ještě jeden malý detail pro zprovoznění tohoto typu konfigurace – opět v <code>/etc/dovecot/conf.d/10-mail.conf</code>, který řeší jeden problém:</p>
 
 <pre>mail_access_groups = mail</pre>
 
@@ -1345,7 +1345,7 @@ http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)
 
 <p>Dosavadní konfigurace poštovního serveru počítala výhradně s vazbou poštovní schránky na unixové účty. Toto řešení je sice velmi jednoduché na implementaci, ale má několik nevýhod. V první řadě je to nutnost vytvořit unixový účet všem majitelům poštovních schránek. Pokud byste takovému uživateli nechtěli poskytnout přístup k shellu nebo jiným službám vázaným na unixové účty (což je z bezpečnostních důvodů více než rozumné), museli byste to nějakým způsobem ošetřit všude tam, kde se unixové účty používají.</p>
 
-<p>Obsluhuje-li váš server více domén, mohli jste narazit na problém se stejnými jmény na různých doménách. Představte si, že máte unixového uživatele <em>michal</em> a domény <em>example.com</em> a <em>example.net</em>, přičemž poštovní schránky <code>michal@example.com</code> a <code>michal@example.net</code> mají mít jiné vlastníky. Ve výchozí konfiguraci Postfixu by pošta z obou adres směřovala do schránky uživatele <em>michal</em>. Jedno z řešení tohoto problému, spočívající ve vytvoření virtuálních aliasů, které ukazují na různé unixové účty (tedy např. <code>michal@example.com</code> by ukazoval na <em>michal1</em> a <code>michal@example.net</code> by ukazoval na účet <em>michal2</em>), bylo představeno v kapitole <em>Aliasy a záložní poštovní server</em>{link:"Poštovní server":"Aliasy a záložní poštovní server}. Takové řešení lze použít, dokud nemáte větší množství uživatelů nebo domén.</p>
+<p>Obsluhuje-li váš server více domén, mohli jste narazit na problém se stejnými jmény na různých doménách. Představte si, že máte unixového uživatele <em>michal</em> a domény <em>example.com</em> a <em>example.net</em>, přičemž poštovní schránky <code>michal@example.com</code> a <code>michal@example.net</code> mají mít jiné vlastníky. Ve výchozí konfiguraci Postfixu by pošta z obou adres směřovala do schránky uživatele <em>michal</em>. Jedno z řešení tohoto problému, spočívající ve vytvoření virtuálních aliasů, které ukazují na různé unixové účty (tedy např. <code>michal@example.com</code> by ukazoval na <em>michal1</em> a <code>michal@example.net</code> by ukazoval na účet <em>michal2</em>), bylo představeno v kapitole <em>Aliasy a záložní poštovní server</em>{link:“Poštovní server“:“Aliasy a záložní poštovní server}. Takové řešení lze použít, dokud nemáte větší množství uživatelů nebo domén.</p>
 
 <p>Jinou možností řešení tohoto problému jsou plně virtuální účty, tzn. zcela izolované účty pro poštu, s vlastním heslem (nezávislým na unixovém) pro každou schránku. Existuje mnoho způsobů, jak takové řešení implementovat. Často se jako úložiště nepoužívají textové soubory, nýbrž databáze (což bude i případ tohoto návodu). Postavíte-li si vlastní řešení, budete si muset ošetřit zakládání, rušení a nastavování účtů. V této kapitole bude uvedeno připravené řešení s využitím Postfixadminu, který správu účtů a domén usnadňuje.</p>
 
@@ -1409,7 +1409,7 @@ http://www.ijs.si/software/amavisd/ Amavis (stránka projektu)
         <strong>Alias /postfixadmin /usr/share/postfixadmin</strong>
 
         DocumentRoot /var/www/example.cz/www
-        &lt;Directory "/var/www/example.cz/www"&gt;
+        &lt;Directory „/var/www/example.cz/www“&gt;
                 Order allow,deny
                 Allow from all
         &lt;/Directory&gt;
@@ -1575,7 +1575,7 @@ userdb {
 }
 </pre>
 
-<p>Tento soubor nastavuje parametry pro autentizaci. Použitý ovladač je <code>sql</code> - to je samozřejmě správně, jedná se o ovladač pro autentizaci, nikoliv pro vlastní připojení ke konkrétní databázi. Vlastní připojení k databázi jste nastavili kousek výše v souboru <code>/etc/dovecot/dovecot-sql.conf.ext</code>, a na tento soubor je zde odkazováno v parametru <code>args</code>. Ano, máte naprostou pravdu, to rozdělení konfigurace to dělá o něco komplikovanější, než to ve skutečnosti je.</p>
+<p>Tento soubor nastavuje parametry pro autentizaci. Použitý ovladač je <code>sql</code> – to je samozřejmě správně, jedná se o ovladač pro autentizaci, nikoliv pro vlastní připojení ke konkrétní databázi. Vlastní připojení k databázi jste nastavili kousek výše v souboru <code>/etc/dovecot/dovecot-sql.conf.ext</code>, a na tento soubor je zde odkazováno v parametru <code>args</code>. Ano, máte naprostou pravdu, to rozdělení konfigurace to dělá o něco komplikovanější, než to ve skutečnosti je.</p>
 
 <p>Výše vytvořený soubor je třeba do konfigurace Dovecotu vložit (include), což realizujete přidáním následující řádky na konec souboru <code>/etc/dovecot/conf.d/10-auth.conf</code>:</p>
 

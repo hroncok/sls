@@ -26,7 +26,7 @@
 <li>minimální ochrana před neznalým útočníkem s fyzickým přístupem k disku</li>
 </ul>
 
-<p>Uživatelé RAIDu mi nyní pravděpodobně řeknou, že k zabezpečení dat před prvním zmíněnou situací postačí fakt, že data se nachází třeba v RAIDu 5 nebo 6. Ano, v takové situaci sice nelze rekonstruovat původní data, nicméně vzhledem k tomu, že data se v rámci RAIDu 5 a 6 rozdělují na bloky určité velikosti, je přeci jen možné získat nějaká data i z disku v diskovém poli – tím, že se pokusíme vytáhnout informace z datových bloků. Pokud nakládáme s citlivými daty, může být i takto omezený "únik" nepřijatelný.</p>
+<p>Uživatelé RAIDu mi nyní pravděpodobně řeknou, že k zabezpečení dat před prvním zmíněnou situací postačí fakt, že data se nachází třeba v RAIDu 5 nebo 6. Ano, v takové situaci sice nelze rekonstruovat původní data, nicméně vzhledem k tomu, že data se v rámci RAIDu 5 a 6 rozdělují na bloky určité velikosti, je přeci jen možné získat nějaká data i z disku v diskovém poli – tím, že se pokusíme vytáhnout informace z datových bloků. Pokud nakládáme s citlivými daty, může být i takto omezený „únik“ nepřijatelný.</p>
 
 <p>Diskové šifrování není vzhledem ke svým nevýhodám vhodné pro nasazení na běžný server, ale určitě se velmi hodí správcům pro ochranu citlivých dat jako SSH klíčů, hesel nebo jiných materiálů na přenosných zařízení nebo desktopech.</p>
 
@@ -78,7 +78,7 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>Aby mělo použití šifrování smysl, je třeba zajistit, aby na discích nezůstalo nic z chráněných dat v nešifrované podobě. Proto je každopádně třeba začít se šifrováním swapu. Dále je třeba kromě samotných úložišť citlivých dat zabezpečit i všechna místa, kam by se data mohla dostat. Typicky je to adresář <code>/tmp</code>, pro který bývá dobré využívat buď <code>tmpfs</code> nebo samostatný šifrovaný oddíl. V některých specifických případech to může být kromě obvyklého <code>/home</code> i adresář <code>/var</code>, <code>/srv</code> či jiné umístění.</p>
 
-<p>Šifrovat lze samozřejmě jak selektivně (tj. jen to důležité), tak téměř úplně všechno včetně celého systému s výjimkou zavaděče, obrazu jádra a initrd. V prvním případě je nutné dát si pozor na "prosakování" chráněných dat mimo šifrované svazky, ve druhém případě obvykle vznikne problém se zaváděním systému, během kterého bude třeba nějakým způsobem zadat heslo, což třeba u serveru, který je umístěn v nějakém datacentru, a ke kterému přistupujete vzdáleně, působí jistý problém. Ten je možné řešit pomocí malého ssh démona v initrd (třeba dropbear), který se spustí a umožní správci přihlásit se a zadat heslo vzdáleně.</p>
+<p>Šifrovat lze samozřejmě jak selektivně (tj. jen to důležité), tak téměř úplně všechno včetně celého systému s výjimkou zavaděče, obrazu jádra a initrd. V prvním případě je nutné dát si pozor na „prosakování“ chráněných dat mimo šifrované svazky, ve druhém případě obvykle vznikne problém se zaváděním systému, během kterého bude třeba nějakým způsobem zadat heslo, což třeba u serveru, který je umístěn v nějakém datacentru, a ke kterému přistupujete vzdáleně, působí jistý problém. Ten je možné řešit pomocí malého ssh démona v initrd (třeba dropbear), který se spustí a umožní správci přihlásit se a zadat heslo vzdáleně.</p>
 
 <p>Návod pro toto řešení v rámci distribuce Debian naleznete mezi odkazy pod kapitolou.</p>
 
@@ -102,13 +102,13 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>Nejvíce zmiňovanou alternativou pro dm-crypt/LUKS je Truecrypt, zejména kvůli přenositelnosti šifrovaných kontejnerů mezi GNU/Linuxem a Microsoft Windows. V dnešní době je Truecrypt schopen využívat přímo linuxové CryptoAPI a vytváří přímo blokové zařízení prostřednictvím Device Mapperu, což jej řadí blízko k dm-cryptu a LUKS. Samotný Truecrypt nabízí uživatelům pěkné grafické rozhraní, stejně jako možnost jej ovládat přes příkazový řádek.</p>
 
-<p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související "plausible deniability" aneb možnost "hodnověrného popření" – skryté svazky využívají steganografii, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco "nápadnější" než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s linuxovými souborovými systémy.</p>
+<p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související „plausible deniability“ aneb možnost „hodnověrného popření“ – skryté svazky využívají steganografii, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco „nápadnější“ než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s linuxovými souborovými systémy.</p>
 
 <p>Je nutné dodat, že licence Truecryptu je mnohými distribucemi (Debian, Fedora a další) považována za nesvobodnou a mj. pro distributory potenciálně problematickou. Proto třeba nenajdete Truecrypt v oficiálních repozitářích Debianu.</p>
 
 <h4>encfs</h4>
 
-<p>Další alternativou je <code>encfs</code> využívající FUSE. Jeho výhodou i nevýhodou zároveň (záleží na úhlu pohledu) je funkce "nad" existujícím souborovým systémem, nikoliv "pod" ním jako v případě ostatních zmíněných řešení. Šifrují se tedy přímo vlastní data, včetně názvů souborů a adresářů. Potenciálním problémem je zachování metadat (velikost souboru, datum vytvoření a poslední modifikace, atd.) pro případného útočníka. To sice nemá přímý bezpečnostní dopad ve smyslu usnadnění kryptoanalýzy, ale může to v některém případě odhalit jisté informace, které by nebyly k dispozici, kdyby byl zašifrovaný celý souborový systém.</p>
+<p>Další alternativou je <code>encfs</code> využívající FUSE. Jeho výhodou i nevýhodou zároveň (záleží na úhlu pohledu) je funkce „nad“ existujícím souborovým systémem, nikoliv „pod“ ním jako v případě ostatních zmíněných řešení. Šifrují se tedy přímo vlastní data, včetně názvů souborů a adresářů. Potenciálním problémem je zachování metadat (velikost souboru, datum vytvoření a poslední modifikace, atd.) pro případného útočníka. To sice nemá přímý bezpečnostní dopad ve smyslu usnadnění kryptoanalýzy, ale může to v některém případě odhalit jisté informace, které by nebyly k dispozici, kdyby byl zašifrovaný celý souborový systém.</p>
 
 <p>Encfs se však výborně hodí pro různé síťové disky a podobné online služby, kde příslušná data nemáte pod kontrolou a nevíte, kdo má k nim přístup. Jistě, je možné použít šifrovaný kontejner, ale to nemusí být zcela efektivní z hlediska využitého prostoru, který je v rámci daných služeb obvykle velmi omezený.</p>
 
@@ -128,7 +128,7 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>dm-crypt/LUKS je ideální umístit buď mezi diskové pole a LVM nebo nad LVM (šifrovat logický svazek). Přidáním dalšího disku nebo disků lze pak postupně krok za krokem dostupný prostor rozšířit (dm-crypt/LUKS podporuje operaci <code>resize</code> a u LVM to zvládne <code>pvresize</code>).</p>
 
-<p>Šifrovat lze samozřejmě i pod softwarovým RAIDem, což bývá i doporučeno, jsou-li pevné disky příliš velké (příliš mnoho dat šifrovaných jedním postupem usnadňuje případnou kryptoanalýzu). Nutnost "odemknout" více zařízení může vyřešit malý šifrovaný oddíl na jednom z disků, který obsahuje klíče k "odemčení" zbylých disků v poli.</p>
+<p>Šifrovat lze samozřejmě i pod softwarovým RAIDem, což bývá i doporučeno, jsou-li pevné disky příliš velké (příliš mnoho dat šifrovaných jedním postupem usnadňuje případnou kryptoanalýzu). Nutnost „odemknout“ více zařízení může vyřešit malý šifrovaný oddíl na jednom z disků, který obsahuje klíče k „odemčení“ zbylých disků v poli.</p>
 
 <p>Co se týče ostatních kombinací, provozovat softwarový RAID nad LVM je sice možné, ale naprosto nesmyslné a potenciálně problémové, a provozovat LVM bez RAIDu na více discích je nevhodné – stoupá pravděpodobnost selhání jednoho z disků a selhání kteréhokoliv z disků znamená ztrátu dat. Pokud byste používali zrcadlení v rámci LVM, je podle mého lepší využít rovnou softwarový nebo hardwarový RAID.</p>
 
@@ -146,7 +146,7 @@ bývá vhodné ho provést.</p>
 náhodných čísel <code>/dev/random</code>. Tento generátor vytváří kvalitní
 náhodná čísla, ale je neuvěřitelně pomalý. Z tohoto důvodu je podstatně
 vhodnější použít zařízení <code>/dev/urandom</code>, které sice generuje méně
-"kvalitní" náhodná čísla, ale generuje je neporovnatelně rychleji.</p>
+“kvalitní“ náhodná čísla, ale generuje je neporovnatelně rychleji.</p>
 
 <p>K samotnému zaplnění zvoleného svazku náhodnými daty použijte nástroj
 <code>dd</code>:</p>
@@ -175,7 +175,7 @@ algoritmu AES a módu <code>XTS</code> takto:</p>
 <p>Povšimněte si parametru <code>-c</code>, kde je na prvním místě šifrovací
 algoritmus, na druhém, oddělen pomlčkou, šifrovací mód a na třetím způsob
 generování inicializačního vektoru (v případě <code>XTS</code> máte na výběr mezi 32bitovým
-"plain" a 64bitovým "benbi"). Parametr <code>-s</code> udává délku klíče,
+“plain“ a 64bitovým „benbi“). Parametr <code>-s</code> udává délku klíče,
 <code>-y</code> vám umožní zadat heslo pro kontrolu dvakrát a
 <code>luksFormat</code> označuje LUKS operaci, tedy inicializaci daného
 svazku.</p>
@@ -226,7 +226,7 @@ zadáte:</p>
 
 <p>LUKS vás vyzve k zadání jakéhokoliv jiného hesla (aby mohl získat hlavní
 klíč), a pak vás nechá zadat heslo nové. Tím pak hlavní klíč zašifruje a
-uloží do některého z volných "slotů" v úložišti pro klíče.</p>
+uloží do některého z volných „slotů“ v úložišti pro klíče.</p>
 
 <p>Všimněte si, že se zde používá název původního zařízení, není tedy nutné
 před přidáním či odebráním klíče svazek dešifrovat pomocí
@@ -300,9 +300,9 @@ Key Slot 7: DISABLED
 
 <p>Pro obnovu hlavičky postačí prohodit <code>if</code> a <code>of</code>.</p>
 
-<p>Pokud se vrátím zpět k výpisu LUKS hlavičky, upozorním vás ještě na několik věcí. Z výpisu je jasně patrná šifra (cipher name), šifrovací mód (cipher mode), použitá hash a obsazení jednotlivých "zásuvek" (slotů) v úložišti pro klíče.</p>
+<p>Pokud se vrátím zpět k výpisu LUKS hlavičky, upozorním vás ještě na několik věcí. Z výpisu je jasně patrná šifra (cipher name), šifrovací mód (cipher mode), použitá hash a obsazení jednotlivých „zásuvek“ (slotů) v úložišti pro klíče.</p>
 
-<p>Budete-li váhat, proč i po tom, co si zvolíte za hash při operaci <code>luksFormat</code> něco jiného než SHA1, zůstane v kolonce "hash spec" stále SHA1 místo vámi zvolené hashe, je to kvůli implementaci PBKDF2, funkci pro posílení uživatelského hesla. Ta pracuje tak, že z uživatelského hesla získá hash, poté získá hash z takto vzniklé hashe, a toto se mnohokrát opakuje v cyklu (v případě klíče ve slotu 0 to bylo 211800 iterací – viz výpis výše).  Tím se trošku zkomplikuje brute froce útok na dané heslo, protože každý pokus  pak musí projít stejným počtem iterací.</p>
+<p>Budete-li váhat, proč i po tom, co si zvolíte za hash při operaci <code>luksFormat</code> něco jiného než SHA1, zůstane v kolonce „hash spec“ stále SHA1 místo vámi zvolené hashe, je to kvůli implementaci PBKDF2, funkci pro posílení uživatelského hesla. Ta pracuje tak, že z uživatelského hesla získá hash, poté získá hash z takto vzniklé hashe, a toto se mnohokrát opakuje v cyklu (v případě klíče ve slotu 0 to bylo 211800 iterací – viz výpis výše).  Tím se trošku zkomplikuje brute froce útok na dané heslo, protože každý pokus  pak musí projít stejným počtem iterací.</p>
 
 <p>Naneštěstí je v implementaci funkce PBKDF2 u LUKS na pevno nastavena hash SHA1, takže ať už si zvolíte jakoukoliv hash, v rámci LUKS se pro klíč bude používat SHA1.</p>
 
@@ -314,7 +314,7 @@ Key Slot 7: DISABLED
 cswap /dev/sda1 /dev/urandom swap
 chome /dev/sda3 none luks</pre>
 
-<p>Prvním parametrem je název dešifrovaného svazku, který bude k dispozici v <code>/dev/mapper</code> po úspěšném "odemčení" svazku. Druhým parametrem je zdrojové zařízení, na kterém je šifrovaný svazek. Třetí parametr označuje klíčový soubor. Všimněte si, že v případě šifrovaného swapu je možné generovat klíč náhodně při každém startu pomocí generátoru náhodných čísel <code>/dev/urandom</code>. Posledním parametrem jsou volby, kterými je možné inicializaci šifrovaného svazku řídit. Tou nejdůležitější pro vás je asi volba <code>luks</code>, která označuje LUKS svazek. Bez udání této volby se použije rozhraní <code>dm-crypt</code> bez LUKS rozšíření.</p>
+<p>Prvním parametrem je název dešifrovaného svazku, který bude k dispozici v <code>/dev/mapper</code> po úspěšném „odemčení“ svazku. Druhým parametrem je zdrojové zařízení, na kterém je šifrovaný svazek. Třetí parametr označuje klíčový soubor. Všimněte si, že v případě šifrovaného swapu je možné generovat klíč náhodně při každém startu pomocí generátoru náhodných čísel <code>/dev/urandom</code>. Posledním parametrem jsou volby, kterými je možné inicializaci šifrovaného svazku řídit. Tou nejdůležitější pro vás je asi volba <code>luks</code>, která označuje LUKS svazek. Bez udání této volby se použije rozhraní <code>dm-crypt</code> bez LUKS rozšíření.</p>
 
 <p>Inicializace šifrovaných svazků probíhá při zavádění systému, tudíž vás systém může vyzvat k zadání hesla už v této fázi. Samotné připojení souborového systému na dešifrovaném svazku je třeba obstarat ve <code>fstab</code>:</p>
 
@@ -329,7 +329,7 @@ chome /dev/sda3 none luks</pre>
 
 <p>V případě šifrování celého systému se nevyhnete vytvoření iniciálního ramdisku (initrd), kde musí být mj. samotný nástroj <code>cryptsetup</code> (moduly pro souborový systém, diskové řadiče a šifrování mohou být samozřejmě zakompilovány do jádra). V rámci initrd je třeba zajistit načtení nutných modulů, což jsou moduly zahrnující modul se šifrovacím algoritmem (např. <code>aes-i586</code>), modul s šifrovacím módem (např. <code>XTS</code>), dále pak <code>dm-crypt</code> a <code>dm-mod</code>.</p>
 
-<p>V Debianu se naštěstí tato konfigurace provádí z velké části automaticky. Už po instalaci cryptsetupu dojde k automatické úpravě iniciálního ramdisku, který získá podporu pro dešifrování kořenového svazku. Tento "automat" však nefunguje úplně vždycky korektně, resp. ne vždy pochopí, co správce zamýšlí.</p>
+<p>V Debianu se naštěstí tato konfigurace provádí z velké části automaticky. Už po instalaci cryptsetupu dojde k automatické úpravě iniciálního ramdisku, který získá podporu pro dešifrování kořenového svazku. Tento „automat“ však nefunguje úplně vždycky korektně, resp. ne vždy pochopí, co správce zamýšlí.</p>
 
 <p>Předně, v době generování iniciálního ramdisku je třeba mít zavedené všechny moduly potřebné pro dešifrování kořenového svazku (ideálně by daný svazek měl být připojen). Dále je třeba adekvátně upravit <code>/etc/crypttab</code> a <code>/etc/fstab</code>. Poté je třeba nechat znovu vygenerovat iniciální ramdisk a upravit zavaděč, aby jádru předal vhodný parametr <code>root=</code> (třeba <code>/dev/mapper/root</code>).</p>
 
@@ -353,7 +353,7 @@ chome /dev/sda3 none luks</pre>
 
 <pre>/dev/sda3        /    ext3    noatime,errors=remount-ro 0       1</pre>
 
-<p>Původní zařízení (v tomto výpisu by to bylo <code>/dev/sda3</code>) nahraďte cestou k blokovému zařízení "dešifrovaného" svazku, tedy <code>/dev/mapper/root</code>. Výsledek by měl vypadat takto:</p>
+<p>Původní zařízení (v tomto výpisu by to bylo <code>/dev/sda3</code>) nahraďte cestou k blokovému zařízení „dešifrovaného“ svazku, tedy <code>/dev/mapper/root</code>. Výsledek by měl vypadat takto:</p>
 
 <pre>/dev/mapper/root /    ext3    noatime,errors=remount-ro 0       1</pre>
 

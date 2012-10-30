@@ -105,7 +105,7 @@ password=heslo</pre>
 
 <p><code>memory_limit</code> přijímá jako parametr maximum paměti, kterou může PHP skript využít. Výchozí hodnotou je <code>128M</code>, kde M znamená MB. Pokud skript požádá o více paměti, bude ukončen s chybou. Jak v případě volby <code>max_execution_time</code>, tak v případě této platí daná hodnota pro jeden běh skriptu, tedy jeden HTTP požadavek obsluhovaný PHP skriptem. Více požadavků naráz může tedy zabrat n-krát více paměti.</p>
 
-<p><code>display_errors</code> řídí zobrazování chyb a může nabývat dvou hodnot, „On“ nebo „Off“. Jeho výchozí hodnota je „On“, což představuje potenciální bezpečnostní problém - chyby, varování či hlášení v rámci běhu PHP skriptů se pak zobrazují v prohlížeči včetně některých možných zneužitelných informací (chybová hlášení při práci s databází atd.). Tuto volbu je tedy na produkčních serverech vhodné nastavit na „Off“. To, co se vlastně zobrazuje, tzn. zdali se zobrazují pouze chyby, nebo i varování a hlášení, řídí parametr <code>error_reporting</code>. Více k tomuto tématu naleznete v odkazech pod kapitolou.</p>
+<p><code>display_errors</code> řídí zobrazování chyb a může nabývat dvou hodnot, „On“ nebo „Off“. Jeho výchozí hodnota je „On“, což představuje potenciální bezpečnostní problém – chyby, varování či hlášení v rámci běhu PHP skriptů se pak zobrazují v prohlížeči včetně některých možných zneužitelných informací (chybová hlášení při práci s databází atd.). Tuto volbu je tedy na produkčních serverech vhodné nastavit na „Off“. To, co se vlastně zobrazuje, tzn. zdali se zobrazují pouze chyby, nebo i varování a hlášení, řídí parametr <code>error_reporting</code>. Více k tomuto tématu naleznete v odkazech pod kapitolou.</p>
 
 <p><code>display_startup_errors</code> řídí zobrazování kritických chyb, ke kterým dochází při spouštění PHP skriptu. Nabývá stejných hodnot jako parametr <code>display_errors</code>, jeho výchozí hodnotou je „Off“ a na produkčních serverech doporučuji tuto hodnotu ponechat.</p>
 
@@ -115,7 +115,7 @@ password=heslo</pre>
 
 <pre>disable_functions = shell_exec, exec, system, passthru, proc_close, proc_open, proc_get_status, proc_nice, proc_open, proc_terminate, shell_exec, dl, popen, pclose, chown, disk_free_space, disk_total_space, diskfreespace, fileinode, max_execution_time, set_time_limit, highlight_file, show_source, phpinfo, chgrp, symlink</pre>
 
-<p>Pokud budete tento parametr používat, dejte si pozor na funkce s obdobnou funkcionalitou, ale jiným názvem. Stejně tak doporučuji bezpečnostní dopad jednotlivých funkcí zvážit - v seznamu výše může být považována za diskutabilní např. funkce <code>phpinfo</code>, která „pouze“ umožňuje zobrazit podrobnou konfiguraci PHP.</p>
+<p>Pokud budete tento parametr používat, dejte si pozor na funkce s obdobnou funkcionalitou, ale jiným názvem. Stejně tak doporučuji bezpečnostní dopad jednotlivých funkcí zvážit – v seznamu výše může být považována za diskutabilní např. funkce <code>phpinfo</code>, která „pouze“ umožňuje zobrazit podrobnou konfiguraci PHP.</p>
 
 <p><code>allow_url_fopen</code> a <code>allow_url_include</code> jsou vhodnými kandidáty na hodnotu „Off“. Umožňují v rámci některých funkcí určených pro práci se soubory získávat data z externích zdrojů (specifikováním URL místo cesty k souboru), což může posloužit k nejrůznějším útokům, pokud není v PHP aplikacích správně ošetřen uživatelský vstup (na což nebývá dobré se spoléhat).</p>
 

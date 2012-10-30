@@ -18,34 +18,34 @@
 
 <ul>
 <li>
-<p><code>h</code>, <code>j</code>, 	<code>k</code>, <code>l</code> - 	posun vlevo, dolu, nahoru a vpravo o jeden znak/řádek (ekvivalent 	šipek)</p>
+<p><code>h</code>, <code>j</code>, 	<code>k</code>, <code>l</code> – 	posun vlevo, dolu, nahoru a vpravo o jeden znak/řádek (ekvivalent 	šipek)</p>
 </li>
 <li>
-<p><code>g</code> - 	přesun na začátek souboru</p>
+<p><code>g</code> – 	přesun na začátek souboru</p>
 </li>
 <li>
-<p><code>G</code> - 	přesun na konec souboru</p>
+<p><code>G</code> – 	přesun na konec souboru</p>
 </li>
 <li>
-<p><code>/</code> - 	vyhledat zadaný výraz od kurzoru dolů</p>
+<p><code>/</code> – 	vyhledat zadaný výraz od kurzoru dolů</p>
 </li>
 <li>
-<p><code>?</code> - 	vyhledat zadaný výraz od kurzoru nahoru</p>
+<p><code>?</code> – 	vyhledat zadaný výraz od kurzoru nahoru</p>
 </li>
 <li>
-<p><code>n</code> - 	posun po směru vyhledávání na další výskyt výrazu</p>
+<p><code>n</code> – 	posun po směru vyhledávání na další výskyt výrazu</p>
 </li>
 <li>
-<p><code>N</code> - 	posun proti směru vyhledávání na další výskyt výrazu</p>
+<p><code>N</code> – 	posun proti směru vyhledávání na další výskyt výrazu</p>
 </li>
 <li>
-<p><code>&amp;</code> - zobrazit pouze řádky odpovídající zadanému výrazu</p>
+<p><code>&amp;</code> – zobrazit pouze řádky odpovídající zadanému výrazu</p>
 </li>
 <li>
-<p><code>h</code> - 	zobrazit nápovědu</p>
+<p><code>h</code> – 	zobrazit nápovědu</p>
 </li>
 <li>
-<p><code>q</code> - ukončení programu</p>
+<p><code>q</code> – ukončení programu</p>
 </li>
 </ul
 >
@@ -53,7 +53,7 @@
 
 <h5>Sledování logů</h5>
 
-<p>Inspekci logů můžete provádět ručně, ale jak už bylo řečeno v úvodu, je to přinejmenším nepraktické, zejména, pokud každý den přibudou tisíce či statisíce záznamů. Praktičtější je použít nástroj, který z logů vytáhne to podstatné a pošle vám to e-mailem. Mezi tyto nástroje lze zařadit <code>logcheck</code> a <code>logwatch</code>. Každý z nich pracuje na trošku jiném principu - <code>logcheck</code> posílá e-maily jednou za hodinu a posílá hlášky, které propadly přes všechny jeho filtry, zatímco <code>logwatch</code> (který vám představím za chvíli) se snaží určité typy zpráv sumarizovat, a v ideálním případě tak zasílat pouze souhrn událostí, popřípadě statistiky, spíše než konkrétní řádky z logů.</p>
+<p>Inspekci logů můžete provádět ručně, ale jak už bylo řečeno v úvodu, je to přinejmenším nepraktické, zejména, pokud každý den přibudou tisíce či statisíce záznamů. Praktičtější je použít nástroj, který z logů vytáhne to podstatné a pošle vám to e-mailem. Mezi tyto nástroje lze zařadit <code>logcheck</code> a <code>logwatch</code>. Každý z nich pracuje na trošku jiném principu – <code>logcheck</code> posílá e-maily jednou za hodinu a posílá hlášky, které propadly přes všechny jeho filtry, zatímco <code>logwatch</code> (který vám představím za chvíli) se snaží určité typy zpráv sumarizovat, a v ideálním případě tak zasílat pouze souhrn událostí, popřípadě statistiky, spíše než konkrétní řádky z logů.</p>
 
 <p>V některých případech můžete požadovat ohlášení určité události, jakmile nastane (např. úspěšné přihlášení roota nebo uživatele přes SSH apod.), popřípadě zareagovat na určitou událost jiným způsobem. Takovou funkcionalitu vám může nabídnout nástroj <code>swatch</code>, který se klasifikuje jako aktivní monitorovací nástroj pro logy, tzn. umí na hlášky vámi definovaného typu reagovat vámi nastaveným způsobem.</p>
 
@@ -77,7 +77,7 @@
 
 <h5>Konfigurace Logchecku podrobněji</h5>
 
-<p>Pro úplnost bych rád prošel konfiguraci Logchecku malinko podrobněji. Základem pro jeho nastavení je určení sady pravidel, která se má použít pro filtraci. Tyto sady jsou dostupné celkem tři - <code>workstation</code>, <code>server</code> a <code>paranoid</code> - a jejich volba ovlivňuje množství filtrovaných informací. Výchozí hodnotou je <code>server</code>, což by mělo pro běžné použití na serveru postačovat. Každý z těchto režimů si samozřejmě budete moci upravit (viz dále). Nastavení konkrétního režimu provedete v proměnné <code>REPORTLEVEL</code> v <code>/etc/logcheck/logcheck.conf</code>. Zbylé volby jsou velmi dobře okomentované a pro základní funkčnost postačí je ponechat tak, jak jsou.</p>
+<p>Pro úplnost bych rád prošel konfiguraci Logchecku malinko podrobněji. Základem pro jeho nastavení je určení sady pravidel, která se má použít pro filtraci. Tyto sady jsou dostupné celkem tři – <code>workstation</code>, <code>server</code> a <code>paranoid</code> – a jejich volba ovlivňuje množství filtrovaných informací. Výchozí hodnotou je <code>server</code>, což by mělo pro běžné použití na serveru postačovat. Každý z těchto režimů si samozřejmě budete moci upravit (viz dále). Nastavení konkrétního režimu provedete v proměnné <code>REPORTLEVEL</code> v <code>/etc/logcheck/logcheck.conf</code>. Zbylé volby jsou velmi dobře okomentované a pro základní funkčnost postačí je ponechat tak, jak jsou.</p>
 
 <p>Dalším důležitým souborem je <code>/etc/logcheck/logcheck.logfiles</code>, který, jak naznačuje jeho název, slouží k určení souborů, ze kterých se bude samotný extrakt provádět. V základní konfiguraci Debianu je to <code>syslog</code> a <code>auth.log</code>. Tento seznam můžete samozřejmě podle libosti rozšířit.</p>
 
@@ -203,7 +203,7 @@ Detail = Low</pre>
 
 <p>Logwatch je nejčastěji používaným nástrojem pro sledování logů, a to z dobrého důvodu. Zasílá zprávy s přehledem událostí spíše než jednotlivé řádky z logů. Nabízí široké možnosti úprav konfigurace i rozšíření jeho záběru. Ale ať už se rozhodnete použít jakýkoliv nástroj, klíčové pro správu jakéhokoliv serveru je logy skutečně sledovat, najít si čas a procházet je. Máte tak šanci odhalit skrytý problém, podezřelou aktivitu či průnik útočníka. Máte-li problém s délkou zpráv, určitě věnujte čas úpravě konfigurace zvoleného nástroje, abyste dostávali zprávy pouze s těmi informacemi, které jsou pro vás zásadní. Určitě není dobře, pokud vám přijde každý den z každého spravovaného serveru 50 kB velký e-mail, kde pak pouze „vyzobáváte“ to, co je pro vás skutečně podstatné.</p>
 
-http://logcheck.org/ Logcheck - stránka projektu
+http://logcheck.org/ Logcheck – stránka projektu
 http://www.regularnivyrazy.info/regularni-vyrazy-zaklady.html Miroslav Pecka, Základy regulárních výrazů
 http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí syntaxe regulárních výrazů
 http://cs.wikipedia.org/wiki/Regul%C3%A1rn%C3%AD_v%C3%BDraz Wikipedie (CZ), Regulární výraz</pre>

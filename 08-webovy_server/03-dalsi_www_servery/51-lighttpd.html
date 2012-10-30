@@ -20,7 +20,7 @@
 
 <h3>Konfigurace lighttpd</h3>
 
-<p>Pokud si ještě vzpomínáte na kapitolu <em>Úvod do konfigurace Apache</em>{link:"Webový server a databáze":"Úvod do konfigurace Apache"}, Debian si konfiguraci webových serverů, zejména tedy Apache, přizpůsobuje a strukturuje, aby bylo nastavení a jeho změny co nejjednodušší. V případě <code>lighttpd</code> se to promítá pouze do správy modulů, které je možné „zapínat“ a „vypínat“ prostřednictvím nástrojů <code>lighttpd-enable-mod</code> a <code>lighttpd-disable-mod</code>. Ty pak vytvářejí a ruší symlinky z <code>/etc/lighttpd/conf-available</code>, kde se nacházejí dostupné konfigurační soubory jednotlivých modulů, do <code>/etc/lighttpd/conf-enabled</code>, kde se nacházejí konfigurační soubory, které bude <code>lighttpd</code> brát v úvahu a načte z nich příslušné nastavení.</p>
+<p>Pokud si ještě vzpomínáte na kapitolu <em>Úvod do konfigurace Apache</em>{link:“Webový server a databáze“:“Úvod do konfigurace Apache“}, Debian si konfiguraci webových serverů, zejména tedy Apache, přizpůsobuje a strukturuje, aby bylo nastavení a jeho změny co nejjednodušší. V případě <code>lighttpd</code> se to promítá pouze do správy modulů, které je možné „zapínat“ a „vypínat“ prostřednictvím nástrojů <code>lighttpd-enable-mod</code> a <code>lighttpd-disable-mod</code>. Ty pak vytvářejí a ruší symlinky z <code>/etc/lighttpd/conf-available</code>, kde se nacházejí dostupné konfigurační soubory jednotlivých modulů, do <code>/etc/lighttpd/conf-enabled</code>, kde se nacházejí konfigurační soubory, které bude <code>lighttpd</code> brát v úvahu a načte z nich příslušné nastavení.</p>
 
 <p>Hlavním konfiguračním souborem je zde <code>/etc/lighttpd/lighttpd.conf</code>, který je poměrně strohý a obsahuje jen základní nastavení. Určitě si zde přizpůsobte některé z následujících voleb:</p>
 <ul>
@@ -34,7 +34,7 @@
 <p><code>index-file.names</code> – všechny názvy souborů, které se berou jako indexové</p>
 </li>
 <li>
-<p><code>server.port</code> - port, na kterém 	má <code>lighttpd</code> naslouchat</p>
+<p><code>server.port</code> – port, na kterém 	má <code>lighttpd</code> naslouchat</p>
 </li>
 </ul>
 
@@ -59,11 +59,11 @@ lighttpd-enable-mod fastcgi-php</pre>
 
 <pre>&lt;?php phpinfo(); ?&gt;</pre>
 
-<p>Pokud chcete nasadit nějakou webovou aplikaci, budete nejspíše potřebovat ještě nějaký databázový server. Instalace databázového serveru byla již probrána v kapitolách <em>Instalace LAMP</em> {link:"Webový server a databáze":"Instalace LAMP"} (MySQL) a <em>PostgreSQL: Instalace a zprovoznění</em> {link:"Webový server a databáze":"PostgreSQL: Instalace a zprovoznění"}. Jediné, co je potřeba zajistit kromě instalace databázového serveru, je propojení databáze s PHP interpretem, tedy dostupnost PHP knihoven pro práci s příslušnou databází (balíčky <code>php5-mysql</code> či <code>php5-pgsql</code>).</p>
+<p>Pokud chcete nasadit nějakou webovou aplikaci, budete nejspíše potřebovat ještě nějaký databázový server. Instalace databázového serveru byla již probrána v kapitolách <em>Instalace LAMP</em> {link:“Webový server a databáze“:“Instalace LAMP“} (MySQL) a <em>PostgreSQL: Instalace a zprovoznění</em> {link:“Webový server a databáze“:“PostgreSQL: Instalace a zprovoznění“}. Jediné, co je potřeba zajistit kromě instalace databázového serveru, je propojení databáze s PHP interpretem, tedy dostupnost PHP knihoven pro práci s příslušnou databází (balíčky <code>php5-mysql</code> či <code>php5-pgsql</code>).</p>
 
 <h4>SSL</h4>
 
-<p>Chcete-li zprovoznit přístup k webovému serveru přes HTTPS, čtěte dále. Samotná problematika HTTPS a SSL včetně generování self-signed certifikátů či získání certifikátu zdarma od některé z volných certifikačních autorit byla v této knize již probrána, a to v kapitole <em>Úvod do konfigurace Apache</em> {link:"Webový server a databáze":"Úvod do konfigurace Apache"}. Budu tedy předpokládat, že máte k dispozici certifikát s klíčem.</p>
+<p>Chcete-li zprovoznit přístup k webovému serveru přes HTTPS, čtěte dále. Samotná problematika HTTPS a SSL včetně generování self-signed certifikátů či získání certifikátu zdarma od některé z volných certifikačních autorit byla v této knize již probrána, a to v kapitole <em>Úvod do konfigurace Apache</em> {link:“Webový server a databáze“:“Úvod do konfigurace Apache“}. Budu tedy předpokládat, že máte k dispozici certifikát s klíčem.</p>
 
 <p>Pokud máte certifikát a klíč ve dvou souborech, spojte je do jediného <code>.pem</code> souboru (určitě nastavte jeho práva tak, aby jej nemohl číst nikdo jiný než webový server!):</p>
 

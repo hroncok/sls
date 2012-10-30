@@ -12,7 +12,7 @@
 
 <h3>Běžná prevence</h3>
 
-<p>Do běžné prevence patří všechna základní pravidla zabezpečení serverů, tedy především znalost konfigurace daného serveru, všeho, co na něm běží, přehled o dění na něm (čtení logů). Sledování dění kolem Linuxu, zejména pak kolem vámi používané distribuce, sledování bezpečnostních hlášení. Pravidelná aktualizace, resp. alespoň brzká aplikace bezpečnostních záplat, dále izolace běžících služeb - buď pomocí oprávnění, nebo pomocí chrootu či virtualizace. Řízení přístupu k souborům a službám, použití firewallu. Silná hesla, omezený přístup k SSH (pouze z vnitřní sítě, VPN či z konkrétní IP adresy). Vhodné zacházení s uživateli, poskytování minima práv nutných k jejich činnosti. Pravidelné zálohování a testování záloh.</p>
+<p>Do běžné prevence patří všechna základní pravidla zabezpečení serverů, tedy především znalost konfigurace daného serveru, všeho, co na něm běží, přehled o dění na něm (čtení logů). Sledování dění kolem Linuxu, zejména pak kolem vámi používané distribuce, sledování bezpečnostních hlášení. Pravidelná aktualizace, resp. alespoň brzká aplikace bezpečnostních záplat, dále izolace běžících služeb – buď pomocí oprávnění, nebo pomocí chrootu či virtualizace. Řízení přístupu k souborům a službám, použití firewallu. Silná hesla, omezený přístup k SSH (pouze z vnitřní sítě, VPN či z konkrétní IP adresy). Vhodné zacházení s uživateli, poskytování minima práv nutných k jejich činnosti. Pravidelné zálohování a testování záloh.</p>
 
 <p>Důležité je mít pod kontrolou veškerý software, který na server instalujete. Riziko obecně představuje software stažený mimo distribuční repozitáře (které, alespoň v případě Debianu, mají všechny balíčky podepsané, takže není jednoduché je podvrhnout). Nedávno podobný problém postihl FTP server <code>vsftpd</code>, kam útočník propašoval zadní vrátka. Kdo si důsledně kontroloval GPG podpisy, popřípadě kontrolní součty, přišel na to. Rozhodně tedy software mimo distribuční repozitáře podrobte dostatečné kontrole, kontrolujte podpisy i kontrolní součty.</p>
 
@@ -173,19 +173,19 @@ To create this file containing all output from today's run, do (as root)
 <p>Za volby hodné zvláštní pozornosti považuji následující:</p>
 <ul>
 <li>
-<p><code>MAILSUBJ</code> - předmět zasílaných e-mailů</p>
+<p><code>MAILSUBJ</code> – předmět zasílaných e-mailů</p>
 </li>
 <li>
-<p><code>MAILTO</code> - komu posílat e-maily</p>
+<p><code>MAILTO</code> – komu posílat e-maily</p>
 </li>
 <li>
-<p><code>QUIETREPORTS</code> - potlačení zaslání e-mailu, pokud nedošlo ke změně (je-li tato proměnná nastavena na <code>yes</code>)</p>
+<p><code>QUIETREPORTS</code> – potlačení zaslání e-mailu, pokud nedošlo ke změně (je-li tato proměnná nastavena na <code>yes</code>)</p>
 </li>
 <li>
-<p><code>TRUNCATEDETAILS</code> - zkrácení detailních informací o změnách</p>
+<p><code>TRUNCATEDETAILS</code> – zkrácení detailních informací o změnách</p>
 </li>
 <li>
-<p><code>FILTERUPDATES</code> - potlačení informování o změnách způsobených aktualizacemi (předpokládá <code>TRUNCATEDETAILS</code> nastaveno na <code>yes)</code></p>
+<p><code>FILTERUPDATES</code> – potlačení informování o změnách způsobených aktualizacemi (předpokládá <code>TRUNCATEDETAILS</code> nastaveno na <code>yes)</code></p>
 </li>
 </ul>
 
@@ -219,11 +219,11 @@ To create this file containing all output from today's run, do (as root)
 
 <p>Zde doporučuji prostudovat manuál k AIDE (a ještě manuál k aide.conf: <code>man aide.conf</code>), jelikož obsahuje příslušnou syntax a potřebné informace. Zásadní informace je, že jednotlivá pravidla jsou de facto regulární výrazy, čemuž byste měli přizpůsobit psaní pravidel, zejména si dejte pozor na tečky (tečka odpovídá jednomu libovolnému znaku), které raději escapujte (umístěním zpětného lomítka před tečku, takto: <code>\.</code>). Regulárními výrazy se zde zabývat nebudu, avšak v závěru kapitoly jsem vám připravil odkazy na česky psané materiály, ze kterých se příslušnou syntaxi můžete snadno a rychle naučit.</p>
 
-<p>Co se týká pořadí pravidel (opět odkazuji na manuál), je vhodné obecnější pravidla umisťovat níže a specifičtější pravidla výše. Asi nejčastější úpravou konfigurace bude specifikace souborů, které nechcete, aby se do databáze zařadily. V takovém případě si vytvořte vhodný soubor v <code>/etc/aide/aide.conf.d</code>, ale jelikož záleží na pořadí, zařaďte jej do struktury pomocí úvodního čísla, tzn. např. <code>50_aide_moje-pravidla</code>. Do tohoto souboru pak přidejte příslušná pravidla - pro ignorování určitého souboru zapište příslušný regulární výraz z vykřičníkem na začátku, jak už bylo naznačeno výše, tj. např. takto:</p>
+<p>Co se týká pořadí pravidel (opět odkazuji na manuál), je vhodné obecnější pravidla umisťovat níže a specifičtější pravidla výše. Asi nejčastější úpravou konfigurace bude specifikace souborů, které nechcete, aby se do databáze zařadily. V takovém případě si vytvořte vhodný soubor v <code>/etc/aide/aide.conf.d</code>, ale jelikož záleží na pořadí, zařaďte jej do struktury pomocí úvodního čísla, tzn. např. <code>50_aide_moje-pravidla</code>. Do tohoto souboru pak přidejte příslušná pravidla – pro ignorování určitého souboru zapište příslušný regulární výraz z vykřičníkem na začátku, jak už bylo naznačeno výše, tj. např. takto:</p>
 
 <pre>!/var/cache/munin/www</pre>
 
-<p>AIDE pak bude takový soubor či adresář ignorovat. AIDE v zásadě podporuje tři typy pravidel, a sice regulární výrazy (začínají lomítkem), přesné specifikace konkrétního souboru či adresáře ("equal matching", začínají znakem <code>=</code>) a vylučovací regulární výrazy (začínají vykřičníkem). U pravidel, která zařazují soubory či adresáře do databáze, je třeba specifikovat parametr, který odpovídá operacím, jež se mají s daným souborem provést. Zde opět odkazuji na manuál, kde jsou všechny popsány. Můžete si ušetřit práci tím, že si sadu operací pojmenujete, a pak se na ni budete odkazovat, takto:</p>
+<p>AIDE pak bude takový soubor či adresář ignorovat. AIDE v zásadě podporuje tři typy pravidel, a sice regulární výrazy (začínají lomítkem), přesné specifikace konkrétního souboru či adresáře („equal matching“, začínají znakem <code>=</code>) a vylučovací regulární výrazy (začínají vykřičníkem). U pravidel, která zařazují soubory či adresáře do databáze, je třeba specifikovat parametr, který odpovídá operacím, jež se mají s daným souborem provést. Zde opět odkazuji na manuál, kde jsou všechny popsány. Můžete si ušetřit práci tím, že si sadu operací pojmenujete, a pak se na ni budete odkazovat, takto:</p>
 
 <pre>MojeAkce = p+i+MojeJineAkce</pre>
 
@@ -246,7 +246,7 @@ http://www.regularnivyrazy.info/regularni-vyrazy-zaklady.html Miroslav Pecka, Z�
 http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí syntaxe regulárních výrazů
 http://cs.wikipedia.org/wiki/Regul%C3%A1rn%C3%AD_v%C3%BDraz Wikipedie, Regulární výraz
 http://www.ducea.com/2006/07/17/how-to-restore-a-hacked-linux-server/ How to restore a hacked Linux server
-http://www.sans.org/reading_room/whitepapers/linux/linux-rootkits-beginners-prevention-removal_901 Linux RootKits For Beginners - From Prevention to Removal (PDF)
+http://www.sans.org/reading_room/whitepapers/linux/linux-rootkits-beginners-prevention-removal_901 Linux RootKits For Beginners – From Prevention to Removal (PDF)
 http://www.sans.org/reading_room/whitepapers/honors/linux-kernel-rootkits-protecting-systems_1500 Linux kernel rootkits: protecting the system's (PDF)
 http://en.wikipedia.org/wiki/Sony_BMG_copy_protection_rootkit_scandal Wikipedia, Sony BMG copy protection rootkit scandal
 http://blog.jitbit.com/2011/04/rootkit-on-brand-new-toshiba-laptop.html Článek o rootkitu v BIOSu
