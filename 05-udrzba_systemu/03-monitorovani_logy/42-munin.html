@@ -2,9 +2,9 @@
 
 <h3>Sledování systému pomocí nástroje Munin</h3>
 
-<p>Munin je jedním z řady nástrojů, které umožňují sledovat různé systémové veličiny (obsazení RAM, zátěž procesoru, zatížení databáze, průběh e-mailů frontou atd.) v čase. Ze získaných dat vytvoří sadu HTML stránek s grafy, které mohou být zpřístupněny přes běžící webový server. Munin je modulární aplikací, nabízí řadu modulů, které zajišťují sběr specifických veličin (MySQL dotazy, Apache procesy atd.). Je samozřejmě možné si napsat vlastní moduly pro sběr dat, které Munin sbírat neumí. Munin je koncipován také jako síťový nástroj – umožňuje sbírat informace ze vzdálených zdrojů, a shromažďovat tak data z mnoha serverů na jednom místě k pohodlnému prohlížení.</p>
+<p>Munin je jedním z řady nástrojů, které umožňují sledovat různé systémové veličiny (obsazení RAM, zátěž procesoru, zatížení databáze, průběh e-mailů frontou atd.) v čase. Ze získaných dat vytvoří sadu HTML stránek s grafy, které mohou být zpřístupněny přes běžící webový server. Munin je modulární aplikací, nabízí řadu modulů, které zajišťují sběr specifických veličin (MySQL dotazy, Apache procesy atd.). Je samozřejmě možné si napsat vlastní moduly pro sběr dat, které Munin sbírat neumí. Munin je koncipován také jako síťový nástroj - umožňuje sbírat informace ze vzdálených zdrojů, a shromažďovat tak data z mnoha serverů na jednom místě k pohodlnému prohlížení.</p>
 
-<p>Každý generovaný graf je k dispozici v několika variantách – průběh hodnot během dne, týdne, měsíce a roku. Generované grafy mohou vypadat třeba takto (obrázek pochází z produkčního virtuálního serveru):</p>
+<p>Každý generovaný graf je k dispozici v několika variantách - průběh hodnot během dne, týdne, měsíce a roku. Generované grafy mohou vypadat třeba takto (obrázek pochází z produkčního virtuálního serveru):</p>
 
 munin-prod-mem-swp.png Výstup Muninu na produkčním serveru, obsazení paměti a swapu
 
@@ -41,14 +41,14 @@ host 127.0.0.1</pre>
 
 <h4>Práce s moduly</h4>
 
-<p>Moduly, které máte k dispozici, naleznete v <code>/usr/share/munin/plugins</code>. Moduly, které jsou aktivní, tj. které bude Munin (resp. <code>munin-node</code>) brát v úvahu při svém běhu, naleznete v <code>/etc/munin/plugins</code>. Aktivaci libovolného pluginu provedete vytvořením symbolického odkazu nebo prostým překopírováním. Některé moduly mohou vyžadovat dodatečné údaje, např. název rozhraní či databáze. Obvykle je to řešeno prakticky – přejmenováním. Tzn. pokud byste chtěli monitorovat konkrétní síťové rozhraní, použijete modul <code>if_</code>. Abyste jej spojili s příslušným rozhraním, např. <code>eth1</code>, vytvoříte symbolický odkaz nebo kopii v <code>/etc/munin/plugins</code>, která se bude jmenovat <code>if_eth1</code>. Podobně je to řešeno třeba s monitorováním konkrétní databáze atd.</p>
+<p>Moduly, které máte k dispozici, naleznete v <code>/usr/share/munin/plugins</code>. Moduly, které jsou aktivní, tj. které bude Munin (resp. <code>munin-node</code>) brát v úvahu při svém běhu, naleznete v <code>/etc/munin/plugins</code>. Aktivaci libovolného pluginu provedete vytvořením symbolického odkazu nebo prostým překopírováním. Některé moduly mohou vyžadovat dodatečné údaje, např. název rozhraní či databáze. Obvykle je to řešeno prakticky - přejmenováním. Tzn. pokud byste chtěli monitorovat konkrétní síťové rozhraní, použijete modul <code>if_</code>. Abyste jej spojili s příslušným rozhraním, např. <code>eth1</code>, vytvoříte symbolický odkaz nebo kopii v <code>/etc/munin/plugins</code>, která se bude jmenovat <code>if_eth1</code>. Podobně je to řešeno třeba s monitorováním konkrétní databáze atd.</p>
 
 <p>Některé pluginy mohou vyžadovat dodatečnou konfiguraci, která je pak realizována v <code>/etc/munin/plugin-conf.d</code>, kde do libovolného souboru zapíšete příslušnou konfiguraci. Kupříkladu moduly pracující s databází PostgreSQL vyžadují konfigurační volbu v podobě uživatele, pod kterým se mají připojit k databázovému serveru (v Debianu je to uživatel „postgres“). Tato konfigurace by vypadala takto:</p>
 
 <pre>[postgres_*]
 user postgres</pre>
 
-<p>V hranatých závorkách je název konkrétního modulu, resp. souboru (či souborů). Následují konfigurační volby. Ke zjištění, které volby jsou pro daný modul dostupné, popřípadě jak máte modul použít, se podívejte přímo na jeho „zdrojový kód“, kde se kromě kódu nachází i dokumentace. Samotný modul je pak obyčejným spustitelným souborem – nejčastěji se jedná o shellové či perlové skripty. Samotné psaní vlastních modulů není nijak těžké, pokud umíte psát shellové skripty, zvládnete vytvořit vlastní modul. V odkazech pod kapitolou naleznete odkaz na příslušné HOWTO.</p>
+<p>V hranatých závorkách je název konkrétního modulu, resp. souboru (či souborů). Následují konfigurační volby. Ke zjištění, které volby jsou pro daný modul dostupné, popřípadě jak máte modul použít, se podívejte přímo na jeho „zdrojový kód“, kde se kromě kódu nachází i dokumentace. Samotný modul je pak obyčejným spustitelným souborem - nejčastěji se jedná o shellové či perlové skripty. Samotné psaní vlastních modulů není nijak těžké, pokud umíte psát shellové skripty, zvládnete vytvořit vlastní modul. V odkazech pod kapitolou naleznete odkaz na příslušné HOWTO.</p>
 
 <h4>Příjem dat z více serverů</h4>
 

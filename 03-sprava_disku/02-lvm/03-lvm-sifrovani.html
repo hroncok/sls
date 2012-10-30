@@ -2,15 +2,15 @@
 
 <h3>Úvod do LVM</h3>
 
-<p>LVM (Logical Volume Manager) je systém pro správu logických oddílů, v Linuxu je implementován pomocí device mapperu, mechanismu pro mapování jednoho blokového zařízení na jiné. Ptáte se, proč používat LVM místo klasických diskových oddílů? LVM umí řadu věcí, které s „klasickými“ diskovými oddíly neuděláte. Kupříkladu – vyhradíte si diskový oddíl určité velikosti a posléze (za provozu) zjistíte, že velikost je nevyhovující – oddíl je buď zbytečně velký, a ubírá tak místo ostatním oddílům, nebo je příliš malý, a začne na něm brzy docházet místo.</p>
+<p>LVM (Logical Volume Manager) je systém pro správu logických oddílů, v Linuxu je implementován pomocí device mapperu, mechanismu pro mapování jednoho blokového zařízení na jiné. Ptáte se, proč používat LVM místo klasických diskových oddílů? LVM umí řadu věcí, které s "klasickými" diskovými oddíly neuděláte. Kupříkladu – vyhradíte si diskový oddíl určité velikosti a posléze (za provozu) zjistíte, že velikost je nevyhovující – oddíl je buď zbytečně velký, a ubírá tak místo ostatním oddílům, nebo je příliš malý, a začne na něm brzy docházet místo.</p>
 
-<p>Logické „oddíly“ (dále svazky) spravované pomocí LVM můžete vytvářet, rušit, měnit jejich velikost, pořizovat z nich snapshoty, ale také je přesouvat mezi fyzickými zařízeními, a to vše za běhu, bez nutnosti restartu.</p>
+<p>Logické "oddíly" (dále svazky) spravované pomocí LVM můžete vytvářet, rušit, měnit jejich velikost, pořizovat z nich snapshoty, ale také je přesouvat mezi fyzickými zařízeními, a to vše za běhu, bez nutnosti restartu.</p>
 
-<p>Další vlastností LVM je relativní nezávislost logických svazků na fyzických zařízeních. Můžete „poskládat“ LVM z několika oddílů na různých discích, a tuto „skupinu“ pak rozdělit, jako by se jednalo o jeden velký spojitý prostor. Podobnost s RAIDem 0 je zde evidentní, stejně jako vyplývající hrozba ztráty dat v případě ztráty některého fyzického zařízení. LVM nicméně umí i ekvivalent RAIDu 1, tedy zrcadlení dat na více fyzických zařízení. Neumí už ovšem paritně založenou redundanci (ekvivalent RAIDu 5 a 6).</p>
+<p>Další vlastností LVM je relativní nezávislost logických svazků na fyzických zařízeních. Můžete "poskládat" LVM z několika oddílů na různých discích, a tuto "skupinu" pak rozdělit, jako by se jednalo o jeden velký spojitý prostor. Podobnost s RAIDem 0 je zde evidentní, stejně jako vyplývající hrozba ztráty dat v případě ztráty některého fyzického zařízení. LVM nicméně umí i ekvivalent RAIDu 1, tedy zrcadlení dat na více fyzických zařízení. Neumí už ovšem paritně založenou redundanci (ekvivalent RAIDu 5 a 6).</p>
 
 <h4>Princip funkce LVM</h4>
 
-<p>Představte si LVM jako vrstvu, kam na jedné straně nasypete „fyzická zařízení“ (de facto jakékoliv myslitelné blokové zařízení), a na druhé straně si na vzniklém spojitém prostoru vytvoříte logické svazky, tedy z pohledu linuxového správce konkrétní bloková zařízení, na kterých pak můžete dle libosti vytvářet souborové systémy a se kterými můžete poměrně flexibilně manipulovat, a to i za běhu. LVM můžete samozřejmě postavit nad jakýmikoliv blokovými zařízeními, tedy třeba nad linuxovým softwarovým RAIDem nebo nad šifrovaným zařízením (třeba pomocí dm-crypt/LUKS, viz níže).</p>
+<p>Představte si LVM jako vrstvu, kam na jedné straně nasypete "fyzická zařízení" (de facto jakékoliv myslitelné blokové zařízení), a na druhé straně si na vzniklém spojitém prostoru vytvoříte logické svazky, tedy z pohledu linuxového správce konkrétní bloková zařízení, na kterých pak můžete dle libosti vytvářet souborové systémy a se kterými můžete poměrně flexibilně manipulovat, a to i za běhu. LVM můžete samozřejmě postavit nad jakýmikoliv blokovými zařízeními, tedy třeba nad linuxovým softwarovým RAIDem nebo nad šifrovaným zařízením (třeba pomocí dm-crypt/LUKS, viz níže).</p>
 
 lvm.svg Schéma ilustrující princip funkce LVM
 
@@ -69,7 +69,7 @@ debian:~# </pre>
   PV UUID               3wvOQk-M0uS-XJN6-nlrl-x8Uz-CJDF-in2fEs
 </pre>
 
-<p>Velikost svazku je 4.99 GB, většina ostatních hodnot je poznamenána tím, že fyzický svazek není součástí žádné skupiny svazků (volume group). Abyste mohli fyzický svazek využít, musíte jej začlenit do skupiny svazků. Jelikož v tuto chvíli není k dispozici žádná skupina svazků, vytvoříte novou, třeba s názvem „data“, s pomocí právě tohoto fyzického svazku:</p>
+<p>Velikost svazku je 4.99 GB, většina ostatních hodnot je poznamenána tím, že fyzický svazek není součástí žádné skupiny svazků (volume group). Abyste mohli fyzický svazek využít, musíte jej začlenit do skupiny svazků. Jelikož v tuto chvíli není k dispozici žádná skupina svazků, vytvoříte novou, třeba s názvem "data", s pomocí právě tohoto fyzického svazku:</p>
 
 <pre>debian:~# vgcreate data /dev/sdb1
   Volume group "data" successfully created
@@ -101,9 +101,9 @@ debian:~#</pre>
 
 <p>Z výpisu je vidět použitý formát (<code>lvm2</code>), počet fyzických svazků přiřazených do skupiny, dále celkovou velikost skupiny svazků i její obsazení. Všimněte si také zkratky PE, jejíž význam odhaluje jádro fungování LVM.</p>
 
-<p>LVM pracuje na fyzické úrovni tak, že si rozdělí fyzické svazky do bloků určité velikosti, které pak přiděluje jednotlivým logickým svazkům. Tyto bloky jsou nazývány jako „physical extent“ (dále PE). Ve výpisu je vidět, že jeden PE má v tomto případě velikost 4 MB a skupina svazků jich má k dispozici celkem 1278, z nichž žádný není dosud alokován (přiřazen logickému svazku).</p>
+<p>LVM pracuje na fyzické úrovni tak, že si rozdělí fyzické svazky do bloků určité velikosti, které pak přiděluje jednotlivým logickým svazkům. Tyto bloky jsou nazývány jako "physical extent" (dále PE). Ve výpisu je vidět, že jeden PE má v tomto případě velikost 4 MB a skupina svazků jich má k dispozici celkem 1278, z nichž žádný není dosud alokován (přiřazen logickému svazku).</p>
 
-<p class=“box“>Ještě než se vrátím k vytváření logického svazku, upozorním ještě na to, čeho si pozorný čtenář jistě všiml, a sice nápadné podobnosti jednotlivých příkazů pro správu LVM, které se liší pouze úvodními dvěma písmeny. V případě LVM je dobré si v paměti uchovat anglické názvy všech pojmů jako „physical volume“, „volume group“ a „logical volume“, protože počáteční písmena daných názvů tvoří prefix pro sadu příkazů, kterými je lze spravovat. Tudíž, pokud operujete s fyzickými svazky, použijete prefix <em>pv</em> následovaný slovíčky jako <em>display</em>, <em>create</em>, <em>extend</em>, atd., a analogický postup použijete v případě ostatních komponent LVM.</p>
+<p class="box">Ještě než se vrátím k vytváření logického svazku, upozorním ještě na to, čeho si pozorný čtenář jistě všiml, a sice nápadné podobnosti jednotlivých příkazů pro správu LVM, které se liší pouze úvodními dvěma písmeny. V případě LVM je dobré si v paměti uchovat anglické názvy všech pojmů jako "physical volume", "volume group" a "logical volume", protože počáteční písmena daných názvů tvoří prefix pro sadu příkazů, kterými je lze spravovat. Tudíž, pokud operujete s fyzickými svazky, použijete prefix <em>pv</em> následovaný slovíčky jako <em>display</em>, <em>create</em>, <em>extend</em>, atd., a analogický postup použijete v případě ostatních komponent LVM.</p>
 
 <p>Avšak zpět k vytváření LVM. V tuto chvíli je tedy vytvořena skupina svazků z jednoho fyzického svazku. Zbývá poslední krok, a sice vytvoření logického svazku:</p>
 
@@ -111,7 +111,7 @@ debian:~#</pre>
   Rounding up size to full physical extent 4.99 GB
   Logical volume "zalohy" created</pre>
 
-<p>Parametr <code>-L</code> udává velikost logického svazku, v tomto případě <code>4.99G</code>, kde <code>G</code> značí gigabyty. Parametr <code>-n</code> umožňuje dát příslušnému logickému svazku jméno, v tomto případě „<code>zalohy</code>„.</p>
+<p>Parametr <code>-L</code> udává velikost logického svazku, v tomto případě <code>4.99G</code>, kde <code>G</code> značí gigabyty. Parametr <code>-n</code> umožňuje dát příslušnému logickému svazku jméno, v tomto případě "<code>zalohy</code>".</p>
 
 <p>Příslušný logický svazek je k dispozici jako blokové zařízení <code>/dev/mapper/data-zalohy</code> a lze s ním zacházet jako s kterýmkoliv diskovým oddílem (nebo blokovým zařízením obecně). Příslušné zařízení má i symbolický odkaz <code>/dev/data/zalohy</code>, tudíž je k němu možné přistupovat i takto, o něco málo pohodlněji.</p>
 
@@ -164,7 +164,7 @@ debian:~# vgextend data /dev/sdd1
   Volume group "data" successfully extended
 </pre>
 
-<p>Prvním příkazem byl z diskového oddílu <code>sdd1</code> vytvořen fyzický svazek, ve druhém kroku byla rozšířena skupina svazků „<code>data</code>„ o nový fyzický svazek. Nástroj <code>vgdisplay</code> nyní potvrzuje navýšení kapacity skupiny svazků:</p>
+<p>Prvním příkazem byl z diskového oddílu <code>sdd1</code> vytvořen fyzický svazek, ve druhém kroku byla rozšířena skupina svazků "<code>data</code>" o nový fyzický svazek. Nástroj <code>vgdisplay</code> nyní potvrzuje navýšení kapacity skupiny svazků:</p>
 
 <pre>...
   VG Size               9.98 GB
@@ -175,7 +175,7 @@ debian:~# vgextend data /dev/sdd1
 ...
 </pre>
 
-<p>V tuto chvíli již tedy je z čeho rozšířit stávající logický svazek „<code>zalohy</code>„. Jak rozšíření skupiny svazků, tak rozšíření logického svazku je možné provádět za běhu systému. Není ani potřeba odpojit souborový systém na daném zařízení:</p>
+<p>V tuto chvíli již tedy je z čeho rozšířit stávající logický svazek "<code>zalohy</code>". Jak rozšíření skupiny svazků, tak rozšíření logického svazku je možné provádět za běhu systému. Není ani potřeba odpojit souborový systém na daném zařízení:</p>
 
 <pre>debian:~# df -h
 Filesystem                 Size  Used Avail Use% Mounted on
@@ -323,9 +323,9 @@ debian:~# pvremove /dev/sdd1
 
 <h4>Snapshoty</h4>
 
-<p>Co je snapshot? Fotografové by tento termín přeložili asi jako „momentka“. V případě LVM se jedná o „momentku“ daného logického svazku a všech dat na něm, která se v daném okamžiku jakoby zmrazí. K této „momentce“ pak můžete přistupovat jako k jinému logickému svazku (nebo obecně jako k blokovému zařízení), zatímco původní logický svazek byl již modifikován.</p>
+<p>Co je snapshot? Fotografové by tento termín přeložili asi jako "momentka". V případě LVM se jedná o "momentku" daného logického svazku a všech dat na něm, která se v daném okamžiku jakoby zmrazí. K této "momentce" pak můžete přistupovat jako k jinému logickému svazku (nebo obecně jako k blokovému zařízení), zatímco původní logický svazek byl již modifikován.</p>
 
-<p>Snapshoty lze provádět i za běhu s připojeným souborovým systémem, i když tento postup může vést k nekonzistentním datům. Je to dáno tím, že snapshot je prováděn na úrovni „pod“ souborovým systémem, o jehož stavu nemá LVM žádné informace (a naopak, souborový systém netuší, že ve funkční vrstvě pod ním došlo k nějakému zmražení stavu). Pokud tedy v okamžiku vytvoření snapshotu nějaká aplikace právě provádí zápis dat do souboru, nebo si data k zapsání na disk teprve uchovává v paměti s cílem je později uložit, je jasné, že snapshot bude obsahovat nekonzistentní data.</p>
+<p>Snapshoty lze provádět i za běhu s připojeným souborovým systémem, i když tento postup může vést k nekonzistentním datům. Je to dáno tím, že snapshot je prováděn na úrovni "pod" souborovým systémem, o jehož stavu nemá LVM žádné informace (a naopak, souborový systém netuší, že ve funkční vrstvě pod ním došlo k nějakému zmražení stavu). Pokud tedy v okamžiku vytvoření snapshotu nějaká aplikace právě provádí zápis dat do souboru, nebo si data k zapsání na disk teprve uchovává v paměti s cílem je později uložit, je jasné, že snapshot bude obsahovat nekonzistentní data.</p>
 
 <p>Souborový systém je možné před pořízením snapshotu odpojit nebo přepojit do režimu read-only, což by se provedlo takto:</p>
 
@@ -416,7 +416,7 @@ debian# lvs
 
 <h5>Co se stane, když se snapshot zaplní</h5>
 
-<p>Do snapshotu se de facto zapisují všechny rozdíly vůči logickému svazku, ze kterého byl vytvořen, a to metodou „copy on write“. V zásadě, kapacita snapshotu se snižuje jak vlivem změn ve snapshotu, tak vlivem změn v logickém svazku, kterému snapshot náleží. Pokud dojde k zaplnění celého snapshotu, začnou se dít psí kusy:</p>
+<p>Do snapshotu se de facto zapisují všechny rozdíly vůči logickému svazku, ze kterého byl vytvořen, a to metodou "copy on write". V zásadě, kapacita snapshotu se snižuje jak vlivem změn ve snapshotu, tak vlivem změn v logickém svazku, kterému snapshot náleží. Pokud dojde k zaplnění celého snapshotu, začnou se dít psí kusy:</p>
 
 <pre>debian# lvs
   /dev/dm-0: read failed after 0 of 4096 at 0: Input/output error
@@ -441,7 +441,7 @@ EXT3-fs (dm-0): error: unable to read superblock</pre>
 
 <p>Pokud budete používat snapshoty, pak je berte jako dočasné úložiště změn, o které můžete přijít, a původní logický svazek jako pevný bod, o který se můžete opřít. V situaci výše by bývalo stačilo, kdybyste před upgradem nastavili snapshot jako aktivní kořenový oddíl. Pak by přetečení snapshotu vyvolalo kolaps systému, ale vám by zůstal původní logický svazek ve stavu před upgradem.</p>
 
-<p>Výše zmíněný <code>merge</code> vám rozšiřuje možnosti práce se snapshoty – už nemusíte uvažovat o snapshotu jako o snímku, který nakonec budete muset zahodit. V průběhu času se budete moci rozhodnout jak snímek zahodit a používat nadále logický svazek v jeho aktuálním stavu, tak provést „rollback“ a změny provedené na logickém svazku zahodit.</p>
+<p>Výše zmíněný <code>merge</code> vám rozšiřuje možnosti práce se snapshoty – už nemusíte uvažovat o snapshotu jako o snímku, který nakonec budete muset zahodit. V průběhu času se budete moci rozhodnout jak snímek zahodit a používat nadále logický svazek v jeho aktuálním stavu, tak provést "rollback" a změny provedené na logickém svazku zahodit.</p>
 
 <h4>Zrcadlení v rámci LVM</h4>
 
@@ -571,7 +571,7 @@ EXT3-fs (dm-0): error: unable to read superblock</pre>
   Volume group "vg" successfully extended
 </pre>
 
-<p>A následně provést konverzi nyní lineárního svazku „zrcadlo“ na svazek zrcadlený:</p>
+<p>A následně provést konverzi nyní lineárního svazku "zrcadlo" na svazek zrcadlený:</p>
 
 <pre>lvconvert -m1 vg/zrcadlo</pre>
 

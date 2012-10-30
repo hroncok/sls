@@ -16,7 +16,7 @@
 
 <h4>Základní konfigurace Monitu</h4>
 
-<p>Proces konfigurace Monitu je poměrně jednoduchý. Máte na výběr ze dvou možností – buď budete přímo měnit hlavní konfigurační soubor Monitu, tedy <code>/etc/monit/monitrc</code>, nebo si jednotlivé služby i základní konfiguraci rozdělíte do libovolně pojmenovaných souborů v <code>/etc/monit/conf.d</code>.</p>
+<p>Proces konfigurace Monitu je poměrně jednoduchý. Máte na výběr ze dvou možností - buď budete přímo měnit hlavní konfigurační soubor Monitu, tedy <code>/etc/monit/monitrc</code>, nebo si jednotlivé služby i základní konfiguraci rozdělíte do libovolně pojmenovaných souborů v <code>/etc/monit/conf.d</code>.</p>
 
 <p>Výchozí konfigurační soubor <code>/etc/monit/monitrc</code> neobsahuje prakticky žádnou výchozí konfiguraci, ale je dobře zdokumentovaný a základní nastavení jsou v něm přítomna, pouze jsou zakomentována, takže stačí příslušné volby odkomentovat a nastavit si je podle svých představ. Základ by mohl vypadat třeba takto:</p>
 
@@ -29,11 +29,11 @@ set alert root@localhost</pre>
 
 <p>První dva řádky nastavují režim démona a dva podstatné časové údaje. Prvním z nich je doba cyklu, tedy doba mezi jednotlivými kontrolami, zde nastavena na sto dvacet sekund. V jednotlivých pravidlech (viz dále) je možné stav služeb zjišťovat i v delším časovém rozmezí a konkrétní akci pak vázat na stav, který trvá po dobu několika cyklů.</p>
 
-<p>Na druhém řádku je nastavena úvodní čekací doba před zahájením monitorování. Tato doba se měří od spuštění Monitu a v tomto případě je nastavena na dvě stě čtyřicet sekund. Druhý řádek je samozřejmě nepovinný – je to pouze doplnění k prvnímu řádku, a pokud jej nespecifikujete, služby se začnou monitorovat okamžitě po spouštění Monitu.</p>
+<p>Na druhém řádku je nastavena úvodní čekací doba před zahájením monitorování. Tato doba se měří od spuštění Monitu a v tomto případě je nastavena na dvě stě čtyřicet sekund. Druhý řádek je samozřejmě nepovinný - je to pouze doplnění k prvnímu řádku, a pokud jej nespecifikujete, služby se začnou monitorovat okamžitě po spouštění Monitu.</p>
 
 <p>Třetí řádek nastavuje logování, čtvrtý pak poštovní servery (<code>mailserver</code>), prostřednictvím kterých budou odesílána oznámení. Mailserverů je možné specifikovat více, jako oddělovač použijte čárku. Máte-li možnost, nelze než doporučit použít víc než jeden poštovní server, Monit pak v případě nečinnosti jednoho pošle e-mail přes jiný (je nepříjemné, pokud by přestal fungovat poštovní server a vy byste se o tom nedozvěděli, protože Monit by neměl k dispozici žádný další). Pátý řádek upravuje formát zasílaných e-mailů, resp. nastavuje pole <code>From:</code> - to bývá vhodné přizpůsobit doménovému jménu vašeho serveru.</p>
 
-<p>Poslední řádek nastavuje příjemce upozornění. Příjemců může být pochopitelně více – potřebujete-li jich více, specifikujte <code>set alert</code> vícekrát, např. takto:</p>
+<p>Poslední řádek nastavuje příjemce upozornění. Příjemců může být pochopitelně více - potřebujete-li jich více, specifikujte <code>set alert</code> vícekrát, např. takto:</p>
 
 <pre>set alert admin1@localhost
 set alert admin2@localhost</pre>

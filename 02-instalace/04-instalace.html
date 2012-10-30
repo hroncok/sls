@@ -10,7 +10,7 @@ TODO Sedí počty CD a DVD na Wheezy?
 
 <p>Instalačních média Debianu lze rozdělit do dvou kategorií – klasická instalační média zahrnující 31 CD nebo 5 DVD obsahující veškerý software z hlavních repozitářů a speciální instalační média zahrnující mj. redukované médium určené pro síťovou instalaci (netinst) nebo ještě menší, minimalistická média. O tom, jak je software umístěn do jednotlivých médií rozhoduje jeho popularita – nejpopulárnější software je na prvním médiu a nejméně populární na posledním.</p>
 
-<p>Máte-li k dispozici připojení na síť, není důvod nepoužít médium pro síťovou instalaci (iso obraz má méně než 200 MB) nebo některé z ještě menších médií. Postačí samozřejmě i první „klasické“ instalační CD. Více není důvod stahovat.</p>
+<p>Máte-li k dispozici připojení na síť, není důvod nepoužít médium pro síťovou instalaci (iso obraz má méně než 200 MB) nebo některé z ještě menších médií. Postačí samozřejmě i první "klasické" instalační CD. Více není důvod stahovat.</p>
 
 <p>Debian lze nainstalovat i jinými způsoby, třeba z flash disku nebo pomocí bootování ze sítě. Nainstalovat Debian je možné i z jiné distribuce (nebo ručně z instalačního média – více viz níže).</p>
 
@@ -22,9 +22,9 @@ TODO Sedí počty CD a DVD na Wheezy?
 
 <p>Kromě <code>/boot</code> je vhodné osamostatnit data od zbytku systému, pokud možno zahrnující jak webové aplikace, tak domovské adresáře uživatelů, databázi, poštu, apod. – toto vše je možné buď přesunout do jediného adresáře (obvykle <code>/home</code>), nebo rozdělit do více oddílů (třeba i s různými souborovými systémy).</p>
 
-<p>Velmi vhodné je též osamostatnit adresář <code>/var/log</code>, který mívá tendenci v určitých situacích nadměrně růst. Pokud bude na samostatném oddílu, budete mít o starost méně, protože pokud by náhodou „přetekl“, neohrozí vám to zbytek systému (nedostatek místa v některých adresářích může způsobit velké problémy).</p>
+<p>Velmi vhodné je též osamostatnit adresář <code>/var/log</code>, který mívá tendenci v určitých situacích nadměrně růst. Pokud bude na samostatném oddílu, budete mít o starost méně, protože pokud by náhodou "přetekl", neohrozí vám to zbytek systému (nedostatek místa v některých adresářích může způsobit velké problémy).</p>
 
-<p>Je možné osamostatnit i adresář <code>/var</code>, kde se nachází různá „proměnlivá“ data, mj. třeba cache správce balíčků (<code>/var/cache/apt</code>), data z databází (MySQL, PostgreSQL, apod.), apod.</p>
+<p>Je možné osamostatnit i adresář <code>/var</code>, kde se nachází různá "proměnlivá" data, mj. třeba cache správce balíčků (<code>/var/cache/apt</code>), data z databází (MySQL, PostgreSQL, apod.), apod.</p>
 
 <p>Samostatný oddíl pro swap je též velmi vhodný. Samotná velikost swap oddílu by se měla pohybovat v rozumných mezích vzhledem k dostupné paměti na daném serveru (dle některých zdrojů postačí polovina RAM, jiné zdroje uvádějí sofistikovanější pravidla pro určení velikosti swapu). Obecně, vytvářet příliš velký swap je zbytečné, ale stejně tak není dobré na swap úplně zapomenout. Je třeba si uvědomit, že server běží obvykle velmi dlouho v kuse, software na něm běžící si ukládá data do paměti, ale ne vždy k nim potřebuje často přistupovat. Oblasti operační paměti, které nejsou delší dobu využívány, tak mohou být odloženy do swapu, čímž zůstane více operační paměti pro ty aplikace, které ji potřebují, nebo pro diskovou cache.</p>
 
@@ -62,13 +62,13 @@ TODO Sedí počty CD a DVD na Wheezy?
 
 <h3>Přizpůsobení instalátoru a manuální instalace</h3>
 
-<p>Proces instalace v instalátoru Debianu je možné různými způsoby ovlivňovat. Především je možné se kdykoliv vrátit k některému z předchozích kroků a cokoliv změnit pomocí klávesy [Escape]. Druhou zajímavou možností je „expertní režim“, který je možný navolit v boot menu instalačního média přes <strong>Advanced options | Expert install</strong>. Tento režim umožňuje ovlivnit řadu parametrů, které si instalátor jinak řídí sám.</p>
+<p>Proces instalace v instalátoru Debianu je možné různými způsoby ovlivňovat. Především je možné se kdykoliv vrátit k některému z předchozích kroků a cokoliv změnit pomocí klávesy [Escape]. Druhou zajímavou možností je "expertní režim", který je možný navolit v boot menu instalačního média přes <strong>Advanced options | Expert install</strong>. Tento režim umožňuje ovlivnit řadu parametrů, které si instalátor jinak řídí sám.</p>
 
 <p>Ani to ale někdy nemusí pomoci, a proto je dobré vědět, že je možné provést i plnou ruční instalaci v příkazové řádce. V takovém případě budete postupovat velmi podobně jako s instalátorem, jen ručně – zprovozníte síť (a připojení k internetu), připravíte si oddíly, namountujete je někam do adresářové struktury a využijete nástroje <em>debootstrap</em> k instalaci základu systému do připraveného adresáře, takto:</p>
 
 <pre>debootstrap wheeze /mnt/new_system</pre>
 
-<p>Dokud Wheezy oficiálně nevyjde, můžete použít větev „testing“, kde se Wheezy před vydáním nachází, takto:</p>
+<p>Dokud Wheezy oficiálně nevyjde, můžete použít větev "testing", kde se Wheezy před vydáním nachází, takto:</p>
 
 <pre>debootstrap testing /mnt/new_system</pre>
 
