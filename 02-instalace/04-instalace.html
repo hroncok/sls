@@ -6,9 +6,9 @@
 
 <h3>Instalační média a možnosti instalace Debianu</h3>
 
-TODO Sedí počty CD a DVD na Wheezy?
+TODO Bohužel netuším, jaký bude finální stav počtu médií, tak jsem to zobecnil. 
 
-<p>Instalačních média Debianu lze rozdělit do dvou kategorií – klasická instalační média zahrnující 31 CD nebo 5 DVD obsahující veškerý software z hlavních repozitářů a speciální instalační média zahrnující mj. redukované médium určené pro síťovou instalaci (netinst) nebo ještě menší, minimalistická média. O tom, jak je software umístěn do jednotlivých médií rozhoduje jeho popularita – nejpopulárnější software je na prvním médiu a nejméně populární na posledním.</p>
+<p>Instalačních média Debianu lze rozdělit do dvou kategorií – klasická instalační média zahrnující řádově desítky CD nebo sadu DVD obsahující veškerý software z hlavních repozitářů a speciální instalační média zahrnující mj. redukované médium určené pro síťovou instalaci (netinst) nebo ještě menší, minimalistická média. O tom, jak je software umístěn do jednotlivých médií rozhoduje jeho popularita – nejpopulárnější software je na prvním médiu a nejméně populární na posledním.</p>
 
 <p>Máte-li k dispozici připojení na síť, není důvod nepoužít médium pro síťovou instalaci (iso obraz má méně než 200 MB) nebo některé z ještě menších médií. Postačí samozřejmě i první „klasické“ instalační CD. Více není důvod stahovat.</p>
 
@@ -72,9 +72,9 @@ TODO Sedí počty CD a DVD na Wheezy?
 
 <pre>debootstrap testing /mnt/new_system</pre>
 
-TODO Vystvětlivka MBR
+TODO done 
 
-<p>Poté je třeba upravit některé konfigurační soubory jako /etc/fstab, nakonfigurovat zavaděč (LILO nebo GRUB) a nainstalovat jej na správné místo (obvykle MBR).</p>
+<p>Poté je třeba upravit některé konfigurační soubory jako <code>/etc/fstab</code>, nakonfigurovat zavaděč (LILO nebo GRUB) a nainstalovat jej na správné místo. Tím je obvykle MBR, <em>Master Boot Record</em>, který se nachází v prvních 512 bytech na disku, tzn. je třeba pro instalaci zvolit disk jako takový (např. <em>sda</em>) a nikoliv oddíl (např. <em>sda1</em>).</p>
 
 <h3>Minimální instalace</h3>
 

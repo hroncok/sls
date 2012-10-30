@@ -88,11 +88,13 @@
 
 <p>S takovou situací už jsem se jednou setkal – u jednoho levného SATA řadiče docházelo k bitovým chybám při čtení/zápisu, následkem čehož v delším období došlo ke rozsáhlému poškození dat na (softwarovém) RAIDu 1, který jsem na něm provozoval. I proto zdůrazňuji, že RAID není náhradou zálohování.</p>
 
-TODO Vysvětlivku o ZFS v userspacu
+TODO Vysvětlivku o ZFS v userspacu: done
 
-<p>Poškození dat je to nejhorší, s čím se lze setkat – je totiž obvykle nepostřehnutelné. V době, kdy se váš systém začne chovat divně nebo dojde k nějaké jiné události, která vás donutí dívat se tímto směrem, může být již pozdě (a co je horší – chyby v datech se mohou promítnout i do záloh). Tohle třeba pěkně řeší souborový systém <em>ZFS</em> (souborový systém od bývalého Sunu, dnes Oraclu), který, na rozdíl od tradičních linuxových souborových systémů jako <em>ext4</em> či <em>reiserfs</em>, dohlíží na integritu dat. Bohužel, <em>ZFS</em> v Linuxu není a z licenčních důvodů asi ani nebude. Máme pouze BTRFS (vyvíjený společností Oracle), který zatím stále není určený pro produkční nasazení.</p>
+<p>Poškození dat je to nejhorší, s čím se lze setkat – je totiž obvykle nepostřehnutelné. V době, kdy se váš systém začne chovat divně nebo dojde k nějaké jiné události, která vás donutí dívat se tímto směrem, může být již pozdě (a co je horší – chyby v datech se mohou promítnout i do záloh). Tohle třeba pěkně řeší souborový systém <em>ZFS</em> (souborový systém od bývalého Sunu, dnes Oraclu), který, na rozdíl od tradičních linuxových souborových systémů jako <em>ext4</em> či <em>reiserfs</em>, dohlíží na integritu dat.</p>
 
-<p>Z tohoto důvodu nelze než doporučit alternativní postupy – Tripwire, md5sum nebo podobné nástroje pro kontrolu integrity vybraných souborů.</p>
+<p>Použití <em>ZFS</em> v Linuxu je komplikovaná záležitost z licenčních důvodů (linuxové jádro je pod GNU/GPL, ZFS je pod nekompatibilní CDDL), nicméně existují snahy ZFS portovat i na Linux, jednak v nativní formě (projekt <em>zfsonlinux.org</em>, jehož vývoj je zatím ve stádiu "release candidate") a jednak ve formě FUSE modulu (projekt <em>zfs-fuse.net</em>), tedy souborového systému v userspace. V repozitářích Debianu naleznete pouze balíček <code>zfs-fuse</code>. Tuto variantu nelze vzhledem k jistým výkonovým ztrátám (oproti nativnímu ZFS) na server příliš doporučit. V Linuxu je k dispozici také BTRFS (vyvíjený společností Oracle), který zatím stále není určený pro produkční nasazení.</p>
+
+<p>Bez souborových systémů s podporou ověřování integrity dat nelze než doporučit alternativní postupy – Tripwire, md5sum nebo podobné nástroje pro kontrolu integrity vybraných souborů.</p>
 
 <h4>Monitorování pole</h4>
 
