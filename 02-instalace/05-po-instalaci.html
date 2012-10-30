@@ -5,20 +5,20 @@
 <p>Těsně po instalaci je vhodné nainstalovat některé balíčky, které vám jako správcům usnadní práci. Já obvykle instaluji tyto balíčky:</p>
 
 <ul>
-<li><strong>openssh-server</strong> - SSH server pro vzdálenou správu</li>
-<li><strong>mc</strong> - terminálový panelový správce souborů (Midnight commander)</li>
-<li><strong>vim-nox</strong> - editor Vim (bez závislosti na X)</li>
-<li><strong>screen</strong> - správce sezení v terminálu</li>
-<li><strong>htop</strong> - interaktivní správce úloh</li>
-<li><strong>lshw</strong> - jeden z nejlepších nástrojů pro získávání informací o hardwaru</li>
-<li><strong>iotop</strong> - sledování I/O operací procesů v reálném čase</li>
-<li><strong>apg</strong> - řádkový generátor hesel</li>
+<li><strong>openssh-server</strong> – SSH server pro vzdálenou správu</li>
+<li><strong>mc</strong> – terminálový panelový správce souborů (Midnight commander)</li>
+<li><strong>vim-nox</strong> – editor Vim (bez závislosti na X)</li>
+<li><strong>screen</strong> – správce sezení v terminálu</li>
+<li><strong>htop</strong> – interaktivní správce úloh</li>
+<li><strong>lshw</strong> – jeden z nejlepších nástrojů pro získávání informací o hardwaru</li>
+<li><strong>iotop</strong> – sledování I/O operací procesů v reálném čase</li>
+<li><strong>apg</strong> – řádkový generátor hesel</li>
 </ul>
 
 <p>Po instalaci se určitě hodí nainstalovat SSH server, abyste mohli k serveru přistupovat vzdáleně a nemuseli být fyzicky u něj. Zabezpečení SSH serveru se budeme podrobně věnovat později v knize, prozatím postačí držet se několika rad:</p>
 
 <ul>
-<li>v <code>/etc/ssh/sshd_config</code> nastavit volbu <code>PermitRootLogin</code> na jinou hodnotu než <code>yes</code> (nebo zvolit opravdu velmi silné heslo pro roota) - v úvahu přichází hodnota <code>no</code> (zakáže vzdálené přihlášení na roota) nebo hodnota <code>without-password</code> (povolí vzdálené přihlášení roota pouze SSH klíčem)</li>
+<li>v <code>/etc/ssh/sshd_config</code> nastavit volbu <code>PermitRootLogin</code> na jinou hodnotu než <code>yes</code> (nebo zvolit opravdu velmi silné heslo pro roota) – v úvahu přichází hodnota <code>no</code> (zakáže vzdálené přihlášení na roota) nebo hodnota <code>without-password</code> (povolí vzdálené přihlášení roota pouze SSH klíčem)</li>
 
 <li>ujistit se, že v systému není žádný testovací uživatel se slabým heslem (uživatel <em>test</em> s heslem <code>test</code> zajistí téměř spolehlivě kompromitaci serveru útočníkem v řádu hodin)</li>
 
@@ -48,15 +48,15 @@
 
 <h4>Stěžejní konfigurační soubory</h4>
 <ul>
-<li><code>/etc/fstab</code> - nastavení připojení souborových systémů do jednotlivých adresářů</li>
-<li><code>/etc/crypttab</code> - nastavení šifrovaných souborových systémů</li>
-<li><code>/etc/network/interfaces</code> - nastavení sítě</li>
-<li><code>/etc/resolv.conf</code> - nastavení DNS serverů pro systémový resolver</li>
-<li><code>/etc/sysctl.conf</code> - "permanentní" nastavení parametrů jádra</li>
-<li><code>/etc/security/limits.conf</code> - nastavení limitů pro uživatele</li>
-<li><code>/etc/ssh/sshd_config</code> - konfigurace SSH démona (viz výše)</li>
-<li><code>/etc/apt/sources.list</code> - konfigurace repozitářů správce balíčků Debianu</li>
-<li><code>/etc/pam.d/*</code> - konfigurace PAMu (zásuvné autentikační moduly)</li>
+<li><code>/etc/fstab</code> – nastavení připojení souborových systémů do jednotlivých adresářů</li>
+<li><code>/etc/crypttab</code> – nastavení šifrovaných souborových systémů</li>
+<li><code>/etc/network/interfaces</code> – nastavení sítě</li>
+<li><code>/etc/resolv.conf</code> – nastavení DNS serverů pro systémový resolver</li>
+<li><code>/etc/sysctl.conf</code> – "permanentní" nastavení parametrů jádra</li>
+<li><code>/etc/security/limits.conf</code> – nastavení limitů pro uživatele</li>
+<li><code>/etc/ssh/sshd_config</code> – konfigurace SSH démona (viz výše)</li>
+<li><code>/etc/apt/sources.list</code> – konfigurace repozitářů správce balíčků Debianu</li>
+<li><code>/etc/pam.d/*</code> – konfigurace PAMu (zásuvné autentikační moduly)</li>
 </ul>
 
 <p>Většina těchto konfiguračních souborů má buď vestavěnou nápovědu, nebo manuálovou stránku. V dalších kapitolách vám některé z nich představím blíže.</p>
@@ -65,7 +65,7 @@
 
 <p>Po spuštění počítače a provedení příslušných testů předá BIOS řízení zavaděči (maličký program v prvních 446 bytech MBR). Jelikož je v MBR málo místa, obvykle se hlavní výkonný kód zavaděče umisťuje jinam (např. mezi MBR a první oddíl), a zavaděč v MBR pouze předá řízení tomuto hlavnímu výkonnému kódu. Zavaděč nahraje do paměti obraz jádra (popř. ještě iniciálního ramdisku) a spustí jej. Jádro připojí kořenový souborový systém a spustí <code>/sbin/init</code>, který začne pouštět další služby (démony) a procedury, jejichž obslužné skripty se nacházejí v <code>/etc/init.d</code>.</p>
 
-<p>Je třeba dodat, že tato procedura nemusí být stejná na všech systémech a ve všech distribucích - díky vývoji v této oblasti se může od postupu výše odlišovat. Systém init skriptů je nyní v linuxových distribucích nahrazován za systemd, stejně tak tradiční systém rozdělení disku MBR se pomalu opouští a zavádí se GPT (které zvládne vytvářet oddíly větší než 2 TB), atd.</p>
+<p>Je třeba dodat, že tato procedura nemusí být stejná na všech systémech a ve všech distribucích – díky vývoji v této oblasti se může od postupu výše odlišovat. Systém init skriptů je nyní v linuxových distribucích nahrazován za systemd, stejně tak tradiční systém rozdělení disku MBR se pomalu opouští a zavádí se GPT (které zvládne vytvářet oddíly větší než 2 TB), atd.</p>
 
 <p>V Linuxu je možné nadefinovat různé úrovně běhu (runlevel), v rámci kterých se spouští (nebo vypínají) různé služby. Úrovně běhu v Debianu jsou ve výchozím stavu nadefinované pouze dvě, a to úroveň 1, tedy jednouživatelský režim bez sítě, a úroveň 2, kde běží naopak úplně všechno. Pro úplnost dodávám, že existují ještě dvě další, výchozí úrovně běhu, úroveň 0, vypnutí systému (shutdown), a úroveň 6, restart.</p>
 
@@ -74,5 +74,5 @@
 <p>Jako správcům se vám bude určitě hodit adresář <code>/usr/share/doc</code>, který obsahuje dokumentaci k jednotlivým nainstalovaným balíčkům. Zde najdete různé <code>README</code>, poznámky správců daných balíků, ale třeba i příklady konfiguračních souborů, apod.</p>
 
 http://www.nti.tul.cz/~satrapa/docs/vim/ Příručka editoru Vim
-http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu Screen - správce sezení v terminálu
+http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu Screen – správce sezení v terminálu
 http://tmux.sourceforge.net/ Web projektu Tmux

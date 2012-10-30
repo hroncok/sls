@@ -10,9 +10,9 @@
 
 <p>Úskalí diskového šifrování je nicméně mnoho, a na serveru to platí dvojnásob. <strong>Za prvé</strong>, velmi záleží na použitých kryptografických metodách a jejich implementaci. Diskové šifrování je problematické z toho důvodu, že se šifrují data o velkém objemu, a ještě navíc data, která mají určité vzorce, a o kterých lze mnohé usoudit, i když data nejsme schopni dešifrovat (toto zahrnuje datové struktury souborových systémů, prázdné místo, apod.). Je tedy třeba použít vhodné řešení (v našem případě dm-crypt/LUKS), vhodné kryptografické metody (viz dále) a samozřejmě dostatečně silné heslo.</p>
 
-<p><strong>Za druhé</strong>, diskové šifrování v současné době není schopné nahradit fyzické zabezpečení serveru - to znamená, že před útočníkem schopným dostat se fyzicky k našemu serveru, data příliš chráněna nejsou. Existuje řada útoků, proti kterým se u serveru nelze rozumně bránit. Tyto útoky zahrnují nejobávanější cold boot attack (předpokládá fyzický přístup k serveru, když server běží), ale i útoky na části systému, které z principu šifrovat nelze (zavaděč, obrazy jader, iniciální ramdisk, apod.) - tyto útoky je možné realizovat i v situaci, kdy je server vypnutý.</p>
+<p><strong>Za druhé</strong>, diskové šifrování v současné době není schopné nahradit fyzické zabezpečení serveru – to znamená, že před útočníkem schopným dostat se fyzicky k našemu serveru, data příliš chráněna nejsou. Existuje řada útoků, proti kterým se u serveru nelze rozumně bránit. Tyto útoky zahrnují nejobávanější cold boot attack (předpokládá fyzický přístup k serveru, když server běží), ale i útoky na části systému, které z principu šifrovat nelze (zavaděč, obrazy jader, iniciální ramdisk, apod.) – tyto útoky je možné realizovat i v situaci, kdy je server vypnutý.</p>
 
-<p><strong>Za třetí</strong>, diskové šifrování znamená poměrně citelný dopad na rychlost čtení a zápisu dat, ale také na zatížení serveru - šifrování a dešifrování totiž zajišťuje procesor, a šifrování / dešifrování jako takové je výpočetně náročné. V Linuxu je navíc ještě problém v tom, že diskové šifrování obstarává u každého oddílu jen jedno vlákno, což nám vytváří úzké hrdlo u vícejaderných a víceprocesorových konfigurací, kde není dost dobře možné jejich výhodu paralelních výpočtů využít.</p>
+<p><strong>Za třetí</strong>, diskové šifrování znamená poměrně citelný dopad na rychlost čtení a zápisu dat, ale také na zatížení serveru – šifrování a dešifrování totiž zajišťuje procesor, a šifrování / dešifrování jako takové je výpočetně náročné. V Linuxu je navíc ještě problém v tom, že diskové šifrování obstarává u každého oddílu jen jedno vlákno, což nám vytváří úzké hrdlo u vícejaderných a víceprocesorových konfigurací, kde není dost dobře možné jejich výhodu paralelních výpočtů využít.</p>
 
 <p><strong>Za čtvrté</strong>, stejně jako u LVM se jedná o vrstvu funkcionality navíc, kde může dojít k chybě, a kde může přehození jediného bitu způsobit nečitelnost celého jednoho bloku. Dvouúrovňové šifrování v rámci LUKS navíc vytváří <em>single point of failure</em>, kde, pokud dojde k narušení integrity hlavičky šifrovaného svazku, přijdeme zcela jistě o všechna data (hlavička totiž obsahuje klíč k dešifrování celého oddílu).</p>
 
@@ -22,11 +22,11 @@
 
 <ul>
 <li>ochrana proti úniku dat z defektních nebo jinak vyřazených pevných disků</li>
-<li>ochrana proti úniku dat následkem zcizení serveru - ovšem pouze pokud by ke zcizení došlo ve chvíli, kdy je server vypnutý, tzn. třeba při jeho převozu z jednoho datacentra do druhého</li>
+<li>ochrana proti úniku dat následkem zcizení serveru – ovšem pouze pokud by ke zcizení došlo ve chvíli, kdy je server vypnutý, tzn. třeba při jeho převozu z jednoho datacentra do druhého</li>
 <li>minimální ochrana před neznalým útočníkem s fyzickým přístupem k disku</li>
 </ul>
 
-<p>Uživatelé RAIDu mi nyní pravděpodobně řeknou, že k zabezpečení dat před prvním zmíněnou situací postačí fakt, že data se nachází třeba v RAIDu 5 nebo 6. Ano, v takové situaci sice nelze rekonstruovat původní data, nicméně vzhledem k tomu, že data se v rámci RAIDu 5 a 6 rozdělují na bloky určité velikosti, je přeci jen možné získat nějaká data i z disku v diskovém poli - tím, že se pokusíme vytáhnout informace z datových bloků. Pokud nakládáme s citlivými daty, může být i takto omezený "únik" nepřijatelný.</p>
+<p>Uživatelé RAIDu mi nyní pravděpodobně řeknou, že k zabezpečení dat před prvním zmíněnou situací postačí fakt, že data se nachází třeba v RAIDu 5 nebo 6. Ano, v takové situaci sice nelze rekonstruovat původní data, nicméně vzhledem k tomu, že data se v rámci RAIDu 5 a 6 rozdělují na bloky určité velikosti, je přeci jen možné získat nějaká data i z disku v diskovém poli – tím, že se pokusíme vytáhnout informace z datových bloků. Pokud nakládáme s citlivými daty, může být i takto omezený "únik" nepřijatelný.</p>
 
 <p>Diskové šifrování není vzhledem ke svým nevýhodám vhodné pro nasazení na běžný server, ale určitě se velmi hodí správcům pro ochranu citlivých dat jako SSH klíčů, hesel nebo jiných materiálů na přenosných zařízení nebo desktopech.</p>
 
@@ -36,7 +36,7 @@
 infrastrukturu device mapperu a linuxového CryptoAPI, a vytváří transparentní
 vrstvu pro online šifrování a dešifrování blokových zařízení. Dodávám, že
 <code>dm-crypt</code> je možné využívat samostatně, bez LUKS nadstavby, a to
-prostřednictvím stejného nástroje - <code>cryptsetup</code>. V této knize se
+prostřednictvím stejného nástroje – <code>cryptsetup</code>. V této knize se
 však plně zaměřím právě na LUKS.</p>
 
 <p>LUKS je nadstavba dm-cryptu, která, vezmu-li to zjednodušeně, přidává
@@ -56,13 +56,13 @@ nezálohovaná hlavička s úložištěm klíčů přepsána.</p>
 
 <h4>Praktická realizace diskového šifrování</h4>
 
-<p>Jak už bylo zmíněno, nelze šifrovat úplně všechno, oddíl zahrnující <code>/boot</code> musí zůstat nešifrovaný. Všechno ostatní (včetně kořenového oddílu) může být šifrované (a má-li šifrování mít alespoň nějaký smysl, je třeba šifrovat nebo jinak zabezpečit <code>swap</code> i veškerá umístění, kam by se mohla dostat citlivá data - např. <code>/tmp</code>). Šifrování lze postavit nad RAIDem a výsledný šifrovaný svazek použít pro LVM, třeba jak je to naznačeno na tomto obrázku.</p>
+<p>Jak už bylo zmíněno, nelze šifrovat úplně všechno, oddíl zahrnující <code>/boot</code> musí zůstat nešifrovaný. Všechno ostatní (včetně kořenového oddílu) může být šifrované (a má-li šifrování mít alespoň nějaký smysl, je třeba šifrovat nebo jinak zabezpečit <code>swap</code> i veškerá umístění, kam by se mohla dostat citlivá data – např. <code>/tmp</code>). Šifrování lze postavit nad RAIDem a výsledný šifrovaný svazek použít pro LVM, třeba jak je to naznačeno na tomto obrázku.</p>
 
 lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS a LVM
 
-<p>Na tomto obrázku bych rád ilustroval, jak složité struktury pro uložení a zabezpečení dat je možné vytvářet. Spolu s tím bych rád upozornil na to, že na pořadí v tomto případě velice záleží - proto je třeba navrhnout způsob práce s úložištěm s rozmyslem, což je také důvodem, proč se těmto tématům věnuji před samotnou instalací.</p>
+<p>Na tomto obrázku bych rád ilustroval, jak složité struktury pro uložení a zabezpečení dat je možné vytvářet. Spolu s tím bych rád upozornil na to, že na pořadí v tomto případě velice záleží – proto je třeba navrhnout způsob práce s úložištěm s rozmyslem, což je také důvodem, proč se těmto tématům věnuji před samotnou instalací.</p>
 
-<p>Co se týče nastavení, volby šifry a šifrovacího módu, jen ve stručnosti, podrobněji bude probráno dále. Šifru si vyberte dle libosti, ale pokud možno takovou, která není zastaralá (jako například Blowfish) - ideální je vybírat některého z finalistů soutěže o AES (Advanced Encryption Standard). U diskového šifrování dnes nepřipadá v úvahu jiný mód než <code>XTS</code>. Módy <code>cbc-essiv</code> i <code>LRW</code> jsou zranitelné. Více o teorii šifrovacích módů pro diskové šifrování si můžete přečíst na Wikipedii v článku nazvaném <em>Disk encryption theory</em>.</p>
+<p>Co se týče nastavení, volby šifry a šifrovacího módu, jen ve stručnosti, podrobněji bude probráno dále. Šifru si vyberte dle libosti, ale pokud možno takovou, která není zastaralá (jako například Blowfish) – ideální je vybírat některého z finalistů soutěže o AES (Advanced Encryption Standard). U diskového šifrování dnes nepřipadá v úvahu jiný mód než <code>XTS</code>. Módy <code>cbc-essiv</code> i <code>LRW</code> jsou zranitelné. Více o teorii šifrovacích módů pro diskové šifrování si můžete přečíst na Wikipedii v článku nazvaném <em>Disk encryption theory</em>.</p>
 
 <h3>Ještě než začnete šifrovat</h3>
 
@@ -102,7 +102,7 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>Nejvíce zmiňovanou alternativou pro dm-crypt/LUKS je Truecrypt, zejména kvůli přenositelnosti šifrovaných kontejnerů mezi GNU/Linuxem a Microsoft Windows. V dnešní době je Truecrypt schopen využívat přímo linuxové CryptoAPI a vytváří přímo blokové zařízení prostřednictvím Device Mapperu, což jej řadí blízko k dm-cryptu a LUKS. Samotný Truecrypt nabízí uživatelům pěkné grafické rozhraní, stejně jako možnost jej ovládat přes příkazový řádek.</p>
 
-<p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související "plausible deniability" aneb možnost "hodnověrného popření" - skryté svazky využívají steganografii, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco "nápadnější" než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s linuxovými souborovými systémy.</p>
+<p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související "plausible deniability" aneb možnost "hodnověrného popření" – skryté svazky využívají steganografii, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco "nápadnější" než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s linuxovými souborovými systémy.</p>
 
 <p>Je nutné dodat, že licence Truecryptu je mnohými distribucemi (Debian, Fedora a další) považována za nesvobodnou a mj. pro distributory potenciálně problematickou. Proto třeba nenajdete Truecrypt v oficiálních repozitářích Debianu.</p>
 
@@ -130,7 +130,7 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>Šifrovat lze samozřejmě i pod softwarovým RAIDem, což bývá i doporučeno, jsou-li pevné disky příliš velké (příliš mnoho dat šifrovaných jedním postupem usnadňuje případnou kryptoanalýzu). Nutnost "odemknout" více zařízení může vyřešit malý šifrovaný oddíl na jednom z disků, který obsahuje klíče k "odemčení" zbylých disků v poli.</p>
 
-<p>Co se týče ostatních kombinací, provozovat softwarový RAID nad LVM je sice možné, ale naprosto nesmyslné a potenciálně problémové, a provozovat LVM bez RAIDu na více discích je nevhodné - stoupá pravděpodobnost selhání jednoho z disků a selhání kteréhokoliv z disků znamená ztrátu dat. Pokud byste používali zrcadlení v rámci LVM, je podle mého lepší využít rovnou softwarový nebo hardwarový RAID.</p>
+<p>Co se týče ostatních kombinací, provozovat softwarový RAID nad LVM je sice možné, ale naprosto nesmyslné a potenciálně problémové, a provozovat LVM bez RAIDu na více discích je nevhodné – stoupá pravděpodobnost selhání jednoho z disků a selhání kteréhokoliv z disků znamená ztrátu dat. Pokud byste používali zrcadlení v rámci LVM, je podle mého lepší využít rovnou softwarový nebo hardwarový RAID.</p>
 
 <h3>Příprava budoucího šifrovaného svazku</h3>
 
@@ -259,7 +259,7 @@ se měl nacházet na jiném šifrovaném svazku.</p>
 
 <p>Pro uložení základních informací o šifrovaném svazku využívá LUKS hlavičku, kterou vytváří na začátku šifrovaného svazku. Zde se nachází mj. i úložiště klíčů. Jelikož hlavní klíč (master key) sloužící k dešifrování LUKS svazku leží  právě v úložišti klíčů (přesněji, je zašifrován jedním nebo více uživatelskými klíči), toto umístění je nejslabším článkem řetězu. Případné přepsání hlavičky znamená jednoznačně ztrátu všech dat na šifrovaném svazku, nemáte-li někde po ruce zálohu.</p>
 
-<p>Zálohovat hlavičku možné samozřejmě je, avšak je třeba dodat, že s příslušnou zálohou je třeba zacházet opatrně - pokud se časem rozhodnete revokovat některý z přístupových klíčů, třeba z důvodu jeho kompromitace, máte stále zálohu, kde je hlavní klíč šifrovaný oním revokovaným klíčem. Proto je třeba zvážit, zda-li se vám záloha hlavičky vůbec vyplatí vzhledem k bezpečnosti, a pokud ano, je  jednoznačně třeba takovou zálohu bezpečně uložit.</p>
+<p>Zálohovat hlavičku možné samozřejmě je, avšak je třeba dodat, že s příslušnou zálohou je třeba zacházet opatrně – pokud se časem rozhodnete revokovat některý z přístupových klíčů, třeba z důvodu jeho kompromitace, máte stále zálohu, kde je hlavní klíč šifrovaný oním revokovaným klíčem. Proto je třeba zvážit, zda-li se vám záloha hlavičky vůbec vyplatí vzhledem k bezpečnosti, a pokud ano, je  jednoznačně třeba takovou zálohu bezpečně uložit.</p>
 
 <p>Abyste mohli zálohu provést, musíte zjistit, jak velká hlavička je. Za tímto účelem stačí údaje z hlavičky vypsat:</p>
 
@@ -302,7 +302,7 @@ Key Slot 7: DISABLED
 
 <p>Pokud se vrátím zpět k výpisu LUKS hlavičky, upozorním vás ještě na několik věcí. Z výpisu je jasně patrná šifra (cipher name), šifrovací mód (cipher mode), použitá hash a obsazení jednotlivých "zásuvek" (slotů) v úložišti pro klíče.</p>
 
-<p>Budete-li váhat, proč i po tom, co si zvolíte za hash při operaci <code>luksFormat</code> něco jiného než SHA1, zůstane v kolonce "hash spec" stále SHA1 místo vámi zvolené hashe, je to kvůli implementaci PBKDF2, funkci pro posílení uživatelského hesla. Ta pracuje tak, že z uživatelského hesla získá hash, poté získá hash z takto vzniklé hashe, a toto se mnohokrát opakuje v cyklu (v případě klíče ve slotu 0 to bylo 211800 iterací - viz výpis výše).  Tím se trošku zkomplikuje brute froce útok na dané heslo, protože každý pokus  pak musí projít stejným počtem iterací.</p>
+<p>Budete-li váhat, proč i po tom, co si zvolíte za hash při operaci <code>luksFormat</code> něco jiného než SHA1, zůstane v kolonce "hash spec" stále SHA1 místo vámi zvolené hashe, je to kvůli implementaci PBKDF2, funkci pro posílení uživatelského hesla. Ta pracuje tak, že z uživatelského hesla získá hash, poté získá hash z takto vzniklé hashe, a toto se mnohokrát opakuje v cyklu (v případě klíče ve slotu 0 to bylo 211800 iterací – viz výpis výše).  Tím se trošku zkomplikuje brute froce útok na dané heslo, protože každý pokus  pak musí projít stejným počtem iterací.</p>
 
 <p>Naneštěstí je v implementaci funkce PBKDF2 u LUKS na pevno nastavena hash SHA1, takže ať už si zvolíte jakoukoliv hash, v rámci LUKS se pro klíč bude používat SHA1.</p>
 
@@ -335,11 +335,11 @@ chome /dev/sda3 none luks</pre>
 
 <p>Instalátor Debianu umí vytvořit šifrovaný systém i s kořenovým svazkem. Problémem je, jak už bylo zmíněno dříve, nastavení, které neumožňuje použít lepší šifrovací mód než <code>cbc-essiv</code>. Jelikož šifrovací mód nelze na existujícím šifrovaném svazku jen tak změnit, je lepší celý proces provést ručně.</p>
 
-<p>Já se zaměřím na situaci, kdy již máte systém nainstalovaný, a chcete jej zašifrovat. Prvním krokem by mělo být šifrování swapu - tento krok je již naznačen výše.</p>
+<p>Já se zaměřím na situaci, kdy již máte systém nainstalovaný, a chcete jej zašifrovat. Prvním krokem by mělo být šifrování swapu – tento krok je již naznačen výše.</p>
 
 <p>Samotná příprava a vytvoření šifrovaného svazku byla probrána výše. Varoval bych vás snad jen před různými návody na rychlé zašifrování nešifrovaného oddílu pomocí nástroje <code>dd</code>. Uvědomte si, že operace <code>luksFormat</code> přepíše začátek daného oddílu a samotná LUKS hlavička oddíl o něco zmenší (tj. souborovému systému by to uřízlo konec).</p>
 
-<p>Druhým krokem může být zašifrování všech ostatních svazků s výjimkou kořenového. Bohužel mi není známa spolehlivá metoda zašifrování nešifrovaného svazku (alespoň ne, jedná-li se o LUKS svazek). Z tohoto důvodu se asi nevyhnete přesunům dat mimo budoucí šifrovaný svazek a pak zpět, což ovšem není z hlediska bezpečnosti vůbec ideální, jelikož citlivá data se během tohoto procesu přesouvají na další médium - toto médium, stejně jako i původní svazek, je třeba ošetřit tak, aby citlivá data již nebylo možné obnovit (viz bezpečné mazání kousek níže).</p>
+<p>Druhým krokem může být zašifrování všech ostatních svazků s výjimkou kořenového. Bohužel mi není známa spolehlivá metoda zašifrování nešifrovaného svazku (alespoň ne, jedná-li se o LUKS svazek). Z tohoto důvodu se asi nevyhnete přesunům dat mimo budoucí šifrovaný svazek a pak zpět, což ovšem není z hlediska bezpečnosti vůbec ideální, jelikož citlivá data se během tohoto procesu přesouvají na další médium – toto médium, stejně jako i původní svazek, je třeba ošetřit tak, aby citlivá data již nebylo možné obnovit (viz bezpečné mazání kousek níže).</p>
 
 <p>Třetím krokem je příprava zašifrovaného kořenového svazku. Ideální je, pokud máte možnost budoucí šifrovaný svazek připojit přímo za běhu (moduly do iniciálního ramdisku se pak načtou automaticky). Pokud tuto možnost nemáte, je třeba přidat všechny potřebné moduly (viz výše) do konfiguračního souboru <code>/etc/initramfs-tools/modules</code>. Předpokladem je nainstalovaný balíček <code>initramfs-tools</code>.</p>
 
@@ -361,7 +361,7 @@ chome /dev/sda3 none luks</pre>
 
 <pre>update-initramfs -k all -u</pre>
 
-<p>Následuje poslední úprava - úprava konfigurace zavaděče, kde je třeba kořenový oddíl (typicky je předávaný jádru v hodnotě parametru <code>root=</code>) zaměnit za <code>/dev/mapper/root</code>.</p>
+<p>Následuje poslední úprava – úprava konfigurace zavaděče, kde je třeba kořenový oddíl (typicky je předávaný jádru v hodnotě parametru <code>root=</code>) zaměnit za <code>/dev/mapper/root</code>.</p>
 
 <p>Nyní již zbývá data z kořenového oddílu přesunout, z oddílu vytvořit šifrovaný svazek a na ten data přesunout zpět. Nejpohodlněji se to provádí z nějaké live distribuce, třeba z mého oblíbeného <em>System Rescue CD</em>.</p>
 
@@ -377,20 +377,20 @@ chome /dev/sda3 none luks</pre>
 
 <p>Ti, kdo podstupují celé martyrium se šifrováním, tak obvykle činí proto, že  raději o data přijdou, než aby se dostala do nepovolaných rukou. Samotné šifrování komplikuje záchranné operace a zapomenutím hesla nebo zničením či poškozením média se šifrovacím klíčem dojde de facto ke ztrátě dat. Nehledě na to, že samotný dm-crypt a LUKS jsou software jako každý jiný, a chyba v nich nebo chyba jinde v jádře být může.</p>
 
-<p>I data na šifrovaných svazcích je možné zálohovat. Ale samotné zálohování citlivých dat je problém - má-li šifrování smysl, musí být adekvátně zabezpečené i zálohy, tj. buď také šifrované, nebo bezpečně uložené.</p>
+<p>I data na šifrovaných svazcích je možné zálohovat. Ale samotné zálohování citlivých dat je problém – má-li šifrování smysl, musí být adekvátně zabezpečené i zálohy, tj. buď také šifrované, nebo bezpečně uložené.</p>
 
 <h3>Bezpečnost šifrování</h3>
 
 <p>Šifrování má mnoho úskalí a slabých míst. Vždy samozřejmě záleží na tom, jaká data a před kým/čím je chráníte. Z toho vám pak vyplynou možní útočníci i jejich znalosti či možnosti. Případné útoky mohou být náhodné (zloděj odnese něčí laptop za účelem prodeje hardwaru) nebo cílené (útočník si počká, až necháte zapnutý laptop s přihlášeným uživatelem a přístupem k citlivým datům bez dozoru a v té chvíli vám ho sebere nebo si data rychle vytáhne).</p>
 
-<p>Šifrování dává jeho uživatelům jistou iluzi absolutního bezpečí - data jsou šifrována nejmodernější a nejsilnější šifrou, dlouhým a komplexním klíčem, za pomoci špičkového softwaru. Problémem je, že samotné šifrování není synonymem pro fyzické zabezpečení dat, je pouze jedním z jeho nástrojů. V následujících bodech se vám pokusím nastínit některé možné útoky na diskové šifrování a možnosti prevence, pokud nějaké jsou:</p>
+<p>Šifrování dává jeho uživatelům jistou iluzi absolutního bezpečí – data jsou šifrována nejmodernější a nejsilnější šifrou, dlouhým a komplexním klíčem, za pomoci špičkového softwaru. Problémem je, že samotné šifrování není synonymem pro fyzické zabezpečení dat, je pouze jedním z jeho nástrojů. V následujících bodech se vám pokusím nastínit některé možné útoky na diskové šifrování a možnosti prevence, pokud nějaké jsou:</p>
 
 <ul>
-<li>útok na nešifrovaný <code>/boot</code> - útočník může modifikovat iniciální ramdisk, aby ukládal zadané heslo, a poté si jej vyzvednout; obrana - nosit  <code>/boot</code> na flash disku a zavádět systém z něj, nebo při každém startu  ověřovat kontrolní součty</li>
-<li>kamera či útočníkovo oko sledující zadání hesla; obrana - dávat si pozor při zadávání hesla, možné kompromitované heslo revokovat či používat flashdisk s klíčem</li>
-<li>HW keylogger - útočník může nasadit štěnici mezi klávesnici a počítač, čímž odposlechne heslo; obrana - zajistit fyzickou bezpečnost počítače, používat flashdisk s klíčem</li>
-<li>cold boot attack - útočník může získat heslo přímo z RAM, má-li fyzický  přístup k počítači; obrana - zajistit fyzickou bezpečnost počítače, vypínat nebo hibernovat počítač když ho není třeba, nepoužívat suspend u laptopů, pokud v rámci suspendu nedojde k výmazu hesel z paměti</li>
-<li>fyzický útok či nátlak na znalce hesla - komiks XKCD má o této formě útoku pěkný strip (naleznete v odkazech pod kapitolou);  obrana - záleží na typu útočníka, ideální je používat kromě hesla i klíčový soubor (key file) třeba na flash disku a ten včas zničit, popř. používat popiratelné šifrování (což LUKS vzhledem k hlavičce rozhodně není)</li>
+<li>útok na nešifrovaný <code>/boot</code> – útočník může modifikovat iniciální ramdisk, aby ukládal zadané heslo, a poté si jej vyzvednout; obrana – nosit  <code>/boot</code> na flash disku a zavádět systém z něj, nebo při každém startu  ověřovat kontrolní součty</li>
+<li>kamera či útočníkovo oko sledující zadání hesla; obrana – dávat si pozor při zadávání hesla, možné kompromitované heslo revokovat či používat flashdisk s klíčem</li>
+<li>HW keylogger – útočník může nasadit štěnici mezi klávesnici a počítač, čímž odposlechne heslo; obrana – zajistit fyzickou bezpečnost počítače, používat flashdisk s klíčem</li>
+<li>cold boot attack – útočník může získat heslo přímo z RAM, má-li fyzický  přístup k počítači; obrana – zajistit fyzickou bezpečnost počítače, vypínat nebo hibernovat počítač když ho není třeba, nepoužívat suspend u laptopů, pokud v rámci suspendu nedojde k výmazu hesel z paměti</li>
+<li>fyzický útok či nátlak na znalce hesla – komiks XKCD má o této formě útoku pěkný strip (naleznete v odkazech pod kapitolou);  obrana – záleží na typu útočníka, ideální je používat kromě hesla i klíčový soubor (key file) třeba na flash disku a ten včas zničit, popř. používat popiratelné šifrování (což LUKS vzhledem k hlavičce rozhodně není)</li>
 <li>a další</li>
 </ul>
 

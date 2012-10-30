@@ -24,7 +24,7 @@ md0 : active raid1 hda1[0] hdd1[3](F) hdb1[1]
       
 unused devices: &lt;none&gt;</pre>
 
-<p>Zde je patrný problém se zařízením <code>hdd1</code>, které bylo označeno jako vadné. Proto je u něj písmeno <strong>F</strong> (f jako faulty). Pole je aktivní, ale pouze se dvěma ze tří zařízení (viz <code>[3/2]</code>). Povšimněte si ve výpisu posloupnosti označující stav jednotlivých zařízení seřazených podle jejich pořadí v poli - <code>[UU_]</code>. Zde značí písmeno <code>U</code> aktivní zařízení v poli a podtržítko značí chybějící aktivní zařízení.</p>
+<p>Zde je patrný problém se zařízením <code>hdd1</code>, které bylo označeno jako vadné. Proto je u něj písmeno <strong>F</strong> (f jako faulty). Pole je aktivní, ale pouze se dvěma ze tří zařízení (viz <code>[3/2]</code>). Povšimněte si ve výpisu posloupnosti označující stav jednotlivých zařízení seřazených podle jejich pořadí v poli – <code>[UU_]</code>. Zde značí písmeno <code>U</code> aktivní zařízení v poli a podtržítko značí chybějící aktivní zařízení.</p>
 
 <p>V momentě, kdy chybné zařízení vyřadíte z pole a zařadíte jeho náhradu, začne rekonstrukce pole:</p>
 
@@ -166,7 +166,7 @@ mdadm --manage /dev/md0 --add /dev/sdf1</pre>
 
 <p>Někdy se může stát, že některé aktivní zařízení v diskovém poli vypadne ze synchronizace s ostatními. To nemusí nutně znamenat, že disk je vadný, může se to stát třeba při nekorektním ukončení systému (způsobeném třeba výpadkem proudu), při problémech s kabeláží nebo s řadičem. Pokud k tomu dojde, je nutné pole opět zrekonstruovat, což obvykle trvá velmi dlouho.</p>
 
-<p>Write-intent bitmap lze chápat podobně jako žurnál u souborových systémů - jádro se může takovém případě vyhnout plné synchronizaci, a synchronizovat pouze změněné oblasti, čímž se rekonstrukce podstatně zkrátí. Předpokladem je samozřejmě to, že do pole vracíme disk, který v něm již byl.</p>
+<p>Write-intent bitmap lze chápat podobně jako žurnál u souborových systémů – jádro se může takovém případě vyhnout plné synchronizaci, a synchronizovat pouze změněné oblasti, čímž se rekonstrukce podstatně zkrátí. Předpokladem je samozřejmě to, že do pole vracíme disk, který v něm již byl.</p>
 
 <p>Pro write-intent bitmap je možné použít soubor (dle dokumentace však pouze na souborových systémech ext2 a ext3) nebo parametr "internal", který bitmapu uloží přímo na zařízení.</p>
 

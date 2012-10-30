@@ -2,7 +2,7 @@
 
 <h3>Úvod do LVM</h3>
 
-<p>LVM (Logical Volume Manager) je systém pro správu logických oddílů, v Linuxu je implementován pomocí device mapperu, mechanismu pro mapování jednoho blokového zařízení na jiné. Ptáte se, proč používat LVM místo klasických diskových oddílů? LVM umí řadu věcí, které s "klasickými" diskovými oddíly neuděláte. Kupříkladu - vyhradíte si diskový oddíl určité velikosti a posléze (za provozu) zjistíte, že velikost je nevyhovující - oddíl je buď zbytečně velký, a ubírá tak místo ostatním oddílům, nebo je příliš malý, a začne na něm brzy docházet místo.</p>
+<p>LVM (Logical Volume Manager) je systém pro správu logických oddílů, v Linuxu je implementován pomocí device mapperu, mechanismu pro mapování jednoho blokového zařízení na jiné. Ptáte se, proč používat LVM místo klasických diskových oddílů? LVM umí řadu věcí, které s "klasickými" diskovými oddíly neuděláte. Kupříkladu – vyhradíte si diskový oddíl určité velikosti a posléze (za provozu) zjistíte, že velikost je nevyhovující – oddíl je buď zbytečně velký, a ubírá tak místo ostatním oddílům, nebo je příliš malý, a začne na něm brzy docházet místo.</p>
 
 <p>Logické "oddíly" (dále svazky) spravované pomocí LVM můžete vytvářet, rušit, měnit jejich velikost, pořizovat z nich snapshoty, ale také je přesouvat mezi fyzickými zařízeními, a to vše za běhu, bez nutnosti restartu.</p>
 
@@ -75,7 +75,7 @@ debian:~# </pre>
   Volume group "data" successfully created
 debian:~#</pre>
 
-<p>Pro zjišťování informací o skupině svazků je k dispozici podobný nástroj - <code>vgdisplay</code>, jehož výpis v tuto chvíli vypadá takto:</p>
+<p>Pro zjišťování informací o skupině svazků je k dispozici podobný nástroj – <code>vgdisplay</code>, jehož výpis v tuto chvíli vypadá takto:</p>
 
 <pre>debian:~# vgdisplay 
   --- Volume group ---
@@ -208,7 +208,7 @@ Filesystem                Size  Used Avail Use% Mounted on
 
 <p>Redukovat velikost souborového systému i logického svazku možné je, ale v tomto případě se již patrně nevyhnete nutnosti daný souborový systém odpojit, alespoň v případě <em>ext3</em> či <em>ext4</em>.</p>
 
-<p>Postup je třeba provést ve správném pořadí (špatné pořadí povede skoro jistě ke ztrátě dat) - nejprve je třeba změnit velikost souborového systému, pokud možno ještě pod hranici samotného zmenšení LVM, a teprve poté lze bezpečně změnit velikost logického svazku. Nástroj <code>resize2fs</code> se naštěstí chová opatrně a nepředpokládá, že uživatel vždy ví, co dělá:</p>
+<p>Postup je třeba provést ve správném pořadí (špatné pořadí povede skoro jistě ke ztrátě dat) – nejprve je třeba změnit velikost souborového systému, pokud možno ještě pod hranici samotného zmenšení LVM, a teprve poté lze bezpečně změnit velikost logického svazku. Nástroj <code>resize2fs</code> se naštěstí chová opatrně a nepředpokládá, že uživatel vždy ví, co dělá:</p>
 
 <pre>debian:~# resize2fs /dev/data/zalohy 6G
 resize2fs 1.41.3 (12-Oct-2008)
@@ -288,7 +288,7 @@ The filesystem on /dev/data/zalohy is now 1835008 blocks long.</pre>
 
 <pre>debian:~# pvremove /dev/sdb1</pre>
 
-<p>Tento krok je samozřejmě nepovinný a není nutný - zejména, pokud máte v plánu přiřadit dané fyzické svazky jiné skupině svazků. Tentýž postup lze provést i s druhým diskem:</p>
+<p>Tento krok je samozřejmě nepovinný a není nutný – zejména, pokud máte v plánu přiřadit dané fyzické svazky jiné skupině svazků. Tentýž postup lze provést i s druhým diskem:</p>
 
 <pre>debian:~# pvmove /dev/sdd1
   /dev/sdd1: Moved: 32.2%
@@ -319,7 +319,7 @@ debian:~# pvremove /dev/sdd1
 
 <p>Za druhé, nástroje pro správu LVM umí ledacos, včetně postupů pro zotavení z nějakého problémového stavu. Studiem manuálových stránek se pak můžete vyhnout časově náročným a velice komplikovaným ručním postupům.</p>
 
-<p>A konečně za třetí - LVM představuje další funkční vrstvu mezi médiem a souborovým systémem, jejíž případné chyby (nebo chyby administrátora při její správě) mohou negativně ovlivnit vaše data a zkomplikovat vám práci při případných záchranných operacích, pokud třeba selže hardware. V této souvislosti opět zopakuji, že zálohování je nutnost.</p>
+<p>A konečně za třetí – LVM představuje další funkční vrstvu mezi médiem a souborovým systémem, jejíž případné chyby (nebo chyby administrátora při její správě) mohou negativně ovlivnit vaše data a zkomplikovat vám práci při případných záchranných operacích, pokud třeba selže hardware. V této souvislosti opět zopakuji, že zálohování je nutnost.</p>
 
 <h4>Snapshoty</h4>
 
@@ -372,7 +372,7 @@ drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc</pre>
 drwxr-xr-x   7 root root  4096 Feb 25 19:15 cache
 drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc</pre>
 
-<p>Rušení snapshotu je velmi jednoduché - postačí použít nástroj <code>lvremove</code> a odebrat snapshot, jako by se jednalo o jakýkoliv jiný logický svazek:</p>
+<p>Rušení snapshotu je velmi jednoduché – postačí použít nástroj <code>lvremove</code> a odebrat snapshot, jako by se jednalo o jakýkoliv jiný logický svazek:</p>
 
 <pre>lvremove vg/momentka</pre>
 
@@ -387,7 +387,7 @@ drwxr-xr-x 227 root root 12288 Feb 25 19:15 doc</pre>
    Merge of snapshot into logical volume snaptest has finished.
    Logical volume "momentka" successfully removed</pre>
 
-<p>Samotný merge vyžaduje odpojený souborový systém na logickém svazku - pokud byste zadali výše uvedený příkaz a měli svazek nebo snapshot připojený, obdrželi byste následující chybovou hlášku:</p>
+<p>Samotný merge vyžaduje odpojený souborový systém na logickém svazku – pokud byste zadali výše uvedený příkaz a měli svazek nebo snapshot připojený, obdrželi byste následující chybovou hlášku:</p>
 
 <pre>debian# lvconvert --merge vg/momentka
   Can't merge over open origin volume
@@ -441,7 +441,7 @@ EXT3-fs (dm-0): error: unable to read superblock</pre>
 
 <p>Pokud budete používat snapshoty, pak je berte jako dočasné úložiště změn, o které můžete přijít, a původní logický svazek jako pevný bod, o který se můžete opřít. V situaci výše by bývalo stačilo, kdybyste před upgradem nastavili snapshot jako aktivní kořenový oddíl. Pak by přetečení snapshotu vyvolalo kolaps systému, ale vám by zůstal původní logický svazek ve stavu před upgradem.</p>
 
-<p>Výše zmíněný <code>merge</code> vám rozšiřuje možnosti práce se snapshoty - už nemusíte uvažovat o snapshotu jako o snímku, který nakonec budete muset zahodit. V průběhu času se budete moci rozhodnout jak snímek zahodit a používat nadále logický svazek v jeho aktuálním stavu, tak provést "rollback" a změny provedené na logickém svazku zahodit.</p>
+<p>Výše zmíněný <code>merge</code> vám rozšiřuje možnosti práce se snapshoty – už nemusíte uvažovat o snapshotu jako o snímku, který nakonec budete muset zahodit. V průběhu času se budete moci rozhodnout jak snímek zahodit a používat nadále logický svazek v jeho aktuálním stavu, tak provést "rollback" a změny provedené na logickém svazku zahodit.</p>
 
 <h4>Zrcadlení v rámci LVM</h4>
 

@@ -12,7 +12,7 @@
 
 <h4>RAID 0</h4>
 
-<p>Data se rozmisťují střídavě po všech discích z pole, chybí redundance - ztráta jednoho disku znamená ztrátu všech dat z pole. Výkon je ze všech typů RAIDu nejlepší, kapacita pole je rovna součtu velikostí jednotlivých disků.</p>
+<p>Data se rozmisťují střídavě po všech discích z pole, chybí redundance – ztráta jednoho disku znamená ztrátu všech dat z pole. Výkon je ze všech typů RAIDu nejlepší, kapacita pole je rovna součtu velikostí jednotlivých disků.</p>
 
 <h4>RAID 1</h4>
 
@@ -38,7 +38,7 @@
 
 <h4>Jaký RAID vybrat?</h4>
 
-<p>Záleží na tom, co máte k dispozici (počet disků/rozpočet) a co chcete získat (rychlost, odolnost proti výpadkům, apod.). Na menších serverech se velmi často používají typy 1, 5 a 10. Podstatným kritériem výběru je počet disků - u dvou použijete nejspíše typ 1, u třech a více budete vybírat mezi typy 5 a 10. Při větším počtu disků (nad 10) stojí za uváženou nahradit RAID 5 RAIDem 6, popřípadě zvolit pro vyšší odolnost RAID 51 nebo 61. Pro náš LAMP servřík plně postačí typ 1 (zrcadlení).</p>
+<p>Záleží na tom, co máte k dispozici (počet disků/rozpočet) a co chcete získat (rychlost, odolnost proti výpadkům, apod.). Na menších serverech se velmi často používají typy 1, 5 a 10. Podstatným kritériem výběru je počet disků – u dvou použijete nejspíše typ 1, u třech a více budete vybírat mezi typy 5 a 10. Při větším počtu disků (nad 10) stojí za uváženou nahradit RAID 5 RAIDem 6, popřípadě zvolit pro vyšší odolnost RAID 51 nebo 61. Pro náš LAMP servřík plně postačí typ 1 (zrcadlení).</p>
 
 <h4>Více disků = větší pravděpodobnost selhání</h4>
 
@@ -50,7 +50,7 @@
 
 <h4>Hardwarový, nebo softwarový RAID?</h4>
 
-<p>Kvalitní hardwarový řadič s baterií zálohovanou vyrovnávací pamětí může být dobrým důvodem, proč nepoužít linuxový softwarový RAID. Levným RAID řadičům (zejména pak těm, které naleznete na desktopovém hardwaru) bych se raději vyhnul ve prospěch sofwarového RAIDu. V případě hardwarového RAIDu je dobré pamatovat na to, že RAID řadiče od různých výrobců spolu obvykle nejsou kompatibilní - vaše data tedy mohou být vázána na příslušný typ hardwarového řadiče od jistého výrobce (s tím, že pokud by se řadič rozbil, už byste se k datům bez náhradního řadiče nemuseli dostat).</p>
+<p>Kvalitní hardwarový řadič s baterií zálohovanou vyrovnávací pamětí může být dobrým důvodem, proč nepoužít linuxový softwarový RAID. Levným RAID řadičům (zejména pak těm, které naleznete na desktopovém hardwaru) bych se raději vyhnul ve prospěch sofwarového RAIDu. V případě hardwarového RAIDu je dobré pamatovat na to, že RAID řadiče od různých výrobců spolu obvykle nejsou kompatibilní – vaše data tedy mohou být vázána na příslušný typ hardwarového řadiče od jistého výrobce (s tím, že pokud by se řadič rozbil, už byste se k datům bez náhradního řadiče nemuseli dostat).</p>
 
 <h4>RAID není náhradou záloh!</h4>
 
@@ -58,11 +58,11 @@
 
 <h4>Co po výpadku disku?</h4>
 
-<p>Při použití RAIDu je vhodné nejenom počítat s možným selháním disku, ale také zauvažovat o tom, co se stane pak. Mnohé typy RAIDů se používají tak, že sice snesou výpadek jednoho disku, ale pokud se tak stane, celé pole pak obvykle visí na vlásku - stačí selhání dalšího disku k tomu, abyste přišli o data.</p>
+<p>Při použití RAIDu je vhodné nejenom počítat s možným selháním disku, ale také zauvažovat o tom, co se stane pak. Mnohé typy RAIDů se používají tak, že sice snesou výpadek jednoho disku, ale pokud se tak stane, celé pole pak obvykle visí na vlásku – stačí selhání dalšího disku k tomu, abyste přišli o data.</p>
 
-<p>Dovolte mi tento problém demonstrovat na příkladu. Řekněme, že jste si zvolili RAID 5 o třech discích a jeden vám selhal. V této situaci máte pole sice funkční, ale degradované, bez jakékoliv redundance. Pevné disky už za sebou nějaký čas mají, takže riziko dalšího selhání tu je, a ne úplně nepatrné. Výměna disku a opatření náhrady vám zabere nějaký čas. Ale ani po tom, co disk seženete a vyměníte, není vyhráno. Dokonce lze říci, že v té chvíli to nehorší teprve začne - bude třeba pole rekonstruovat, což obnáší přečtení všech dat ze zbývajících disků. Pokud při tomto procesu vypadne další disk, nastává velký problém. Teprve ve chvíli, kdy bude nový disk zapojen a synchronizován se zbytkem pole, si můžete opravdu oddechnout.</p>
+<p>Dovolte mi tento problém demonstrovat na příkladu. Řekněme, že jste si zvolili RAID 5 o třech discích a jeden vám selhal. V této situaci máte pole sice funkční, ale degradované, bez jakékoliv redundance. Pevné disky už za sebou nějaký čas mají, takže riziko dalšího selhání tu je, a ne úplně nepatrné. Výměna disku a opatření náhrady vám zabere nějaký čas. Ale ani po tom, co disk seženete a vyměníte, není vyhráno. Dokonce lze říci, že v té chvíli to nehorší teprve začne – bude třeba pole rekonstruovat, což obnáší přečtení všech dat ze zbývajících disků. Pokud při tomto procesu vypadne další disk, nastává velký problém. Teprve ve chvíli, kdy bude nový disk zapojen a synchronizován se zbytkem pole, si můžete opravdu oddechnout.</p>
 
-<p>Z tohoto hlediska nemusí být úplně od věci provést po selhání a těsně před vložením nového disku rozdílovou zálohu (pokud tedy používáte přírůstkové zálohování) - viz kapitolu o zálohování.</p>
+<p>Z tohoto hlediska nemusí být úplně od věci provést po selhání a těsně před vložením nového disku rozdílovou zálohu (pokud tedy používáte přírůstkové zálohování) – viz kapitolu o zálohování.</p>
 
 <h4>Spare disky</h4>
 
@@ -76,7 +76,7 @@
 
 <p>Důvodů, proč některý sektor nepůjde přečíst, může být celá řada, počínaje výpadkem proudu, když zrovna probíhá zápis, nebo prostě vznik špatného sektoru. Ano, moderní pevné disky mají oblast záložních (spare) sektorů, kam špatné sektory realokují. Jenomže, realokace špatného sektoru se provádí při zápisu, nikoliv při čtení (čtení se totiž může podařit některým z opakovaných pokusů). Tudíž vás realokace v tomto směru nezachrání.</p>
 
-<p>Dalším možným problémem je situace, kdy se vlivem softwarové chyby či výpadku proudu při zápisu ztratí konzistence mezi daty a paritní informací. To sice nevyvolá chybu čtení či výpadek dalšího disku, dokonce i rekonstrukce úspěšně proběhne, ale zapíšou se špatná data (a co je horší - vy se nic nedozvíte).</p>
+<p>Dalším možným problémem je situace, kdy se vlivem softwarové chyby či výpadku proudu při zápisu ztratí konzistence mezi daty a paritní informací. To sice nevyvolá chybu čtení či výpadek dalšího disku, dokonce i rekonstrukce úspěšně proběhne, ale zapíšou se špatná data (a co je horší – vy se nic nedozvíte).</p>
 
 <p>Abyste těmto problémům do jisté míry předešli, je vhodné RAID 5 i RAID 6 podrobit čas od času kontrole. Některé hardwarové řadiče to provádí automaticky (doporučuji zkontrolovat), v případě softwarového RAIDu v Linuxu je záležitost, která může vyžadovat manuální práci, nevyhovuje-li vám automatická kontrola první neděli v každém měsíci. Chcete-li týdenní kontrolu, upravte záznam v <code>/etc/cron.d/mdadm</code>. Kontrolu můžete samozřejmě vyvolat i ručně, takto:</p>
 
@@ -86,13 +86,13 @@
 
 <p>V rámci RAIDu se nijak neverifikují zapsaná data. To znamená, že RAID je zranitelný vůči poškození dat (třeba vlivem špatného kabelu nebo řadiče, chyby v RAM modulu, apod.).</p>
 
-<p>S takovou situací už jsem se jednou setkal - u jednoho levného SATA řadiče docházelo k bitovým chybám při čtení/zápisu, následkem čehož v delším období došlo ke rozsáhlému poškození dat na (softwarovém) RAIDu 1, který jsem na něm provozoval. I proto zdůrazňuji, že RAID není náhradou zálohování.</p>
+<p>S takovou situací už jsem se jednou setkal – u jednoho levného SATA řadiče docházelo k bitovým chybám při čtení/zápisu, následkem čehož v delším období došlo ke rozsáhlému poškození dat na (softwarovém) RAIDu 1, který jsem na něm provozoval. I proto zdůrazňuji, že RAID není náhradou zálohování.</p>
 
 TODO Vysvětlivku o ZFS v userspacu
 
-<p>Poškození dat je to nejhorší, s čím se lze setkat - je totiž obvykle nepostřehnutelné. V době, kdy se váš systém začne chovat divně nebo dojde k nějaké jiné události, která vás donutí dívat se tímto směrem, může být již pozdě (a co je horší - chyby v datech se mohou promítnout i do záloh). Tohle třeba pěkně řeší souborový systém <em>ZFS</em> (souborový systém od bývalého Sunu, dnes Oraclu), který, na rozdíl od tradičních linuxových souborových systémů jako <em>ext4</em> či <em>reiserfs</em>, dohlíží na integritu dat. Bohužel, <em>ZFS</em> v Linuxu není a z licenčních důvodů asi ani nebude. Máme pouze BTRFS (vyvíjený společností Oracle), který zatím stále není určený pro produkční nasazení.</p>
+<p>Poškození dat je to nejhorší, s čím se lze setkat – je totiž obvykle nepostřehnutelné. V době, kdy se váš systém začne chovat divně nebo dojde k nějaké jiné události, která vás donutí dívat se tímto směrem, může být již pozdě (a co je horší – chyby v datech se mohou promítnout i do záloh). Tohle třeba pěkně řeší souborový systém <em>ZFS</em> (souborový systém od bývalého Sunu, dnes Oraclu), který, na rozdíl od tradičních linuxových souborových systémů jako <em>ext4</em> či <em>reiserfs</em>, dohlíží na integritu dat. Bohužel, <em>ZFS</em> v Linuxu není a z licenčních důvodů asi ani nebude. Máme pouze BTRFS (vyvíjený společností Oracle), který zatím stále není určený pro produkční nasazení.</p>
 
-<p>Z tohoto důvodu nelze než doporučit alternativní postupy - Tripwire, md5sum nebo podobné nástroje pro kontrolu integrity vybraných souborů.</p>
+<p>Z tohoto důvodu nelze než doporučit alternativní postupy – Tripwire, md5sum nebo podobné nástroje pro kontrolu integrity vybraných souborů.</p>
 
 <h4>Monitorování pole</h4>
 

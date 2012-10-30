@@ -8,19 +8,19 @@
 
 TODO Sedí počty CD a DVD na Wheezy?
 
-<p>Instalačních média Debianu lze rozdělit do dvou kategorií - klasická instalační média zahrnující 31 CD nebo 5 DVD obsahující veškerý software z hlavních repozitářů a speciální instalační média zahrnující mj. redukované médium určené pro síťovou instalaci (netinst) nebo ještě menší, minimalistická média. O tom, jak je software umístěn do jednotlivých médií rozhoduje jeho popularita - nejpopulárnější software je na prvním médiu a nejméně populární na posledním.</p>
+<p>Instalačních média Debianu lze rozdělit do dvou kategorií – klasická instalační média zahrnující 31 CD nebo 5 DVD obsahující veškerý software z hlavních repozitářů a speciální instalační média zahrnující mj. redukované médium určené pro síťovou instalaci (netinst) nebo ještě menší, minimalistická média. O tom, jak je software umístěn do jednotlivých médií rozhoduje jeho popularita – nejpopulárnější software je na prvním médiu a nejméně populární na posledním.</p>
 
 <p>Máte-li k dispozici připojení na síť, není důvod nepoužít médium pro síťovou instalaci (iso obraz má méně než 200 MB) nebo některé z ještě menších médií. Postačí samozřejmě i první "klasické" instalační CD. Více není důvod stahovat.</p>
 
-<p>Debian lze nainstalovat i jinými způsoby, třeba z flash disku nebo pomocí bootování ze sítě. Nainstalovat Debian je možné i z jiné distribuce (nebo ručně z instalačního média - více viz níže).</p>
+<p>Debian lze nainstalovat i jinými způsoby, třeba z flash disku nebo pomocí bootování ze sítě. Nainstalovat Debian je možné i z jiné distribuce (nebo ručně z instalačního média – více viz níže).</p>
 
-<p>Instalátor Debianu má klasickou textovou verzi, ale také grafickou, která je funkčně prakticky totožná. V dřívějších verzích Debianu byly problémy při vytváření složitějších rozdělení disku pomocí LVM, RAIDu a dm-crypt/LUKS - instalátor padal. Řešením bylo použít grafický instalátor, který padal méně často. Tyto problémy by nicméně měly být v aktuální verzi opraveny.</p>
+<p>Instalátor Debianu má klasickou textovou verzi, ale také grafickou, která je funkčně prakticky totožná. V dřívějších verzích Debianu byly problémy při vytváření složitějších rozdělení disku pomocí LVM, RAIDu a dm-crypt/LUKS – instalátor padal. Řešením bylo použít grafický instalátor, který padal méně často. Tyto problémy by nicméně měly být v aktuální verzi opraveny.</p>
 
 <h3>Rozdělení disku</h3>
 
 <p>U desktopu si vystačíte i s jediným oddílem vyhrazeným pro Linux, u serveru bývá dobré vytvořit více oddílů a některé adresáře od sebe oddělit. Pokud budete využívat LVM, RAID nebo dm-crypt/LUKS, pak budete muset vytvořit kromě kořenového oddílu samostatný oddíl pro <code>/boot</code>. Je možné mít <code>/boot</code> oddíl zrcadlený pomocí linuxového softwarového RAIDu 1 na více disků. Pokud budete vytvářet dané pole ručně, dejte si pozor, ať ho vytvoříte tak, aby bylo možné příslušný souborový systém <code>/boot</code> přimountovat přímo z diskového oddílu (tedy ne z pole, ale z jednoho disku v poli). Bez toho nebude GRUB schopen se ani nainstalovat, natož bootovat.</p>
 
-<p>Kromě <code>/boot</code> je vhodné osamostatnit data od zbytku systému, pokud možno zahrnující jak webové aplikace, tak domovské adresáře uživatelů, databázi, poštu, apod. - toto vše je možné buď přesunout do jediného adresáře (obvykle <code>/home</code>), nebo rozdělit do více oddílů (třeba i s různými souborovými systémy).</p>
+<p>Kromě <code>/boot</code> je vhodné osamostatnit data od zbytku systému, pokud možno zahrnující jak webové aplikace, tak domovské adresáře uživatelů, databázi, poštu, apod. – toto vše je možné buď přesunout do jediného adresáře (obvykle <code>/home</code>), nebo rozdělit do více oddílů (třeba i s různými souborovými systémy).</p>
 
 <p>Velmi vhodné je též osamostatnit adresář <code>/var/log</code>, který mívá tendenci v určitých situacích nadměrně růst. Pokud bude na samostatném oddílu, budete mít o starost méně, protože pokud by náhodou "přetekl", neohrozí vám to zbytek systému (nedostatek místa v některých adresářích může způsobit velké problémy).</p>
 
@@ -58,13 +58,13 @@ TODO Sedí počty CD a DVD na Wheezy?
 
 <p>Jelikož nejsme na desktopu, ale na serveru, kde je třeba být přeci jen zodpovědnější, dodávám, že heslo pro roota byste měli zvolit pečlivě a s ohledem na obecné zásady pro tvorbu bezpečných hesel.</p>
 
-<p>Dodám jen jeden drobný postřeh z praxe - v heslech je dobré se obloukem vyhnout diakritice. Speciální znaky jsou v pořádku (hvězdička, tečka, spojovník, apod.), ale s diakritikou obvykle bývá celá řada problémů a člověka ne vždy napadne, že problém by mohl být zrovna tady.</p>
+<p>Dodám jen jeden drobný postřeh z praxe – v heslech je dobré se obloukem vyhnout diakritice. Speciální znaky jsou v pořádku (hvězdička, tečka, spojovník, apod.), ale s diakritikou obvykle bývá celá řada problémů a člověka ne vždy napadne, že problém by mohl být zrovna tady.</p>
 
 <h3>Přizpůsobení instalátoru a manuální instalace</h3>
 
 <p>Proces instalace v instalátoru Debianu je možné různými způsoby ovlivňovat. Především je možné se kdykoliv vrátit k některému z předchozích kroků a cokoliv změnit pomocí klávesy [Escape]. Druhou zajímavou možností je "expertní režim", který je možný navolit v boot menu instalačního média přes <strong>Advanced options | Expert install</strong>. Tento režim umožňuje ovlivnit řadu parametrů, které si instalátor jinak řídí sám.</p>
 
-<p>Ani to ale někdy nemusí pomoci, a proto je dobré vědět, že je možné provést i plnou ruční instalaci v příkazové řádce. V takovém případě budete postupovat velmi podobně jako s instalátorem, jen ručně - zprovozníte síť (a připojení k internetu), připravíte si oddíly, namountujete je někam do adresářové struktury a využijete nástroje <em>debootstrap</em> k instalaci základu systému do připraveného adresáře, takto:</p>
+<p>Ani to ale někdy nemusí pomoci, a proto je dobré vědět, že je možné provést i plnou ruční instalaci v příkazové řádce. V takovém případě budete postupovat velmi podobně jako s instalátorem, jen ručně – zprovozníte síť (a připojení k internetu), připravíte si oddíly, namountujete je někam do adresářové struktury a využijete nástroje <em>debootstrap</em> k instalaci základu systému do připraveného adresáře, takto:</p>
 
 <pre>debootstrap wheeze /mnt/new_system</pre>
 
@@ -78,7 +78,7 @@ TODO Vystvětlivka MBR
 
 <h3>Minimální instalace</h3>
 
-<p>U serveru je vhodné nainstalovat co nejmenší počet balíčků nutný k tomu, abyste zajistili jeho optimální funkci. Už jen z bezpečnostního hlediska - čím méně běžících procesů, čím méně balíčků, čím méně kódu, který bude na serveru aktivně využíván, tím menší pravděpodobnost výskytu nějaké zranitelnosti.</p>
+<p>U serveru je vhodné nainstalovat co nejmenší počet balíčků nutný k tomu, abyste zajistili jeho optimální funkci. Už jen z bezpečnostního hlediska – čím méně běžících procesů, čím méně balíčků, čím méně kódu, který bude na serveru aktivně využíván, tím menší pravděpodobnost výskytu nějaké zranitelnosti.</p>
 
 <p>Debian umí provést minimální instalaci, kdy nainstaluje skutečně pouze základ systému s tím, že si pak vy jako správci doinstalujete to, co potřebujete (a jen to, co potřebujete). Při instalaci stačí ve fázi, kdy se vás instalátor ptá na software, který má nainstalovat, odškrtnout obě výchozí zvolené volby (<strong>Desktop system</strong> a <strong>Standard installation</strong>). Tento postup doporučuji, pokud budete instalovat nový server.</p>
 
