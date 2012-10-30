@@ -38,13 +38,13 @@ adresář.</p>
 
 <pre>ssh -p ssh_port_firewallu -N -f uzivatel@firewall -L 5000:server:5432</pre>
 
-<p>V tomto případě se asi hodí menší komentář - SSH vytvoří šifrovaný tunel mezi místním počítačem a firewallem, který provozuje SSH server na portu <code>ssh_port_firewallu</code>. Tento tunel bude směřovat na port 5432 počítače s názvem <code>server</code>. Tento vzdálený port pak bude k dispozici jako služba běžící na portu 5000 místního počítače. Tudíž, pokud se po provedení tohoto příkazu spojím s portem 5000 na místním počítači, požadavek se přenese šifrovaným tunelem na firewall, a ten pak požadavek předá (pozor, již nešifrovaně!) serveru, jehož odpověď pak pošle zpět. Parametr <code>-N</code> signalizuje, že se nebude na serveru spouštět žádný příkaz, jen se vytvoří tunel. Parametr <code>-f</code> zařídí, že se tunel po přihlášení vytvoří na pozadí.</p>
+<p>V tomto případě se asi hodí menší komentář – SSH vytvoří šifrovaný tunel mezi místním počítačem a firewallem, který provozuje SSH server na portu <code>ssh_port_firewallu</code>. Tento tunel bude směřovat na port 5432 počítače s názvem <code>server</code>. Tento vzdálený port pak bude k dispozici jako služba běžící na portu 5000 místního počítače. Tudíž, pokud se po provedení tohoto příkazu spojím s portem 5000 na místním počítači, požadavek se přenese šifrovaným tunelem na firewall, a ten pak požadavek předá (pozor, již nešifrovaně!) serveru, jehož odpověď pak pošle zpět. Parametr <code>-N</code> signalizuje, že se nebude na serveru spouštět žádný příkaz, jen se vytvoří tunel. Parametr <code>-f</code> zařídí, že se tunel po přihlášení vytvoří na pozadí.</p>
 
 <p>Pokud by byl server přístupný přímo, a PostgreSQL na něm běžel jako místní služba (tj. na localhostu), postačil by následující příkaz:</p>
 
 <pre>ssh -N -f uzivatel@server -L 5000:127.0.0.1:5432</pre>
 
-<p>SSH umí vytvářet i "reverzní" tunely, pomocí kterých můžete naopak zpřístupnit místní službu na vzdáleném počítači:</p>
+<p>SSH umí vytvářet i „reverzní“ tunely, pomocí kterých můžete naopak zpřístupnit místní službu na vzdáleném počítači:</p>
 
 <pre>ssh -N -f uzivatel@server -R 5000:localhost:22</pre>
 
@@ -60,7 +60,7 @@ adresář.</p>
 <li><b>Ctrl-A C</b> vytvořit nový shell</li>
 <li><b>Ctrl-A N</b> přejít na následující shell</li>
 <li><b>Ctrl-A P</b> přejít na předchozí shell</li>
-<li><b>Ctrl-A D</b> "odpojit" se od Screenu (zůstane běžet a bude možné se k danému sezení opět připojit přes výše uvedený přepínač <code>-x</code>)</li>
+<li><b>Ctrl-A D</b> “odpojit“ se od Screenu (zůstane běžet a bude možné se k danému sezení opět připojit přes výše uvedený přepínač <code>-x</code>)</li>
 </ul>
 
 <p>Tolik k nouzovému rychlokurzu Screenu. Pokud vás Screen zaujal, můžete se o něm dozvědět více v odkazech pod kapitolou.</p>
@@ -79,7 +79,7 @@ adresář.</p>
 
 <h2>fish</h2>
 
-<p>V KDE aplikacích je možné využít pro přístup k vzdálenému souborovému systému protokol "fish", který umí pohodlně připojit vzdálený souborový systém přes SSH, a to prostřednictvím URL ve tvaru <code>fish://uzivatel@server</code>.</p>
+<p>V KDE aplikacích je možné využít pro přístup k vzdálenému souborovému systému protokol „fish“, který umí pohodlně připojit vzdálený souborový systém přes SSH, a to prostřednictvím URL ve tvaru <code>fish://uzivatel@server</code>.</p>
 
 <h2>SSH servery</h2>
 
@@ -89,7 +89,7 @@ adresář.</p>
 
 <p>SSH klientů je také celá řada. Kromě klasického <code>ssh</code> klienta z balíku OpenSSH vás upozorním na grafického klienta Putty, který je velmi známý zejména v prostředí MS Windows. Umí toho celou řadu a nehodí se ani zdaleka jenom k přihlašování přes SSH. Podpora SSH klíčů je samozřejmostí, i když klíče je třeba před použitím konvertovat (Putty nepodporuje klasické klíče generované v rámci OpenSSH, tedy ne přímo). Putty funguje dokonce i nativně v Linuxu, i když v Linuxu nám stačí emulátor terminálu a řádkový klient. Něco málo o klíčích v Putty se dozvíte v odkazech pod kapitolou.</p>
 
-<p>Pro kopírování souborů (scp/sftp) je možné použít řádkového klienta <code>scp</code>, výše zmíněného "protokolu" fish v KDE aplikacích nebo <code>sshfs</code>. V prostředí MS Windows lze použít grafický nástroj WinSCP, který se podobá klasickému dvoupanelovému diskovému manažeru.</p>
+<p>Pro kopírování souborů (scp/sftp) je možné použít řádkového klienta <code>scp</code>, výše zmíněného „protokolu“ fish v KDE aplikacích nebo <code>sshfs</code>. V prostředí MS Windows lze použít grafický nástroj WinSCP, který se podobá klasickému dvoupanelovému diskovému manažeru.</p>
 
 <h2>SSH klíče</h2>
 
@@ -99,7 +99,7 @@ adresář.</p>
 
 <pre>ssh-keygen</pre>
 
-<p>Po vygenerování páru klíčů máte svůj soukromý klíč k dispozici v <code>.ssh/id_rsa</code> (pokud jste se nerozhodli jej vygenerovat jinam) - tento klíč byste měli střežit jako oko v hlavě. Naopak veřejný klíč, který máte k dispozici v <code>.ssh/id_rsa.pub</code>, můžete nahrávat do souboru <code>.ssh/authorized_keys</code> uživatelských účtů na vzdálených serverech, kam se chcete přihlašovat:</p>
+<p>Po vygenerování páru klíčů máte svůj soukromý klíč k dispozici v <code>.ssh/id_rsa</code> (pokud jste se nerozhodli jej vygenerovat jinam) – tento klíč byste měli střežit jako oko v hlavě. Naopak veřejný klíč, který máte k dispozici v <code>.ssh/id_rsa.pub</code>, můžete nahrávat do souboru <code>.ssh/authorized_keys</code> uživatelských účtů na vzdálených serverech, kam se chcete přihlašovat:</p>
 
 <pre>scp $HOME/.ssh/id_rsa.pub uzivatel@server:
 ssh uzivatel@server
@@ -111,7 +111,7 @@ uzivatel@server$ chmod 700 .ssh</pre>
 
 <pre>ssh-copy-id uzivatel@server</pre>
 
-<p>V <code>authorized_keys</code> může být veřejných klíčů více, proto je vhodné používat přesměrování vstupu v režimu append (dvě většítka za  sebou). Klíč lze pak "revokovat" prostým výmazem odpovídajícího řádku v tomto souboru.</p>
+<p>V <code>authorized_keys</code> může být veřejných klíčů více, proto je vhodné používat přesměrování vstupu v režimu append (dvě většítka za  sebou). Klíč lze pak „revokovat“ prostým výmazem odpovídajícího řádku v tomto souboru.</p>
 
 <p>Pokud máte více soukromých klíčů na různé servery, můžete buď využít ssh agent popsaný dále, nebo jednoznačně specifikovat soukromý klíč, který chcete použít při připojení k serveru (výchozí je <code>~/.ssh/id_rsa</code>):</p>
 
@@ -133,14 +133,14 @@ source $HOME/.keychain/$HOSTNAME-sh
 
 <h2>Závěr</h2>
 
-<p>SSH je velmi mocný nástroj, který umí mnohé. Proto je vhodné vnímat SSH z pohledu správce nikoliv jako nástroj pro vzdálenou práci se shellem, ale jako komplexní nástroj umožňující vytvářet šifrované, zabezpečené tunely mezi dvěma nebo více počítači, a posílat přes ně nejrůznější data a přistupovat k nejrůznějším službám. SSH je samozřejmě pouze nástroj, jehož faktická bezpečnost záleží na správcích i uživatelích. Na bezpečnost SSH, zejména pak z pohledu správců serverů, se můžete podívat v kapitole <em>Bezpečnost</em>{link:"Bezpečnost":"Zabezpečení SSH: praktické rady"}.</p>
+<p>SSH je velmi mocný nástroj, který umí mnohé. Proto je vhodné vnímat SSH z pohledu správce nikoliv jako nástroj pro vzdálenou práci se shellem, ale jako komplexní nástroj umožňující vytvářet šifrované, zabezpečené tunely mezi dvěma nebo více počítači, a posílat přes ně nejrůznější data a přistupovat k nejrůznějším službám. SSH je samozřejmě pouze nástroj, jehož faktická bezpečnost záleží na správcích i uživatelích. Na bezpečnost SSH, zejména pak z pohledu správců serverů, se můžete podívat v kapitole <em>Bezpečnost</em>{link:“Bezpečnost“:“Zabezpečení SSH: praktické rady“}.</p>
 
 http://cs.wikipedia.org/wiki/OpenSSH Wikipedie, OpenSSH
 http://www.cyberciti.biz/faq/ssh-passwordless-login-with-keychain-for-scripts/ keychain: Set Up Secure Passwordless SSH Access For Backup Scripts
-http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh SSHFS - súborový systém v bezpečných vodách SSH
+http://www.linuxexpres.cz/praxe/sshfs-suborovy-system-v-bezpecnych-vodach-ssh SSHFS – súborový systém v bezpečných vodách SSH
 http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-1 SSH receptem na bezpečnost 1
 http://www.linuxexpres.cz/praxe/ssh-receptem-na-bezpecnost-2 SSH receptem na bezpečnost 2
-http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu Screen - správce sezení v terminálu
+http://www.linuxexpres.cz/praxe/screen-spravce-sezeni-v-terminalu Screen – správce sezení v terminálu
 https://git.wiki.kernel.org/index.php/GitFaq#Why_does_git_clone.2C_git_pull.2C_etc._fail_when_run_on_a_partition_mounted_with_sshfs_.28FUSE.29.3F Git FAQ: problém s Gitem na sshfs
 http://en.wikipedia.org/wiki/Comparison_of_SSH_servers Wikipedie, Porovnání SSH serverů
 http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html Putty

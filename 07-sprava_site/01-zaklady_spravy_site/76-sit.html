@@ -276,7 +276,7 @@ ip addr add 10.0.1.2/24 dev eth0</pre>
 
 <pre>net.ipv4.ip_forward=1</pre>
 
-<p>Průchozí komunikaci můžete filtrovat pomocí linuxového firewallu, a to v dedikovaném řetězu <code>FORWARD</code>. Nastavení firewallu se zde věnovat nebudu, neboť toto téma bylo v této knihze již probráno v základech iptables{link:"Bezpečnost":"Linuxový firewall"}.</p>
+<p>Průchozí komunikaci můžete filtrovat pomocí linuxového firewallu, a to v dedikovaném řetězu <code>FORWARD</code>. Nastavení firewallu se zde věnovat nebudu, neboť toto téma bylo v této knihze již probráno v základech iptables{link:“Bezpečnost“:“Linuxový firewall“}.</p>
 
 <h3>Směrovací tabulka</h3>
 
@@ -477,7 +477,7 @@ https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers Wikipedie (anglicky), 
 
 <pre>nmap localhost</pre>
 
-<p>Přirozeně, sken zevnitř a sken zvenčí budou dávat odlišné výsledky, jelikož skenování sebe sama jde přes místní smyčku (local loopback, localhost), kde obvykle běží řada služeb, které ze sítě nemusí být vůbec dostupné. Pokud si vzpomenete na kapitolu <em>Úvod do bezpečnosti</em>{link:"Bezpečnost":"Úvod do bezpečnosti"}, zdůrazňoval jsem možnost nakonfigurovat démony tak, aby naslouchaly pouze na místní smyčce a nikde jinde. Např. MySQL je tak (přinejmenším v Debianu) po čerstvé instalaci již nastaven. Dodám, že pro skenování sebe sama nemusí být Nmap vhodným nástrojem, osobně bych doporučil použít <code>netstat</code>:</p>
+<p>Přirozeně, sken zevnitř a sken zvenčí budou dávat odlišné výsledky, jelikož skenování sebe sama jde přes místní smyčku (local loopback, localhost), kde obvykle běží řada služeb, které ze sítě nemusí být vůbec dostupné. Pokud si vzpomenete na kapitolu <em>Úvod do bezpečnosti</em>{link:“Bezpečnost“:“Úvod do bezpečnosti“}, zdůrazňoval jsem možnost nakonfigurovat démony tak, aby naslouchaly pouze na místní smyčce a nikde jinde. Např. MySQL je tak (přinejmenším v Debianu) po čerstvé instalaci již nastaven. Dodám, že pro skenování sebe sama nemusí být Nmap vhodným nástrojem, osobně bych doporučil použít <code>netstat</code>:</p>
 
 <pre>netstat -tulpn</pre>
 
@@ -727,7 +727,7 @@ Nmap done: 1 IP address (1 host up) scanned in 6.00 seconds</pre>
 
 <p>V příkladu výše je detekce úspěšná – operační systém je skutečně Linux, konkrétně jádro 2.6.26, což bez chyby odpovídá dané specifikaci. Jednalo se ovšem o zcela ideální podmínky (počítač byl připojen přímo na síti, mezi ním a Nmapem nebyl jediný router).</p>
 
-<h3>Nmap a -A</h3>
+<h3>Nmap a –A</h3>
 
 <p>Poměrně zajímavou volbu tvoří <code>-A</code>, což je „šablona“ zapínající mnoho typických funkcí (detekci verzí služeb i operačního systému, traceroute a použití skriptů z kategorie „default“). Skripty jsou psané v jazyce LUA a představují možnosti rozšíření funkcionality Nmapu. Některé přibalené skripty mohou být poměrně invazivní (v kategorii „default“ by měly být zejména bezpečné skripty). Skripty umí provádět ledacos, v příkladu níže je u SSH patrné vypsání fingerprintů serverových klíčů. Více o skriptech se dozvíte v odkazech pod kapitolou.</p>
 

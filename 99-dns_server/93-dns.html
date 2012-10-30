@@ -12,7 +12,7 @@
 
 <h4>Stromový charakter</h4>
 
-<p>Jmenný systém DNS má charakter stromu. Kořenem tohoto stromu je tzv. kořenová doména, která se vyjadřuje tečkou. Pod kořenovou doménou jsou tzv. TLD, top-level domény, které se dělí na generické (com, org, net atd.), státní (cz, pl, co.uk, us atd.) a infrastrukturní (arpa). Přidělování TLD jednotlivým správcům má na starosti ICANN. Správci TLD pak, zpravidla za poplatek, umožňují registraci domén druhého (někdy i dalšího) řádu. Domény druhého řádu pak patří pod danou TLD. Zápis jednotlivých úrovní DNS jmen se provádí zprava doleva, tzn. máte-li doménu druhého řádu "linuxexpres" a TLD "cz", zápis bude vypadat takto:</p>
+<p>Jmenný systém DNS má charakter stromu. Kořenem tohoto stromu je tzv. kořenová doména, která se vyjadřuje tečkou. Pod kořenovou doménou jsou tzv. TLD, top-level domény, které se dělí na generické (com, org, net atd.), státní (cz, pl, co.uk, us atd.) a infrastrukturní (arpa). Přidělování TLD jednotlivým správcům má na starosti ICANN. Správci TLD pak, zpravidla za poplatek, umožňují registraci domén druhého (někdy i dalšího) řádu. Domény druhého řádu pak patří pod danou TLD. Zápis jednotlivých úrovní DNS jmen se provádí zprava doleva, tzn. máte-li doménu druhého řádu „linuxexpres“ a TLD „cz“, zápis bude vypadat takto:</p>
 
 <pre>linuxexpres.cz.</pre>
 
@@ -312,7 +312,7 @@ http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)
 
 <h3>Unbound</h3>
 
-<p>Unbound je především rekurzivní a kešující DNS server. Je schopen provádět DNSSEC validaci, ale neprovádí ji ve výchozím stavu (alespoň v Debianu). Problematikou DNSSEC se zabývala minulá kapitola{link:"DNS":"DNSSEC"}.</p>
+<p>Unbound je především rekurzivní a kešující DNS server. Je schopen provádět DNSSEC validaci, ale neprovádí ji ve výchozím stavu (alespoň v Debianu). Problematikou DNSSEC se zabývala minulá kapitola{link:“DNS“:“DNSSEC“}.</p>
 
 <p>Instalaci serveru Unbound realizujete velmi jednoduše:</p>
 
@@ -324,7 +324,7 @@ http://podpora.nic.cz/page/549/dns-howto/ DNS HOWTO (česky)
 
 <h4>DNSSEC</h4>
 
-<p>Pokud používáte Debian Wheezy, pak nemusíte DNSSEC nastavovat, neboť je již aktivní - vše se zařídí během instalace. Používáte-li starší verzi nástroje Unbound, níže je popsán postup manuálního opatření „trust anchor“ k DNSSEC validaci.</p>
+<p>Pokud používáte Debian Wheezy, pak nemusíte DNSSEC nastavovat, neboť je již aktivní – vše se zařídí během instalace. Používáte-li starší verzi nástroje Unbound, níže je popsán postup manuálního opatření „trust anchor“ k DNSSEC validaci.</p>
 
 <p>Máte-li tedy starší verzi nástroje Unbound, potřebujete do hlavního konfiguračního souboru <code>/etc/unbound/unbound.conf</code> přidat informace o souboru obsahujícím klíč kořenové zóny (fungující jako „trust anchor“, tedy „kotva důvěry“):</p>
 
@@ -590,7 +590,7 @@ ns2.example.cz.          10800   IN      A       1.2.3.3</pre>
 
 <p>Všimněte si TTL u jednotlivých záznamů, které udává 10 800 sekund, tedy 3 hodiny, což je přesně hodnota, kterou jste specifikovali v proměnné <code>$TTL</code>.</p>
 
-<p>Otestovat můžete i další záznamy (<code>dig -t mx</code>, <code>dig -t soa</code>) atd.</p>
+<p>Otestovat můžete i další záznamy (<code>dig -t mx</code>, <code>dig –t soa</code>) atd.</p>
 
 <h3>Sekundární DNS servery</h3>
 
@@ -820,4 +820,3 @@ www            CNAME example.cz.</pre>
 http://www.knot-dns.cz/ Knot DNS – Web projektu
 http://www.menandmice.com/knowledgehub/dnsqa/56/ What are reverse (PTR) records? Why do I need them?
 https://cs.wikipedia.org/wiki/Domain_Name_System Česká Wikipedie, Domain Name System
-

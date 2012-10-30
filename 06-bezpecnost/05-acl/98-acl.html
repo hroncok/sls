@@ -99,7 +99,7 @@ chattr -a append_only_file</pre>
 
 <pre>debian:/home/staff# ls -l dokument.txt
 -rw-r----- 1 michal staff 0 16.&nbsp;zář 15.12 dokument.txt
-debian:/home/staff# <strong>setfacl -m u:honza:rw- dokument.txt</strong>
+debian:/home/staff# <strong>setfacl –m u:honza:rw- dokument.txt</strong>
 debian:/home/staff# getfacl dokument.txt
 # file: dokument.txt
 # owner: michal
@@ -114,7 +114,7 @@ other::---</pre>
 
 <p>Práva se dají samozřejmě nastavit i skupině:</p>
 
-<pre>debian:/home/staff# <strong>setfacl -m g:www-data:r-- dokument.txt</strong>
+<pre>debian:/home/staff# <strong>setfacl –m g:www-data:r-- dokument.txt</strong>
 
 debian:/home/staff# getfacl dokument.txt
 # file: dokument.txt

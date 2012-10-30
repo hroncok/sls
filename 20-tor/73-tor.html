@@ -6,7 +6,7 @@
 
 <p>Tor je anonymizační nástroj. Jeho název je zkratkou pro „The onion router“, tedy „cibulový“ router. Zjednodušeně, pracuje tak, že náhodně vybere několik uzlů z Tor sítě a vytvoří z nich „obvod“ (circuit), přes který posílá šifrovaně veškerou komunikaci. Každý z uzlů tuší pouze, ze kterého uzlu a na který další uzel data tečou. Nedokáží odhadnout původního odesílatele a ani příjemce. Díky šifrování také netuší, jaká data vlastně přepravují.</p>
 
-<p>Způsob šifrování se inspiroval cibulí - jedná se o „vrstvené“ šifrování. Jednotlivé uzly vždy svým klíčem paket dešifrují a odešlou dalšímu uzlu, který proceduru opakuje. Konečným bodem komunikace je výstupní uzel (exit node), kde se paket dešifruje úplně (odloupne se poslední vrstva „cibule“) a odešle. Odpověď na něj se pak pošle sítí zpět. Obvod jako takový se samozřejmě čas od času mění, takže nová spojení pak chodí jinudy.</p>
+<p>Způsob šifrování se inspiroval cibulí – jedná se o „vrstvené“ šifrování. Jednotlivé uzly vždy svým klíčem paket dešifrují a odešlou dalšímu uzlu, který proceduru opakuje. Konečným bodem komunikace je výstupní uzel (exit node), kde se paket dešifruje úplně (odloupne se poslední vrstva „cibule“) a odešle. Odpověď na něj se pak pošle sítí zpět. Obvod jako takový se samozřejmě čas od času mění, takže nová spojení pak chodí jinudy.</p>
 
 <p>Tor má však jednu vlastnost navíc. Dokáže anonymizovat nejenom komunikaci směrem „ven“, tedy do internetu, ale také komunikaci směrem „dovnitř“. Server připojený k Tor síti může anonymizovat některou svou běžící službu a nabídnout ji členům Tor sítě. Tato „vnitřní“ síť se běžně nazývá „darknet“.</p>
 
@@ -22,9 +22,9 @@
 
 <p>Tor je svobodný software napsaný v jazyce C a šířený pod BSD licencí. Je možné jej nasadit nejenom jako klienta, který vám umožní brouzdat po webu anonymně nebo objevovat temná zákoutí darknetu, ale je také možné jej nasadit i na server, a to hned čtyřmi způsoby.</p>
 
-<p>První možností je vytvořit si <em>Tor relay</em>, tedy „zapojit“ váš server do sítě Tor, aby přes něj mohla téct data uživatelů a anonymita sítě jako takové mírně vzrostla. Zde máte dvě možnosti - buď vytvoříte pouze průchozí uzel, přes který budou data téct, ale který nebude sloužit jako výstupní uzel (<em>exit relay</em>), nebo vytvoříte uzel, který bude sloužit i jako výstupní.</p>
+<p>První možností je vytvořit si <em>Tor relay</em>, tedy „zapojit“ váš server do sítě Tor, aby přes něj mohla téct data uživatelů a anonymita sítě jako takové mírně vzrostla. Zde máte dvě možnosti – buď vytvoříte pouze průchozí uzel, přes který budou data téct, ale který nebude sloužit jako výstupní uzel (<em>exit relay</em>), nebo vytvoříte uzel, který bude sloužit i jako výstupní.</p>
 
-<p>Seznam Tor uzlů je veřejný - pokud se tedy připojíte k síti Tor (jako relay), zařadí se váš server automaticky do tohoto seznamu. To vyplývá ze samotného pricipu sítě - klient potřebuje v první řadě seznam uzlů, aby byl schopen vytvořit obvod. Pokud se vám toto nezamlouvá, stále můžete vytvořit „tichý“ uzel (<em>bridge relay</em>), který se nikde zveřejňovat nebude. Díky tichým uzlům pak může Tor využívat i uživatel připojený přes ISP, který Tor jako takový blokuje.</p>
+<p>Seznam Tor uzlů je veřejný – pokud se tedy připojíte k síti Tor (jako relay), zařadí se váš server automaticky do tohoto seznamu. To vyplývá ze samotného pricipu sítě – klient potřebuje v první řadě seznam uzlů, aby byl schopen vytvořit obvod. Pokud se vám toto nezamlouvá, stále můžete vytvořit „tichý“ uzel (<em>bridge relay</em>), který se nikde zveřejňovat nebude. Díky tichým uzlům pak může Tor využívat i uživatel připojený přes ISP, který Tor jako takový blokuje.</p>
 
 <p>Poslední variantou je možnost anonymizovat některou službu, která běží na vašem serveru (webový server, apod.), a vytvořit tzv. <em>hidden service</em> (skrytou službu). Klienti Tor sítě pak k této službě budou moci přistupovat, aniž by tušili, kde se server nachází, nebo aniž by váš server měl šanci zjistit, kým je vlastně využíván. Pro tuto možnost využití Toru nepotřebujete, aby váš server pracoval jako relay.</p>
 
@@ -44,7 +44,7 @@
 
 <p>Samotné prohlížeče dnes představují velký problém, jelikož o sobě prozrazují příliš mnoho informací. Unikátní nebo méně obvyklé nastavení prohlížeče vás může identifikovat nebo vaší identifikaci napomoci. Jedná se o tzv. „browser fingerprinting“. Z tohoto důvodu se tedy často nedoporučuje používat stejný prohlížeč pro normální brouzdání webem a pro brouzdání prostřednictvím Toru.</p>
 
-<p>Řada webů dnes využívá komponenty od Googlu či od Facebooku, čímž těmto společnostem dává možnost analyzovat pohyb uživatelů po webu. Navštěvujete-li tedy stejné stránky stejným způsobem (nebo hůř - se stejným prohlížečem) bez ohledu na použití Toru, je možné, že některá z těchto firem si vaši identitu propojí.</p>
+<p>Řada webů dnes využívá komponenty od Googlu či od Facebooku, čímž těmto společnostem dává možnost analyzovat pohyb uživatelů po webu. Navštěvujete-li tedy stejné stránky stejným způsobem (nebo hůř – se stejným prohlížečem) bez ohledu na použití Toru, je možné, že některá z těchto firem si vaši identitu propojí.</p>
 
 <h4>Hrozby z pohledu správce serveru</h4>
 
@@ -145,7 +145,7 @@ iptables -A OUTPUT -m owner --uid-owner uzivatel -j REJECT</pre>
 
 <h4>Fyzická bezpečnost</h4>
 
-<p>Je jasné, že výše uvedená opatření nijak neovlivní situaci, kdy se útočník dostane k serveru fyzicky. Ať už používáte Tor jako klienta, nebo jako prostředníka pro poskytování skryté služby, bude na daném stroji uloženo mnoho dat, která souvisí s používáním Toru (v případě serveru data, která nabízíte, nebo data, která si u vás ukládají vaši uživatelé; v případě Tor klienta cache a historie prohlížeče, stažené soubory apod.). Pokud nechcete, aby se k těmto datům někdo dostal, budete se muset zaměřit i na fyzickou bezpečnost (připomínám, že tato kniha se fyzickou bezpečností a souvisejícím diskovým šifrováním zabývala, a to v kapitole <em>Šifrování s dm-crypt/LUKS</em>{link:"Správa disků":"Šifrování s dm-crypt/LUKS"}).</p>
+<p>Je jasné, že výše uvedená opatření nijak neovlivní situaci, kdy se útočník dostane k serveru fyzicky. Ať už používáte Tor jako klienta, nebo jako prostředníka pro poskytování skryté služby, bude na daném stroji uloženo mnoho dat, která souvisí s používáním Toru (v případě serveru data, která nabízíte, nebo data, která si u vás ukládají vaši uživatelé; v případě Tor klienta cache a historie prohlížeče, stažené soubory apod.). Pokud nechcete, aby se k těmto datům někdo dostal, budete se muset zaměřit i na fyzickou bezpečnost (připomínám, že tato kniha se fyzickou bezpečností a souvisejícím diskovým šifrováním zabývala, a to v kapitole <em>Šifrování s dm-crypt/LUKS</em>{link:“Správa disků“:“Šifrování s dm-crypt/LUKS“}).</p>
 
 <h3>Závěr</h3>
 
@@ -270,13 +270,13 @@ ExitPolicy reject *:25,reject *:465,accept *:*</pre>
 
 <ul>
 <li>
-<p>server pečlivě zabezpečte (bezpečnost byla v této knize podrobně probírána{link:"Bezpečnost"})</p>
+<p>server pečlivě zabezpečte (bezpečnost byla v této knize podrobně probírána{link:“Bezpečnost“})</p>
 </li>
 <li>
 <p>serverový software i Tor pravidelně aktualizujte</p>
 </li>
 <li>
-<p>šifrujte swap a pokud možno šifrujte celý systém (jak na to v Linuxu viz kapitola<em>Šifrování s dm-crypt/LUKS</em>{link:"Správa disků":"Šifrování s dm-crypt/LUKS"})</p>
+<p>šifrujte swap a pokud možno šifrujte celý systém (jak na to v Linuxu viz kapitola<em>Šifrování s dm-crypt/LUKS</em>{link:“Správa disků“:“Šifrování s dm-crypt/LUKS“})</p>
 </li>
 <li>
 <p>zálohujte a chraňte obsah <code>/var/lib/tor/keys</code> – kompromitace souborů s klíči umožní útočníkům dešifrovat komunikaci procházející vaším serverem</p>
@@ -294,7 +294,7 @@ ExitPolicy reject *:25,reject *:465,accept *:*</pre>
 
 <h4>Tor a firewall</h4>
 
-<p>Nastavení odchozí politiky a síťový provoz Toru můžete upravovat a omezovat pomocí linuxového firewallu. Jelikož Tor běží pod konkrétním uživatelem, můžete jej omezit pomocí modulu <code>owner</code>, což bylo naznačeno i s příkladem v předchozí kapitole{link:"Tor":"Skrytý server pomocí Toru"}.</p>
+<p>Nastavení odchozí politiky a síťový provoz Toru můžete upravovat a omezovat pomocí linuxového firewallu. Jelikož Tor běží pod konkrétním uživatelem, můžete jej omezit pomocí modulu <code>owner</code>, což bylo naznačeno i s příkladem v předchozí kapitole{link:“Tor“:“Skrytý server pomocí Toru“}.</p>
 
 <h3>Závěr</h3>
 

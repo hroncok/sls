@@ -10,7 +10,7 @@
 
 <p>Existuje řada služeb, které vám umožní vytvořit si svoje vlastní Git repozitáře, hostované na serveru příslušného poskytovatele. GitHub je zde nejznámějším, ale nikoliv jediným příkladem. Tyto služby však mohou být za určitých okolností zpoplatněné (např. když nechcete svůj repozitář vystavit světu) a samozřejmě podléhají určitým podmínkám, které se vám mohou, ale také nemusí líbit. Máte-li vlastní server, můžete si centrální úložiště pro Git repozitář(e) vytvořit na něm.</p>
 
-<p>Nástroj Redmine, k němuž byl k dispozici návod v kapitole <em>Nasazení Ruby aplikace Redmine</em>{link:"Webový server a databáze":"Nasazení Ruby aplikace Redmine"}, podporuje řadu SCM nástrojů a podpora Gitu samozřejmě nechybí.</p>
+<p>Nástroj Redmine, k němuž byl k dispozici návod v kapitole <em>Nasazení Ruby aplikace Redmine</em>{link:“Webový server a databáze“:“Nasazení Ruby aplikace Redmine“}, podporuje řadu SCM nástrojů a podpora Gitu samozřejmě nechybí.</p>
 
 <h3>Distribuovaný SCM a centrální úložiště</h3>
 
@@ -195,7 +195,7 @@ http://book.git-scm.com/ The Git Community Book
 
 <p>Dodám, že Gitosis neumožňuje úplně nejjemnější dělení přístupových práv. V zásadě umožňuje víceuživatelský přístup k jednotlivým repozitářům a pro každého uživatele (nebo skupinu) umožňuje definovat oprávnění buď k read-only nebo read-write přístupu. Ačkoliv je to oproti dříve představeným metodám podstatné zlepšení, existují ještě sofistikovanější nástroje, jako např. Gitolite.</p>
 
-<p>Gitosis používá ke svému nastavení Git. Při instalaci dojde k vytvoření správcovského repozitáře, prostřednictvím kterého je pak možné měnit nastavení a připravovat půdu pro nové repozitáře. Pro přístup je používán SSH server a veřejné klíče. Pokud vám není jasná problematika použití SSH klíčů, přečtěte si kapitolu <em>Vzdálená správa přes SSH</em>{link:"Vzdálená správa přes SSH"}. Ve zbytku kapitoly předpokládám, že tuto problematiku ovládáte.</p>
+<p>Gitosis používá ke svému nastavení Git. Při instalaci dojde k vytvoření správcovského repozitáře, prostřednictvím kterého je pak možné měnit nastavení a připravovat půdu pro nové repozitáře. Pro přístup je používán SSH server a veřejné klíče. Pokud vám není jasná problematika použití SSH klíčů, přečtěte si kapitolu <em>Vzdálená správa přes SSH</em>{link:“Vzdálená správa přes SSH“}. Ve zbytku kapitoly předpokládám, že tuto problematiku ovládáte.</p>
 
 <p>Gitosis je vázán na jednoho konkrétního uživatele, v Debianu je to stejnojmenný uživatel, tedy <code>gitosis</code>. Gitosis řídí přístup jednotlivých uživatelů prostřednictvím konfigurace a SSH klíčů. Žádné uživatelské účty se při práci s ním nezakládají. Z pohledu systému vše probíhá pod jedním uživatelem.</p>
 
@@ -338,7 +338,7 @@ http://book.git-scm.com/ The Git Community Book
 
 <pre>su gitolite -c 'gl-setup /tmp/uzivatel.pub'</pre>
 
-<p>Uživatelé Gitosis mají uživatelská jména shodná se jménem souboru s veřejným SSH klíčem. Proto je vhodné při provádění příkazu výše jméno souboru přizpůsobit, abyste pak neskončili s uživatelem "<code>id_rsa</code>". Vše jde však samozřejmě později upravit.</p>
+<p>Uživatelé Gitosis mají uživatelská jména shodná se jménem souboru s veřejným SSH klíčem. Proto je vhodné při provádění příkazu výše jméno souboru přizpůsobit, abyste pak neskončili s uživatelem „<code>id_rsa</code>„. Vše jde však samozřejmě později upravit.</p>
 
 <p>Pokud tento uživatel nebyl při instalaci vytvořen, což je případ Debianu Wheezy, můžete jeho vytvoření a současně i výše uvedené počáteční nastavení Gitolite zrealizovat prostřednictvím rekonfigurace balíčku Gitolite, takto:</p>
 
@@ -634,7 +634,7 @@ http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí sy
 <p><code>pre-auto-gc</code></p>
 </td>
 <td>
-<p>běh <code>git-gc --auto</code>, před provedením operace</p>
+<p>běh <code>git-gc –-auto</code>, před provedením operace</p>
 </td>
 <td>
 <p>-</p>
@@ -669,7 +669,7 @@ http://www.regularnivyrazy.info/shrnuti-syntaxe.html Miroslav Pecka, Shrnutí sy
 
 <h4>Redmine, Trac a ostatní</h4>
 
-<p>Kromě Git hostingů existují také systémy pro správu (softwarových) projektů, které mohou mít rovněž podporu Gitu. Ta může zahrnovat jak prohlížení repozitářů, tak třeba integraci s bug trackerem. Vytvoření repozitáře a přístup (se zápisem) je obvykle nutné řešit jinak, nicméně tyto nástroje mohou obsahovat řadu užitečných komponent jako integrované wiki, bug trackery apod. Mezi tyto nástroje patří v této knize již zmiňovaný Redmine (kapitola <em>Nasazení Ruby aplikace Redmine</em>{link:"Webový server a databáze":"Nasazení Ruby aplikace Redmine"}) nebo např. Trac.</p>
+<p>Kromě Git hostingů existují také systémy pro správu (softwarových) projektů, které mohou mít rovněž podporu Gitu. Ta může zahrnovat jak prohlížení repozitářů, tak třeba integraci s bug trackerem. Vytvoření repozitáře a přístup (se zápisem) je obvykle nutné řešit jinak, nicméně tyto nástroje mohou obsahovat řadu užitečných komponent jako integrované wiki, bug trackery apod. Mezi tyto nástroje patří v této knize již zmiňovaný Redmine (kapitola <em>Nasazení Ruby aplikace Redmine</em>{link:“Webový server a databáze“:“Nasazení Ruby aplikace Redmine“}) nebo např. Trac.</p>
 
 <h3>Závěr</h3>
 
@@ -681,4 +681,3 @@ http://book.git-scm.com/ The Git Community Book
 http://book.git-scm.com/5_git_hooks.html Dokumentace věnující se Git hookům
 http://repo.or.cz/w/girocco.git Girocco, stránky projektu
 https://gitorious.org/gitorious/ Gitorious, stránky projektu
-
