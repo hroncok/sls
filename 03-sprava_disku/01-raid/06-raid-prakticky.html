@@ -11,7 +11,7 @@ md2 : active raid1 sdb2[0] sda2[1]
       bitmap: 5/466 pages [20KB], 1024KB chunk
 md0 : active raid1 sdb1[0] sda1[1]
       995904 blocks [2/2] [UU]
-unused devices: &ls;none&gt;</pre>
+unused devices: &lt;none&gt;</pre>
 
 <p>V tomto výpisu jsou vidět dvě pole, RAID 1 pole <code>md0</code> o přibližné velikosti 1GB složené ze zařízení <code>sdb1</code> a <code>sda1</code> a RAID 1 pole <code>md2</code> o přibližné velikosti 1TB složené ze zařízení <code>sdb2</code> a <code>sda2</code>. Obě dvě pole jsou aktivní se dvěma ze dvou zařízení (viz <code>[2/2]</code>).</p>
 
@@ -22,7 +22,7 @@ Personalities : [raid1]
 md0 : active raid1 hda1[0] hdd1[3](F) hdb1[1]
       1172608 blocks [3/2] [UU_]
       
-unused devices: &ls;none&gt;</pre>
+unused devices: &lt;none&gt;</pre>
 
 <p>Zde je patrný problém se zařízením <code>hdd1</code>, které bylo označeno jako vadné. Proto je u něj písmeno <strong>F</strong> (f jako faulty). Pole je aktivní, ale pouze se dvěma ze tří zařízení (viz <code>[3/2]</code>). Povšimněte si ve výpisu posloupnosti označující stav jednotlivých zařízení seřazených podle jejich pořadí v poli - <code>[UU_]</code>. Zde značí písmeno <code>U</code> aktivní zařízení v poli a podtržítko značí chybějící aktivní zařízení.</p>
 
@@ -34,7 +34,7 @@ md0 : active raid1 hdd1[3] hda1[0] hdb1[1]
       1172608 blocks [3/2] [UU_]
       [=====&gt;...............]  recovery = 28.0% (328768/1172608) finish=0.7min speed=18264K/sec
 
-unused devices: &ls;none&gt;</pre>
+unused devices: &lt;none&gt;</pre>
 
 <p>Detailnější výpis informací o diskovém poli můžeme získat pomocí nástroje <code>mdadm</code>:</p>
 
@@ -185,11 +185,11 @@ md0 : active raid1 hdb1[1] hdc1[2] hda1[0]
       1172608 blocks [3/3] [UUU]
       bitmap: 144/144 pages [576KB], 4KB chunk</pre>
 
-<p>Pokud se z nějakého důvodu rozhodnete, že použijete nějaký soubor místo bitmapy interní, pak si dejte veliký pozor, aby to byl soubor na souborovém systému, který leží mimo dané pole.</p>
+<p>Pokud se z nějakého důvodu rozhodnete, že použijete nějaký soubor místo interní bitmapy, pak si dejte veliký pozor, aby to byl soubor na souborovém systému, který leží mimo dané pole.</p>
 
 <h3>Scrubbing diskového pole</h3>
 
-<p>Jelikož různé oblasti pevných disků jsou čteny a zapisovány s různou četností, může dojít k situaci, kdy některý sektor na disku v poli přestane být čitelný, aniž byste si toho byli vědomi. Následný pokus o přečtení takového sektoru, který může proběhnout i za dlouho, vyvolá neopravitelnou chybu čtení (uncorrectable read error), která vyřadí daný disk z pole.</p>
+<p>Jelikož jsou různé oblasti pevných disků čteny a zapisovány s různou četností, může dojít k situaci, kdy některý sektor na disku v poli přestane být čitelný, aniž byste si toho byli vědomi. Následný pokus o přečtení takového sektoru, který může proběhnout i za dlouho, vyvolá neopravitelnou chybu čtení (uncorrectable read error), která vyřadí daný disk z pole.</p>
 
 <p>Nyní uvažte situaci, kdy vám selže nějaký disk, a na některém ze zbývajících disků zůstala tato nášlapná mina v podobě nečitelného sektoru. Po vložení nového disku do pole a zahájení jeho rekonstrukce dojde na čtení z tohoto sektoru, což vyřadí další disk z pole. Pokud máte pouze jeden redundantní disk, pak jste se právě dostali do velmi nepříjemné situace.</p>
 
@@ -212,7 +212,7 @@ PROGRAM /root/skript_spusteny_pri_udalosti</pre>
 
 <p>GRUB 2 by měl bootování z RAIDu řešit, s GRUBem legacy (starší verze GRUBu) lze bootovat pouze z RAIDu 1, a to ještě ne ve všech případech. Zjistil jsem, že některá speciální nastavení (jiná verze superbloku, apod.) mohou bootování z RAIDu 1 zamezit. Pokud budete sestavovat pole se specifickými parametry, vyzkoušejte si, je-li možné namountovat souborový systém z jednoho z disků (či oddílů) v daném poli. Pokud se to nepovede, pak z takového pole nepůjde v GRUBu legacy nabootovat.</p>
 
-<p>Máte-li problém s bootováním z RAIDu, nebo pokud budete nasazovat šifrování, vytvořte na všech discích malý oddíl (kolem 1GB maximálně), na kterém bude (třeba v RAIDu 1) oddíl s adresářem <code>/boot</code>, čímž vyřešíte dostupnost jádra a iniciálního ramdisku. Zbytek místa na discích pak můžete použít k vytvoření jiného typu pole.</p>
+<p>Máte-li problém s bootováním z RAIDu, nebo pokud budete nasazovat šifrování, vytvořte na všech discích malý oddíl (maximálně kolem 1 GB), na kterém bude (třeba v RAIDu 1) oddíl s adresářem <code>/boot</code>, čímž vyřešíte dostupnost jádra a iniciálního ramdisku. Zbytek místa na discích pak můžete použít k vytvoření jiného typu pole.</p>
 
 http://raid.wiki.kernel.org/ Linux Raid Wiki
 http://marc.info/?l=linux-raid&amp;r=1&amp;w=2 Archív e-mailové konference linuxového softwarového RAIDu

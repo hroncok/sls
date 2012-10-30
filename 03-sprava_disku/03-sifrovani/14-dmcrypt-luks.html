@@ -43,8 +43,8 @@ však plně zaměřím právě na LUKS.</p>
 dvouúrovňové šifrování, správu klíčů a funkci pro posílení uživatelského hesla
 <b>PBKDF2</b>. Specifikace LUKS je multiplatformní a je možné s jeho pomocí
 vytvářet šifrované kontejnery, které lze otevřít i v jiných operačních
-systémech (třeba s pomocí aplikace pro MS Windows s názvem, ale ta má dnes již citelné
-nevýhody, a proto je šifrování pomocí LUKS opět spíše Linuxová záležitost).</p>
+systémech (třeba s pomocí aplikace pro Microsoft Windows s názvem FreeOTFE, ale ta má dnes již citelné
+nevýhody, a proto je šifrování pomocí LUKS opět spíše linuxová záležitost).</p>
 
 <p>Dvouúrovňové šifrování v případě LUKS znamená, že samotný svazek je šifrován
 tzv. hlavním klíčem (master key), který je následně zašifrován uživatelským
@@ -62,7 +62,7 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>Na tomto obrázku bych rád ilustroval, jak složité struktury pro uložení a zabezpečení dat je možné vytvářet. Spolu s tím bych rád upozornil na to, že na pořadí v tomto případě velice záleží - proto je třeba navrhnout způsob práce s úložištěm s rozmyslem, což je také důvodem, proč se těmto tématům věnuji před samotnou instalací.</p>
 
-<p>Co se týče nastavení, volby šifry a šifrovacího módu, jen ve stručnosti, podrobněji bude probráno dále. Šifru si vyberte dle libosti, ale pokud možno takovou, která není zastaralá (jako například Blowfish) - ideální je vybírat některého z finalistů soutěže o AES (Advanced Encryption Standard). U diskového šifrování dnes nepřipadá v úvahu jiný mód než <code>XTS</code>. Módy <code>cbc-essiv</code> i <code>LRW</code> jsou zranitelné. Více o teorii šifrovacích módů pro diskové šifrování si můžete přečíst na Wikipédii v článku nazvaném <em>Disk encryption theory</em>.</p>
+<p>Co se týče nastavení, volby šifry a šifrovacího módu, jen ve stručnosti, podrobněji bude probráno dále. Šifru si vyberte dle libosti, ale pokud možno takovou, která není zastaralá (jako například Blowfish) - ideální je vybírat některého z finalistů soutěže o AES (Advanced Encryption Standard). U diskového šifrování dnes nepřipadá v úvahu jiný mód než <code>XTS</code>. Módy <code>cbc-essiv</code> i <code>LRW</code> jsou zranitelné. Více o teorii šifrovacích módů pro diskové šifrování si můžete přečíst na Wikipedii v článku nazvaném <em>Disk encryption theory</em>.</p>
 
 <h3>Ještě než začnete šifrovat</h3>
 
@@ -88,7 +88,7 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>Pro diskové šifrování je klíčový výběr vhodného šifrovacího módu. Je totiž nutné šifrovat ohromné kvantum dat, která mají ovšem předvídatelnou strukturu (souborový systém, superblok, atd.), což může případnému útočníkovi usnadnit kryptoanalýzu, i když je samotný šifrovací algoritmus bezpečný. Pro diskové šifrování dnes přichází v úvahu především mód <code>XTS</code>. <code>LRW</code> je vzhledem k jeho objevené zranitelnosti nutné zavrhnout. Pro systémy se staršími jádry, které ještě nemají podporu pro mód <code>XTS</code>, je vhodné použít mód <code>cbc-essiv</code> (nikoliv však samotné <code>cbc</code>!).</p>
 
-<p>Řada distribucí nabízí v rámci instalátoru možnost postavit šifrovaný systém. Bohužel, tato možnost obvykle neumožňuje precizní nastavení šifrovacího algoritmu a šifrovacího módu, a mnohde bývají výchozí hodnoty nastavené patrně ve snaze zachovat kompatibilitu příliš konzervativně (což je i případ Debianu), tudíž není zvolen výchozí mód XTS, ale třeba <code>cbc-essiv</code>. V takových případech je tedy vhodnější postavit šifrovaný systém ručně, neboť šifrovací mód na existujícím šifrovaném svazku měnit nelze.</p>
+<p>Řada distribucí nabízí v rámci instalátoru možnost postavit šifrovaný systém. Bohužel, tato možnost obvykle neumožňuje precizní nastavení šifrovacího algoritmu a šifrovacího módu, a mnohde bývají výchozí hodnoty nastavené patrně ve snaze zachovat kompatibilitu příliš konzervativně (což je i případ Debianu), tudíž není zvolen výchozí mód <code>XTS</code>, ale třeba <code>cbc-essiv</code>. V takových případech je tedy vhodnější postavit šifrovaný systém ručně, neboť šifrovací mód na existujícím šifrovaném svazku měnit nelze.</p>
 
 <h3>Alternativy pro šifrování v GNU/Linuxu</h3>
 
@@ -96,11 +96,11 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <h4>dm-crypt</h4>
 
-<p>Asi nejjednodušší alternativou dm-crypt/LUKS je dm-crypt jako takový. Jeho asi jedinou výhodou (chcete-li se na to tak dívat) oproti jeho kombinaci s LUKSem je absence hlavičky, která dané blokové zařízení nezaměnitelně označí jako šifrované. Oproti LUKS nadstavbě má však řadu citelných nevýhod, počínaje nutností celý oddíl přešifrovat při změně hesla přes nemožnost použít více než jedno heslo až po absenci posílení hesla metodou PBKDF2.</p>
+<p>Asi nejjednodušší alternativou dm-crypt/LUKS je dm-crypt samotný. Jeho asi jedinou výhodou (chcete-li se na to tak dívat) oproti jeho kombinaci s LUKSem je absence hlavičky, která dané blokové zařízení nezaměnitelně označí jako šifrované. Oproti LUKS nadstavbě má však řadu citelných nevýhod, počínaje nutností celý oddíl přešifrovat při změně hesla přes nemožnost použít více než jedno heslo až po absenci posílení hesla metodou PBKDF2.</p>
 
 <h4>Truecrypt</h4>
 
-<p>Nejvíce zmiňovanou alternativou pro dm-crypt/LUKS je Truecrypt, zejména kvůli přenositelnosti šifrovaných kontejnerů mezi GNU/Linuxem a MS Windows. V dnešní době je Truecrypt schopen využívat přímo linuxové CryptoAPI a vytváří přímo blokové zařízení prostřednictvím Device Mapperu, což jej řadí blízko k dm-cryptu a LUKS. Samotný Truecrypt nabízí uživatelům pěkné grafické rozhraní, stejně jako možnost jej ovládat přes příkazový řádek.</p>
+<p>Nejvíce zmiňovanou alternativou pro dm-crypt/LUKS je Truecrypt, zejména kvůli přenositelnosti šifrovaných kontejnerů mezi GNU/Linuxem a Microsoft Windows. V dnešní době je Truecrypt schopen využívat přímo linuxové CryptoAPI a vytváří přímo blokové zařízení prostřednictvím Device Mapperu, což jej řadí blízko k dm-cryptu a LUKS. Samotný Truecrypt nabízí uživatelům pěkné grafické rozhraní, stejně jako možnost jej ovládat přes příkazový řádek.</p>
 
 <p>Jeho výhodou oproti dm-crypt/LUKS jsou skryté svazky uvnitř šifrovaného svazku a s tím související "plausible deniability" aneb možnost "hodnověrného popření" - skryté svazky využívají steganografii, měly by tudíž být neviditelné, pokud připojíte pouze samotný šifrovaný svazek (a nikoliv skrytý svazek v něm ukrytý). V Truecryptu pro GNU/Linux je tato funkcionalita podporována, ale pouze s použitím souborového systému FAT, což může být o něco "nápadnější" než v případě MS Windows. Obzvláště pak, když Truecrypt jinak bez problémů umožňuje vytvářet kontejnery s linuxovými souborovými systémy.</p>
 
@@ -122,7 +122,7 @@ lvm_and_raid.svg Schéma ilustrující možnou konfiguraci RAIDu, dm-crypt/LUKS 
 
 <p>Pokud se podíváte na možnosti uložení, zabezpečení a organizace dat, máte bloková zařízení (pevné disky), z těch můžete vytvářet disková pole, z disků i diskových polí pak můžete vytvářet skupiny svazků a logické svazky, přičemž šifrovat můžete v podstatě kdekoliv.</p>
 
-<p>Základ v každém případě tvoří pevné disky nebo disková pole. U serverů je velmi vhodné použít diskové pole s redundancí k zajištění jisté odolnosti vůči výpadku. V případě většího množství disků, kde je velmi vhodné použít různé disky od různých výrobců, je možné použít RAID 10 (RAID 0 na  jednotlivých  párech zrcadlených disků). RAID 10 nebo 01 dosahuje optimálního kompromisu mezi výkonem a redundancí, ale potřebuje minimálně 4 disky.</p>
+<p>Základ v každém případě tvoří pevné disky nebo disková pole. U serverů je velmi vhodné použít diskové pole s redundancí k zajištění jisté odolnosti vůči výpadku. V případě většího množství disků, kde je velmi vhodné použít různé disky od různých výrobců, je možné použít RAID 10 (RAID 0 na  jednotlivých  párech zrcadlených disků). RAID 10 nebo 01 dosahuje optimálního kompromisu mezi výkonem a redundancí, ale potřebuje minimálně čtyři disky.</p>
 
 <p>LVM je velmi vhodné provozovat z hlediska bezpečnosti dat nad diskovým polem s redundancí a používat jej spíše jen k rozdělení dostupného prostoru do logických  svazků, snapshotům, apod.</p>
 
@@ -168,19 +168,19 @@ zbytečným.</p>
 <code>cryptsetup</code>. Ten byste měli mít k dispozici v repozitářích vaší
 distribuce (v případě Debianu se tento nástroj nachází ve stejnojmeném
 balíčku). Vytvoření šifrovaného svazku provedete s použitím šifrovacího
-algoritmu AES a módu XTS takto:</p>
+algoritmu AES a módu <code>XTS</code> takto:</p>
 
 <pre>cryptsetup -c aes-xts-benbi -s 512 -y luksFormat /dev/svazek</pre>
 
 <p>Povšimněte si parametru <code>-c</code>, kde je na prvním místě šifrovací
 algoritmus, na druhém, oddělen pomlčkou, šifrovací mód a na třetím způsob
-generování inicializačního vektoru (v případě XTS máte na výběr mezi 32-bitovým
-"plain" a 64-bitovým "benbi"). Parametr <code>-s</code> udává délku klíče,
+generování inicializačního vektoru (v případě <code>XTS</code> máte na výběr mezi 32bitovým
+"plain" a 64bitovým "benbi"). Parametr <code>-s</code> udává délku klíče,
 <code>-y</code> vám umožní zadat heslo pro kontrolu dvakrát a
 <code>luksFormat</code> označuje LUKS operaci, tedy inicializaci daného
 svazku.</p>
 
-<p>V případě, že máte k dispozici starší systém, který nezná XTS, použijte mód
+<p>V případě, že máte k dispozici starší systém, který nezná <code>XTS</code>, použijte mód
 <code>cbc-essiv</code>:</p>
 
 <pre>cryptsetup -c aes-cbc-essiv:sha256 -s 256 -y luksFormat /dev/svazek</pre>
@@ -327,7 +327,7 @@ chome /dev/sda3 none luks</pre>
 
 <p>Zejména na laptopech bývá kvůli hibernaci ideální schovat swap (kam se ukládá obraz paměti) do LVM nad zašifrovaným svazkem.</p>
 
-<p>V případě šifrování celého systému se nevyhnete vytvoření iniciálního ramdisku (initrd), kde musí být mj. samotný nástroj <code>cryptsetup</code> (moduly pro souborový systém, diskové řadiče a šifrování mohou být samozřejmě zakompilovány do jádra). V rámci initrd je třeba zajistit načtení nutných modulů, což jsou moduly zahrnující modul se šifrovacím algoritmem (např. <code>aes-i586</code>), modul s šifrovacím módem (např. xts), dále pak <code>dm-crypt</code> a <code>dm-mod</code>.</p>
+<p>V případě šifrování celého systému se nevyhnete vytvoření iniciálního ramdisku (initrd), kde musí být mj. samotný nástroj <code>cryptsetup</code> (moduly pro souborový systém, diskové řadiče a šifrování mohou být samozřejmě zakompilovány do jádra). V rámci initrd je třeba zajistit načtení nutných modulů, což jsou moduly zahrnující modul se šifrovacím algoritmem (např. <code>aes-i586</code>), modul s šifrovacím módem (např. <code>XTS</code>), dále pak <code>dm-crypt</code> a <code>dm-mod</code>.</p>
 
 <p>V Debianu se naštěstí tato konfigurace provádí z velké části automaticky. Už po instalaci cryptsetupu dojde k automatické úpravě iniciálního ramdisku, který získá podporu pro dešifrování kořenového svazku. Tento "automat" však nefunguje úplně vždycky korektně, resp. ne vždy pochopí, co správce zamýšlí.</p>
 
@@ -351,9 +351,9 @@ chome /dev/sda3 none luks</pre>
 
 <p>Adekvátně je třeba upravit <code>/etc/fstab</code>. Tam můžete mít, kupříkladu, následující řádek:</p>
 
-<pre>/dev/hda3        /    ext3    noatime,errors=remount-ro 0       1</pre>
+<pre>/dev/sda3        /    ext3    noatime,errors=remount-ro 0       1</pre>
 
-<p>Původní zařízení (v tomto výpisu by to bylo <code>/dev/hda3</code>) nahraďte cestou k blokovému zařízení "dešifrovaného" svazku, tedy <code>/dev/mapper/root</code>. Výsledek by měl vypadat takto:</p>
+<p>Původní zařízení (v tomto výpisu by to bylo <code>/dev/sda3</code>) nahraďte cestou k blokovému zařízení "dešifrovaného" svazku, tedy <code>/dev/mapper/root</code>. Výsledek by měl vypadat takto:</p>
 
 <pre>/dev/mapper/root /    ext3    noatime,errors=remount-ro 0       1</pre>
 

@@ -14,9 +14,9 @@
 
 lvm.svg Schéma ilustrující princip funkce LVM
 
-<p>A teď ještě jednou a za pomoci terminologie LVM (vizte obrázek nad tímto odstavcem). Úplně vespod máme <strong>physical volumes</strong> (fyzické svazky). To mohou být diskové oddíly, celé pevné disky nebo úplně jiná bloková zařízení. Všechna tato zařízení se umístí do <strong>volume group</strong> (skupiny svazků), která se pak tváří jako jeden velký spojitý prostor, který můžete alokovat do konkrétních <strong>logical volumes</strong> (logických svazků).</p>
+<p>A teď ještě jednou a za pomoci terminologie LVM (viz obrázek nad tímto odstavcem). Úplně vespod jsou <strong>physical volumes</strong> (fyzické svazky). To mohou být diskové oddíly, celé pevné disky nebo úplně jiná bloková zařízení. Všechna tato zařízení se umístí do <strong>volume group</strong> (skupiny svazků), která se pak tváří jako jeden velký spojitý prostor, který můžete alokovat do konkrétních <strong>logical volumes</strong> (logických svazků).</p>
 
-<p>Důvodem, proč preferuji anglickou terminologii, je fakt, že příkazy pro správu LVM jsou z anglických názvů odvozeny. Kupříkladu, vytvoření fyzického svazku (<strong>p</strong>hysical <strong>v</strong>olume) se provádí příkazem <code>pvcreate</code>. Ale samotnou správu LVM si probereme podrobněji až v další kapitole.</p>
+<p>Důvodem, proč preferuji anglickou terminologii, je fakt, že příkazy pro správu LVM jsou z anglických názvů odvozeny. Kupříkladu vytvoření fyzického svazku (<strong>p</strong>hysical <strong>v</strong>olume) se provádí příkazem <code>pvcreate</code>. Ale samotnou správu LVM si probereme podrobněji až v další kapitole.</p>
 
 <h4>Smysl LVM na serveru</h4>
 
@@ -39,26 +39,26 @@ lvm.svg Schéma ilustrující princip funkce LVM
 <pre>debian:~# cat /proc/partitions
 major minor  #blocks  name
 
-   3     0    5242880 hda
-   3     1    5237158 hda1
-   3    64    5242880 hdb
-   3    65    5237158 hdb1
-  22    64    5242880 hdd
-  22    65    5237158 hdd1
+   3     0    5242880 sda
+   3     1    5237158 sda1
+   3    64    5242880 sdb
+   3    65    5237158 sdb1
+  22    64    5242880 sdd
+  22    65    5237158 sdd1
 </pre>
 
-<p>Prvním krokem je vytvoření fyzického svazku. Vytvoříte tedy fyzický svazek z oddílu <code>hdb1</code>:</p>
+<p>Prvním krokem je vytvoření fyzického svazku. Vytvoříte tedy fyzický svazek z oddílu <code>sdb1</code>:</p>
 
-<pre>debian:~# pvcreate /dev/hdb1
-  Physical volume "/dev/hdb1" successfully created
+<pre>debian:~# pvcreate /dev/sdb1
+  Physical volume "/dev/sdb1" successfully created
 debian:~# </pre>
 
 <p>Tímto byl vytvořen fyzický svazek. Podrobné informace o fyzickém svazku, který byl právě vytvořen, lze zobrazit s použitím nástroje <code>pvdisplay</code>, který vypíše informace o konkrétním fyzickém svazku, pokud mu jako parametr zadáte nějaký konkrétní, nebo vypíše informace o všech fyzických svazcích, o kterých ví (v tomto případě pouze o tom jednom), pokud jej spustíte bez parametrů:</p>
 
 <pre>debian:~# pvdisplay
-  "/dev/hdb1" is a new physical volume of "4.99 GB"
+  "/dev/sdb1" is a new physical volume of "4.99 GB"
   --- NEW Physical volume ---
-  PV Name               /dev/hdb1
+  PV Name               /dev/sdb1
   VG Name               
   PV Size               4.99 GB
   Allocatable           NO
@@ -69,9 +69,9 @@ debian:~# </pre>
   PV UUID               3wvOQk-M0uS-XJN6-nlrl-x8Uz-CJDF-in2fEs
 </pre>
 
-<p>Velikost svazku je 4.99GB, většina ostatních hodnot je poznamenána tím, že fyzický svazek není součástí žádné skupiny svazků (volume group). Abyste mohli fyzický svazek využít, musíte jej začlenit do skupiny svazků. Jelikož v tuto chvíli není k dispozici žádná skupina svazků, vytvoříte novou, třeba s názvem "data", s pomocí právě tohoto fyzického svazku:</p>
+<p>Velikost svazku je 4.99 GB, většina ostatních hodnot je poznamenána tím, že fyzický svazek není součástí žádné skupiny svazků (volume group). Abyste mohli fyzický svazek využít, musíte jej začlenit do skupiny svazků. Jelikož v tuto chvíli není k dispozici žádná skupina svazků, vytvoříte novou, třeba s názvem "data", s pomocí právě tohoto fyzického svazku:</p>
 
-<pre>debian:~# vgcreate data /dev/hdb1
+<pre>debian:~# vgcreate data /dev/sdb1
   Volume group "data" successfully created
 debian:~#</pre>
 
@@ -97,15 +97,13 @@ debian:~#</pre>
   Total PE              1278
   Alloc PE / Size       0 / 0   
   Free  PE / Size       1278 / 4.99 GB
-  VG UUID               SmBDKH-iTL3-K3aM-I4e6-qgyZ-XL05-wxG7P1
- 
-debian:~#</pre>
+  VG UUID               SmBDKH-iTL3-K3aM-I4e6-qgyZ-XL05-wxG7P1</pre>
 
 <p>Z výpisu je vidět použitý formát (<code>lvm2</code>), počet fyzických svazků přiřazených do skupiny, dále celkovou velikost skupiny svazků i její obsazení. Všimněte si také zkratky PE, jejíž význam odhaluje jádro fungování LVM.</p>
 
-<p>LVM pracuje na fyzické úrovni tak, že si rozdělí fyzické svazky do bloků určité velikosti, které pak přiděluje jednotlivým logickým svazkům. Tyto bloky jsou nazývány jako "physical extent" (dále PE). Ve výpisu je vidět, že jeden PE má v tomto případě velikost 4MB a skupina svazků jich má k dispozici celkem 1278, z nichž žádný není dosud alokován (přiřazen logickému svazku).</p>
+<p>LVM pracuje na fyzické úrovni tak, že si rozdělí fyzické svazky do bloků určité velikosti, které pak přiděluje jednotlivým logickým svazkům. Tyto bloky jsou nazývány jako "physical extent" (dále PE). Ve výpisu je vidět, že jeden PE má v tomto případě velikost 4 MB a skupina svazků jich má k dispozici celkem 1278, z nichž žádný není dosud alokován (přiřazen logickému svazku).</p>
 
-<p>Ještě než se vrátím k vytváření logického svazku, upozorním ještě na to, čeho si pozorný čtenář jistě všiml, a sice nápadné podobnosti jednotlivých příkazů pro správu LVM, které se liší pouze úvodními dvěma písmeny. V případě LVM je dobré si v paměti uchovat anglické názvy všech pojmů jako "physical volume", "volume group" a "logical volume", protože počáteční písmena daných názvů tvoří prefix pro sadu příkazů, kterými je lze spravovat. Tudíž, pokud operujete s fyzickými svazky, použijete prefix <em>pv</em> následovaný slovíčky jako <em>display</em>, <em>create</em>, <em>extend</em>, atd., a analogický postup použijete v případě ostatních komponent LVM.</p>
+<p class="box">Ještě než se vrátím k vytváření logického svazku, upozorním ještě na to, čeho si pozorný čtenář jistě všiml, a sice nápadné podobnosti jednotlivých příkazů pro správu LVM, které se liší pouze úvodními dvěma písmeny. V případě LVM je dobré si v paměti uchovat anglické názvy všech pojmů jako "physical volume", "volume group" a "logical volume", protože počáteční písmena daných názvů tvoří prefix pro sadu příkazů, kterými je lze spravovat. Tudíž, pokud operujete s fyzickými svazky, použijete prefix <em>pv</em> následovaný slovíčky jako <em>display</em>, <em>create</em>, <em>extend</em>, atd., a analogický postup použijete v případě ostatních komponent LVM.</p>
 
 <p>Avšak zpět k vytváření LVM. V tuto chvíli je tedy vytvořena skupina svazků z jednoho fyzického svazku. Zbývá poslední krok, a sice vytvoření logického svazku:</p>
 
@@ -160,13 +158,13 @@ debian:~#</pre>
 
 <p>Jak je vidět, všechny PE (physical extents) byly již alokovány, to znamená, že v tuto chvíli již není z čeho vytvořit nový logický svazek. Skupina svazků se ale může sestávat z více než jednoho fyzického svazku. Je tedy možné přidat další blokové zařízení (ať už disk, oddíl, diskové pole, apod.) a rozšířit dostupnou kapacitu skupiny svazků:</p>
 
-<pre>debian:~# pvcreate /dev/hdd1
-  Physical volume "/dev/hdd1" successfully created
-debian:~# vgextend data /dev/hdd1
+<pre>debian:~# pvcreate /dev/sdd1
+  Physical volume "/dev/sdd1" successfully created
+debian:~# vgextend data /dev/sdd1
   Volume group "data" successfully extended
 </pre>
 
-<p>Prvním příkazem byl z diskového oddílu <code>hdd1</code> vytvořen fyzický svazek, ve druhém kroku byla rozšířena skupina svazků "<code>data</code>" o nový fyzický svazek. Nástroj <code>vgdisplay</code> nyní potvrzuje navýšení kapacity skupiny svazků:</p>
+<p>Prvním příkazem byl z diskového oddílu <code>sdd1</code> vytvořen fyzický svazek, ve druhém kroku byla rozšířena skupina svazků "<code>data</code>" o nový fyzický svazek. Nástroj <code>vgdisplay</code> nyní potvrzuje navýšení kapacity skupiny svazků:</p>
 
 <pre>...
   VG Size               9.98 GB
@@ -189,7 +187,7 @@ debian:~# df -h
 Filesystem                 Size  Used Avail Use% Mounted on
 /dev/mapper/data-zalohy    5.0G  374M  4.3G   8% /mnt</pre>
 
-<p>Výstup příkazu <code>df</code> jsem uvedl pro lepší pochopení toho, co se stalo. Jak je patrné, ačkoliv byl logický svazek zvětšen o 2GB, tedy na 7GB celkem, souborový systém stále hlásí kapacitu 5GB. Logický svazek se v tomto směru chová jako diskový oddíl, který byl rozšířen, ale souborový systém na něm nebyl nijak pozměněn, tudíž hlásí stejnou kapacitu jako před tím. Aby mohl souborový systém nově vzniklý extra prostor využít, je třeba jej rozšířit ručně.</p>
+<p>Výstup příkazu <code>df</code> jsem uvedl pro lepší pochopení toho, co se stalo. Jak je patrné, ačkoliv byl logický svazek zvětšen o 2 GB, tedy na 7 GB celkem, souborový systém stále hlásí kapacitu 5 GB. Logický svazek se v tomto směru chová jako diskový oddíl, který byl rozšířen, ale souborový systém na něm nebyl nijak pozměněn, tudíž hlásí stejnou kapacitu jako před tím. Aby mohl souborový systém nově vzniklý extra prostor využít, je třeba jej rozšířit ručně.</p>
 
 <p>V případě souborového systému <em>ext3</em> nebo <em>ext4</em> lze použít nástroje <code>resize2fs</code>, který umí změnit jeho velikost a roztáhnout jej na celý oddíl. Tuto změnu je o něco lepší provádět na odpojeném souborovém systému, jelikož se jedná o mírně riskantní operaci, ale lze ji samozřejmě provést i na připojeném souborovém systému přímo za běhu:</p>
 
@@ -276,31 +274,31 @@ The filesystem on /dev/data/zalohy is now 1835008 blocks long.</pre>
 
 <p>Pokud zadáte nástroji <code>pvmove</code> pouze jeden fyzický svazek, přesune všechna data z daného svazku na ostatní fyzické svazky v dané skupině svazků:</p>
 
-<pre>debian:~# pvmove /dev/hdb1
-  /dev/hdb1: Moved: 37.2%
-  /dev/hdb1: Moved: 67.3%
-  /dev/hdb1: Moved: 100.0%
+<pre>debian:~# pvmove /dev/sdb1
+  /dev/sdb1: Moved: 37.2%
+  /dev/sdb1: Moved: 67.3%
+  /dev/sdb1: Moved: 100.0%
 </pre>
 
-<p>V tuto chvíli je fyzický svazek <code>hdb1</code> volný, a je tedy možné jej odstranit ze skupiny svazků:</p>
+<p>V tuto chvíli je fyzický svazek <code>sdb1</code> volný, a je tedy možné jej odstranit ze skupiny svazků:</p>
 
-<pre>debian:~# vgreduce data /dev/hdb1</pre>
+<pre>debian:~# vgreduce data /dev/sdb1</pre>
 
 <p>Teprve teď je možné zavolat <code>pvremove</code> k odstranění logického svazku, nebo, přesněji řečeno, příslušných metadat, které si na daný oddíl LVM zapsalo:</p>
 
-<pre>debian:~# pvremove /dev/hdb1</pre>
+<pre>debian:~# pvremove /dev/sdb1</pre>
 
 <p>Tento krok je samozřejmě nepovinný a není nutný - zejména, pokud máte v plánu přiřadit dané fyzické svazky jiné skupině svazků. Tentýž postup lze provést i s druhým diskem:</p>
 
-<pre>debian:~# pvmove /dev/hdd1
-  /dev/hdd1: Moved: 32.2%
-  /dev/hdd1: Moved: 64.0%
-  /dev/hdd1: Moved: 97.7%
-  /dev/hdd1: Moved: 100.0%
-debian:~# vgreduce data /dev/hdd1
-  Removed "/dev/hdd1" from volume group "data"
-debian:~# pvremove /dev/hdd1
-  Labels on physical volume "/dev/hdd1" successfully wiped</pre>
+<pre>debian:~# pvmove /dev/sdd1
+  /dev/sdd1: Moved: 32.2%
+  /dev/sdd1: Moved: 64.0%
+  /dev/sdd1: Moved: 97.7%
+  /dev/sdd1: Moved: 100.0%
+debian:~# vgreduce data /dev/sdd1
+  Removed "/dev/sdd1" from volume group "data"
+debian:~# pvremove /dev/sdd1
+  Labels on physical volume "/dev/sdd1" successfully wiped</pre>
 
 <p>V tuto chvíli jsou všechna data přesunuta ze dvou menších disků na jeden větší. V případě výpadku napájení nebo pádu systému je po opětovném nastartování možné v přesunu pokračovat tím, že znovu spustíte nástroj <code>pvmove</code>, bez parametrů. Proceduru je možné i přerušit, použijete-li parametr <code>--abort</code>.</p>
 
@@ -308,7 +306,7 @@ debian:~# pvremove /dev/hdd1
 
 <pre>debian:~# pvs
   PV         VG   Fmt  Attr PSize  PFree
-  /dev/hdc1  data lvm2 a-   10.99G 4.99G
+  /dev/sdc1  data lvm2 a-   10.99G 4.99G
 </pre>
 
 <p>Podobným způsobem můžete vyvolat informace o logických svazcích (nástroj <code>lvs</code>) nebo skupinách svazků (nástroj <code>vgs</code>). Tyto nástroje poskytují v porovnání s nástroji <code>*display</code> pouze základní přehled.</p>
@@ -321,7 +319,7 @@ debian:~# pvremove /dev/hdd1
 
 <p>Za druhé, nástroje pro správu LVM umí ledacos, včetně postupů pro zotavení z nějakého problémového stavu. Studiem manuálových stránek se pak můžete vyhnout časově náročným a velice komplikovaným ručním postupům.</p>
 
-<p>A konečně za třetí - LVM představuje další funkční vrstvu mezi médiem a souborovým systémem, jejíž případné chyby (nebo chyby administrátora při její správě) mohou negativně ovlivnit vaše data a zkomplikovat vám práci při případných záchranných operacích, pokud třeba selže HW. V této souvislosti opět zopakuji, že zálohování je nutnost.</p>
+<p>A konečně za třetí - LVM představuje další funkční vrstvu mezi médiem a souborovým systémem, jejíž případné chyby (nebo chyby administrátora při její správě) mohou negativně ovlivnit vaše data a zkomplikovat vám práci při případných záchranných operacích, pokud třeba selže hardware. V této souvislosti opět zopakuji, že zálohování je nutnost.</p>
 
 <h4>Snapshoty</h4>
 
@@ -329,7 +327,7 @@ debian:~# pvremove /dev/hdd1
 
 <p>Snapshoty lze provádět i za běhu s připojeným souborovým systémem, i když tento postup může vést k nekonzistentním datům. Je to dáno tím, že snapshot je prováděn na úrovni "pod" souborovým systémem, o jehož stavu nemá LVM žádné informace (a naopak, souborový systém netuší, že ve funkční vrstvě pod ním došlo k nějakému zmražení stavu). Pokud tedy v okamžiku vytvoření snapshotu nějaká aplikace právě provádí zápis dat do souboru, nebo si data k zapsání na disk teprve uchovává v paměti s cílem je později uložit, je jasné, že snapshot bude obsahovat nekonzistentní data.</p>
 
-<p>Souborový systém je možné před pořízením snapshotu odpojit nebo přepojit do režimu read-only, což by se, jen tak pro zajímavost, provedlo takto:</p>
+<p>Souborový systém je možné před pořízením snapshotu odpojit nebo přepojit do režimu read-only, což by se provedlo takto:</p>
 
 <pre>mount -o remount,ro /dev/zarizeni</pre>
 
@@ -356,7 +354,7 @@ drwxr-xr-x   2 root root  4096 Feb 25 18:53 obsolete</pre>
   Logical volume "momentka" created
 </pre>
 
-<p>Všimněte si, že je nutné snapshotu přiřadit nějaký prostor (v tomto případě 2GB), kam se pak zapisují změny oproti fyzickému svazku, ze kterého je vytvořen.</p>
+<p>Všimněte si, že je nutné snapshotu přiřadit nějaký prostor (v tomto případě 2 GB), kam se pak zapisují změny oproti fyzickému svazku, ze kterého je vytvořen.</p>
 
 <p>V tuto chvíli začnete provádět změny. Na fyzickém svazku odstraníte adresář <code>obsolete</code> obsahující stará a nezajímavá data. Přidáte nový adresář <code>archive</code>, kam umístíte nějaké zálohy. Výsledek bude vypadat takto:</p>
 
@@ -512,7 +510,7 @@ EXT3-fs (dm-0): error: unable to read superblock</pre>
 
 <pre>(6 * 1024) / 4 = 1536</pre>
 
-<p>Zjistit konkrétně hodnoty alokace PE můžete pomocí nástroje <code>vgdisplay</code>:</p>
+<p>Zjistit konkrétně hodnoty alokace PE můžete pomocí nástroje <code>pvdisplay</code>:</p>
 
 <pre>[root@debian ~]# pvdisplay /dev/sdb
   --- Physical volume ---
