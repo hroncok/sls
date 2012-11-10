@@ -121,7 +121,7 @@ check file httpd.conf
 
 <p>Základem pro monitorování vzdálených serverů je jejich dostupnost na síti, což lze testovat prostřednictvím protokolu ICMP (viz druhý řádek příkladu). Zde, pokud na ping vzdálený server neodpoví během pěti cyklů Monitu, zašle se o tom upozornění správci. Hlídání je pak nastaveno tak, že se v každém cyklu zasílají celkem tři ICMP pakety a na odpověď se čeká po dobu patnácti sekund.</p>
 
-<p>Hlídání dalších služeb pak následuje (řádky 3-5). V tomto případě se jedná o testování fungování příslušného protokolu, nikoliv tedy o pouhý test TCP spojení. Monit podporuje   celou řadu protokolů, viz oficiální dokumentace.</p>
+<p>Hlídání dalších služeb pak následuje. V tomto případě se jedná o testování fungování příslušného protokolu, nikoliv tedy o pouhý test TCP spojení. Monit podporuje   celou řadu protokolů, viz oficiální dokumentace.</p>
 
 <h4>Webové rozhraní Monitu</h4>
 
@@ -142,7 +142,7 @@ monit_web_production_screenshot.png Základní obrazovka webového rozhraní Mon
 
 <p>Pokud byste se podívali na detail některé hlídané služby, vypadalo by to takto:</p>
 
-monit_web_production_service_screenshot.png >Detail hlídané služby
+monit_web_production_service_screenshot.png Detail hlídané služby
 
 <p>Jak je z obrázku patrné, službu je možné ovládat pomocí tlačítek ve spodní části obrazovky. Snadno tak zajistíte vzdálený restart bez nutnosti použít příkazovou řádku. Detail hlídání vzdáleného serveru může vypadat kupříkladu takto:</p>
 

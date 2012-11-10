@@ -32,7 +32,7 @@
 <p>seznam nainstalovaného softwaru – 	využijte správce balíčků k získání seznamu explicitně 	nainstalovaných balíčků</p>
 </li>
 <li>
-<p>extra software, který byl 	nainstalovaný mimo balíčkovací systém (obvykle dostupný v 	<code>/opt</code>)</p>
+<p>extra software, který byl 	nainstalovaný mimo balíčkovací systém (obvykle dostupný v <code>/opt</code> nebo <code>/usr/local</code>)</p>
 </li>
 <li>
 <p>konfigurace systému a systémových 	služeb (většina by měla být v <code>/etc</code>, 	ale výjimky existují)</p>
@@ -44,7 +44,7 @@
 <p>databáze různých monitorovacích 	nástrojů a nástrojů tvořících statistiky (např. Awstats s 	daty ve <code>/var/lib/awstats</code> atd.)</p>
 </li>
 <li>
-<p>atd.</p>
+<p>apod.</p>
 </li>
 </ul>
 
@@ -58,7 +58,7 @@
 
 <p>Zálohovat je třeba především s ohledem na konzistenci dat, tzn. nezálohovat soubory, do kterých může být právě zapisováno (nejčastěji se jedná o datové soubory databáze).</p>
 
-<h5>Rozdílová versus plná záloha</h5>
+<h4>Rozdílová versus plná záloha</h4>
 
 <p>Zálohovací systémy mají obvykle nejenom schopnost zálohovat všechna data tak, jak jsou (tomu se říká plná záloha), ale i možnost zálohovat pouze změny, ke kterým došlo od předchozí zálohy (tomu se říká rozdílová záloha). Rozdílové zálohování umožňuje pracovat poměrně efektivně s úložištěm pro zálohy a zbytečně na něm neplýtvat místo. Rozdílové zálohování ale skýtá potenciální problém – každá rozdílová záloha je pevně spjata s plnou zálohou. Jak se data mění, rozdílů přibývá, čímž klesá výkon zálohování a celá záloha zastarává. Z tohoto důvodu je vhodné provést jednou za čas plnou zálohu, stejně jako dbát na odstranění starých a nepotřebných záloh.</p>
 
@@ -76,7 +76,7 @@
 
 <h4>Čím zálohovat</h4>
 
-<p>V této kapitole budou představeny dva zálohovací nástroje, <code>rdiff-backup</code> a <code>duplicity</code>. Zálohovacích nástrojů ale existuje nepoměrně více, ať už se jedná o FOSS či komerční řešení. Použité nástroje se samozřejmě také odvíjí od toho, kde jsou data uložena. Kupříkladu, disková pole, LVM či virtualizační řešení umožňují provádět snapshoty, což je určitě jeden ze zajímavých způsobů zálohování, byť asi ne zcela postačující, pokud byste kromě tohoto způsobu nezálohovali jinak.</p>
+<p>V této kapitole budou představeny dva zálohovací nástroje, <code>rdiff-backup</code> a <code>duplicity</code>. Zálohovacích nástrojů ale existuje nepoměrně více, ať už se jedná o open-source či komerční řešení. Použité nástroje se samozřejmě také odvíjí od toho, kde jsou data uložena. Kupříkladu, disková pole, LVM či virtualizační řešení umožňují provádět snapshoty, což je určitě jeden ze zajímavých způsobů zálohování, byť asi ne zcela postačující, pokud byste kromě tohoto způsobu nezálohovali jinak.</p>
 
 <h4>Bezpečnost záloh</h4>
 
@@ -98,7 +98,7 @@
 
 <h4>Místní záloha</h4>
 
-<p>Nejjednodušší příklad použití nástroje <code>rdiff-backup</code> je místní záloha, tzn. záloha v rámci jednoho počítače. V takovém případě je už z principu velmi vhodné zálohovat na jiné médium, než na kterém se nachází zdrojová data. Pokud by byla data k zálohování v adresáři <code>/home/data</code> a připojený externí disk v /mnt/extdisk, záloha by se provedla takto:</p>
+<p>Nejjednodušší příklad použití nástroje <code>rdiff-backup</code> je místní záloha, tzn. záloha v rámci jednoho počítače. V takovém případě je už z principu velmi vhodné zálohovat na jiné médium, než na kterém se nachází zdrojová data. Pokud by byla data k zálohování v adresáři <code>/home/data</code> a připojený externí disk v <code>/mnt/extdisk</code>, záloha by se provedla takto:</p>
 
 <pre>rdiff-backup /home/data /mnt/extdisk</pre>
 
@@ -163,7 +163,7 @@ rdiff-backup --remove-older-than 30D /mnt/zaloha</pre>
 
 <h3>Zálohování pomocí Duplicity</h3>
 
-<p>Na rozdíl od <code>rdiff-backup</code> není u Duplicity dostupná poslední záloha v „otevřené“ podobě, kde by stačilo prosté překopírování souborů z úložiště zpět. Jiný způsob práce umožňuje tomuto nástroji nabídnout poněkud jiné spektrum funkcí jako například komprimaci či šifrování záloh pomocí GnuPG, nebo třeba v případě vzdáleného zálohování absenci nutnosti mít Duplicity i na cílovém počítači. Stejně jako <code>rdiff-backup</code> využívá i Duplicity přenosové pásmo efektivně a přenáší na vzdálený počítač pouze změny. Duplicity však může stejně jako <code>rdiff-backup</code> pracovat lokálně, tedy zálohovat v rámci jednoho počítače, a zvládá jak plnou, tak rozdílovou zálohu.</p>
+<p>Na rozdíl od <code>rdiff-backup</code> není u Duplicity dostupná poslední záloha v „otevřené“ podobě, kde by stačilo prosté překopírování souborů z úložiště zpět. Jiný způsob práce umožňuje tomuto nástroji nabídnout poněkud jiné spektrum funkcí jako například komprimaci či šifrování záloh pomocí GnuPG, nebo třeba v případě vzdáleného zálohování absenci nutnosti mít Duplicity i na cílovém počítači. Stejně jako <code>rdiff-backup</code> využívá i Duplicity přenosové pásmo efektivně a přenáší na vzdálený počítač pouze změny. Duplicity může stejně jako <code>rdiff-backup</code> pracovat lokálně, tedy zálohovat v rámci jednoho počítače, a zvládá jak plnou, tak rozdílovou zálohu.</p>
 
 <h4>Jednoduchá nešifrovaná záloha</h4>
 
@@ -223,7 +223,7 @@ duplicity --encrypt-key CAC193E6 /home/co scp://uzivatel@server/backup/kam</pre>
 
 <h4>Vyloučení položek z adresáře k zálohování</h4>
 
-<p>V řadě situací budete chtít zálohovat z příslušných adresářů pouze určité soubory, ale ne úplně všechny (některé soubory či adresáře je vhodné vyloučit už z principu jako <code>/dev</code>, <code>/proc</code>, <code>/sys</code>, atd.). Za tímto účelem obsahuje Duplicity volbu <code>--exclude</code>, kterou můžete použít opakovaně k vyloučení libovolného množství položek:</p>
+<p>V řadě situací budete chtít zálohovat z příslušných adresářů pouze určité soubory, ale ne úplně všechny (některé soubory či adresáře jako <code>/dev</code>, <code>/proc</code>, <code>/sys</code>, atd. je vhodné vyloučit už z principu). Za tímto účelem obsahuje Duplicity stejně jako rdiff-backup volbu <code>--exclude</code>, kterou můžete použít opakovaně k vyloučení libovolného množství položek:</p>
 
 <pre>duplicity --exclude /home/co/vyradit --exclude /home/co/dev /home/co scp://uzivatel@server/backup/kam</pre>
 
@@ -237,7 +237,7 @@ duplicity --encrypt-key CAC193E6 /home/co scp://uzivatel@server/backup/kam</pre>
 
 <pre>duplicity --encrypt-key CAC193E6 scp://uzivatel@server/zaloha/ /home/obnoveno</pre>
 
-<p>Všimněte si, že je třeba explicitně specifikovat klíč k obnově dat. Pokud byste ho neuvedli, Duplicity by předpokládal použití symetrického klíče a vyzval vás k zadání symetrického hesla. Přirozeně, obnova probíhá pomocí soukromého klíče, ke kterému budete muset heslo zadat.</p>
+<p>Všimněte si, že je třeba explicitně specifikovat klíč k obnově dat. Pokud byste ho neuvedli, Duplicity by předpokládal použití symetrického klíče a vyzval vás k zadání symetrického hesla. Přirozeně, obnova probíhá pomocí soukromého klíče, ke kterému budete muset zadat heslo.</p>
 
 <p>Tento příklad obnovil aktuální data k datu poslední zálohy, což ovšem ne vždy využijete. Někdy budete potřebovat obnovit data k některému dřívějšímu datu. To je možné provést taktéž, a sice pomocí volby <code>-t</code> a jejího parametru v podobě časového údaje. Čas můžete specifikovat buď absolutně (např. <code>2010-09-15</code>), nebo relativně (např. <code>30D</code> k obnově zálohy staré třicet dní). Obnova týden staré zálohy  by vypadala takto:</p>
 
@@ -267,5 +267,6 @@ duplicity --encrypt-key CAC193E6 /home/co scp://uzivatel@server/backup/kam</pre>
 
 <p>Volba <code>remove-all-but-n-full</code> pracuje malinko jinak – ta bere jako parametr číslo odpovídající počtu plných záloh (s navázanými rozdílovými), které chcete zachovat. Pokud tedy zadáte jako parametr pro tuto volbu číslo tři, budou ponechány tři poslední plné zálohy (samozřejmě s na ně navázanými rozdílovými), ostatní budou vymazány.</p>
 
-http://www.nongnu.org/rdiff-backup/ Web projektu rdiff-backup
+http://rdiff-backup.nongnu.org/ Web projektu rdiff-backup
+http://duplicity.nongnu.org/ Web projektu Duplicity
 http://www.linuxexpres.cz/praxe/zalohuj-sva-data-tolikrat-kolikrat-je-mas-rad LinuxEXPRES, Zálohuj svá data tolikrát, kolikrát je máš rád

@@ -240,7 +240,7 @@ gpg --verify httpd-2.2.20.tar.bz2.asc</pre>
 
 <h4>Vanilla nebo distribuční kernel?</h4>
 
-<p>Kompilovat můžete jak distribuční jádro (zdrojáky bývají k dispozici jako samostatný balíček), tak vanilla jádro, které si stáhnete z <em>kernel.org</em>. Vývojáři udržují více stabilních verzí jádra, přičemž některé větve mají dokonce dlouhodobou podporu. Volba je v tomto případě samozřejmě na vás. Novější jádra obvykle vylepšují podporu hardwaru a opravují chyby, ale mohou obsahovat i regrese (což v programátorském žargonu znamená „<em>dříve nám to fungovalo, ale mezi tím to někdo rozbil“</em>).</p>
+<p>Kompilovat můžete jak distribuční jádro (zdrojáky bývají k dispozici jako samostatný balíček), tak vanilla jádro, které si stáhnete z <em>kernel.org</em>. Vývojáři udržují více stabilních verzí jádra, přičemž některé větve mají dokonce dlouhodobou podporu. Volba je v tomto případě samozřejmě na vás. Novější jádra obvykle vylepšují podporu hardwaru a opravují chyby, ale mohou obsahovat i regrese (což v programátorském žargonu znamená „<em>dříve nám to fungovalo, ale mezitím to někdo rozbil“</em>).</p>
 
 <p>Použít distribuční verzi jádra může být v tomto směru výhodnější – jednak neobjevíte regrese (s největší pravděpodobností) a jednak se vám bude dostávat jeho oprav po dobu života distribuce.</p>
 
@@ -357,7 +357,7 @@ make oldconfig</pre>
 
 <pre>cp arch/x86/boot/bzImage /boot/vmlinuz-verze_jadra</pre>
 
-<p>Zde musíte řetězec <code>verze_jadra</code> nahradit za celý název verze jádra (můžete se orientovat dle názvu adresáře v <code>/lib/modules</code>, který odpovídá vámi zkompilovanému jádru). Dodám, že tato cesta by měla platit i pro jádra zkompilovaná pro 64-bitový procesor.</p>
+<p>Zde musíte řetězec <code>verze_jadra</code> nahradit za celý název verze jádra (můžete se orientovat dle názvu adresáře v <code>/lib/modules</code>, který odpovídá vámi zkompilovanému jádru). Dodám, že tato cesta by měla platit i pro jádra zkompilovaná pro 64bitový procesor.</p>
 
 <p>Následně vygenerujte iniciální ramdisk:</p>
 

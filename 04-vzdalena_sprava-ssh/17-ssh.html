@@ -3,8 +3,8 @@
 <p>Každý administrátor unixových serverů by měl být seznámen se SSH a jeho
 schopnostmi a možnostmi. SSH lze z pohledu administrátora chápat jako šifrovaný
 tunel mezi dvěma počítači na bázi klient/server. Přes něj můžete přistupovat k
-shellu vzdáleného počítače, ale také kopírovat soubory, spouštět vzdáleně Xkové
-aplikace, vytvářet roury z místního počítače na vzdálený či vytvářet šifrované
+shellu vzdáleného počítače, ale také kopírovat soubory, spouštět vzdáleně
+aplikace s grafickým rozhraním, vytvářet roury z místního počítače na vzdálený či vytvářet šifrované
 tunely pro vzdálený přístup k nějaké službě, která je za firewallem.
 Prostřednictvím <code>sshfs</code>
 je dokonce možné připojit vzdálený souborový systém přes FUSE na místní
@@ -50,28 +50,15 @@ adresář.</p>
 
 <p>Tento příkaz vytvoří šifrovaný tunel mezi vaším počítačem a serverem, který zpřístupní váš místní port 22 (kde obvykle běží SSH) klientům serveru na portu 5000. Tudíž, pokud se nějaký klient spojí s portem 5000 na serveru, bude přes tunel přistupovat k vašemu místnímu portu 22.</p>
 
-<p>Přes SSH je možné pouštět i aplikace využívající grafického rozhraní, je-li to na serveru povoleno (volba <code>X11Forwarding</code>). Pro každý vzdálený server si můžete vytvořit specifickou konfiguraci v souboru <code>.ssh/config</code> ve svém domovském adresáři, kde můžete specifikovat i konkrétní SSH klíč, který se má k přístupu k serveru použít. Pro správu serverů přes nespolehlivé spojení se vám může hodit program <code>screen</code>, jehož stěžejní vlastností pro práci přes SSH je to, že po ukončení spojení zůstane běžet a vy se k němu můžete opět připojit pomocí:</p>
-
-<pre>screen -x</pre>
-
-<p>Screen se ovládá pomocí klávesových zkratek. Základní klávesové zkratky pro práci s ním jsou:</p>
-
-<ul>
-<li><b>Ctrl-A C</b> vytvořit nový shell</li>
-<li><b>Ctrl-A N</b> přejít na následující shell</li>
-<li><b>Ctrl-A P</b> přejít na předchozí shell</li>
-<li><b>Ctrl-A D</b> „odpojit“ se od Screenu (zůstane běžet a bude možné se k danému sezení opět připojit přes výše uvedený přepínač <code>-x</code>)</li>
-</ul>
-
-<p>Tolik k nouzovému rychlokurzu Screenu. Pokud vás Screen zaujal, můžete se o něm dozvědět více v odkazech pod kapitolou.</p>
+<p>Přes SSH je možné pouštět i aplikace využívající grafického rozhraní, je-li to na serveru povoleno (volba <code>X11Forwarding</code>). Pro každý vzdálený server si můžete vytvořit specifickou konfiguraci v souboru <code>.ssh/config</code> ve svém domovském adresáři, kde můžete specifikovat i konkrétní SSH klíč, který se má k přístupu k serveru použít. Pro správu serverů přes nespolehlivé spojení se vám může hodit program <code>screen</code>, jehož stěžejní vlastností pro práci přes SSH je to, že po ukončení spojení zůstane běžet a vy se k němu můžete opět připojit. Pokud vás <code>screen</code> zaujal, můžete se o něm dozvědět více v odkazech pod kapitolou.</p>
 
 <h2>sshfs</h2>
 
-<p><code>sshfs</code> je FUSE modul, který umožňuje připojovat vzdálené souborové systémy prostřednictvím SSH/SCP:</p>
+<p><code>sshfs</code> je FUSE modul, který umožňuje připojovat vzdálené souborové systémy prostřednictvím SSH/SFTP:</p>
 
 <pre>sshfs uzivatel@server:/cesta /kam/pripojit</pre>
 
-<p>Souborový systém sshfs má celou řadu konfiguračních voleb, které se dozvíte z manuálové stránky. Já si dovolím upozornit na jednu věc, se kterou jsem se setkal, a sice problém s připojením Git repozitáře přes <code>sshfs</code>. Pokud se provede připojení s výchozím nastavením, Git mi odmítal poslušnost. Pokud na takový problém narazíte, zkuste použít následující volbu:</p>
+<p>Souborový systém sshfs má celou řadu konfiguračních voleb, které se dozvíte z manuálové stránky. Já si dovolím upozornit na jednu věc, se kterou jsem se setkal, a sice problém s připojením Git repozitáře přes <code>sshfs</code>. Pokud se provede připojení s výchozím nastavením, Git odmítal poslušnost. Pokud na takový problém narazíte, zkuste použít následující volbu:</p>
 
 <pre>sshfs <strong>-o workaround=rename</strong> uzivatel@server:/cesta /kam/pripojit</pre>
 
@@ -79,17 +66,17 @@ adresář.</p>
 
 <h2>fish</h2>
 
-<p>V KDE aplikacích je možné využít pro přístup k vzdálenému souborovému systému protokol „fish“, který umí pohodlně připojit vzdálený souborový systém přes SSH, a to prostřednictvím URL ve tvaru <code>fish://uzivatel@server</code>.</p>
+<p>V KDE aplikacích je možné využít pro přístup k vzdálenému souborovému systému protokol „fish“, který umí pohodlně připojit vzdálený souborový systém přes SSH, a to prostřednictvím URL ve tvaru <code>fish://uzivatel@server</code>. Obdobně lze v GNOME nebo Xfce použít URL <code>sftp://</code>.</p>
 
 <h2>SSH servery</h2>
 
-<p>Nejznámějším SSH serverem je OpenSSH, vyvinut původně jako součást unixového operačního systému OpenBSD. Tento nástroj převzaly díky jeho licenci prakticky všechny linuxové distribuce. OpenSSH ale není jediným SSH serverem, těch je dokonce celá řada. Kromě komerčních a proprietárních variant máme pro GNU/Linux k dispozici Dropbear, který vyniká především svou lehkostí, pro kterou se výborně hodí jak na embedded zařízení, tak třeba na virtuální servery s hodně omezenou pamětí (obvykle ty levnější tarify), kde vám ušetří nějaký kus paměti. Na ostatní SSH servery se můžete podívat na Wikipédii. Dodávám, že některé funkce SSH, které jsem tu popsal, nemusí být k dispozici ve všech SSH serverech.</p>
+<p>Nejznámějším SSH serverem je OpenSSH, vyvinut původně jako součást unixového operačního systému OpenBSD. Tento nástroj převzaly díky jeho licenci prakticky všechny linuxové distribuce. OpenSSH ale není jediným SSH serverem, těch je dokonce celá řada. Kromě komerčních a proprietárních variant máme pro GNU/Linux k dispozici Dropbear, který vyniká především svou lehkostí, pro kterou se výborně hodí jak na embedded zařízení, tak třeba na virtuální servery s hodně omezenou pamětí (obvykle ty levnější tarify), kde nějaký kus paměti ušetří. Na ostatní SSH servery se můžete podívat na Wikipedii. Dodávám, že některé funkce SSH, které jsem tu popsal, nemusí být k dispozici ve všech SSH serverech.</p>
 
 <h2>SSH klienti</h2>
 
-<p>SSH klientů je také celá řada. Kromě klasického <code>ssh</code> klienta z balíku OpenSSH vás upozorním na grafického klienta Putty, který je velmi známý zejména v prostředí MS Windows. Umí toho celou řadu a nehodí se ani zdaleka jenom k přihlašování přes SSH. Podpora SSH klíčů je samozřejmostí, i když klíče je třeba před použitím konvertovat (Putty nepodporuje klasické klíče generované v rámci OpenSSH, tedy ne přímo). Putty funguje dokonce i nativně v Linuxu, i když v Linuxu nám stačí emulátor terminálu a řádkový klient. Něco málo o klíčích v Putty se dozvíte v odkazech pod kapitolou.</p>
+<p>SSH klientů je také celá řada. Kromě klasického <code>ssh</code> klienta z balíku OpenSSH vás upozorním na grafického klienta Putty, který je velmi známý zejména v prostředí Microsoft Windows. Umí toho celou řadu a nehodí se ani zdaleka jenom k přihlašování přes SSH. Podpora SSH klíčů je samozřejmostí, i když klíče je třeba před použitím konvertovat (Putty nepodporuje klasické klíče generované v rámci OpenSSH, tedy ne přímo). Putty funguje dokonce i nativně v Linuxu, i když v Linuxu nám stačí terminál a řádkový klient. Něco málo o klíčích v Putty se dozvíte v odkazech pod kapitolou.</p>
 
-<p>Pro kopírování souborů (scp/sftp) je možné použít řádkového klienta <code>scp</code>, výše zmíněného „protokolu“ fish v KDE aplikacích nebo <code>sshfs</code>. V prostředí MS Windows lze použít grafický nástroj WinSCP, který se podobá klasickému dvoupanelovému diskovému manažeru.</p>
+<p>Pro kopírování souborů (scp/sftp) je možné použít řádkového klienta <code>scp</code>, výše zmíněných možností prostředí KDE, GNOME a Xfce nebo <code>sshfs</code>. V prostředí Microsoft Windows lze použít grafický nástroj WinSCP, který se podobá klasickému dvoupanelovému správci souborů.</p>
 
 <h2>SSH klíče</h2>
 
