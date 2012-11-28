@@ -234,7 +234,7 @@ http://spectrum.im/ Spectrum, stránky projektu
 
 <h4>Webové rozhraní a nastavení účtu správce</h4>
 
-<p>Ejabberd obsahuje jednoduché webové rozhraní pro správu a zobrazení statistik. Toto rozhraní běží na portu 5280 a vyžaduje HTTP autentikaci. Jelikož ve výchozím stavu není nastaven žádný správce, nemůžete se k němu nijak přihlásit. Za tímto účelem si vytvořte nějaký Jabber účet:</p>
+<p>Ejabberd obsahuje jednoduché webové rozhraní pro správu a zobrazení statistik. Toto rozhraní běží na portu 5280 a vyžaduje HTTP autentifikaci. Jelikož ve výchozím stavu není nastaven žádný správce, nemůžete se k němu nijak přihlásit. Za tímto účelem si vytvořte nějaký Jabber účet:</p>
 
 <pre>ejabberdctl register jméno doména.cz heslo</pre>
 
@@ -351,7 +351,7 @@ psql -W -h localhost -U uzivatel jmeno_databaze &lt; pg.sql</pre>
 
 <pre>%% {auth_method, internal}.</pre>
 
-<p>Pak odkomentujte řádku určující <code>odbc</code> jako autentikační metodu:</p>
+<p>Pak odkomentujte řádku určující <code>odbc</code> jako autentifikační metodu:</p>
 
 <pre>{auth_method, odbc}.</pre>
 

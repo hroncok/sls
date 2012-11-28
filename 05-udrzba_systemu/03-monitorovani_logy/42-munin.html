@@ -35,7 +35,7 @@ host 127.0.0.1</pre>
         Options None
 &lt;/Directory&gt;</pre>
 
-<p>Jinou možností může být HTTP autentizace a související nutnost se prokázat jménem a heslem. Z bezpečnostního hlediska je dobré takovou záležitost realizovat na virtuálním webu (virtual host) chráněném SSL a ujistit se, že na HTTP virtuálních webech je daný adresář nepřístupný.</p>
+<p>Jinou možností může být HTTP autentifikace a související nutnost se prokázat jménem a heslem. Z bezpečnostního hlediska je dobré takovou záležitost realizovat na virtuálním webu (virtual host) chráněném SSL a ujistit se, že na HTTP virtuálních webech je daný adresář nepřístupný.</p>
 
 <p>V Debianu Squeeze a Wheezy se výstupy generují do <code>/var/cache/munin/www</code> a do konfigurace Apache, pokud je nainstalovaný, je automaticky přidán konfigurační soubor <code>/etc/munin/apache.conf</code>, který tento adresář zpřístupňuje (pod aliasem <code>/munin</code>) takovým způsobem, že přístup k výstupu Muninu odjinud než z místní smyčky (localhost) je zakázán. Zde je tedy třeba povolit přístup z počítačů, odkud chcete k výstupům Muninu přistupovat.</p>
 

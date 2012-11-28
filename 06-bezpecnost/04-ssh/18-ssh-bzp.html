@@ -90,7 +90,7 @@ AllowUsers michal honza
 
 <h4>Vypnutí ověřování přístupu heslem</h4>
 
-<p>Pokud všichni administrátoři, popřípadě uživatelé, využívají k přístupu na server SSH klíče, pak není důvod, proč povolovat autentikaci heslem. Tu je pak možné z bezpečnostních důvodů vypnout úplně:</p>
+<p>Pokud všichni administrátoři, popřípadě uživatelé, využívají k přístupu na server SSH klíče, pak není důvod, proč povolovat autentifikaci heslem. Tu je pak možné z bezpečnostních důvodů vypnout úplně:</p>
 
 <pre>PasswordAuthentication no</pre>
 
@@ -315,7 +315,7 @@ iptables -A ssh -j DROP</pre>
 
 <p>Zásadní nevýhody tohoto přístupu jsou dvě. V první řadě, jakýkoliv útok na SSH vyvolá Denial of Service dané služby. Můžete specifikovat whitelist (jako v příkladu výše), takže se pořád budete moci připojit z jistých IP adres, ale pro případné klienty, kteří nejsou ve výjimkách, to znamená nemožnost se připojit. Tento přístup se tedy hodí spíše tam, kde mají k SSH přístup pouze administrátoři.</p>
 
-<p>Druhou nevýhodou je absence přehledu o úspěšnosti pokusu o přihlášení – tato pravidla počítají pouze průchozí pakety bez ohledu na to, zdali patří spojením, která se úspěšně autentikují vůči SSH serveru, nebo spojením, která nepředloží platné autentikační údaje.</p>
+<p>Druhou nevýhodou je absence přehledu o úspěšnosti pokusu o přihlášení – tato pravidla počítají pouze průchozí pakety bez ohledu na to, zdali patří spojením, která se úspěšně autentifikují vůči SSH serveru, nebo spojením, která nepředloží platné autentifikační údaje.</p>
 
 <h3>Port knocking</h3>
 

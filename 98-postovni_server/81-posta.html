@@ -141,7 +141,7 @@ Michal Do=C4=8Dekal</pre>
 
 <p>Samotné tělo obsahuje zprávu v kódování UTF-8, avšak jelikož SMTP protokol je skutečně čistě textovým protokolem, všechny netextové znaky musí být zakódovány (zde je použito „quoted-printable“). Tento postup samozřejmě zvětšuje objem přenášených dat, což je nejvíce patrné v případě přenosu binárních dat (e-mailových příloh), kde dojde v důsledku kódování ke zvýšení objemu přenášených dat přibližně o 1/3.</p>
 
-<p>Jednotlivé parametry hlavičky mailu (např. pole <code>From:</code>) obvykle nejsou kontrolovány (ono v podstatě ani není jak je důsledně zkontrolovat) a mohou obsahovat různé hodnoty (včetně nesmyslných nebo podvržených). Není tedy problém vytvořit si „falešnou identitu“. To je problémem stáří a snahy zachování zpětné kompatibility protokolu SMTP – bezpečnost (MITM útoky), soukromí (e-mail je v řadě případů posílán a vždy skladován nešifrovaný, v čisté textové podobě) nebo autentizace (možnost si ověřit, že komunikuji skutečně s tím, s kým komunikuji) nebyly brány v úvahu při jeho tvorbě. Toto do jisté míry řeší nástroje jako GnuPG či PGP, které umožňují e-maily podepisovat a šifrovat. V praxi se, alespoň v mém případě, ukazuje jako největší problém neochota komunikačních protistran podepisovat a šifrovat.</p>
+<p>Jednotlivé parametry hlavičky mailu (např. pole <code>From:</code>) obvykle nejsou kontrolovány (ono v podstatě ani není jak je důsledně zkontrolovat) a mohou obsahovat různé hodnoty (včetně nesmyslných nebo podvržených). Není tedy problém vytvořit si „falešnou identitu“. To je problémem stáří a snahy zachování zpětné kompatibility protokolu SMTP – bezpečnost (MITM útoky), soukromí (e-mail je v řadě případů posílán a vždy skladován nešifrovaný, v čisté textové podobě) nebo autentifikace (možnost si ověřit, že komunikuji skutečně s tím, s kým komunikuji) nebyly brány v úvahu při jeho tvorbě. Toto do jisté míry řeší nástroje jako GnuPG či PGP, které umožňují e-maily podepisovat a šifrovat. V praxi se, alespoň v mém případě, ukazuje jako největší problém neochota komunikačních protistran podepisovat a šifrovat.</p>
 
 <h3>MDA: Mail Delivery Agent</h3>
 
@@ -1575,7 +1575,7 @@ userdb {
 }
 </pre>
 
-<p>Tento soubor nastavuje parametry pro autentizaci. Použitý ovladač je <code>sql</code> – to je samozřejmě správně, jedná se o ovladač pro autentizaci, nikoliv pro vlastní připojení ke konkrétní databázi. Vlastní připojení k databázi jste nastavili kousek výše v souboru <code>/etc/dovecot/dovecot-sql.conf.ext</code>, a na tento soubor je zde odkazováno v parametru <code>args</code>. Ano, máte naprostou pravdu, to rozdělení konfigurace to dělá o něco komplikovanější, než to ve skutečnosti je.</p>
+<p>Tento soubor nastavuje parametry pro autentifikaci. Použitý ovladač je <code>sql</code> – to je samozřejmě správně, jedná se o ovladač pro autentifikaci, nikoliv pro vlastní připojení ke konkrétní databázi. Vlastní připojení k databázi jste nastavili kousek výše v souboru <code>/etc/dovecot/dovecot-sql.conf.ext</code>, a na tento soubor je zde odkazováno v parametru <code>args</code>. Ano, máte naprostou pravdu, to rozdělení konfigurace to dělá o něco komplikovanější, než to ve skutečnosti je.</p>
 
 <p>Výše vytvořený soubor je třeba do konfigurace Dovecotu vložit (include), což realizujete přidáním následující řádky na konec souboru <code>/etc/dovecot/conf.d/10-auth.conf</code>:</p>
 
