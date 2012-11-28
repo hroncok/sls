@@ -2,7 +2,7 @@
 
 <h3>Úvod do OpenVPN</h3>
 
-<p>OpenVPN je F/OSS nástroj dostupný snad v každé běžné linuxové distribuci, pomocí kterého je možné vytvářet šifrované tunely mezi dvěma (a více) počítači. OpenVPN může fungovat jako klient nebo jako server, podporuje řadu možností zabezpečení a má širokou škálu nastavení. Z tohoto důvodu bývá obtížné sestavit návod pro zprovoznění OpenVPN, neboť možností, co lze s OpenVPN provádět, je nepřeberně mnoho. V této knize budou prezentovány dvě alternativy, počínaje tou úplně nejjednodušší s obyčejným sdíleným klíčem a konče pokročilejším řešením s certifikáty, více uživateli a směrováním veškeré komunikace přes šifrovaný tunel.</p>
+<p>OpenVPN je open-source nástroj dostupný snad v každé běžné linuxové distribuci, pomocí kterého je možné vytvářet šifrované tunely mezi dvěma (a více) počítači. OpenVPN může fungovat jako klient nebo jako server, podporuje řadu možností zabezpečení a má širokou škálu nastavení. Z tohoto důvodu bývá obtížné sestavit návod pro zprovoznění OpenVPN, neboť možností, co lze s OpenVPN provádět, je nepřeberně mnoho. V této knize budou prezentovány dvě alternativy, počínaje tou úplně nejjednodušší s obyčejným sdíleným klíčem a konče pokročilejším řešením s certifikáty, více uživateli a směrováním veškeré komunikace přes šifrovaný tunel.</p>
 
 <p>Pokud budete chtít zprovozňovat OpenVPN na svém virtuálním serveru, předesílám, že je nutné mít k dispozici jaderný modul „tun“.</p>
 
@@ -22,18 +22,18 @@
 
 <pre>dev tun
 ifconfig 192.168.15.1 192.168.15.2
-secret klic.key</pre>
+secret /cesta/klic.key</pre>
 
 <p>Toto je nejjednodušší nastavení, ve kterém jsou zadány pouze nezbytné parametry, přičemž ostatní parametry spojení budou nastaveny dle výchozích hodnot, mj. včetně portu, který má výchozí hodnotu 1194 UDP (tento port musíte povolit na firewallu serveru, alespoň z IP adresy klienta). Parametr <code>ifconfig</code> určuje místní a vzdálenou IP adresu v rámci tunelu (v tomto pořadí). To znamená, že server bude mít v tomto tunelu IP adresu <code>192.168.15.1</code> a klient <code>192.168.15.2</code>. Všimněte si parametru <code>secret</code>, který označuje, kde má OpenVPN hledat soubor se statickým klíčem (ideální je zadat absolutní cestu ke klíči – pokud zadáte relativní cestu, musíte OpenVPN spustit ve správném adresáři, jinak soubor s klíčem nenajde).</p>
 
-<p>Parametr <code>dev</code> označuje typ zařízení pro virtuální síť. Zde máte dvě možnosti: buď zařízení typu <code>tun,</code> nebo zařízení typu <code>tap</code>. Zařízení <code>tun</code> obaluje protokol IP verze 4 nebo 6 (třetí vrstva OSI modelu), zařízení <code>tap</code> pracuje na druhé vrstvě, chová se tedy jako klasický Ethernet.</p>
+<p>Parametr <code>dev</code> označuje typ zařízení pro virtuální síť. Zde máte dvě možnosti: buď zařízení typu <code>tun,</code> nebo zařízení typu <code>tap</code>. Zařízení <code>tun</code> obaluje protokol IP verze 4 nebo 6 (třetí vrstva OSI modelu, viz odkaz pod kapitolou), zařízení <code>tap</code> pracuje na druhé vrstvě, chová se tedy jako klasický Ethernet.</p>
 
 <p>Konfigurační soubor klienta bude vypadat takto:</p>
 
 <pre>remote ip_adresa_serveru
 dev tun
 ifconfig 192.168.15.2 192.168.15.1
-secret klic.key</pre>
+secret /cesta/klic.key</pre>
 
 <p>Oproti konfiguraci serveru jsou zde dvě změny. Jednak přibyl parametr <code>remote</code>, který označuje, s jakým serverem se má OpenVPN klient spojit. Měla by zde být reálná IP adresa serveru. Druhou změnou je obrácení pořadí virtuálních IP adres u parametru <code>ifconfig</code>, neboť u klienta je situace přesně opačná, jeho místní adresa je <code>192.168.15.2</code> a IP adresa druhého počítače, tedy serveru, je <code>192.168.15.1</code>.</p>
 
@@ -149,7 +149,7 @@ cd easy-rsa/2.0</pre>
 
 <h4>Umístění jednotlivých souborů</h4>
 
-<p>Až budete mít vygenerované všechny soubory, bude potřeba je vhodně rozmístit. Obecně, soubory s příponami <code>.key</code> obsahují privátní klíče a měly by být pečlivě střeženy (doporučuji jim nastavit práva <code>400</code>), ostatní být střeženy nemusí. Přípona <code>.crt</code> označuje jednotlivé certifikáty – certifikát certifikační autority, certifikát serveru a certifikáty klientů. Diffie Hellman parametry se pak nacházejí v souboru <code>dh*.pem</code>, kde hvězdička bude odpovídat velikosti klíče – výchozí hodnota je <code>1024</code>, ale je samozřejmě možné vygenerovat větší.</p>
+<p>Až budete mít vygenerované všechny soubory, bude potřeba je vhodně rozmístit. Obecně, soubory s příponami <code>.key</code> obsahují privátní klíče a měly by být pečlivě střeženy (doporučuji jim nastavit práva <code>400</code>), ostatní být střeženy nemusí. Přípona <code>.crt</code> označuje jednotlivé certifikáty – certifikát certifikační autority, certifikát serveru a certifikáty klientů. Diffie Hellman parametry se pak nacházejí v souboru <code>dh*.pem</code>, kde hvězdička bude odpovídat velikosti klíče – výchozí hodnota je <code>1024</code>, ale je samozřejmě možné vygenerovat je větší.</p>
 
 <h5>Soubory pro klienta</h5>
 
@@ -338,3 +338,4 @@ http://www.iprint.sk/instalace-konfigurace-openvpn-serveru/ Instalace a konfigur
 http://cs.wikipedia.org/wiki/PKI Wikipedie (česky), PKI
 http://cs.wikipedia.org/wiki/OpenDNS OpenDNS
 http://code.google.com/intl/cs-CZ/speed/public-dns/ Google DNS
+http://cs.wikipedia.org/wiki/Referen%C4%8Dn%C3%AD_model_ISO/OSI Referenční model ISO/OSI, Wikipedie

@@ -6,7 +6,7 @@
 
 <p>Funkce rootkitu ale také obvykle zahrnují vytvoření zadních vrátek, tedy mechanismu, kterým může útočník získat do kompromitovaného systému pozdější přístup. Rookit také může provádět různé „šmírování“, tedy např. zaznamenávání přístupových údajů uživatelů, když se přihlašují, zaznamenávání stisků kláves atd. Kromě toho může obsahovat i nástroje na zametání stop, mazání logů a realizaci nejrůznějších typů útoků.</p>
 
-<p>Jiný druh rootkitů používá místo modifikace systémových nástrojů LKM, tedy modulů jádra, které lze za běhu systému zavést. Po zavedení příslušného modulu může rootkit skrýt svou přítomnost efektivněji, modifikací systémových volání (syscall). Tím si zajistí, že bez ohledu na použitý nástroj nebudou komponenty rootkitu vidět.</p>
+<p>Jiný druh rootkitů používá místo modifikace systémových nástrojů LKM, tedy moduly jádra, které lze za běhu systému zavést. Po zavedení příslušného modulu může rootkit skrýt svou přítomnost efektivněji, modifikací systémových volání (syscall). Tím si zajistí, že bez ohledu na použitý nástroj nebudou komponenty rootkitu vidět.</p>
 
 <p>Rootkity nejsou pouze doménou unixových systémů – existují i v systémech od společnosti Microsoft. Takové rootkity byly dokonce jednou využity společností Sony BMG jako „ochrana“ proti kopírování hudebních CD. Postiženo bylo dle Wikipedie přes sto titulů. Aby toho ještě nebylo málo, časem vyšlo najevo, že součástí „ochrany“ proti kopírování bylo i využití softwaru chráněného GNU/GPL a GNU/LGPL licencí, který byl samozřejmě využit v rozporu s licencí. Některé laptopy sužuje nebo sužoval rootkit v BIOSu, který uměl zpřístupnit NTFS oddíl a nainstalovat se do Windows po spuštění počítače. Oficiálním důvodem byla údajně snaha o možnost vystopování ukradených notebooků, bohužel za cenu kompromitace systému a možnosti jedné firmy vzdáleně ovládat kvanta počítačů (ano, tomu se obvykle říká botnet). Ale to jen tak na okraj. Jak je vidět, rootkity se mohou dostat do vašeho systému nejrůznějšími cestami, nikoliv nezbytně ze sítě. Mohou být součástí instalovaného proprietárního softwaru, ale mohou být klidně i součástí svobodného softwaru, který někdo poupraví.</p>
 
@@ -49,7 +49,7 @@
 
 <pre>Checking `bindshell'...  INFECTED (PORTS:  465)</pre>
 
-<p>Hádáte správně, na portu 465 mi běží Postfix (číslo portu odpovídá SSL variantě protokolu SMTP). Jelikož stejný port využívá i <code>bindshell</code>; <code>chkrootkit</code> považuje tento otevřený port za známku infekce, a generuje v tomto případě falešný poplach.</p>
+<p>Hádáte správně, na portu 465 mi běží Postfix (číslo portu odpovídá SSL variantě protokolu SMTP). Jelikož stejný port využívá i <code>bindshell</code>, <code>chkrootkit</code> považuje tento otevřený port za známku infekce, a generuje v tomto případě falešný poplach.</p>
 
 <p>Každý poplach, který detektory nahlásí, je vhodné prověřit, a teprve na základě vlastního úsudku (v kombinaci s použitím vyhledávače) rozhodnout, jedná-li se o planý poplach nebo o reálný průnik.</p>
 
@@ -154,7 +154,7 @@ To create this file containing all output from today's run, do (as root)
 
 <p>AIDE v Debianu je zkompilováno staticky, což znamená, že samotné binárky nevyužívají systémové knihovny. To sice útočníkovi zkomplikuje život, jelikož změnou příslušných knihoven nedojde k ovlivnění AIDE, ale není to nic, co by se nedalo překonat (rootkit upravující funkčnost jádra, úprava AIDE samotného). Budete-li tedy AIDE používat jiným než výše naznačeným ideálním způsobem, musíte počítat s tím, že chytrý útočník obejde i tento nástroj a vy se o změnách nedozvíte.</p>
 
-<p>Jelikož AIDE používá celou řadu hashovacích algoritmů pro jednotlivé soubory, jeho běh je náročný na procesor i čas. Budete-li jej pouštět ručně na běžícím serveru, zvažte úpravu jeho priority (nástroj <code>nice</code>, popř. ještě <code>ionice</code>).</p>
+<p>Jelikož AIDE používá celou řadu hashovacích algoritmů pro jednotlivé soubory, jeho běh je náročný na procesor i čas. Budete-li jej pouštět ručně na běžícím serveru, zvažte úpravu jeho priority (nástroj <code>nice</code>, popř. ještě <code>ionice</code> pro prioritu přístupu k diskům).</p>
 
 <h3>Instalace</h3>
 
@@ -162,7 +162,7 @@ To create this file containing all output from today's run, do (as root)
 
 <pre>aptitude install aide</pre>
 
-<p>Upozorňuji, že pokud byste chtěli dynamicky sestavenou binárku AIDE místo statické, budete muset nainstalovat balíček <code>aide-dynamic</code>. To ale s největší pravděpodobností asi chtít nebudete.</p>
+<p>Upozorňuji, že pokud byste chtěli dynamicky sestavenou binárku AIDE místo statické, budete muset nainstalovat balíček <code>aide-dynamic</code>. To ale s největší pravděpodobností chtít nebudete.</p>
 
 <h3>Konfigurace</h3>
 
@@ -193,7 +193,7 @@ To create this file containing all output from today's run, do (as root)
 
 <pre>echo '!/home' > /etc/aide/aide.conf.d/31_aide_skip_home</pre>
 
-<p>AIDE také prohledává cache správce balíčků Apt, což rovněž nemusí být zrovna to, co chcete. Nechcete-li, aby AIDE brala v úvahu uložené balíčky ve <code>/var/cache/apt/archives</code>, upravte soubor <code>/etc/aide/aide.settings.d/31_aide_apt_settings</code>, ve kterém nastavte proměnnou <code>IGNORE_ARCHIVES</code> na <code>"yes"</code>:</p>
+<p>AIDE také prohledává cache správce balíčků APT, což rovněž nemusí být zrovna to, co chcete. Nechcete-li, aby AIDE brala v úvahu uložené balíčky ve <code>/var/cache/apt/archives</code>, upravte soubor <code>/etc/aide/aide.settings.d/31_aide_apt_settings</code>, ve kterém nastavte proměnnou <code>IGNORE_ARCHIVES</code> na <code>"yes"</code>:</p>
 
 <h3>Inicializace databáze</h3>
 

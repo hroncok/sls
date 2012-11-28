@@ -270,3 +270,34 @@ duplicity --encrypt-key CAC193E6 /home/co scp://uzivatel@server/backup/kam</pre>
 http://rdiff-backup.nongnu.org/ Web projektu rdiff-backup
 http://duplicity.nongnu.org/ Web projektu Duplicity
 http://www.linuxexpres.cz/praxe/zalohuj-sva-data-tolikrat-kolikrat-je-mas-rad LinuxEXPRES, Zálohuj svá data tolikrát, kolikrát je máš rád
+http://www.root.cz/clanky/zaloha-dat-pomoci-rdiff-backup/ Záloha dat pomocí rdiff-backup
+http://www.junauza.com/2009/01/7-best-freeopen-source-backup-software.html 7 Best Free/Open-source Backup Software for Linux
+http://dev.mysql.com/doc/refman/5.1/en/backup-methods.html MySQL database backup methods
+http://www.howtoforge.com/back_up_mysql_dbs_without_interruptions How To Back Up MySQL Databases Without Interrupting MySQL
+http://www.postgresql.org/docs/8.1/static/backup.html PostgreSQL Backup and Restore
+
+
+TODO
+
+Vezmi tyto bloky a zaintegruj/zruš je. Informace o zálohování databází třeba v kapitole vůbec není:
+
+=====
+
+<p>Co, jak často, jakým způsobem a kam zálohovat, to si musíte určit sami (kromě dat se může hodit zálohovat i systém jako takový – ne celý, pouze jeho klíčová data, tj. adresář <code>/etc</code> s konfigurací, dále pak seznam nainstalovaných balíčků atd.). Co se týká cíle zálohování, bývá dobré zálohovat co nejdále od serveru (nejlépe na jiný server). Zálohovat můžete ale i současně na více úložišť, třeba na externí disk či diskové pole, a také na jiný server. Zálohy mají obvykle dvě podoby – plná a inkrementální (rozdílová). Plná záloha vytvoří kompletní obraz zálohovaných dat (komprimovaný či nekomprimovaný), zatímco u rozdílové se zaznamenají pouze rozdíly mezi současným stavem dat a poslední plnou či rozdílovou zálohou. Plné zálohy bývá dobré provádět tak jednou měsíčně, nebo jednou za delší období, rozdílové zálohy pak denně.</p>
+
+<p>U zálohování je klíčové pravidelně ověřovat stav a funkčnost záloh (nejlépe tak, že se pokusíte něco obnovit)! Není nic horšího, než když vám server selže, vy přijdete o data na něm, a když se podíváte na zálohy, zjistíte, že data z nich nejde obnovit, neboť vám mezi tím došlo místo a vy máte k dispozici data třeba půl roku stará (nebo vůbec žádná, protože zálohovací médium selhalo). I to je jeden z důvodů, proč je dobré zálohovat na více míst než jen na jedno.</p>
+
+<p>Při zálohování musíte dbát také na konzistenci dat. Pokud nějaký proces či uživatel s daty manipuluje, a vy zrovna budete provádět zálohu, získáte nekonzistentní data, která po obnově budou v podobném (nebo ještě horším) stavu, jako kdyby uprostřed práce vypnuli proud (a váš server nebyl na UPS). To se týká zejména databází, u kterých je třeba zálohovat data prostřednictvím databázového systému, rozhodně ne tak, že necháte databázi běžet a zazálohujete její datové soubory, když do nich databázový systém zrovna zapisuje. Možnosti jsou dvě – můžete zálohovat prostřednictvím zálohované služby, umožňuje-li získat konzistentní data, tzn. u databází můžete zálohovat pomocí databázového systému (<code>mysqldump</code>, <code>pg_dump</code> či <code>pg_dumpall</code> atd.). U služeb, které neumožňují konzistentní zálohování za běhu, vám nezbude než službu pozastavit, zazálohovat a znovu spustit (nebo službu provozovat v clusteru s replikací a zálohovat sekundární uzel po jeho odstavení atd.). Určitě si u jednotlivých služeb projděte dokumentaci, zejména pak u zálohování databází. Něco málo k tomuto tématu máte k dispozici v odkazech v závěru kapitoly.</p>
+
+=====
+
+<p>Zmíním snad jen problematiku zálohování systému jako takového. Data obvykle zálohuje skoro každý správce, tam problém nebývá. Systém jako takový už ovšem není zálohován tak často, přitom konfigurace systému i služeb bývá poměrně náročná a při případné ztrátě dat bez dostupnosti záloh systému je třeba ji provést celou znovu od začátku. Proto nebývá od věci zálohovat i systém jako takový. Samozřejmě není třeba zálohovat systém celý včetně všech souborů, zálohovat stačí pouze to podstatné, tzn. adresář <code>/etc</code> s konfigurací systému, dále pak seznam nainstalovaných balíčků a nakonec všechna data. Co se dat týče, nezapomeňte zálohovat opravdu všechna data, např. pokud používáte <code>awstats</code>, pak určitě zálohujte i samotné soubory se statistikami, které se nacházejí ve <code>/var/lib/awstats</code> (některá podobná umístění a data je snadné přehlédnout).</p>
+
+<p>Pokud budete zálohovat Debian nebo na něm založenou distribuci, budete asi chtít zálohovat spíše seznam explicitně nainstalovaných balíčků než seznam všech nainstalovaných balíčků. Pokud používáte nástroj Aptitude, pak víte, že tento nástroj si zapamatuje, co bylo nainstalováno jen jako závislost, a pokud pak odinstalujete původní balíček, Aptitude vám nabídne k odstranění i těch balíčků, které byly nainstalovány jako závislosti. To je velice užitečná funkce z hlediska údržby systému (zejména, pokud na serveru občas experimentujete). Pokud byste zálohovali seznam všech balíčků, zahrnuli byste do toho i ony závislosti a po obnově systému (nebo při jeho migraci jinam) by váš Aptitude tuto svou funkci ztratil. Naštěstí není problém nechat si vypsat explicitně nainstalované balíčky:</p>
+
+<pre>aptitude -F %p search "?and(?installed,?not(?automatic))" &gt; pkglist.txt</pre>
+
+<p>A posléze je nainstalovat do nového systému:</p>
+
+<pre>xargs aptitude --schedule-only install &lt; pkglist.txt
+aptitude install</pre>

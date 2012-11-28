@@ -22,7 +22,7 @@ iptables1.svg Schéma funkce řetězu v linuxovém paketovém filtru
 
 <h4>Základní řetězy</h4>
 
-<p>Základní vestavěné řetězy, primární řetězy, které tvoří základ fungování Netfiltru. Mezi tyto řetězy patří řetěz INPUT, řetěz FORWARD a řetěz OUTPUT. Jejich význam vám osvětlí následující obrázek:</p>
+<p>Základní vestavěné řetězy jsou primární řetězy, které tvoří základ fungování Netfiltru. Mezi tyto řetězy patří řetěz INPUT, řetěz FORWARD a řetěz OUTPUT. Jejich význam vám osvětlí následující obrázek:</p>
 
 iptables2.svg Princip funkce vestavěných řetězů
 
@@ -119,7 +119,7 @@ iptables -P FORWARD DROP</pre>
 
 <h3>Stavový firewall</h3>
 
-<p>Jedna ze stěžejních výhod Netfilteru je schopnost rozlišovat, ke kterým existujícím spojením paket patří, pokud k nějakým takovým vůbec patří, a filtrovat jej na základě této příslušnosti. Pomocí této vlastnosti je možné pravidla pro filtrování paketů vztáhnout pouze na žádosti o vytvoření nového spojení, zatímco všechny pakety náležející již vytvořeným spojením rovnou propustit.</p>
+<p>Jednou ze stěžejních výhod Netfilteru je schopnost rozlišovat, ke kterým existujícím spojením paket patří, pokud k nějakým takovým vůbec patří, a filtrovat jej na základě této příslušnosti. Pomocí této vlastnosti je možné pravidla pro filtrování paketů vztáhnout pouze na žádosti o vytvoření nového spojení, zatímco všechny pakety náležející již vytvořeným spojením rovnou propustit.</p>
 
 <p>Stavové filtrování zajišťuje modul <code>state</code>, který rozlišuje čtyři stavy:</p>
 <ul>
@@ -196,12 +196,12 @@ iptables -P FORWARD DROP</pre>
 3.  ip6tables -P FORWARD DROP
 
 4.  ip6tables -A INPUT -i lo -j ACCEPT
-5.  ip6tables -A INPUT -p ipv6-icmp -j ACCEPT
+5.  ip6tables -A INPUT -p <strong>ipv6-icmp</strong> -j ACCEPT
 6.  ip6tables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 7.  ip6tables -A INPUT -m state --state INVALID -j DROP
 8.  ip6tables -A INPUT -p tcp --dport 22 -m state --state NEW -j ACCEPT
 9.  ip6tables -A INPUT -p tcp --dport 80 -m state --state NEW -j ACCEPT
-10. ip6tables -A INPUT -j REJECT --reject-with icmp6-adm-prohibited</pre>
+10. ip6tables -A INPUT -j REJECT --reject-with <strong>icmp6-adm-prohibited</strong></pre>
 
 <h3>Jak integrovat firewall do systému</h3>
 
@@ -244,7 +244,7 @@ iptables -P FORWARD DROP</pre>
 17. iptables -A INPUT -j DROP
 </pre>
 
-<p>Příkaz na prvním řádku odstraní všechna pravidla ze všech řetězců, druhý příkaz odstraní všechny prázdné uživatelem definované řetězce. Následuje vytvoření nového řetězce s názvem <code>ssh</code>, kde je naznačen whitelist a blacklist (řádky 7 a 8), a poté následuje omezení počtu spojení na SSH (řádek 9). Poslední pravidlo v řetězci (řádek 10) zahazuje všechny pakety, které neodpoví některému z pravidel v řetězci.</p>
+<p>Příkaz na prvním řádku odstraní všechna pravidla ze všech řetězců, druhý příkaz odstraní všechny prázdné uživatelem definované řetězce. Následuje vytvoření nového řetězce s názvem <code>ssh</code> (řádek 6), kde je naznačen whitelist a blacklist (řádky 7 a 8), a poté následuje omezení počtu spojení na SSH (řádek 9). Poslední pravidlo v řetězci (řádek 10) zahazuje všechny pakety, které neodpoví některému z pravidel v řetězci.</p>
 
 <p>Na řetězec <code>ssh</code> je odkázáno na řádku 14, kde je uživatelsky    definovaný řetězec předán parametru <code>-j</code>, který určuje, co se má    s paketem vyhovujícím danému pravidlu provést. Příchozí pakety tedy v    případě takto definovaného firewallu dorazí nejprve do řetězce    <code>INPUT</code>, tedy na řádek č. 11, a teprve pakety, které vyhoví    pravidlu na řádku č. 14, budou poslány do řetězce <code>ssh</code>.</p>
 
@@ -426,7 +426,7 @@ iptables -A FORWARD -i eth1 -o eth2 -d 10.0.2.200 -p tcp --dport 8080 -j ACCEPT
 
 <pre>iptables -A FORWARD -i eth2 -o eth0 -m connlimit --connlimit-above 10 -j REJECT</pre>
 
-<p>Toto pravidlo, použité na směrovači, omezí síťový provoz z rozhraní  <code>eth2</code> na <code>eth0</code> tak, že povolí pouze 10 spojení.  Ostatní pak bude odmítat.</p>
+<p>Toto pravidlo, použité na směrovači, omezí síťový provoz z rozhraní  <code>eth2</code> na <code>eth0</code> tak, že povolí pouze deset spojení.  Ostatní pak bude odmítat.</p>
 
 <h4>Multiport</h4>
 

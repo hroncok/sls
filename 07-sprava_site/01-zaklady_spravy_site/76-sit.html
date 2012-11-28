@@ -25,7 +25,7 @@ ifconfig eth0:1 192.168.14.14 netmask 255.255.255.0</pre>
 <pre>ip addr add 192.168.12.12/24 brd + dev eth0
 ip addr add 192.168.13.13/24 brd + dev eth0</pre>
 
-<p>Problém nastane tehdy, pokud vy (nebo nějaký skript) použije některé z pokročilejších (nebo se starými nástroji nekompatibilních) funkcí nástroje <code>ip</code>. <code>ifconfig</code> vám pak může lhát nebo nasekat neplechu, když přepíše vaše nastavení. Příkladem může být i výše uvedené nastavení více IP adres jednomu rozhraní pomocí nástroje <code>ip</code>. Jelikož nástroj <code>ip</code> běžně k IP adresám aliasy nedefinuje, pak, pokud pomocí něj přiřadíte nějakému rozhraní více IP adres, <code>ifconfig</code> vám je u daného rozhraní nezobrazí:</p>
+<p>Problém nastane tehdy, pokud vy (nebo nějaký skript) použije některé z pokročilejších (nebo se starými nástroji nekompatibilních) funkcí nástroje <code>ip</code>. Starší <code>ifconfig</code> vám pak může lhát nebo nasekat neplechu, když přepíše vaše nastavení. Příkladem může být i výše uvedené nastavení více IP adres jednomu rozhraní pomocí nástroje <code>ip</code>. Jelikož nástroj <code>ip</code> běžně k IP adresám aliasy nedefinuje, pak, pokud pomocí něj přiřadíte nějakému rozhraní více IP adres, <code>ifconfig</code> vám je u daného rozhraní nezobrazí:</p>
 
 <pre>root@debian ~# ip addr add 192.168.12.12/24 brd + dev eth1
 root@debian ~# ip addr add 192.168.13.13/24 brd + dev eth1
@@ -122,7 +122,7 @@ ifconfig eth0 down</pre>
 
 <pre>ip link set dev eth0 address 11:22:33:44:55:66</pre>
 
-<p>Dalším parametrem, který můžete chtít někdy změnit, je MTU, tedy maximální velikost IP datagramu, kterou dané rozhraní zpracuje. V případě ethernetu je to nejčastěji 1500 bytů:</p>
+<p>Dalším parametrem, který můžete někdy chtít změnit, je MTU, tedy maximální velikost IP datagramu, kterou dané rozhraní zpracuje. V případě ethernetu je to nejčastěji 1500 bytů:</p>
 
 <pre>ip link set dev eth0 mtu 1500</pre>
 
@@ -196,13 +196,13 @@ ip addr add 10.0.1.2/24 dev eth0</pre>
 
 <h3>Úvod</h3>
 
-<p>Na úvod bych rád předeslal, že celý tento popis konfigurace předpokládá absenci DHCP serveru na síti. Ten vám obvykle jak přiřadí IP adresu, tak sdělí vašemu počítači, kde najde výchozí bránu i DNS servery. V oblasti nastavení serverů není DHCP příliš obvyklé (resp. ještě jsem se s ním nesetkal), a (nejen) proto je vhodné vědět, jak vše potřebné nastavit ručně.</p>
+<p>Na úvod bych rád předeslal, že celý tento popis konfigurace předpokládá absenci DHCP serveru na síti. Ten vám obvykle jak přiřadí IP adresu, tak sdělí vašemu počítači, kde najde výchozí bránu i DNS servery. V oblasti nastavení serverů není DHCP příliš obvyklé, a (nejen) proto je vhodné vědět, jak vše potřebné nastavit ručně.</p>
 
 <h3>Práce s ARP tabulkou</h3>
 
-<p>ARP protokol je určen k překladu síťové (IP) adresy na linkovou (MAC) adresu. Pokaždé, když s někým komunikujete po místní síti, se váš počítač nejprve dotáže pomocí ARP protokolu na to, které linkové adrese přísluší daná IP adresa, a té pak odešle příslušný IP datagram. Řada typů útoků v místní síti (zejména pak MITM:man-in-the-middle) jsou vedeny podvržením ARP záznamů.</p>
+<p>ARP protokol je určen k překladu síťové (IP) adresy na linkovou (MAC) adresu. Pokaždé, když s někým komunikujete po místní síti, dotáže se váš počítač nejprve pomocí ARP protokolu na to, které linkové adrese přísluší daná IP adresa, a té pak odešle příslušný IP datagram. Řada typů útoků v místní síti (zejména pak MITM: man-in-the-middle) jsou vedeny podvržením ARP záznamů.</p>
 
-<p>Vypsat si ARP tabulku je jednoduché:</p>
+<p>Vypsat ARP tabulku je jednoduché:</p>
 
 <pre>ip neigh show</pre>
 
@@ -242,7 +242,7 @@ ip addr add 10.0.1.2/24 dev eth0</pre>
 
 <pre>10.0.5.0/24 dev eth1  proto kernel  scope link  src 10.0.5.1</pre>
 
-<p>Zásadní informací pro práci v síti (zejména pak v internetu) je mít k dispozici nějaký počítač, kterému můžete poslat všechny pakety, které nenáleží žádné vám známé síti. Takový počítač (přesněji směrovač – router) se obvykle označuje jako brána (gateway). Nastavení brány, konkrétně pak výchozí brány (default gateway), můžete provést takto:</p>
+<p>Základní podmínkou pro práci v síti (zejména pak v internetu) je mít k dispozici nějaký počítač, kterému můžete poslat všechny pakety, které nenáleží žádné vám známé síti. Takový počítač (přesněji směrovač – router) se obvykle označuje jako brána (gateway). Nastavení brány, konkrétně pak výchozí brány (default gateway), můžete provést takto:</p>
 
 <pre>ip route add default via 10.0.5.254 dev eth0</pre>
 
@@ -344,7 +344,7 @@ ip route show table 102</pre>
 
 <pre>ip rule help</pre>
 
-<p>Zjistíte, že můžete směrovat pakety i podle značek firewallu, dle TOS apod. Zjistíte také, že určité pakety můžete odmítat, a to jak na úrovni směrovacích tabulek (<code>ip route</code>), tak na úrovni směrovacích pravidel (<code>ip route</code>).</p>
+<p>Zjistíte, že můžete směrovat pakety i podle značek firewallu, dle TOS apod. Zjistíte také, že určité pakety můžete odmítat, a to jak na úrovni směrovacích tabulek (<code>ip route</code>), tak na úrovni směrovacích pravidel (<code>ip rule</code>).</p>
 
 <h4>Maškaráda</h4>
 
@@ -435,12 +435,6 @@ http://linux-ip.net/html/tools-ip-rule.html ip rule
 https://en.wikipedia.org/wiki/IPv6 IPv6
 http://ipv6.com/articles/general/IPv6-Addressing.htm IPv6 Addressing
 http://lartc.org/howto/lartc.rpdb.multiple-links.html Routing for multiple uplinks/providers
-http://linux-ip.net/html/index.html Guide to IP Layer Network Administration with Linux
-http://jazstudios.blogspot.com/2007/04/iproute-commands.html Iproute commands
-http://www.linuxfoundation.org/collaborate/workgroups/networking/ Kernel networking
-http://www.policyrouting.org/iproute2.doc.html IPROUTE2 Utility Suite Howto
-http://lartc.org/howto/index.html Linux Advanced Routing & Traffic Control HOWTO
-http://web.archive.org/web/20090309011121/http://www.m4r3k.org/czech/proc-nepouzivat-ifconfig/ Marek Stopka, Proč nepoužívat ifconfig?
 http://cs.wikipedia.org/wiki/Maximum_transmission_unit Wikipedie (česky), MTU
 http://cs.wikipedia.org/wiki/Address_Resolution_Protocol Wikipedie (česky), ARP protokol
 https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers Wikipedie (anglicky), Seznam brokerů IPv6 tunelů
@@ -449,7 +443,7 @@ https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers Wikipedie (anglicky), 
 
 <p>Jako správci jste se určitě setkali s potřebou ověřit si, zda vámi nastavený firewall funguje podle vašich představ, zda jste na něco nezapomněli nebo zda jste se v něčem nespletli. Stejně tak jste možná chtěli zjistit, jaké informace mohou o vašich serverech (a službách na nich dostupných) získat případní útočníci.</p>
 
-<p>Nmap je, jak už bylo v úvodu řečeno, jeden z nejpopulárnějších nástrojů pro skenování sítí, alespoň v oblasti GNU/Linuxu. Je to velmi pokročilý nástroj, který má mnoho možností. Umí samozřejmě skenovat porty, ale také zvládne skenovat sítě (a hledat běžící počítače), dokáže detekovat nejenom běžící služby, ale i verze příslušných démonů a také verzi použitého operačního systému.</p>
+<p>Nmap je jeden z nejpopulárnějších nástrojů pro skenování sítí, alespoň v oblasti GNU/Linuxu. Je to velmi pokročilý nástroj, který má mnoho možností. Umí samozřejmě skenovat porty, ale také zvládne skenovat sítě (a hledat běžící počítače), dokáže detekovat nejenom běžící služby, ale i verze příslušných démonů a také verzi použitého operačního systému.</p>
 
 <p>Na závěr úvodu musím bezpodmínečně upozornit na to, že byste měli skenovat pouze ty počítače nebo sítě, které máte pod svou správou. V ostatních případech byste Nmap měli používat pouze se souhlasem všech dotčených subjektů (majitelé a správci příslušných počítačů nebo sítí). Skenování portů bez svolení může být detekováno a považováno za formu útoku.</p>
 
@@ -477,7 +471,7 @@ https://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers Wikipedie (anglicky), 
 
 <pre>nmap localhost</pre>
 
-<p>Přirozeně, sken zevnitř a sken zvenčí budou dávat odlišné výsledky, jelikož skenování sebe sama jde přes místní smyčku (local loopback, localhost), kde obvykle běží řada služeb, které ze sítě nemusí být vůbec dostupné. Pokud si vzpomenete na kapitolu <em>Úvod do bezpečnosti</em>{link:“Bezpečnost“:“Úvod do bezpečnosti“}, zdůrazňoval jsem možnost nakonfigurovat démony tak, aby naslouchaly pouze na místní smyčce a nikde jinde. Např. MySQL je tak (přinejmenším v Debianu) po čerstvé instalaci již nastaven. Dodám, že pro skenování sebe sama nemusí být Nmap vhodným nástrojem, osobně bych doporučil použít <code>netstat</code>:</p>
+<p>Přirozeně, sken zevnitř a sken zvenčí budou dávat odlišné výsledky, jelikož skenování sebe sama jde přes místní smyčku (local loopback, localhost), kde obvykle běží řada služeb, které ze sítě nemusí být vůbec dostupné. Pokud si vzpomenete na kapitolu <em>Úvod do bezpečnosti</em>{link:“Bezpečnost“:“Úvod do bezpečnosti“}, zdůrazňoval jsem možnost nakonfigurovat démony tak, aby naslouchaly pouze na místní smyčce a nikde jinde. Např. MySQL server je tak (přinejmenším v Debianu) po čerstvé instalaci již nastaven. Dodám, že pro skenování sebe sama nemusí být Nmap vhodným nástrojem, osobně bych doporučil použít <code>netstat</code>:</p>
 
 <pre>netstat -tulpn</pre>
 
@@ -565,7 +559,7 @@ Nmap done: 256 IP addresses (7 hosts up) scanned in 3.01 seconds</pre>
 
 <h3>Rychlost skenování</h3>
 
-<p>Jednou z podstatných voleb je rychlost skenování. Příliš velká rychlost zatíží síť i server, naopak velmi nízká slouží především k obcházení IDS (Intrusion Detection System). Nmap má k dispozici několik šablon dostupných pod volbou <code>-T</code>. Tyto šablony jsou <code>paranoid</code>, <code>sneaky</code> <code>polite</code>, <code>normal</code> (výchozí), <code>aggressive</code> a <code>insane</code>. Jsou seřazeny od nejpomalejší k nejrychlejší. První dvě jsou určené k obcházení IDS, <code>polite</code> šetří síť i cílový počítač, <code>normal</code> je výchozí volba, <code>aggressive</code> předpokládá, že mezi vámi a cílem je rychlá síť, a <code>insane</code> obětuje přesnost skenu ve snaze dosáhnout co nejvyšší rychlosti. Pokud máte tedy např. cíl v LAN, můžete použít volbu <code>aggressive</code>:</p>
+<p>Jednou z podstatných voleb je rychlost skenování. Příliš velká rychlost zatíží síť i server, naopak velmi nízká slouží především k obcházení IDS (Intrusion Detection System). Nmap má k dispozici několik šablon dostupných pod volbou <code>-T</code>. Tyto šablony jsou <code>paranoid</code>, <code>sneaky</code>, <code>polite</code>, <code>normal</code> (výchozí), <code>aggressive</code> a <code>insane</code>. Jsou seřazeny od nejpomalejší k nejrychlejší. První dvě jsou určené k obcházení IDS, <code>polite</code> šetří síť i cílový počítač, <code>normal</code> je výchozí volba, <code>aggressive</code> předpokládá, že mezi vámi a cílem je rychlá síť, a <code>insane</code> obětuje přesnost skenu ve snaze dosáhnout co nejvyšší rychlosti. Pokud máte tedy např. cíl v LAN, můžete použít volbu <code>aggressive</code>:</p>
 
 <pre>nmap -T aggressive 10.11.12.13
 
@@ -580,13 +574,13 @@ MAC Address: 52:54:00:29:69:03 (QEMU Virtual NIC)
 
 Nmap done: 1 IP address (1 host up) scanned in 0.10 seconds</pre>
 
-<p>Dodám, že místo těchto šablon je možné parametry skenování nastavovat přímo. Více o tom se dozvíte v sekci <em>TIMING AND PERFORMANCE</em> manuálu k Nmapu.</p>
+<p>Dodám, že místo těchto šablon je možné parametry skenování nastavovat přímo. Více o tom se dozvíte v sekci <code>TIMING AND PERFORMANCE</code> manuálu k Nmapu.</p>
 
 <h3>Specifikace portů ke skenování</h3>
 
-<p>Ve výchozím stavu skenuje Nmap celkem 1000 nejpoužívanějších portů. Jak jistě víte, čísla portů se pohybují v rozmezí 0–65535. Pokud tedy někdo např. přesunul SSH port z 22 na 65022, tak se o tom nedozvíte, dokud nenastavíte rozsah ručně.</p>
+<p>Ve výchozím stavu skenuje Nmap celkem tisíc nejpoužívanějších portů. Jak jistě víte, čísla portů se pohybují v rozmezí 0–65535. Pokud tedy někdo např. přesunul SSH port z 22 na 65022, tak se o tom nedozvíte, dokud nenastavíte rozsah ručně.</p>
 
-<p>Nmap nabízí celkem tři varianty specifikace portů. Pokud se vám 1000 nejpoužívanějších portů zdá moc, můžete Nmapu nařídit, aby skenoval pouze 100 nejpoužívanějších portů, a to parametrem <code>-F</code>:</p>
+<p>Nmap nabízí celkem tři varianty specifikace portů. Pokud se vám tisíc nejpoužívanějších portů zdá moc, můžete Nmapu nařídit, aby skenoval pouze sto nejpoužívanějších portů, a to parametrem <code>-F</code>:</p>
 
 <pre>nmap -F -v 10.11.12.13
 
@@ -668,11 +662,11 @@ Nmap done: 1 IP address (1 host up) scanned in 57.58 seconds</pre>
 
 <p>Jak je z příkladu výše patrné, detekce verzí mírně vylepšila výsledky skenu a nalezla otevřený UDP port 137.</p>
 
-<p>Toto jsou základní typy skenů, přičemž Nmap jich umí pochopitelně více. Tyto pokročilejší až pokročilé skenovací techniky využívají obvykle různé skuliny specifikace protokolu TCP k rozlišení otevřeného portu od zavřeného (např. TCP NULL, FIN a Xmas skeny). Bývají ještě obtížněji detekovatelné než TCP SYN sken, avšak nelze vyloučit detekci vhodně nakonfigurovaným IDS. Stejně tak nebývají jednoduché na interpretaci výsledků a nezaručují použitelné výsledky u některých síťových prvků a operačních systémů. Tyto typy skenů jsou dobře popsány v manuálu Nmapu a vzhledem k tomu, že se jedná o skutečně pokročilé techniky, pouze vás na ně odkážu.</p>
+<p>Toto jsou základní typy skenů, přičemž Nmap jich umí pochopitelně více. Tyto pokročilejší až pokročilé skenovací techniky využívají obvykle různé skuliny specifikace protokolu TCP k rozlišení otevřeného portu od zavřeného (např. TCP NULL, FIN a Xmas skeny). Bývají ještě obtížněji detekovatelné než TCP SYN sken, avšak nelze vyloučit detekci vhodně nakonfigurovaným IDS. Stejně tak nebývají jednoduché na interpretaci výsledků a nezaručují použitelné výsledky u některých síťových prvků a operačních systémů. Tyto typy skenů jsou dobře popsány v manuálu Nmapu a vzhledem k tomu, že se jedná o skutečně pokročilé techniky, pouze vás na něj odkážu.</p>
 
 <h3>Detekce verzí služeb</h3>
 
-<p>Nmap je vám schopen zjistit nejenom otevřené porty pomocí nejrůznějších technik (viz výše), ale také to, o jaké služby se jedná a které verze démonů tam běží. Tato vlastnost je nedocenitelná, i když je třeba si uvědomit, že v případě jejího použití se zbavujete výhod „stealth“ typů skenu (jelikož detekce verzí je mírně invazivní a jistě bude zaznamenána v logu daných služeb). Detekce verzí služeb funguje tak, že po zjištění všech otevřených portů Nmap pomocí databáze služeb zjišťuje, co na oněch portech běží. Představu si můžete udělat na následujícím příkladu:</p>
+<p>Nmap je schopen zjistit nejenom otevřené porty pomocí nejrůznějších technik (viz výše), ale také to, o jaké služby se jedná a které verze démonů tam běží. Tato vlastnost je nedocenitelná, i když je třeba si uvědomit, že v případě jejího použití se zbavujete výhod „stealth“ typů skenu (jelikož detekce verzí je mírně invazivní a jistě bude zaznamenána v logu daných služeb). Detekce verzí služeb funguje tak, že po zjištění všech otevřených portů Nmap pomocí databáze služeb zjišťuje, co na oněch portech běží. Představu si můžete udělat na následujícím příkladu:</p>
 
 <pre>nmap -sS 10.11.12.13
 
@@ -729,7 +723,7 @@ Nmap done: 1 IP address (1 host up) scanned in 6.00 seconds</pre>
 
 <h3>Nmap a –A</h3>
 
-<p>Poměrně zajímavou volbu tvoří <code>-A</code>, což je „šablona“ zapínající mnoho typických funkcí (detekci verzí služeb i operačního systému, traceroute a použití skriptů z kategorie „default“). Skripty jsou psané v jazyce LUA a představují možnosti rozšíření funkcionality Nmapu. Některé přibalené skripty mohou být poměrně invazivní (v kategorii „default“ by měly být zejména bezpečné skripty). Skripty umí provádět ledacos, v příkladu níže je u SSH patrné vypsání fingerprintů serverových klíčů. Více o skriptech se dozvíte v odkazech pod kapitolou.</p>
+<p>Poměrně zajímavou volbu tvoří <code>-A</code>, což je „šablona“ zapínající mnoho typických funkcí (detekci verzí služeb i operačního systému, traceroute a použití skriptů z kategorie „default“). Skripty jsou psané v jazyce Lua a představují možnosti rozšíření funkcionality Nmapu. Některé přibalené skripty mohou být poměrně invazivní (v kategorii „default“ by měly být zejména bezpečné skripty). Skripty umí provádět ledacos, v příkladu níže je u SSH patrné vypsání fingerprintů serverových klíčů. Více o skriptech se dozvíte v odkazech pod kapitolou.</p>
 
 <p>Výstup Nmapu s použitím volby <code>-A</code> může vypadat takto:</p>
 
@@ -758,6 +752,6 @@ Nmap done: 1 IP address (1 host up) scanned in 16.05 seconds</pre>
 
 <p>Nmap je velmi schopný síťový skener, který můžete použít nejenom v GNU/Linuxu a unixových operačních systémech, ale také třeba na Windows. Můžete jej používat v příkazové řádce i pomocí grafického rozhraní, které umí např. kompletovat výsledky z více skenů, popřípadě vizualizovat skenovanou síť. Alespoň základní zacházení s Nmapem patří k základům schopností správců serverů i sítí.</p>
 
-<p>Při používání Nmapu je vhodná opatrnost a dobrá představa o tom, čemu vlastně svůj cíl vystavíte. Nmap umožňuje provádět celkem invazivní operace, které mohou za určitých okolností způsobit problémy. Dobrá představa o tom, co Nmap vlastně provádí, je také nutná ke správné interpretaci výsledků. Rozhodně není vhodné spoléhat na to, že to, co Nmap napíše, vždy na sto procent platí. Je třeba vědět, odkud se ta informace vzala a jak byla získána. Kupříkladu, bez detekce verzí se služba na portu identifikuje dle záznamu v <code>/etc/services</code>, což samozřejmě nemusí odpovídat, jak bylo výše demonstrováno. Určitě tedy doporučuji experimentování (ve vlastní síti) a studium dokumentace k Nmapu. A tím bych problematiku Nmapu ukončil.</p>
+<p>Při používání Nmapu je vhodná opatrnost a dobrá představa o tom, čemu vlastně svůj cíl vystavíte. Nmap umožňuje provádět celkem invazivní operace, které mohou za určitých okolností způsobit problémy. Dobrá představa o tom, co Nmap vlastně provádí, je také nutná ke správné interpretaci výsledků. Rozhodně není vhodné spoléhat na to, že to, co Nmap napíše, vždy na sto procent platí. Je třeba vědět, odkud se ta informace vzala a jak byla získána. Kupříkladu, bez detekce verzí se služba na portu identifikuje dle záznamu v <code>/etc/services</code>, což samozřejmě nemusí odpovídat, jak bylo výše demonstrováno. Určitě tedy doporučuji experimentování (ve vlastní síti) a studium dokumentace k Nmapu.</p>
 
 http://nmap.org/book/nse-usage.html#nse-categories Nmap a skripty
